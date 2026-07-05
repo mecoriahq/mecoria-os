@@ -1,0 +1,63 @@
+# =========================================
+# Mecoria OS
+# Git Ignore
+# =========================================
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Python Cache
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Secrets
+secrets/
+credentials.json
+*.pem
+*.key
+
+# Node
+node_modules/
+
+# Docker
+*.pid
+
+# Misc
+.cache/
