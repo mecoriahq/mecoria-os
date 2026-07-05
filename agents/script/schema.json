@@ -1,0 +1,131 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "source",
+    "script"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "script"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "agent",
+        "version",
+        "idea_title"
+      ],
+      "properties": {
+        "agent": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "idea_title": {
+          "type": "string"
+        }
+      }
+    },
+    "script": {
+      "type": "object",
+      "required": [
+        "title",
+        "format",
+        "estimated_duration",
+        "hook",
+        "introduction",
+        "main_sections",
+        "conclusion",
+        "call_to_action"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "estimated_duration": {
+          "type": "string"
+        },
+        "hook": {
+          "type": "object",
+          "required": [
+            "narration"
+          ],
+          "properties": {
+            "narration": {
+              "type": "string"
+            }
+          }
+        },
+        "introduction": {
+          "type": "object",
+          "required": [
+            "narration"
+          ],
+          "properties": {
+            "narration": {
+              "type": "string"
+            }
+          }
+        },
+        "main_sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "title",
+              "narration",
+              "visual_direction"
+            ],
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "narration": {
+                "type": "string"
+              },
+              "visual_direction": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "conclusion": {
+          "type": "object",
+          "required": [
+            "narration"
+          ],
+          "properties": {
+            "narration": {
+              "type": "string"
+            }
+          }
+        },
+        "call_to_action": {
+          "type": "object",
+          "required": [
+            "narration"
+          ],
+          "properties": {
+            "narration": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

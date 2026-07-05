@@ -1,0 +1,31 @@
+name: script
+
+version: "1.0"
+
+enabled: true
+
+description: >
+  Generates long-form YouTube scripts from validated research output.
+
+input:
+  source: agents/research/output
+  file: latest.json
+
+output:
+  source: agents/script/output
+  latest: latest.json
+  archive: archive/
+
+model:
+  provider: openai
+  name: gpt-5.5
+
+settings:
+  temperature: 0.7
+  max_tokens: 8000
+
+logging:
+  enabled: true
+
+archive:
+  enabled: true
