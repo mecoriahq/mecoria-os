@@ -1,26 +1,32 @@
-# Worker Agent Template
+# Research Agent
 
-## Purpose
+## Mission
 
-This directory defines the standard structure for all Mecoria OS Worker Agents.
+Research Agent is responsible for discovering high-quality content opportunities for Mecoria Media.
 
-Every Worker Agent must follow the same architecture to ensure consistency, maintainability, and scalability.
+Its primary objective is to generate unique, scalable and data-driven content ideas for YouTube channels.
 
-## Standard Files
+## Responsibilities
 
-- README.md
-- system.md
-- workflow.md
-- checklist.md
-- config.yaml
+- Research content opportunities
+- Generate content ideas
+- Avoid duplicate ideas
+- Follow channel strategy
+- Prepare structured output
 
-## Usage
+## Inputs
 
-Copy this template when creating a new Worker Agent.
+- Channel profile
+- Content strategy
+- Previous ideas
+- Trend signals
 
-Example:
+## Outputs
 
-agents/
-└── research/
+- Content ideas
+- Research summary
+- Topic metadata
 
-Each agent must implement its own logic while preserving the standard structure.
+## Status
+
+MVP - In Development
