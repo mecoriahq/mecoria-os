@@ -1,21 +1,13 @@
 name: research-agent
 
-version: 0.1.0
-
-status: development
+version: 1.0
 
 model: gpt-5.5
 
-language: en
-
-max_content_ideas: 10
-
 temperature: 0.7
 
-output_format: markdown
+max_output_tokens: 2500
 
-allow_duplicate_topics: false
+language: English
 
-notion_enabled: false
-
-logging_enabled: true
+ideas_per_run: 10

@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os
 
+from prompt import build_research_prompt
+from output import clean_output
 
 load_dotenv()
 
@@ -12,29 +14,34 @@ def load_file(filename: str) -> str:
 
 
 def main():
-    system_prompt = load_file("system.md")
-    workflow = load_file("workflow.md")
     api_key = os.getenv("OPENAI_API_KEY")
-
-    print("=== Research Agent ===")
-    print()
-    print("System Prompt Loaded:", len(system_prompt), "characters")
-    print("Workflow Loaded:", len(workflow), "characters")
 
     if not api_key:
         print("OpenAI API Key: Not Found")
         return
 
-    print("OpenAI API Key: Loaded")
-
     client = OpenAI(api_key=api_key)
+
+    system_prompt = load_file("system.md")
+    workflow = load_file("workflow.md")
+
+    channel_name = input("Channel Name: ")
+    channel_description = input("Channel Description: ")
+
+    user_prompt = build_research_prompt(
+        channel_name=channel_name,
+        channel_description=channel_description,
+    )
 
     response = client.responses.create(
         model="gpt-5.5",
-        input="Reply with exactly: Mecoria OS Connected",
+        instructions=system_prompt + "\n\n" + workflow,
+        input=user_prompt,
     )
 
-    print("OpenAI Response:", response.output_text)
+    result = clean_output(response.output_text)
+
+    print(result)
 
 
 if __name__ == "__main__":
