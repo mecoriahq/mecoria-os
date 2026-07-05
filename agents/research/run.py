@@ -4,7 +4,8 @@ from openai import OpenAI
 import os
 
 from prompt import build_research_prompt
-from output import clean_output
+from output import build_output
+
 
 load_dotenv()
 
@@ -39,7 +40,12 @@ def main():
         input=user_prompt,
     )
 
-    result = clean_output(response.output_text)
+    ideas = response.output_text
+
+    result = build_output(
+        channel_name=channel_name,
+        response_text=ideas,
+    )
 
     print(result)
 

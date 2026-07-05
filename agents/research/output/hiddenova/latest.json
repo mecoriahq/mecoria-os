@@ -1,0 +1,87 @@
+{
+    "agent": "research",
+    "version": "1.0",
+    "channel": "Hiddenova",
+    "ideas": [
+        {
+            "id": 1,
+            "title": "The Secret Logistics Empire That Moves the World While You Sleep",
+            "summary": "A documentary-style breakdown of the invisible overnight logistics networks that keep supermarkets, hospitals, airports, and online shopping running.",
+            "target_audience": "Viewers interested in hidden systems, business operations, supply chains, and real-world documentaries.",
+            "potential": "It reveals a massive everyday system most people rely on but rarely understand, making it highly clickable and evergreen.",
+            "difficulty": "Medium"
+        },
+        {
+            "id": 2,
+            "title": "Why Some Companies Stay Hidden on Purpose and Still Make Billions",
+            "summary": "An exploration of low-profile private companies that avoid fame while dominating essential industries behind the scenes.",
+            "target_audience": "Business-curious viewers, entrepreneurs, investors, and fans of unusual company stories.",
+            "potential": "Hidden billionaire businesses create curiosity, offer strong storytelling, and fit perfectly with faceless business-documentary content.",
+            "difficulty": "Medium"
+        },
+        {
+            "id": 3,
+            "title": "The Abandoned Scientific Experiments Still Affecting Us Today",
+            "summary": "A look at discontinued or forgotten scientific projects whose discoveries, mistakes, or side effects continue to influence modern life.",
+            "target_audience": "Science enthusiasts, mystery viewers, documentary fans, and curious general audiences.",
+            "potential": "Combines science, mystery, and historical consequences, giving the topic strong retention and broad appeal.",
+            "difficulty": "Hard"
+        },
+        {
+            "id": 4,
+            "title": "The Strange Business of Buying and Selling Human Attention",
+            "summary": "A deep dive into how modern companies compete to capture, measure, package, and monetize human attention across digital platforms.",
+            "target_audience": "Viewers interested in technology, media, psychology, entrepreneurship, and the attention economy.",
+            "potential": "The topic is highly relevant, evergreen, and connects everyday habits to a massive hidden business model.",
+            "difficulty": "Medium"
+        },
+        {
+            "id": 5,
+            "title": "How One Tiny Component Can Shut Down an Entire Industry",
+            "summary": "A documentary about how small, overlooked parts like chips, sensors, or specialized materials can create global bottlenecks when supply breaks.",
+            "target_audience": "Business, technology, manufacturing, and global economy audiences.",
+            "potential": "It turns a complex supply-chain concept into a dramatic story about fragility, dependence, and hidden industrial power.",
+            "difficulty": "Medium"
+        },
+        {
+            "id": 6,
+            "title": "The Hidden Economy Beneath Major Cities",
+            "summary": "An investigation into the underground infrastructure, service tunnels, storage networks, utilities, and unseen labor that keep large cities alive.",
+            "target_audience": "Urban exploration fans, documentary viewers, engineering enthusiasts, and mystery audiences.",
+            "potential": "Underground city systems are visually compelling, mysterious, and naturally suited to high-retention faceless storytelling.",
+            "difficulty": "Hard"
+        },
+        {
+            "id": 7,
+            "title": "Why the World's Most Valuable Data Is Often Invisible",
+            "summary": "A video explaining how companies collect and profit from obscure data sources such as shipping signals, satellite imagery, foot traffic, and weather patterns.",
+            "target_audience": "Tech viewers, business audiences, privacy-conscious viewers, and people interested in hidden markets.",
+            "potential": "Data monetization is a powerful modern mystery with strong relevance to business, surveillance, and competitive advantage.",
+            "difficulty": "Hard"
+        },
+        {
+            "id": 8,
+            "title": "The Companies That Make Money When Everything Goes Wrong",
+            "summary": "A look at businesses that profit from disasters, breakdowns, recalls, lawsuits, insurance claims, and emergency demand.",
+            "target_audience": "Business documentary fans, entrepreneurs, economics viewers, and viewers interested in unusual industries.",
+            "potential": "The moral tension and counterintuitive business models create a compelling hook with strong discussion potential.",
+            "difficulty": "Medium"
+        },
+        {
+            "id": 9,
+            "title": "The Mystery of Products That Never Seem to Disappear",
+            "summary": "An analysis of old-fashioned products that survive for decades because of habit, regulation, niche demand, or hidden industrial uses.",
+            "target_audience": "General curiosity viewers, business history fans, nostalgia audiences, and entrepreneurship viewers.",
+            "potential": "Familiar products with surprising reasons for survival offer an accessible, evergreen, and highly shareable format.",
+            "difficulty": "Easy"
+        },
+        {
+            "id": 10,
+            "title": "How Scientists Detect Things No Human Can See",
+            "summary": "A science documentary explaining the tools and methods used to detect invisible forces, particles, signals, and phenomena in the universe.",
+            "target_audience": "Science fans, space viewers, mystery audiences, and educational documentary watchers.",
+            "potential": "Invisible science has strong wonder-driven appeal and allows for visually engaging storytelling around discoveries and mysteries.",
+            "difficulty": "Hard"
+        }
+    ]
+}
