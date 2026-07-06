@@ -1,0 +1,78 @@
+{
+  "type": "object",
+  "required": ["agent", "version", "channel", "revision_reason", "providers", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "image_revision"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "revision_reason": {
+      "type": "string"
+    },
+    "providers": {
+      "type": "object",
+      "required": ["openai", "flux", "midjourney"],
+      "properties": {
+        "openai": {
+          "type": "object",
+          "required": ["model", "prompt", "size", "quality", "style"],
+          "properties": {
+            "model": { "type": "string" },
+            "prompt": { "type": "string" },
+            "size": {
+              "type": "string",
+              "enum": ["1024x1024", "1536x1024", "1024x1536"]
+            },
+            "quality": { "type": "string" },
+            "style": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "flux": {
+          "type": "object",
+          "required": ["model", "prompt", "negative_prompt"],
+          "properties": {
+            "model": { "type": "string" },
+            "prompt": { "type": "string" },
+            "negative_prompt": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "midjourney": {
+          "type": "object",
+          "required": ["model", "prompt", "aspect_ratio", "stylize"],
+          "properties": {
+            "model": { "type": "string" },
+            "prompt": { "type": "string" },
+            "aspect_ratio": { "type": "string" },
+            "stylize": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source_agents", "next_agent"],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "next_agent": {
+          "type": "string",
+          "const": "image_generation"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "required": ["version", "channel", "pipeline", "current_attempt", "max_attempts", "status", "history", "next_agent"],
+  "properties": {
+    "version": { "type": "string" },
+    "channel": { "type": "string" },
+    "pipeline": { "type": "string" },
+    "current_attempt": { "type": "integer", "minimum": 1 },
+    "max_attempts": { "type": "integer", "minimum": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["running", "approved", "rejected", "human_review"]
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["attempt", "agent", "status", "score", "next_agent"],
+        "properties": {
+          "attempt": { "type": "integer" },
+          "agent": { "type": "string" },
+          "status": { "type": "string" },
+          "score": { "type": ["integer", "null"] },
+          "next_agent": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "next_agent": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

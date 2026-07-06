@@ -1,0 +1,156 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "overall_score",
+    "technical_checks",
+    "visual_checks",
+    "issues",
+    "recommendations",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "image_qa"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["approved", "rejected"]
+    },
+    "overall_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "technical_checks": {
+      "type": "object",
+      "required": [
+        "file_exists",
+        "file_readable",
+        "format_valid",
+        "size_valid"
+      ],
+      "properties": {
+        "file_exists": { "$ref": "#/$defs/check_result" },
+        "file_readable": { "$ref": "#/$defs/check_result" },
+        "format_valid": { "$ref": "#/$defs/check_result" },
+        "size_valid": { "$ref": "#/$defs/check_result" }
+      },
+      "additionalProperties": false
+    },
+    "visual_checks": {
+      "type": "object",
+      "required": [
+        "subject_visibility",
+        "composition_quality",
+        "lighting_quality",
+        "text_absence",
+        "logo_absence",
+        "standard_alignment"
+      ],
+      "properties": {
+        "subject_visibility": { "$ref": "#/$defs/check_result" },
+        "composition_quality": { "$ref": "#/$defs/check_result" },
+        "lighting_quality": { "$ref": "#/$defs/check_result" },
+        "text_absence": { "$ref": "#/$defs/check_result" },
+        "logo_absence": { "$ref": "#/$defs/check_result" },
+        "standard_alignment": { "$ref": "#/$defs/check_result" }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/recommendation" }
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "agent",
+        "image_path"
+      ],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "const": "image_generation"
+        },
+        "image_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "next_agent"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "next_agent": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "check_result": {
+      "type": "object",
+      "required": ["status", "score"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "warning", "fail"]
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "issue": {
+      "type": "object",
+      "required": ["field", "severity", "message"],
+      "properties": {
+        "field": { "type": "string" },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "recommendation": {
+      "type": "object",
+      "required": ["field", "suggestion"],
+      "properties": {
+        "field": { "type": "string" },
+        "suggestion": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
