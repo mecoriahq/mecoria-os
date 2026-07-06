@@ -1,0 +1,121 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "platform",
+    "source",
+    "seo"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "seo"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "const": "youtube"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "agent",
+        "version",
+        "script_title"
+      ],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "const": "script"
+        },
+        "version": {
+          "type": "string"
+        },
+        "script_title": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "seo": {
+      "type": "object",
+      "required": [
+        "video_title",
+        "description",
+        "tags",
+        "keywords",
+        "hashtags",
+        "thumbnail_text",
+        "seo_score"
+      ],
+      "properties": {
+        "video_title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 20,
+          "items": {
+            "type": "string"
+          }
+        },
+        "keywords": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 15,
+          "items": {
+            "type": "string"
+          }
+        },
+        "hashtags": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": {
+            "type": "string"
+          }
+        },
+        "thumbnail_text": {
+          "type": "string"
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "time",
+              "title"
+            ],
+            "properties": {
+              "time": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "seo_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
