@@ -1,0 +1,157 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "overall_score",
+    "checks",
+    "issues",
+    "recommendations",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "qa"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["approved", "rejected"]
+    },
+    "overall_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "checks": {
+      "type": "object",
+      "required": [
+        "script_quality",
+        "seo_alignment",
+        "title_quality",
+        "description_quality",
+        "tags_quality",
+        "thumbnail_text_quality"
+      ],
+      "properties": {
+        "script_quality": {
+          "$ref": "#/$defs/check_result"
+        },
+        "seo_alignment": {
+          "$ref": "#/$defs/check_result"
+        },
+        "title_quality": {
+          "$ref": "#/$defs/check_result"
+        },
+        "description_quality": {
+          "$ref": "#/$defs/check_result"
+        },
+        "tags_quality": {
+          "$ref": "#/$defs/check_result"
+        },
+        "thumbnail_text_quality": {
+          "$ref": "#/$defs/check_result"
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recommendation"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "next_agent"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_agent": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "check_result": {
+      "type": "object",
+      "required": [
+        "status",
+        "score"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "warning", "fail"]
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "issue": {
+      "type": "object",
+      "required": [
+        "field",
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "recommendation": {
+      "type": "object",
+      "required": [
+        "field",
+        "suggestion"
+      ],
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "suggestion": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
