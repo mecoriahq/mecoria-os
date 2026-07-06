@@ -1,0 +1,130 @@
+{
+  "type": "object",
+  "required": ["agent", "version", "channel", "visual_brief", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "visual_brief"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "visual_brief": {
+      "type": "object",
+      "required": [
+        "objective",
+        "target_emotion",
+        "audience",
+        "story_moment",
+        "headline_candidates",
+        "subject",
+        "background",
+        "composition",
+        "lighting",
+        "color",
+        "constraints"
+      ],
+      "properties": {
+        "objective": { "type": "string" },
+        "target_emotion": { "type": "string" },
+        "audience": { "type": "string" },
+        "story_moment": { "type": "string" },
+        "headline_candidates": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": { "type": "string" }
+        },
+        "subject": {
+          "type": "object",
+          "required": ["description", "style", "details"],
+          "properties": {
+            "description": { "type": "string" },
+            "style": { "type": "string" },
+            "details": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "background": {
+          "type": "object",
+          "required": ["description", "environment", "depth"],
+          "properties": {
+            "description": { "type": "string" },
+            "environment": { "type": "string" },
+            "depth": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "composition": {
+          "type": "object",
+          "required": ["layout", "camera_angle", "framing", "visual_focus"],
+          "properties": {
+            "layout": { "type": "string" },
+            "camera_angle": { "type": "string" },
+            "framing": { "type": "string" },
+            "visual_focus": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "lighting": {
+          "type": "object",
+          "required": ["style", "direction", "contrast"],
+          "properties": {
+            "style": { "type": "string" },
+            "direction": { "type": "string" },
+            "contrast": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "color": {
+          "type": "object",
+          "required": ["palette", "accent"],
+          "properties": {
+            "palette": { "type": "string" },
+            "accent": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "constraints": {
+          "type": "object",
+          "required": ["avoid", "must_include"],
+          "properties": {
+            "avoid": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 6,
+              "items": { "type": "string" }
+            },
+            "must_include": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 6,
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source_agents", "next_agent"],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "next_agent": {
+          "type": "string",
+          "const": "image_prompt"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
