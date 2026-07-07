@@ -5,7 +5,6 @@ from jsonschema import validate
 
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
 STATE_DIR = BASE_DIR / "state"
 
 
@@ -44,14 +43,8 @@ def load_or_create_context(channel: str, pipeline: str, max_attempts: int = 3) -
     if context_path.exists():
         return load_json(context_path)
 
-    context = create_context(
-        channel=channel,
-        pipeline=pipeline,
-        max_attempts=max_attempts
-    )
-
+    context = create_context(channel=channel, pipeline=pipeline, max_attempts=max_attempts)
     save_context(context)
-
     return context
 
 
@@ -72,23 +65,30 @@ def save_context(context: dict) -> Path:
     return context_path
 
 
-def add_history(
+def upsert_history(
     context: dict,
     agent: str,
     status: str,
     score: int | None,
     next_agent: str | None
 ) -> dict:
-    context["history"].append(
-        {
-            "attempt": context["current_attempt"],
-            "agent": agent,
-            "status": status,
-            "score": score,
-            "next_agent": next_agent
-        }
-    )
+    entry = {
+        "attempt": context["current_attempt"],
+        "agent": agent,
+        "status": status,
+        "score": score,
+        "next_agent": next_agent
+    }
 
+    for index, existing_entry in enumerate(context["history"]):
+        if (
+            existing_entry["attempt"] == context["current_attempt"]
+            and existing_entry["agent"] == agent
+        ):
+            context["history"][index] = entry
+            return context
+
+    context["history"].append(entry)
     return context
 
 
@@ -100,7 +100,7 @@ def apply_image_qa_result(context: dict, image_qa_data: dict) -> dict:
         context["status"] = "approved"
         context["next_agent"] = "publisher"
 
-        return add_history(
+        return upsert_history(
             context=context,
             agent="image_qa",
             status=status,
@@ -112,7 +112,7 @@ def apply_image_qa_result(context: dict, image_qa_data: dict) -> dict:
         context["status"] = "human_review"
         context["next_agent"] = None
 
-        return add_history(
+        return upsert_history(
             context=context,
             agent="image_qa",
             status=status,
@@ -121,10 +121,9 @@ def apply_image_qa_result(context: dict, image_qa_data: dict) -> dict:
         )
 
     context["status"] = "running"
-    context["current_attempt"] += 1
     context["next_agent"] = "image_revision"
 
-    return add_history(
+    result = upsert_history(
         context=context,
         agent="image_qa",
         status=status,
@@ -132,12 +131,15 @@ def apply_image_qa_result(context: dict, image_qa_data: dict) -> dict:
         next_agent="image_revision"
     )
 
+    context["current_attempt"] += 1
+    return result
+
 
 def apply_image_revision_created(context: dict) -> dict:
     context["status"] = "running"
     context["next_agent"] = "image_generation"
 
-    return add_history(
+    return upsert_history(
         context=context,
         agent="image_revision",
         status="created",
