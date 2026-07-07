@@ -1,5 +1,6 @@
 import argparse
 import json
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -66,6 +67,16 @@ PIPELINE_STEPS = [
 ]
 
 
+SAFE_EXECUTE_STEPS = {
+    "research",
+    "script",
+    "seo",
+    "qa",
+    "visual_brief",
+    "image_prompt"
+}
+
+
 def load_json(file_path: Path) -> dict:
     if not file_path.exists():
         raise FileNotFoundError(f"Required file not found: {file_path}")
@@ -81,20 +92,71 @@ def now_iso() -> str:
     return datetime.now().isoformat(timespec="seconds")
 
 
-def build_dry_run_step(step: dict) -> dict:
+def create_step(step: dict) -> dict:
     return {
         "name": step["name"],
         "command": step["command"],
-        "status": "skipped",
+        "status": "pending",
         "started_at": None,
         "finished_at": None,
         "error": None
     }
 
 
+def mark_skipped(step: dict, reason: str | None = None) -> dict:
+    step["status"] = "skipped"
+    step["started_at"] = None
+    step["finished_at"] = None
+    step["error"] = reason
+    return step
+
+
+def run_step(step: dict, timeout_seconds: int) -> dict:
+    step["status"] = "running"
+    step["started_at"] = now_iso()
+
+    print(f"\n▶ Running step: {step['name']}", flush=True)
+    print(f"  Command: {step['command']}", flush=True)
+
+    try:
+        result = subprocess.run(
+            step["command"],
+            cwd=PROJECT_ROOT,
+            shell=True,
+            timeout=timeout_seconds
+        )
+    except subprocess.TimeoutExpired:
+        step["finished_at"] = now_iso()
+        step["status"] = "failed"
+        step["error"] = f"Step timed out after {timeout_seconds} seconds."
+        print(f"✗ Failed: {step['name']} timed out.", flush=True)
+        return step
+
+    step["finished_at"] = now_iso()
+
+    if result.returncode != 0:
+        step["status"] = "failed"
+        step["error"] = f"Step failed with exit code {result.returncode}."
+        print(f"✗ Failed: {step['name']}", flush=True)
+        return step
+
+    step["status"] = "success"
+    step["error"] = None
+    print(f"✓ Completed: {step['name']}", flush=True)
+    return step
+
+
 def build_dry_run_output(channel: str) -> dict:
     started_at = now_iso()
-    steps = [build_dry_run_step(step) for step in PIPELINE_STEPS]
+
+    steps = [
+        mark_skipped(
+            create_step(step),
+            reason="Dry-run mode. Step was not executed."
+        )
+        for step in PIPELINE_STEPS
+    ]
+
     finished_at = now_iso()
 
     return {
@@ -114,15 +176,102 @@ def build_dry_run_output(channel: str) -> dict:
     }
 
 
+def build_execute_output(channel: str, until_step: str, timeout_seconds: int) -> dict:
+    started_at = now_iso()
+    steps = [create_step(step) for step in PIPELINE_STEPS]
+
+    pipeline_status = "success"
+    final_agent = None
+    failure_found = False
+    stop_after_current = False
+
+    for step in steps:
+        if failure_found:
+            mark_skipped(
+                step,
+                reason="Skipped because a previous step failed."
+            )
+            continue
+
+        if stop_after_current:
+            mark_skipped(
+                step,
+                reason=f"Skipped because --until {until_step} was reached."
+            )
+            continue
+
+        if step["name"] not in SAFE_EXECUTE_STEPS:
+            mark_skipped(
+                step,
+                reason="Skipped by safe execute mode. Image generation is not enabled in this version."
+            )
+            continue
+
+        run_step(
+            step=step,
+            timeout_seconds=timeout_seconds
+        )
+
+        if step["status"] == "failed":
+            pipeline_status = "failed"
+            failure_found = True
+        elif step["status"] == "success":
+            final_agent = step["name"]
+
+        if step["name"] == until_step:
+            stop_after_current = True
+
+    finished_at = now_iso()
+
+    successful_steps = sum(1 for step in steps if step["status"] == "success")
+    failed_steps = sum(1 for step in steps if step["status"] == "failed")
+
+    return {
+        "pipeline": "media",
+        "version": "1.0",
+        "channel": channel,
+        "status": pipeline_status,
+        "started_at": started_at,
+        "finished_at": finished_at,
+        "steps": steps,
+        "summary": {
+            "total_steps": len(steps),
+            "successful_steps": successful_steps,
+            "failed_steps": failed_steps,
+            "final_agent": final_agent
+        }
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run Mecoria Media pipeline dry-run."
+        description="Run Mecoria Media pipeline."
     )
 
     parser.add_argument(
         "--channel",
         default="hiddenova",
         help="Channel name. Default: hiddenova"
+    )
+
+    parser.add_argument(
+        "--execute",
+        action="store_true",
+        help="Run safe pipeline steps. By default, only dry-run is executed."
+    )
+
+    parser.add_argument(
+        "--until",
+        default="image_prompt",
+        choices=[step["name"] for step in PIPELINE_STEPS],
+        help="Stop execution after this step. Default: image_prompt"
+    )
+
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=600,
+        help="Timeout per step in seconds. Default: 600"
     )
 
     return parser.parse_args()
@@ -132,7 +281,14 @@ def main() -> None:
     args = parse_args()
     channel = args.channel
 
-    pipeline_output = build_dry_run_output(channel=channel)
+    if args.execute:
+        pipeline_output = build_execute_output(
+            channel=channel,
+            until_step=args.until,
+            timeout_seconds=args.timeout
+        )
+    else:
+        pipeline_output = build_dry_run_output(channel=channel)
 
     schema = load_schema()
     validate(instance=pipeline_output, schema=schema)
@@ -142,7 +298,11 @@ def main() -> None:
         data=pipeline_output
     )
 
-    print("Media Pipeline dry-run completed successfully.")
+    if args.execute:
+        print("\nMedia Pipeline safe execute completed.")
+    else:
+        print("Media Pipeline dry-run completed successfully.")
+
     print(f"Output saved to: {latest_path}")
 
 
