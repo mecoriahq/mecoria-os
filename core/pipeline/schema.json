@@ -1,0 +1,119 @@
+{
+  "type": "object",
+  "required": [
+    "pipeline",
+    "version",
+    "channel",
+    "status",
+    "started_at",
+    "finished_at",
+    "steps",
+    "summary"
+  ],
+  "properties": {
+    "pipeline": {
+      "type": "string",
+      "const": "media"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "blocked",
+        "dry_run"
+      ]
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "finished_at": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "command",
+          "status",
+          "started_at",
+          "finished_at",
+          "error"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "running",
+              "success",
+              "failed",
+              "skipped"
+            ]
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_steps",
+        "successful_steps",
+        "failed_steps",
+        "final_agent"
+      ],
+      "properties": {
+        "total_steps": {
+          "type": "integer"
+        },
+        "successful_steps": {
+          "type": "integer"
+        },
+        "failed_steps": {
+          "type": "integer"
+        },
+        "final_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
