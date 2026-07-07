@@ -1,0 +1,7 @@
+channel: hiddenova
+platform: youtube
+language: en
+model: gpt-5.5
+temperature: 0.4
+version: "1.0"
+default_provider: openai
