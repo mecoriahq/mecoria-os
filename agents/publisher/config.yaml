@@ -1,0 +1,6 @@
+channel: hiddenova
+platform: youtube
+language: en
+version: "1.0"
+requires_image_qa_approved: true
+requires_execution_context_publisher: true

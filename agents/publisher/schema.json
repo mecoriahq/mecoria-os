@@ -1,0 +1,197 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "platform",
+    "status",
+    "publishing_package",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "publisher"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "const": "youtube"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "metadata_ready",
+        "blocked"
+      ]
+    },
+    "publishing_package": {
+      "type": "object",
+      "required": [
+        "video_metadata",
+        "assets",
+        "readiness"
+      ],
+      "properties": {
+        "video_metadata": {
+          "type": "object",
+          "required": [
+            "title",
+            "description",
+            "tags",
+            "hashtags",
+            "chapters"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hashtags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "chapters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "time",
+                  "title"
+                ],
+                "properties": {
+                  "time": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "assets": {
+          "type": "object",
+          "required": [
+            "script_reference",
+            "seo_reference",
+            "thumbnail_image_path",
+            "video_file_path"
+          ],
+          "properties": {
+            "script_reference": {
+              "type": "string"
+            },
+            "seo_reference": {
+              "type": "string"
+            },
+            "thumbnail_image_path": {
+              "type": "string"
+            },
+            "video_file_path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "readiness": {
+          "type": "object",
+          "required": [
+            "metadata_ready",
+            "thumbnail_ready",
+            "video_ready",
+            "upload_ready",
+            "blocking_notes"
+          ],
+          "properties": {
+            "metadata_ready": {
+              "type": "boolean"
+            },
+            "thumbnail_ready": {
+              "type": "boolean"
+            },
+            "video_ready": {
+              "type": "boolean"
+            },
+            "upload_ready": {
+              "type": "boolean"
+            },
+            "blocking_notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "execution_context_status",
+        "execution_context_next_agent"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "execution_context_status": {
+          "type": "string"
+        },
+        "execution_context_next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
