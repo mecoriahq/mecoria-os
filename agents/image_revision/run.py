@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -11,6 +12,11 @@ from prompt import build_prompt
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
+
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.execution.manager import ExecutionManager
+
 
 DEFAULT_CHANNEL = "hiddenova"
 
@@ -99,6 +105,15 @@ def normalize_output(image_qa_data: dict, revision_data: dict) -> dict:
     }
 
 
+def update_execution_context(image_revision_data: dict) -> None:
+    manager = ExecutionManager(
+        channel=image_revision_data["channel"],
+        pipeline="image"
+    )
+
+    manager.image_revision_completed()
+
+
 def main() -> None:
     load_dotenv(PROJECT_ROOT / ".env")
 
@@ -128,6 +143,8 @@ def main() -> None:
         channel=image_qa_data["channel"],
         data=final_output
     )
+
+    update_execution_context(final_output)
 
     print("Image Revision Agent completed successfully.")
     print(f"Output saved to: {latest_path}")
