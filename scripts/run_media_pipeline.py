@@ -111,14 +111,38 @@ def mark_skipped(step: dict, reason: str | None = None) -> dict:
     return step
 
 
-def can_execute_step(step_name: str, include_image_generation: bool) -> bool:
+def can_execute_step(
+    step_name: str,
+    include_image_generation: bool,
+    include_image_qa: bool
+) -> bool:
     if step_name in SAFE_EXECUTE_STEPS:
         return True
 
-    if include_image_generation and step_name == "image_generation":
-        return True
+    if step_name == "image_generation":
+        return include_image_generation
+
+    if step_name == "image_qa":
+        return include_image_generation and include_image_qa
 
     return False
+
+
+def get_skip_reason(
+    step_name: str,
+    include_image_generation: bool,
+    include_image_qa: bool
+) -> str:
+    if step_name == "image_generation":
+        return "Skipped because --include-image-generation was not provided."
+
+    if step_name == "image_qa":
+        if not include_image_generation:
+            return "Skipped because image generation was not enabled."
+        if not include_image_qa:
+            return "Skipped because --include-image-qa was not provided."
+
+    return "Skipped by safe execute mode. This step is not enabled in this version."
 
 
 def run_step(step: dict, timeout_seconds: int) -> dict:
@@ -190,7 +214,8 @@ def build_execute_output(
     channel: str,
     until_step: str,
     timeout_seconds: int,
-    include_image_generation: bool
+    include_image_generation: bool,
+    include_image_qa: bool
 ) -> dict:
     started_at = now_iso()
     steps = [create_step(step) for step in PIPELINE_STEPS]
@@ -217,11 +242,16 @@ def build_execute_output(
 
         if not can_execute_step(
             step_name=step["name"],
-            include_image_generation=include_image_generation
+            include_image_generation=include_image_generation,
+            include_image_qa=include_image_qa
         ):
             mark_skipped(
                 step,
-                reason="Skipped by safe execute mode. This step requires an explicit enable flag or is not enabled in this version."
+                reason=get_skip_reason(
+                    step_name=step["name"],
+                    include_image_generation=include_image_generation,
+                    include_image_qa=include_image_qa
+                )
             )
 
             if step["name"] == until_step:
@@ -302,6 +332,12 @@ def parse_args() -> argparse.Namespace:
         help="Allow the orchestrator to run the image_generation step."
     )
 
+    parser.add_argument(
+        "--include-image-qa",
+        action="store_true",
+        help="Allow the orchestrator to run the image_qa step."
+    )
+
     return parser.parse_args()
 
 
@@ -314,7 +350,8 @@ def main() -> None:
             channel=channel,
             until_step=args.until,
             timeout_seconds=args.timeout,
-            include_image_generation=args.include_image_generation
+            include_image_generation=args.include_image_generation,
+            include_image_qa=args.include_image_qa
         )
     else:
         pipeline_output = build_dry_run_output(channel=channel)
