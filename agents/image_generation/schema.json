@@ -1,0 +1,96 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "provider",
+    "model",
+    "image",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "image_generation"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "const": "openai"
+    },
+    "model": {
+      "type": "string"
+    },
+    "image": {
+      "type": "object",
+      "required": [
+        "filename",
+        "relative_path",
+        "format",
+        "size"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "relative_path": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["png", "jpg", "jpeg", "webp"]
+        },
+        "size": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "agent",
+        "provider"
+      ],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "enum": ["image_prompt", "image_revision"]
+        },
+        "provider": {
+          "type": "string",
+          "const": "openai"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "next_agent"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_agent": {
+          "type": "string",
+          "const": "publisher"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

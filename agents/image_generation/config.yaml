@@ -1,0 +1,6 @@
+channel: hiddenova
+provider: openai
+model: gpt-image-1
+version: "1.0"
+output_format: png
+default_size: 1536x1024
