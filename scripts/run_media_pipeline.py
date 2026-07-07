@@ -42,7 +42,7 @@ PIPELINE_STEPS = [
     },
     {
         "name": "image_generation",
-        "command": "python agents/image_generation/run.py"
+        "command": "python agents/image_generation/run.py --source prompt"
     },
     {
         "name": "image_qa",
@@ -54,7 +54,7 @@ PIPELINE_STEPS = [
     },
     {
         "name": "image_generation_after_revision",
-        "command": "python agents/image_generation/run.py"
+        "command": "python agents/image_generation/run.py --source revision"
     },
     {
         "name": "image_qa_after_revision",
@@ -109,6 +109,16 @@ def mark_skipped(step: dict, reason: str | None = None) -> dict:
     step["finished_at"] = None
     step["error"] = reason
     return step
+
+
+def can_execute_step(step_name: str, include_image_generation: bool) -> bool:
+    if step_name in SAFE_EXECUTE_STEPS:
+        return True
+
+    if include_image_generation and step_name == "image_generation":
+        return True
+
+    return False
 
 
 def run_step(step: dict, timeout_seconds: int) -> dict:
@@ -176,7 +186,12 @@ def build_dry_run_output(channel: str) -> dict:
     }
 
 
-def build_execute_output(channel: str, until_step: str, timeout_seconds: int) -> dict:
+def build_execute_output(
+    channel: str,
+    until_step: str,
+    timeout_seconds: int,
+    include_image_generation: bool
+) -> dict:
     started_at = now_iso()
     steps = [create_step(step) for step in PIPELINE_STEPS]
 
@@ -200,11 +215,18 @@ def build_execute_output(channel: str, until_step: str, timeout_seconds: int) ->
             )
             continue
 
-        if step["name"] not in SAFE_EXECUTE_STEPS:
+        if not can_execute_step(
+            step_name=step["name"],
+            include_image_generation=include_image_generation
+        ):
             mark_skipped(
                 step,
-                reason="Skipped by safe execute mode. Image generation is not enabled in this version."
+                reason="Skipped by safe execute mode. This step requires an explicit enable flag or is not enabled in this version."
             )
+
+            if step["name"] == until_step:
+                stop_after_current = True
+
             continue
 
         run_step(
@@ -274,6 +296,12 @@ def parse_args() -> argparse.Namespace:
         help="Timeout per step in seconds. Default: 600"
     )
 
+    parser.add_argument(
+        "--include-image-generation",
+        action="store_true",
+        help="Allow the orchestrator to run the image_generation step."
+    )
+
     return parser.parse_args()
 
 
@@ -285,7 +313,8 @@ def main() -> None:
         pipeline_output = build_execute_output(
             channel=channel,
             until_step=args.until,
-            timeout_seconds=args.timeout
+            timeout_seconds=args.timeout,
+            include_image_generation=args.include_image_generation
         )
     else:
         pipeline_output = build_dry_run_output(channel=channel)
