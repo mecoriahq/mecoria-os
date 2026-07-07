@@ -16,7 +16,7 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from core.execution.context import load_or_create_context, apply_image_qa_result, save_context
+from core.execution.manager import ExecutionManager
 
 
 DEFAULT_CHANNEL = "hiddenova"
@@ -222,18 +222,12 @@ def normalize_output(
 
 
 def update_execution_context(image_qa_data: dict) -> None:
-    context = load_or_create_context(
+    manager = ExecutionManager(
         channel=image_qa_data["channel"],
-        pipeline="image",
-        max_attempts=3
+        pipeline="image"
     )
 
-    context = apply_image_qa_result(
-        context=context,
-        image_qa_data=image_qa_data
-    )
-
-    save_context(context)
+    manager.image_qa_completed(image_qa_data)
 
 
 def main() -> None:
