@@ -128,7 +128,7 @@ def normalize_output(prompt_source_data: dict, image_path: Path, provider: str) 
             "source_agents": [
                 get_prompt_source_type(prompt_source_data)
             ],
-            "next_agent": "publisher"
+            "next_agent": "image_qa"
         }
     }
 
