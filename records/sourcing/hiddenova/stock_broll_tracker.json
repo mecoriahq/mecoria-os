@@ -1,0 +1,132 @@
+﻿{
+  "record_type": "stock_broll_sourcing_tracker",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "video_title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+  "status": "active",
+  "strategy": {
+    "target_visual_mix": {
+      "real_stock_or_broll": "70%",
+      "motion_graphics_diagrams_maps": "20%",
+      "text_overlays": "10%"
+    },
+    "current_goal": "Replace slideshow-like visual flow with realistic stock and b-roll footage supported by internal graphics.",
+    "first_platform_test": "Search one stock platform first before buying multiple subscriptions.",
+    "recommended_first_asset": "A010"
+  },
+  "assets": [
+    {
+      "asset_id": "A001",
+      "asset_name": "Hero Domestic Return Sequence",
+      "asset_type": "b_roll",
+      "production_route": "manual_capture_or_licensed_stock",
+      "priority": "high",
+      "status": "not_started",
+      "search_queries": [
+        "cinematic package return home hands packing cardboard box no logo",
+        "customer returning online order cardboard box doorstep",
+        "hands sealing cardboard box return package close up",
+        "online shopping return package home b-roll"
+      ],
+      "acceptance_criteria": [
+        "plain cardboard box",
+        "no logos",
+        "no readable labels",
+        "no barcodes",
+        "no private information",
+        "cinematic close-up feel",
+        "neutral home environment",
+        "realistic hand movement"
+      ],
+      "rejection_rules": [
+        "visible brand names",
+        "readable labels or addresses",
+        "commercial-style acting",
+        "cheap staged look",
+        "unnatural hands or product movement"
+      ],
+      "candidates": []
+    },
+    {
+      "asset_id": "A010",
+      "asset_name": "Sorting / Conveyor / Scanner / Warehouse Automation",
+      "asset_type": "stock_video",
+      "production_route": "licensed_stock",
+      "priority": "high",
+      "status": "not_started",
+      "search_queries": [
+        "automated parcel sorting conveyor scanners warehouse no logos",
+        "logistics warehouse conveyor belt packages moving",
+        "parcel sorting center scanner diverter b-roll",
+        "warehouse automation packages conveyor stock footage",
+        "package scanning tunnel warehouse robots"
+      ],
+      "acceptance_criteria": [
+        "real logistics environment",
+        "visible motion in frame",
+        "no obvious company branding",
+        "no readable labels or barcodes",
+        "no facility signage",
+        "reusable across multiple sections",
+        "dark documentary tone preferred"
+      ],
+      "rejection_rules": [
+        "carrier logos visible",
+        "cheerful corporate stock look",
+        "readable product labels",
+        "fake-looking warehouse",
+        "low resolution",
+        "unclear license"
+      ],
+      "candidates": []
+    },
+    {
+      "asset_id": "A012",
+      "asset_name": "Inspection Table / Return Evaluation",
+      "asset_type": "b_roll",
+      "production_route": "manual_capture_or_licensed_stock",
+      "priority": "high",
+      "status": "not_started",
+      "search_queries": [
+        "returns inspection table worker hands checking product no brand",
+        "warehouse return inspection table product checking close up",
+        "returned product inspection gloved hands b-roll",
+        "ecommerce returns processing inspection table",
+        "worker checking returned items accessories packaging"
+      ],
+      "acceptance_criteria": [
+        "real hands and objects",
+        "generic products only",
+        "no logos",
+        "no readable labels",
+        "no fake UI",
+        "documentary inspection feel",
+        "controlled lighting"
+      ],
+      "rejection_rules": [
+        "branded products",
+        "readable labels",
+        "product ad look",
+        "unclear process",
+        "messy table without purpose",
+        "unusable camera angle"
+      ],
+      "candidates": []
+    }
+  ],
+  "candidate_schema": {
+    "candidate_id": "A010-C001",
+    "source_platform": "example: Storyblocks / Artgrid / Pond5 / Adobe Stock",
+    "source_url": "",
+    "footage_title": "",
+    "license_type": "",
+    "license_status": "not_reviewed",
+    "usage_allowed": null,
+    "visual_quality": "unknown",
+    "logo_label_risk": "unknown",
+    "decision": "pending",
+    "notes": "",
+    "local_file_path": null
+  },
+  "next_step": "search_A010_first"
+}
