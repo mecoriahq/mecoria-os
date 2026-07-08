@@ -28,6 +28,7 @@
     "status": {
       "type": "string",
       "enum": [
+        "upload_ready",
         "metadata_ready",
         "blocked"
       ]
@@ -156,7 +157,9 @@
       "required": [
         "source_agents",
         "execution_context_status",
-        "execution_context_next_agent"
+        "execution_context_next_agent",
+        "video_qa_status",
+        "video_qa_reference"
       ],
       "properties": {
         "source_agents": {
@@ -169,6 +172,18 @@
           "type": "string"
         },
         "execution_context_next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "video_qa_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "video_qa_reference": {
           "type": [
             "string",
             "null"
