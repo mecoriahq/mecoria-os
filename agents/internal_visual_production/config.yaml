@@ -1,0 +1,7 @@
+channel: hiddenova
+format: svg
+first_build_assets:
+  - A002
+  - A004
+  - A007
+next_agent: internal_visual_qa
