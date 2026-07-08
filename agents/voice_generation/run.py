@@ -71,6 +71,21 @@ def get_audio_output_dir(channel: str) -> Path:
     return audio_dir
 
 
+def get_sample_output_dir(channel: str) -> Path:
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    sample_dir = (
+        BASE_DIR
+        / "output"
+        / channel.lower()
+        / "samples"
+        / timestamp
+    )
+
+    sample_dir.mkdir(parents=True, exist_ok=True)
+    return sample_dir
+
+
 def validate_sections_for_tts(sections: list[dict]) -> None:
     for section in sections:
         narration = section["narration"]
@@ -85,6 +100,14 @@ def validate_sections_for_tts(sections: list[dict]) -> None:
                 f"Section {section['sequence']} exceeds "
                 f"{MAX_TTS_INPUT_CHARACTERS} characters."
             )
+
+
+def get_section_by_sequence(sections: list[dict], sequence: int) -> dict:
+    for section in sections:
+        if section["sequence"] == sequence:
+            return section
+
+    raise ValueError(f"Section not found: {sequence}")
 
 
 def create_section_audio(
@@ -144,6 +167,35 @@ def generate_audio_sections(voice_data: dict) -> list[dict]:
     return audio_sections
 
 
+def generate_sample_section(voice_data: dict, sequence: int) -> Path:
+    client = OpenAI()
+
+    channel = voice_data["channel"]
+    sections = voice_data["voice_package"]["narration"]["sections"]
+
+    validate_sections_for_tts(sections)
+
+    section = get_section_by_sequence(
+        sections=sections,
+        sequence=sequence
+    )
+
+    sample_dir = get_sample_output_dir(channel)
+
+    print(
+        f"Generating sample audio section {section['sequence']}: {section['title']}",
+        flush=True
+    )
+
+    audio_metadata = create_section_audio(
+        client=client,
+        section=section,
+        audio_dir=sample_dir
+    )
+
+    return PROJECT_ROOT / audio_metadata["relative_path"]
+
+
 def build_output(
     voice_data: dict,
     voice_path: Path,
@@ -183,7 +235,11 @@ def build_output(
     }
 
 
-def dry_run(voice_data: dict, voice_path: Path) -> None:
+def dry_run(
+    voice_data: dict,
+    voice_path: Path,
+    sample_section: int | None
+) -> None:
     sections = voice_data["voice_package"]["narration"]["sections"]
 
     validate_sections_for_tts(sections)
@@ -193,7 +249,16 @@ def dry_run(voice_data: dict, voice_path: Path) -> None:
     print(f"Provider: {DEFAULT_PROVIDER}")
     print(f"Model: {DEFAULT_MODEL}")
     print(f"Voice: {DEFAULT_VOICE}")
-    print(f"Sections to generate: {len(sections)}")
+
+    if sample_section is not None:
+        section = get_section_by_sequence(
+            sections=sections,
+            sequence=sample_section
+        )
+        print(f"Sample section: {section['sequence']} - {section['title']}")
+    else:
+        print(f"Sections to generate: {len(sections)}")
+
     print(f"Output format: {DEFAULT_FORMAT}")
 
 
@@ -214,6 +279,13 @@ def parse_args() -> argparse.Namespace:
         help="Validate inputs without generating audio."
     )
 
+    parser.add_argument(
+        "--sample-section",
+        type=int,
+        default=None,
+        help="Generate only one sample section by sequence number."
+    )
+
     return parser.parse_args()
 
 
@@ -230,8 +302,19 @@ def main() -> None:
     if args.dry_run:
         dry_run(
             voice_data=voice_data,
-            voice_path=voice_path
+            voice_path=voice_path,
+            sample_section=args.sample_section
         )
+        return
+
+    if args.sample_section is not None:
+        sample_path = generate_sample_section(
+            voice_data=voice_data,
+            sequence=args.sample_section
+        )
+
+        print("Voice Generation sample completed successfully.")
+        print(f"Sample saved to: {sample_path}")
         return
 
     audio_sections = generate_audio_sections(voice_data)
