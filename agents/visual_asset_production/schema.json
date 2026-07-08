@@ -1,0 +1,203 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "production_manifest",
+    "summary",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "visual_asset_production"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "manifest_ready",
+        "blocked"
+      ]
+    },
+    "production_manifest": {
+      "type": "object",
+      "required": [
+        "manifest_path",
+        "asset_count",
+        "scene_count",
+        "mapped_scene_count",
+        "first_assets_to_create",
+        "manual_assets_needed",
+        "assets"
+      ],
+      "properties": {
+        "manifest_path": {
+          "type": "string"
+        },
+        "asset_count": {
+          "type": "integer"
+        },
+        "scene_count": {
+          "type": "integer"
+        },
+        "mapped_scene_count": {
+          "type": "integer"
+        },
+        "first_assets_to_create": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "manual_assets_needed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "asset_id",
+              "asset_type",
+              "priority",
+              "production_method",
+              "folder",
+              "files",
+              "status"
+            ],
+            "properties": {
+              "asset_id": {
+                "type": "string"
+              },
+              "asset_type": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "string"
+              },
+              "production_method": {
+                "type": "string"
+              },
+              "folder": {
+                "type": "string"
+              },
+              "files": {
+                "type": "object",
+                "required": [
+                  "brief",
+                  "stock_search_query",
+                  "ai_image_prompt",
+                  "motion_graphic_instructions",
+                  "diagram_instructions",
+                  "editing_notes",
+                  "quality_constraints",
+                  "status"
+                ],
+                "properties": {
+                  "brief": {
+                    "type": "string"
+                  },
+                  "stock_search_query": {
+                    "type": "string"
+                  },
+                  "ai_image_prompt": {
+                    "type": "string"
+                  },
+                  "motion_graphic_instructions": {
+                    "type": "string"
+                  },
+                  "diagram_instructions": {
+                    "type": "string"
+                  },
+                  "editing_notes": {
+                    "type": "string"
+                  },
+                  "quality_constraints": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "asset_count",
+        "high_priority_asset_count",
+        "first_build_asset_count",
+        "next_agent"
+      ],
+      "properties": {
+        "asset_count": {
+          "type": "integer"
+        },
+        "high_priority_asset_count": {
+          "type": "integer"
+        },
+        "first_build_asset_count": {
+          "type": "integer"
+        },
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "visual_asset_plan_reference"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visual_asset_plan_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
