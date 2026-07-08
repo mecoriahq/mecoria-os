@@ -16,54 +16,25 @@ from core.pipeline.output import save_output
 
 
 PIPELINE_STEPS = [
-    {
-        "name": "research",
-        "command": "python agents/research/run.py"
-    },
-    {
-        "name": "script",
-        "command": "python agents/script/run.py"
-    },
-    {
-        "name": "seo",
-        "command": "python agents/seo/run.py"
-    },
-    {
-        "name": "qa",
-        "command": "python agents/qa/run.py"
-    },
-    {
-        "name": "visual_brief",
-        "command": "python agents/visual_brief/run.py"
-    },
-    {
-        "name": "image_prompt",
-        "command": "python agents/image_prompt/run.py"
-    },
-    {
-        "name": "image_generation",
-        "command": "python agents/image_generation/run.py --source prompt"
-    },
-    {
-        "name": "image_qa",
-        "command": "python agents/image_qa/run.py"
-    },
-    {
-        "name": "image_revision_if_needed",
-        "command": "python agents/image_revision/run.py"
-    },
-    {
-        "name": "image_generation_after_revision",
-        "command": "python agents/image_generation/run.py --source revision"
-    },
-    {
-        "name": "image_qa_after_revision",
-        "command": "python agents/image_qa/run.py"
-    },
-    {
-        "name": "publisher",
-        "command": "python agents/publisher/run.py"
-    }
+    {"name": "research", "command": "python agents/research/run.py"},
+    {"name": "script", "command": "python agents/script/run.py"},
+    {"name": "seo", "command": "python agents/seo/run.py"},
+    {"name": "qa", "command": "python agents/qa/run.py"},
+    {"name": "visual_brief", "command": "python agents/visual_brief/run.py"},
+    {"name": "image_prompt", "command": "python agents/image_prompt/run.py"},
+    {"name": "image_generation", "command": "python agents/image_generation/run.py --source prompt"},
+    {"name": "image_qa", "command": "python agents/image_qa/run.py"},
+    {"name": "image_revision_if_needed", "command": "python agents/image_revision/run.py"},
+    {"name": "image_generation_after_revision", "command": "python agents/image_generation/run.py --source revision"},
+    {"name": "image_qa_after_revision", "command": "python agents/image_qa/run.py"},
+    {"name": "publisher_metadata", "command": "python agents/publisher/run.py"},
+    {"name": "voice", "command": "python agents/voice/run.py"},
+    {"name": "voice_generation", "command": "python agents/voice_generation/run.py"},
+    {"name": "audio_qa", "command": "python agents/audio_qa/run.py"},
+    {"name": "audio_assembly", "command": "python agents/audio_assembly/run.py"},
+    {"name": "video_assembly", "command": "python agents/video_assembly/run.py"},
+    {"name": "video_qa", "command": "python agents/video_qa/run.py"},
+    {"name": "publisher", "command": "python agents/publisher/run.py"}
 ]
 
 
@@ -73,7 +44,8 @@ SAFE_EXECUTE_STEPS = {
     "seo",
     "qa",
     "visual_brief",
-    "image_prompt"
+    "image_prompt",
+    "voice"
 }
 
 
@@ -115,7 +87,11 @@ def can_execute_step(
     step_name: str,
     include_image_generation: bool,
     include_image_qa: bool,
-    include_publisher: bool
+    include_publisher: bool,
+    include_voice_generation: bool,
+    include_audio_assembly: bool,
+    include_video_assembly: bool,
+    include_video_qa: bool
 ) -> bool:
     if step_name in SAFE_EXECUTE_STEPS:
         return True
@@ -126,8 +102,50 @@ def can_execute_step(
     if step_name == "image_qa":
         return include_image_generation and include_image_qa
 
-    if step_name == "publisher":
+    if step_name in {
+        "image_revision_if_needed",
+        "image_generation_after_revision",
+        "image_qa_after_revision"
+    }:
+        return False
+
+    if step_name == "publisher_metadata":
         return include_image_generation and include_image_qa and include_publisher
+
+    if step_name == "voice_generation":
+        return include_voice_generation
+
+    if step_name == "audio_qa":
+        return include_voice_generation
+
+    if step_name == "audio_assembly":
+        return include_voice_generation and include_audio_assembly
+
+    if step_name == "video_assembly":
+        return (
+            include_voice_generation
+            and include_audio_assembly
+            and include_video_assembly
+        )
+
+    if step_name == "video_qa":
+        return (
+            include_voice_generation
+            and include_audio_assembly
+            and include_video_assembly
+            and include_video_qa
+        )
+
+    if step_name == "publisher":
+        return (
+            include_image_generation
+            and include_image_qa
+            and include_publisher
+            and include_voice_generation
+            and include_audio_assembly
+            and include_video_assembly
+            and include_video_qa
+        )
 
     return False
 
@@ -136,7 +154,11 @@ def get_skip_reason(
     step_name: str,
     include_image_generation: bool,
     include_image_qa: bool,
-    include_publisher: bool
+    include_publisher: bool,
+    include_voice_generation: bool,
+    include_audio_assembly: bool,
+    include_video_assembly: bool,
+    include_video_qa: bool
 ) -> str:
     if step_name == "image_generation":
         return "Skipped because --include-image-generation was not provided."
@@ -147,13 +169,52 @@ def get_skip_reason(
         if not include_image_qa:
             return "Skipped because --include-image-qa was not provided."
 
-    if step_name == "publisher":
+    if step_name in {
+        "image_revision_if_needed",
+        "image_generation_after_revision",
+        "image_qa_after_revision"
+    }:
+        return "Skipped because automated image revision loop is not enabled in the orchestrator yet."
+
+    if step_name == "publisher_metadata":
         if not include_image_generation:
             return "Skipped because image generation was not enabled."
         if not include_image_qa:
             return "Skipped because image QA was not enabled."
         if not include_publisher:
             return "Skipped because --include-publisher was not provided."
+
+    if step_name == "voice_generation":
+        return "Skipped because --include-voice-generation was not provided."
+
+    if step_name == "audio_qa":
+        return "Skipped because voice generation was not enabled."
+
+    if step_name == "audio_assembly":
+        if not include_voice_generation:
+            return "Skipped because voice generation was not enabled."
+        if not include_audio_assembly:
+            return "Skipped because --include-audio-assembly was not provided."
+
+    if step_name == "video_assembly":
+        if not include_voice_generation:
+            return "Skipped because voice generation was not enabled."
+        if not include_audio_assembly:
+            return "Skipped because audio assembly was not enabled."
+        if not include_video_assembly:
+            return "Skipped because --include-video-assembly was not provided."
+
+    if step_name == "video_qa":
+        if not include_video_assembly:
+            return "Skipped because video assembly was not enabled."
+        if not include_video_qa:
+            return "Skipped because --include-video-qa was not provided."
+
+    if step_name == "publisher":
+        if not include_publisher:
+            return "Skipped because --include-publisher was not provided."
+        if not include_video_qa:
+            return "Skipped because video QA was not enabled."
 
     return "Skipped by safe execute mode. This step is not enabled in this version."
 
@@ -162,8 +223,8 @@ def run_step(step: dict, timeout_seconds: int) -> dict:
     step["status"] = "running"
     step["started_at"] = now_iso()
 
-    print(f"\n▶ Running step: {step['name']}", flush=True)
-    print(f"  Command: {step['command']}", flush=True)
+    print(f"\nRunning step: {step['name']}", flush=True)
+    print(f"Command: {step['command']}", flush=True)
 
     try:
         result = subprocess.run(
@@ -176,7 +237,7 @@ def run_step(step: dict, timeout_seconds: int) -> dict:
         step["finished_at"] = now_iso()
         step["status"] = "failed"
         step["error"] = f"Step timed out after {timeout_seconds} seconds."
-        print(f"✗ Failed: {step['name']} timed out.", flush=True)
+        print(f"Failed: {step['name']} timed out.", flush=True)
         return step
 
     step["finished_at"] = now_iso()
@@ -184,12 +245,12 @@ def run_step(step: dict, timeout_seconds: int) -> dict:
     if result.returncode != 0:
         step["status"] = "failed"
         step["error"] = f"Step failed with exit code {result.returncode}."
-        print(f"✗ Failed: {step['name']}", flush=True)
+        print(f"Failed: {step['name']}", flush=True)
         return step
 
     step["status"] = "success"
     step["error"] = None
-    print(f"✓ Completed: {step['name']}", flush=True)
+    print(f"Completed: {step['name']}", flush=True)
     return step
 
 
@@ -229,7 +290,11 @@ def build_execute_output(
     timeout_seconds: int,
     include_image_generation: bool,
     include_image_qa: bool,
-    include_publisher: bool
+    include_publisher: bool,
+    include_voice_generation: bool,
+    include_audio_assembly: bool,
+    include_video_assembly: bool,
+    include_video_qa: bool
 ) -> dict:
     started_at = now_iso()
     steps = [create_step(step) for step in PIPELINE_STEPS]
@@ -258,7 +323,11 @@ def build_execute_output(
             step_name=step["name"],
             include_image_generation=include_image_generation,
             include_image_qa=include_image_qa,
-            include_publisher=include_publisher
+            include_publisher=include_publisher,
+            include_voice_generation=include_voice_generation,
+            include_audio_assembly=include_audio_assembly,
+            include_video_assembly=include_video_assembly,
+            include_video_qa=include_video_qa
         ):
             mark_skipped(
                 step,
@@ -266,7 +335,11 @@ def build_execute_output(
                     step_name=step["name"],
                     include_image_generation=include_image_generation,
                     include_image_qa=include_image_qa,
-                    include_publisher=include_publisher
+                    include_publisher=include_publisher,
+                    include_voice_generation=include_voice_generation,
+                    include_audio_assembly=include_audio_assembly,
+                    include_video_assembly=include_video_assembly,
+                    include_video_qa=include_video_qa
                 )
             )
 
@@ -357,7 +430,31 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--include-publisher",
         action="store_true",
-        help="Allow the orchestrator to run the publisher packaging step."
+        help="Allow the orchestrator to run publisher packaging steps."
+    )
+
+    parser.add_argument(
+        "--include-voice-generation",
+        action="store_true",
+        help="Allow the orchestrator to generate narration audio."
+    )
+
+    parser.add_argument(
+        "--include-audio-assembly",
+        action="store_true",
+        help="Allow the orchestrator to assemble narration audio."
+    )
+
+    parser.add_argument(
+        "--include-video-assembly",
+        action="store_true",
+        help="Allow the orchestrator to assemble a video draft."
+    )
+
+    parser.add_argument(
+        "--include-video-qa",
+        action="store_true",
+        help="Allow the orchestrator to run video QA."
     )
 
     return parser.parse_args()
@@ -374,7 +471,11 @@ def main() -> None:
             timeout_seconds=args.timeout,
             include_image_generation=args.include_image_generation,
             include_image_qa=args.include_image_qa,
-            include_publisher=args.include_publisher
+            include_publisher=args.include_publisher,
+            include_voice_generation=args.include_voice_generation,
+            include_audio_assembly=args.include_audio_assembly,
+            include_video_assembly=args.include_video_assembly,
+            include_video_qa=args.include_video_qa
         )
     else:
         pipeline_output = build_dry_run_output(channel=channel)
