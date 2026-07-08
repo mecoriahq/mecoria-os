@@ -1,26 +1,25 @@
-import json
+﻿import json
 from datetime import datetime
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = BASE_DIR / "output"
 
 
 def save_output(channel: str, data: dict) -> Path:
-    channel_dir = OUTPUT_DIR / channel.lower()
-    archive_dir = channel_dir / "archive"
+    output_dir = BASE_DIR / "output" / channel.lower()
+    archive_dir = output_dir / "archive"
 
-    channel_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     archive_dir.mkdir(parents=True, exist_ok=True)
 
-    latest_path = channel_dir / "latest.json"
+    latest_path = output_dir / "latest.json"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     archive_path = archive_dir / f"{timestamp}.json"
 
-    content = json.dumps(data, indent=2, ensure_ascii=False)
+    json_text = json.dumps(data, indent=2, ensure_ascii=False)
 
-    latest_path.write_text(content, encoding="utf-8")
-    archive_path.write_text(content, encoding="utf-8")
+    latest_path.write_text(json_text, encoding="utf-8")
+    archive_path.write_text(json_text, encoding="utf-8")
 
     return latest_path
