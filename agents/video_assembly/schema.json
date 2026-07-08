@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "object",
   "required": [
     "agent",
@@ -39,7 +39,14 @@
         "fps",
         "mode",
         "thumbnail_image_path",
-        "audio_track_path"
+        "audio_track_path",
+        "stock_manifest_path",
+        "stock_clip_count",
+        "timeline_entry_count",
+        "timeline_plan_path",
+        "audio_duration_seconds",
+        "public_usage_allowed",
+        "license_notes"
       ],
       "properties": {
         "filename": {
@@ -67,6 +74,36 @@
           "type": "string"
         },
         "audio_track_path": {
+          "type": "string"
+        },
+        "stock_manifest_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stock_clip_count": {
+          "type": "integer"
+        },
+        "timeline_entry_count": {
+          "type": "integer"
+        },
+        "timeline_plan_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "audio_duration_seconds": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "public_usage_allowed": {
+          "type": "boolean"
+        },
+        "license_notes": {
           "type": "string"
         }
       },
@@ -109,6 +146,7 @@
         "source_agents",
         "audio_assembly_reference",
         "publisher_reference",
+        "stock_manifest_reference",
         "title"
       ],
       "properties": {
@@ -123,6 +161,12 @@
         },
         "publisher_reference": {
           "type": "string"
+        },
+        "stock_manifest_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "title": {
           "type": "string"
