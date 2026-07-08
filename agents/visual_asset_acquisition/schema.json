@@ -1,0 +1,210 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "acquisition_plan",
+    "summary",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "visual_asset_acquisition"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "acquisition_plan_ready",
+        "blocked"
+      ]
+    },
+    "acquisition_plan": {
+      "type": "object",
+      "required": [
+        "first_build_queue",
+        "ready_for_internal_production",
+        "ready_for_ai_generation",
+        "needs_stock_sourcing",
+        "needs_manual_capture",
+        "needs_review",
+        "decisions"
+      ],
+      "properties": {
+        "first_build_queue": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ready_for_internal_production": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ready_for_ai_generation": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "needs_stock_sourcing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "needs_manual_capture": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "needs_review": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "asset_id",
+              "asset_type",
+              "priority",
+              "production_method",
+              "folder",
+              "acquisition_status",
+              "acquisition_lane",
+              "is_first_build",
+              "decision_reason",
+              "next_action"
+            ],
+            "properties": {
+              "asset_id": {
+                "type": "string"
+              },
+              "asset_type": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "string"
+              },
+              "production_method": {
+                "type": "string"
+              },
+              "folder": {
+                "type": "string"
+              },
+              "acquisition_status": {
+                "type": "string"
+              },
+              "acquisition_lane": {
+                "type": "string"
+              },
+              "is_first_build": {
+                "type": "boolean"
+              },
+              "decision_reason": {
+                "type": "string"
+              },
+              "next_action": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "asset_count",
+        "first_build_asset_count",
+        "ready_for_internal_production_count",
+        "ready_for_ai_generation_count",
+        "needs_stock_sourcing_count",
+        "needs_manual_capture_count",
+        "needs_review_count",
+        "next_agent"
+      ],
+      "properties": {
+        "asset_count": {
+          "type": "integer"
+        },
+        "first_build_asset_count": {
+          "type": "integer"
+        },
+        "ready_for_internal_production_count": {
+          "type": "integer"
+        },
+        "ready_for_ai_generation_count": {
+          "type": "integer"
+        },
+        "needs_stock_sourcing_count": {
+          "type": "integer"
+        },
+        "needs_manual_capture_count": {
+          "type": "integer"
+        },
+        "needs_review_count": {
+          "type": "integer"
+        },
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "visual_asset_production_reference",
+        "production_manifest_path"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visual_asset_production_reference": {
+          "type": "string"
+        },
+        "production_manifest_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
