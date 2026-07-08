@@ -1,0 +1,70 @@
+﻿{
+  "record_type": "stock_footage_license_record",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "asset_id": "A010",
+  "asset_name": "Sorting / Conveyor / Scanner / Warehouse Automation",
+  "source_platform": "Storyblocks",
+  "status": "license_review_pending",
+  "public_usage_allowed": false,
+  "notes": "Do not use any downloaded footage in a public YouTube video until account license and allowed usage are confirmed.",
+  "items": [
+    {
+      "candidate_id": "A010-C001",
+      "decision": "approved_for_download_after_license_check",
+      "source_url": "https://www.storyblocks.com/video/stock/aerial-hyperlapse-time-lapse-video-of-a-package-sorting-and-distribution-center-logistics-by-road-trucks-moving-dynamics-349028647",
+      "footage_title": "Aerial Hyperlapse Time Lapse Video Of A Package Sorting And Distribution Center Logistics By Road Trucks Moving Dynamics",
+      "intended_use": "establishing logistics scale shot / intro / transition",
+      "license_type": "Storyblocks membership license - account review pending",
+      "license_status": "pending_account_review",
+      "usage_allowed": null,
+      "download_status": "not_downloaded",
+      "download_date": null,
+      "local_file_path": null,
+      "risk_notes": "Low visible logo/label risk from preview, but final downloaded file must be checked."
+    },
+    {
+      "candidate_id": "A010-C003",
+      "decision": "approved_for_download_after_license_check",
+      "source_url": "https://www.storyblocks.com/video/stock/spacious-warehouse-interior-highlighting-advanced-storage-infrastructure-organized-logistics-and-efficient-inventory-management-for-354162963",
+      "footage_title": "Spacious Warehouse Interior Highlighting Advanced Storage Infrastructure Organized Logistics And Efficient Inventory Management",
+      "intended_use": "warehouse scale / storage support b-roll",
+      "license_type": "Storyblocks membership license - account review pending",
+      "license_status": "pending_account_review",
+      "usage_allowed": null,
+      "download_status": "not_downloaded",
+      "download_date": null,
+      "local_file_path": null,
+      "risk_notes": "Low visible logo/label risk from preview, but final downloaded file must be checked."
+    },
+    {
+      "candidate_id": "A010-C004",
+      "decision": "approved_for_download_after_license_check",
+      "source_url": "https://www.storyblocks.com/video/stock/camera-moving-between-palettes-with-ordered-goods-and-materials-at-warehouse-large-warehouse-logistics-terminal-multi-level-storage-with-348537604",
+      "footage_title": "Camera Moving Between Palettes With Ordered Goods And Materials At Warehouse Large Warehouse Logistics Terminal Multi Level Storage",
+      "intended_use": "moving warehouse b-roll / support footage",
+      "license_type": "Storyblocks membership license - account review pending",
+      "license_status": "pending_account_review",
+      "usage_allowed": null,
+      "download_status": "not_downloaded",
+      "download_date": null,
+      "local_file_path": null,
+      "risk_notes": "Low visible logo/label risk from preview, but final downloaded file must be checked."
+    },
+    {
+      "candidate_id": "A010-C002",
+      "decision": "rejected_for_A010",
+      "source_url": "https://www.storyblocks.com/video/stock/packaged-food-on-automated-production-line-food-packaging-line-worker-at-dairy-factory-food-industry-modern-technology-computer-controlled-conveyor-belt-industrial-equipment-industrial-workshop-eu3xnrjoxiktil5he",
+      "footage_title": "Packaged Food On Automated Production Line Food Packaging Line Worker At Dairy Factory Food Industry Modern Technology Computer Controlled Conveyor Belt Industrial Equipment Industrial Workshop",
+      "intended_use": null,
+      "license_type": "not_applicable",
+      "license_status": "not_required_rejected",
+      "usage_allowed": false,
+      "download_status": "do_not_download",
+      "download_date": null,
+      "local_file_path": null,
+      "risk_notes": "Rejected because it is food/dairy production footage, not ecommerce return logistics."
+    }
+  ],
+  "next_step": "confirm_storyblocks_account_license_then_download_approved_items"
+}
