@@ -1,132 +1,193 @@
 ﻿{
-  "record_type": "stock_broll_sourcing_tracker",
-  "version": "1.0",
-  "channel": "hiddenova",
-  "video_title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
-  "status": "active",
-  "strategy": {
-    "target_visual_mix": {
-      "real_stock_or_broll": "70%",
-      "motion_graphics_diagrams_maps": "20%",
-      "text_overlays": "10%"
-    },
-    "current_goal": "Replace slideshow-like visual flow with realistic stock and b-roll footage supported by internal graphics.",
-    "first_platform_test": "Search one stock platform first before buying multiple subscriptions.",
-    "recommended_first_asset": "A010"
-  },
-  "assets": [
-    {
-      "asset_id": "A001",
-      "asset_name": "Hero Domestic Return Sequence",
-      "asset_type": "b_roll",
-      "production_route": "manual_capture_or_licensed_stock",
-      "priority": "high",
-      "status": "not_started",
-      "search_queries": [
-        "cinematic package return home hands packing cardboard box no logo",
-        "customer returning online order cardboard box doorstep",
-        "hands sealing cardboard box return package close up",
-        "online shopping return package home b-roll"
-      ],
-      "acceptance_criteria": [
-        "plain cardboard box",
-        "no logos",
-        "no readable labels",
-        "no barcodes",
-        "no private information",
-        "cinematic close-up feel",
-        "neutral home environment",
-        "realistic hand movement"
-      ],
-      "rejection_rules": [
-        "visible brand names",
-        "readable labels or addresses",
-        "commercial-style acting",
-        "cheap staged look",
-        "unnatural hands or product movement"
-      ],
-      "candidates": []
-    },
-    {
-      "asset_id": "A010",
-      "asset_name": "Sorting / Conveyor / Scanner / Warehouse Automation",
-      "asset_type": "stock_video",
-      "production_route": "licensed_stock",
-      "priority": "high",
-      "status": "not_started",
-      "search_queries": [
-        "automated parcel sorting conveyor scanners warehouse no logos",
-        "logistics warehouse conveyor belt packages moving",
-        "parcel sorting center scanner diverter b-roll",
-        "warehouse automation packages conveyor stock footage",
-        "package scanning tunnel warehouse robots"
-      ],
-      "acceptance_criteria": [
-        "real logistics environment",
-        "visible motion in frame",
-        "no obvious company branding",
-        "no readable labels or barcodes",
-        "no facility signage",
-        "reusable across multiple sections",
-        "dark documentary tone preferred"
-      ],
-      "rejection_rules": [
-        "carrier logos visible",
-        "cheerful corporate stock look",
-        "readable product labels",
-        "fake-looking warehouse",
-        "low resolution",
-        "unclear license"
-      ],
-      "candidates": []
-    },
-    {
-      "asset_id": "A012",
-      "asset_name": "Inspection Table / Return Evaluation",
-      "asset_type": "b_roll",
-      "production_route": "manual_capture_or_licensed_stock",
-      "priority": "high",
-      "status": "not_started",
-      "search_queries": [
-        "returns inspection table worker hands checking product no brand",
-        "warehouse return inspection table product checking close up",
-        "returned product inspection gloved hands b-roll",
-        "ecommerce returns processing inspection table",
-        "worker checking returned items accessories packaging"
-      ],
-      "acceptance_criteria": [
-        "real hands and objects",
-        "generic products only",
-        "no logos",
-        "no readable labels",
-        "no fake UI",
-        "documentary inspection feel",
-        "controlled lighting"
-      ],
-      "rejection_rules": [
-        "branded products",
-        "readable labels",
-        "product ad look",
-        "unclear process",
-        "messy table without purpose",
-        "unusable camera angle"
-      ],
-      "candidates": []
-    }
-  ],
-  "candidate_schema": {
-    "candidate_id": "A010-C001",
-    "source_platform": "example: Storyblocks / Artgrid / Pond5 / Adobe Stock",
-    "source_url": "",
-    "footage_title": "",
-    "license_type": "",
-    "license_status": "not_reviewed",
-    "usage_allowed": null,
-    "visual_quality": "unknown",
-    "logo_label_risk": "unknown",
-    "decision": "pending",
-    "notes": "",
-    "local_file_path": null
-  },
-  "next_step": "search_A010_first"
+    "record_type":  "stock_broll_sourcing_tracker",
+    "version":  "1.0",
+    "channel":  "hiddenova",
+    "video_title":  "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+    "status":  "active",
+    "strategy":  {
+                     "target_visual_mix":  {
+                                               "real_stock_or_broll":  "70%",
+                                               "motion_graphics_diagrams_maps":  "20%",
+                                               "text_overlays":  "10%"
+                                           },
+                     "current_goal":  "Replace slideshow-like visual flow with realistic stock and b-roll footage supported by internal graphics.",
+                     "first_platform_test":  "Search one stock platform first before buying multiple subscriptions.",
+                     "recommended_first_asset":  "A010"
+                 },
+    "assets":  [
+                   {
+                       "asset_id":  "A001",
+                       "asset_name":  "Hero Domestic Return Sequence",
+                       "asset_type":  "b_roll",
+                       "production_route":  "manual_capture_or_licensed_stock",
+                       "priority":  "high",
+                       "status":  "not_started",
+                       "search_queries":  [
+                                              "cinematic package return home hands packing cardboard box no logo",
+                                              "customer returning online order cardboard box doorstep",
+                                              "hands sealing cardboard box return package close up",
+                                              "online shopping return package home b-roll"
+                                          ],
+                       "acceptance_criteria":  [
+                                                   "plain cardboard box",
+                                                   "no logos",
+                                                   "no readable labels",
+                                                   "no barcodes",
+                                                   "no private information",
+                                                   "cinematic close-up feel",
+                                                   "neutral home environment",
+                                                   "realistic hand movement"
+                                               ],
+                       "rejection_rules":  [
+                                               "visible brand names",
+                                               "readable labels or addresses",
+                                               "commercial-style acting",
+                                               "cheap staged look",
+                                               "unnatural hands or product movement"
+                                           ],
+                       "candidates":  [
+
+                                      ]
+                   },
+                   {
+                       "asset_id":  "A010",
+                       "asset_name":  "Sorting / Conveyor / Scanner / Warehouse Automation",
+                       "asset_type":  "stock_video",
+                       "production_route":  "licensed_stock",
+                       "priority":  "high",
+                       "status":  "candidate_found",
+                       "search_queries":  [
+                                              "automated parcel sorting conveyor scanners warehouse no logos",
+                                              "logistics warehouse conveyor belt packages moving",
+                                              "parcel sorting center scanner diverter b-roll",
+                                              "warehouse automation packages conveyor stock footage",
+                                              "package scanning tunnel warehouse robots"
+                                          ],
+                       "acceptance_criteria":  [
+                                                   "real logistics environment",
+                                                   "visible motion in frame",
+                                                   "no obvious company branding",
+                                                   "no readable labels or barcodes",
+                                                   "no facility signage",
+                                                   "reusable across multiple sections",
+                                                   "dark documentary tone preferred"
+                                               ],
+                       "rejection_rules":  [
+                                               "carrier logos visible",
+                                               "cheerful corporate stock look",
+                                               "readable product labels",
+                                               "fake-looking warehouse",
+                                               "low resolution",
+                                               "unclear license"
+                                           ],
+                       "candidates":  [
+                                          {
+                                              "candidate_id":  "A010-C001",
+                                              "source_platform":  "Storyblocks",
+                                              "source_url":  "https://www.storyblocks.com/video/stock/aerial-hyperlapse-time-lapse-video-of-a-package-sorting-and-distribution-center-logistics-by-road-trucks-moving-dynamics-349028647",
+                                              "footage_title":  "Aerial Hyperlapse Time Lapse Video Of A Package Sorting And Distribution Center Logistics By Road Trucks Moving Dynamics",
+                                              "license_type":  "Storyblocks membership license - not reviewed",
+                                              "license_status":  "not_reviewed",
+                                              "usage_allowed":  null,
+                                              "visual_quality":  "medium_high",
+                                              "logo_label_risk":  "low_from_preview_but_not_verified",
+                                              "decision":  "candidate_found",
+                                              "notes":  "Useful as establishing logistics scale shot. Good for intro/transition, but not enough as main conveyor/scanner backbone.",
+                                              "local_file_path":  null
+                                          },
+                                          {
+                                              "candidate_id":  "A010-C002",
+                                              "source_platform":  "Storyblocks",
+                                              "source_url":  "https://www.storyblocks.com/video/stock/packaged-food-on-automated-production-line-food-packaging-line-worker-at-dairy-factory-food-industry-modern-technology-computer-controlled-conveyor-belt-industrial-equipment-industrial-workshop-eu3xnrjoxiktil5he",
+                                              "footage_title":  "Packaged Food On Automated Production Line Food Packaging Line Worker At Dairy Factory Food Industry Modern Technology Computer Controlled Conveyor Belt Industrial Equipment Industrial Workshop",
+                                              "license_type":  "Storyblocks membership license - not reviewed",
+                                              "license_status":  "not_reviewed",
+                                              "usage_allowed":  null,
+                                              "visual_quality":  "medium",
+                                              "logo_label_risk":  "unknown",
+                                              "decision":  "rejected_for_A010",
+                                              "notes":  "Rejected for A010. It is a food/dairy production line, not reverse logistics, parcel sorting, or ecommerce returns footage.",
+                                              "local_file_path":  null
+                                          },
+                                          {
+                                              "candidate_id":  "A010-C003",
+                                              "source_platform":  "Storyblocks",
+                                              "source_url":  "https://www.storyblocks.com/video/stock/spacious-warehouse-interior-highlighting-advanced-storage-infrastructure-organized-logistics-and-efficient-inventory-management-for-354162963",
+                                              "footage_title":  "Spacious Warehouse Interior Highlighting Advanced Storage Infrastructure Organized Logistics And Efficient Inventory Management",
+                                              "license_type":  "Storyblocks membership license - not reviewed",
+                                              "license_status":  "not_reviewed",
+                                              "usage_allowed":  null,
+                                              "visual_quality":  "medium_high",
+                                              "logo_label_risk":  "low_from_preview_but_not_verified",
+                                              "decision":  "candidate_found",
+                                              "notes":  "Useful as warehouse support b-roll. Good for scale/storage context, but not enough as main sorting/conveyor/scanner footage.",
+                                              "local_file_path":  null
+                                          },
+                                          {
+                                              "candidate_id":  "A010-C004",
+                                              "source_platform":  "Storyblocks",
+                                              "source_url":  "https://www.storyblocks.com/video/stock/camera-moving-between-palettes-with-ordered-goods-and-materials-at-warehouse-large-warehouse-logistics-terminal-multi-level-storage-with-348537604",
+                                              "footage_title":  "Camera Moving Between Palettes With Ordered Goods And Materials At Warehouse Large Warehouse Logistics Terminal Multi Level Storage",
+                                              "license_type":  "Storyblocks membership license - not reviewed",
+                                              "license_status":  "not_reviewed",
+                                              "usage_allowed":  null,
+                                              "visual_quality":  "medium_high",
+                                              "logo_label_risk":  "low_from_preview_but_not_verified",
+                                              "decision":  "candidate_found",
+                                              "notes":  "Useful as moving warehouse b-roll. Good filler/support footage, but still not the main parcel sorting backbone.",
+                                              "local_file_path":  null
+                                          }
+                                      ]
+                   },
+                   {
+                       "asset_id":  "A012",
+                       "asset_name":  "Inspection Table / Return Evaluation",
+                       "asset_type":  "b_roll",
+                       "production_route":  "manual_capture_or_licensed_stock",
+                       "priority":  "high",
+                       "status":  "not_started",
+                       "search_queries":  [
+                                              "returns inspection table worker hands checking product no brand",
+                                              "warehouse return inspection table product checking close up",
+                                              "returned product inspection gloved hands b-roll",
+                                              "ecommerce returns processing inspection table",
+                                              "worker checking returned items accessories packaging"
+                                          ],
+                       "acceptance_criteria":  [
+                                                   "real hands and objects",
+                                                   "generic products only",
+                                                   "no logos",
+                                                   "no readable labels",
+                                                   "no fake UI",
+                                                   "documentary inspection feel",
+                                                   "controlled lighting"
+                                               ],
+                       "rejection_rules":  [
+                                               "branded products",
+                                               "readable labels",
+                                               "product ad look",
+                                               "unclear process",
+                                               "messy table without purpose",
+                                               "unusable camera angle"
+                                           ],
+                       "candidates":  [
+
+                                      ]
+                   }
+               ],
+    "candidate_schema":  {
+                             "candidate_id":  "A010-C001",
+                             "source_platform":  "example: Storyblocks / Artgrid / Pond5 / Adobe Stock",
+                             "source_url":  "",
+                             "footage_title":  "",
+                             "license_type":  "",
+                             "license_status":  "not_reviewed",
+                             "usage_allowed":  null,
+                             "visual_quality":  "unknown",
+                             "logo_label_risk":  "unknown",
+                             "decision":  "pending",
+                             "notes":  "",
+                             "local_file_path":  null
+                         },
+    "next_step":  "continue_search_A010_parcel_conveyor_scanner"
 }
