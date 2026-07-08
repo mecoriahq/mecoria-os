@@ -21,9 +21,11 @@ DEFAULT_FORMAT = "mp3"
 MAX_TTS_INPUT_CHARACTERS = 4096
 
 VOICE_INSTRUCTIONS = (
-    "Speak as a calm, serious, premium documentary narrator. "
-    "Use clear pacing, controlled emotion, natural pauses, and an investigative tone. "
-    "Avoid sounding like an advertisement, presenter, or overly dramatic trailer voice."
+    "Speak as a clear, engaging YouTube documentary narrator. "
+    "Use a smooth, fluent, listener-friendly pace with natural energy. "
+    "Keep the tone serious and investigative, but not heavy, cold, or boring. "
+    "Sound premium, curious, and easy to listen to, with a slightly lighter vocal feel. "
+    "Avoid sounding like an advertisement, news anchor, dramatic trailer, or robotic narrator."
 )
 
 
