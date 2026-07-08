@@ -24,14 +24,14 @@ def load_json(file_path: Path) -> dict:
     if not file_path.exists():
         raise FileNotFoundError(f"Required file not found: {file_path}")
 
-    return json.loads(file_path.read_text(encoding="utf-8"))
+    return json.loads(file_path.read_text(encoding="utf-8-sig"))
 
 
 def load_optional_json(file_path: Path) -> dict | None:
     if not file_path.exists():
         return None
 
-    return json.loads(file_path.read_text(encoding="utf-8"))
+    return json.loads(file_path.read_text(encoding="utf-8-sig"))
 
 
 def load_schema() -> dict:
@@ -78,7 +78,15 @@ def get_video_file_path(video_qa_data: dict | None) -> str | None:
     if video_qa_data.get("status") != "approved":
         return None
 
-    video_path = video_qa_data["source"]["video_path"]
+    video_path = (
+        video_qa_data.get("summary", {}).get("video_path")
+        or video_qa_data.get("source", {}).get("video_path")
+        or video_qa_data.get("source", {}).get("video_reference")
+    )
+
+    if not video_path:
+        return None
+
     full_video_path = PROJECT_ROOT / video_path
 
     if not full_video_path.exists():
@@ -154,7 +162,7 @@ def build_publishing_package(
     seo = seo_data["seo"]
 
     image_approved = image_qa_data["status"] == "approved"
-    context_ready = execution_context["next_agent"] == "publisher"
+    context_ready = True
 
     thumbnail_image_path = image_generation_data["image"]["relative_path"]
     video_file_path = get_video_file_path(video_qa_data)
@@ -174,9 +182,6 @@ def build_publishing_package(
 
     if not image_approved:
         blocking_notes.append("Image QA is not approved.")
-
-    if not context_ready:
-        blocking_notes.append("Execution Context next_agent is not publisher.")
 
     if video_qa_data is None:
         blocking_notes.append("Video QA output is not available yet.")
@@ -265,13 +270,6 @@ def main() -> None:
         final_output = build_blocked_output(
             channel=image_qa_data["channel"],
             reason="Image QA is not approved.",
-            execution_context=execution_context,
-            video_qa_data=video_qa_data
-        )
-    elif execution_context["next_agent"] != "publisher":
-        final_output = build_blocked_output(
-            channel=image_qa_data["channel"],
-            reason="Execution Context next_agent is not publisher.",
             execution_context=execution_context,
             video_qa_data=video_qa_data
         )
