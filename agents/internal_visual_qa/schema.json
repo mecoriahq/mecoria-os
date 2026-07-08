@@ -1,0 +1,246 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "overall_score",
+    "summary",
+    "asset_checks",
+    "issues",
+    "recommendations",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "internal_visual_qa"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "overall_score": {
+      "type": "integer"
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "expected_assets",
+        "approved_assets",
+        "total_files",
+        "valid_files",
+        "next_agent"
+      ],
+      "properties": {
+        "expected_assets": {
+          "type": "integer"
+        },
+        "approved_assets": {
+          "type": "integer"
+        },
+        "total_files": {
+          "type": "integer"
+        },
+        "valid_files": {
+          "type": "integer"
+        },
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "asset_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "asset_id",
+          "asset_type",
+          "production_method",
+          "production_status",
+          "production_status_valid",
+          "expected_files",
+          "valid_files",
+          "status",
+          "file_checks"
+        ],
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "asset_type": {
+            "type": "string"
+          },
+          "production_method": {
+            "type": "string"
+          },
+          "production_status": {
+            "type": "string"
+          },
+          "production_status_valid": {
+            "type": "boolean"
+          },
+          "expected_files": {
+            "type": "integer"
+          },
+          "valid_files": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          },
+          "file_checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "filename",
+                "relative_path",
+                "file_exists",
+                "file_readable",
+                "format_valid",
+                "size_bytes",
+                "size_valid",
+                "has_svg_tag",
+                "status",
+                "score"
+              ],
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "relative_path": {
+                  "type": "string"
+                },
+                "file_exists": {
+                  "type": "boolean"
+                },
+                "file_readable": {
+                  "type": "boolean"
+                },
+                "format_valid": {
+                  "type": "boolean"
+                },
+                "size_bytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "size_valid": {
+                  "type": "boolean"
+                },
+                "has_svg_tag": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pass",
+                    "fail"
+                  ]
+                },
+                "score": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "field",
+          "severity",
+          "message"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "field",
+          "suggestion"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "suggestion": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "internal_visual_production_reference"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "internal_visual_production_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
