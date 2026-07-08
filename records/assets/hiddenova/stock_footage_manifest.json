@@ -1,0 +1,101 @@
+﻿{
+  "record_type": "stock_footage_manifest",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "video_title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+  "source_platform": "Storyblocks",
+  "status": "active",
+  "public_usage_allowed": false,
+  "notes": "Stock files are stored locally under assets/stock and ignored by Git. Public use requires final license and visual QA confirmation.",
+  "items": [
+    {
+      "asset_id": "A010",
+      "candidate_id": "A010-C001",
+      "filename": "A010-C001_distribution_center_aerial.mp4",
+      "relative_path": "assets/stock/hiddenova/A010/A010-C001_distribution_center_aerial.mp4",
+      "role": "establishing_logistics_scale",
+      "usage_priority": 2,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "low_medium",
+      "notes": "Good establishing shot for logistics scale, intro, or transition."
+    },
+    {
+      "asset_id": "A010",
+      "candidate_id": "A010-C005",
+      "filename": "A010-C005_boxes_conveyor_warehouse.mp4",
+      "relative_path": "assets/stock/hiddenova/A010/A010-C005_boxes_conveyor_warehouse.mp4",
+      "role": "primary_conveyor_backbone",
+      "usage_priority": 1,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "medium",
+      "notes": "Main A010 backbone candidate. Needs check for readable labels, logos, and barcodes."
+    },
+    {
+      "asset_id": "A010",
+      "candidate_id": "A010-C006",
+      "filename": "A010-C006_logistics_aisle_racks.mp4",
+      "relative_path": "assets/stock/hiddenova/A010/A010-C006_logistics_aisle_racks.mp4",
+      "role": "warehouse_scale_support",
+      "usage_priority": 2,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "low_medium",
+      "notes": "Good warehouse support footage."
+    },
+    {
+      "asset_id": "A010",
+      "candidate_id": "A010-C007",
+      "filename": "A010-C007_distribution_center_truck_loading.mp4",
+      "relative_path": "assets/stock/hiddenova/A010/A010-C007_distribution_center_truck_loading.mp4",
+      "role": "distribution_center_loading",
+      "usage_priority": 2,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "medium",
+      "notes": "Useful for movement between warehouse and transport."
+    },
+    {
+      "asset_id": "A010",
+      "candidate_id": "A010-C008",
+      "filename": "A010-C008_pallet_truck_workers.mp4",
+      "relative_path": "assets/stock/hiddenova/A010/A010-C008_pallet_truck_workers.mp4",
+      "role": "warehouse_labor_support",
+      "usage_priority": 3,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "medium",
+      "notes": "Useful for human labor layer in logistics."
+    },
+    {
+      "asset_id": "A001",
+      "candidate_id": "A001-C001",
+      "filename": "A001-C001_home_box_packing.mp4",
+      "relative_path": "assets/stock/hiddenova/A001/A001-C001_home_box_packing.mp4",
+      "role": "home_return_sequence",
+      "usage_priority": 1,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "medium",
+      "notes": "Useful for customer/home return sequence. Needs check for brand/logo/label risk."
+    },
+    {
+      "asset_id": "A012",
+      "candidate_id": "A012-C001",
+      "filename": "A012-C001_worker_barcode_scanning.mp4",
+      "relative_path": "assets/stock/hiddenova/A012/A012-C001_worker_barcode_scanning.mp4",
+      "role": "inspection_scanning_support",
+      "usage_priority": 2,
+      "status": "downloaded_pending_visual_qa",
+      "risk_level": "medium_high",
+      "notes": "Use carefully. Barcode/scanning footage may contain readable barcode or fake AI visuals. Needs visual QA before public use."
+    },
+    {
+      "asset_id": "REJECTED",
+      "candidate_id": "R001",
+      "filename": "R001_tv_broadcast_truck_unrelated.mp4",
+      "relative_path": "assets/stock/hiddenova/rejected/R001_tv_broadcast_truck_unrelated.mp4",
+      "role": "rejected_unrelated",
+      "usage_priority": 99,
+      "status": "rejected_do_not_use",
+      "risk_level": "not_applicable",
+      "notes": "Rejected. TV broadcast truck is unrelated to ecommerce returns or logistics."
+    }
+  ],
+  "next_step": "run_stock_visual_inventory_check_then_build_video_assembly_v2"
+}
