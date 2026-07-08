@@ -79,3 +79,6 @@ assets/audio/
 *.mp3
 *.aac
 *.m4a
+
+# Agent runtime outputs - do not commit
+agents/*/output/
