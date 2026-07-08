@@ -1,0 +1,242 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "visual_asset_package",
+    "summary",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "visual_asset_integration"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "integration_ready",
+        "blocked"
+      ]
+    },
+    "visual_asset_package": {
+      "type": "object",
+      "required": [
+        "integrated_assets",
+        "scene_visual_map"
+      ],
+      "properties": {
+        "integrated_assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "asset_id",
+              "asset_type",
+              "production_method",
+              "acquisition_status",
+              "availability_status",
+              "is_first_build",
+              "rendered_files",
+              "next_action"
+            ],
+            "properties": {
+              "asset_id": {
+                "type": "string"
+              },
+              "asset_type": {
+                "type": "string"
+              },
+              "production_method": {
+                "type": "string"
+              },
+              "acquisition_status": {
+                "type": "string"
+              },
+              "availability_status": {
+                "type": "string"
+              },
+              "is_first_build": {
+                "type": "boolean"
+              },
+              "rendered_files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "filename",
+                    "relative_path",
+                    "format",
+                    "size_bytes",
+                    "resolution"
+                  ],
+                  "properties": {
+                    "filename": {
+                      "type": "string"
+                    },
+                    "relative_path": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "size_bytes": {
+                      "type": "integer"
+                    },
+                    "resolution": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "next_action": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "scene_visual_map": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "section_sequence",
+              "scene_number",
+              "primary_asset_id",
+              "supporting_asset_ids",
+              "scene_status",
+              "resolved_visual_paths",
+              "status_reason"
+            ],
+            "properties": {
+              "section_sequence": {
+                "type": "integer"
+              },
+              "scene_number": {
+                "type": "integer"
+              },
+              "primary_asset_id": {
+                "type": "string"
+              },
+              "supporting_asset_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "scene_status": {
+                "type": "string"
+              },
+              "resolved_visual_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "status_reason": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "asset_count",
+        "available_asset_count",
+        "scene_count",
+        "ready_scene_count",
+        "needs_stock_scene_count",
+        "needs_manual_scene_count",
+        "next_agent"
+      ],
+      "properties": {
+        "asset_count": {
+          "type": "integer"
+        },
+        "available_asset_count": {
+          "type": "integer"
+        },
+        "scene_count": {
+          "type": "integer"
+        },
+        "ready_scene_count": {
+          "type": "integer"
+        },
+        "needs_stock_scene_count": {
+          "type": "integer"
+        },
+        "needs_manual_scene_count": {
+          "type": "integer"
+        },
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "visual_asset_plan_reference",
+        "visual_asset_acquisition_reference",
+        "internal_visual_render_reference",
+        "internal_visual_render_qa_reference",
+        "internal_visual_render_qa_status"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visual_asset_plan_reference": {
+          "type": "string"
+        },
+        "visual_asset_acquisition_reference": {
+          "type": "string"
+        },
+        "internal_visual_render_reference": {
+          "type": "string"
+        },
+        "internal_visual_render_qa_reference": {
+          "type": "string"
+        },
+        "internal_visual_render_qa_status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
