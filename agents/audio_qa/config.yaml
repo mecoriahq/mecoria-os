@@ -1,0 +1,3 @@
+channel: hiddenova
+minimum_audio_bytes: 1024
+next_agent: audio_assembly
