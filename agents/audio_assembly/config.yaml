@@ -1,0 +1,4 @@
+channel: hiddenova
+format: mp3
+output_filename: narration_track.mp3
+next_agent: video_assembly

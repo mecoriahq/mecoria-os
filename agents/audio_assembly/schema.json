@@ -1,0 +1,163 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "audio",
+    "readiness",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "audio_assembly"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "assembled",
+        "blocked"
+      ]
+    },
+    "audio": {
+      "type": "object",
+      "required": [
+        "format",
+        "section_count",
+        "source_sections",
+        "combined_audio"
+      ],
+      "properties": {
+        "format": {
+          "type": "string"
+        },
+        "section_count": {
+          "type": "integer"
+        },
+        "source_sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "sequence",
+              "title",
+              "relative_path"
+            ],
+            "properties": {
+              "sequence": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "relative_path": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "combined_audio": {
+          "type": "object",
+          "required": [
+            "filename",
+            "relative_path",
+            "format",
+            "size_bytes"
+          ],
+          "properties": {
+            "filename": {
+              "type": "string"
+            },
+            "relative_path": {
+              "type": "string"
+            },
+            "format": {
+              "type": "string"
+            },
+            "size_bytes": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "readiness": {
+      "type": "object",
+      "required": [
+        "audio_qa_approved",
+        "sections_loaded",
+        "combined_audio_ready",
+        "blocking_notes"
+      ],
+      "properties": {
+        "audio_qa_approved": {
+          "type": "boolean"
+        },
+        "sections_loaded": {
+          "type": "integer"
+        },
+        "combined_audio_ready": {
+          "type": "boolean"
+        },
+        "blocking_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "voice_generation_reference",
+        "audio_qa_reference"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "voice_generation_reference": {
+          "type": "string"
+        },
+        "audio_qa_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
