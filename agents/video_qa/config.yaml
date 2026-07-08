@@ -1,0 +1,5 @@
+channel: hiddenova
+format: mp4
+expected_resolution: 1920x1080
+minimum_duration_seconds: 10
+next_agent: publisher

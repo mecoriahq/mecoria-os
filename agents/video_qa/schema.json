@@ -1,0 +1,195 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "overall_score",
+    "checks",
+    "issues",
+    "recommendations",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "video_qa"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "overall_score": {
+      "type": "integer"
+    },
+    "checks": {
+      "type": "object",
+      "required": [
+        "video_assembly_status",
+        "video_assembly_ready",
+        "file_exists",
+        "file_readable",
+        "format_valid",
+        "size_bytes",
+        "size_valid",
+        "probe_ran",
+        "has_video_stream",
+        "has_audio_stream",
+        "duration_seconds",
+        "duration_valid",
+        "resolution",
+        "expected_resolution",
+        "resolution_valid"
+      ],
+      "properties": {
+        "video_assembly_status": {
+          "type": "string"
+        },
+        "video_assembly_ready": {
+          "type": "boolean"
+        },
+        "file_exists": {
+          "type": "boolean"
+        },
+        "file_readable": {
+          "type": "boolean"
+        },
+        "format_valid": {
+          "type": "boolean"
+        },
+        "size_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "size_valid": {
+          "type": "boolean"
+        },
+        "probe_ran": {
+          "type": "boolean"
+        },
+        "has_video_stream": {
+          "type": "boolean"
+        },
+        "has_audio_stream": {
+          "type": "boolean"
+        },
+        "duration_seconds": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "duration_valid": {
+          "type": "boolean"
+        },
+        "resolution": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expected_resolution": {
+          "type": "string"
+        },
+        "resolution_valid": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "field",
+          "severity",
+          "message"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "field",
+          "suggestion"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "suggestion": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "video_assembly_reference",
+        "video_path"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "video_assembly_reference": {
+          "type": "string"
+        },
+        "video_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
