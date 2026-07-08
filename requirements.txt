@@ -3,3 +3,4 @@ python-dotenv==1.2.2
 jsonschema==4.26.0
 PyYAML==6.0.3
 imageio-ffmpeg==0.6.0
+pillow==12.3.0
