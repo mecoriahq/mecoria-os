@@ -1,0 +1,26 @@
+{
+  "record_type": "youtube_upload",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "platform": "youtube",
+  "visibility": "unlisted",
+  "status": "unlisted_uploaded",
+  "youtube_url": "https://youtu.be/vZZ9C0RXtfE",
+  "title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+  "uploaded_at": "2026-07-08T18:36:30",
+  "source": {
+    "publisher_package": "agents/publisher/output/hiddenova/latest.json",
+    "export_package": "exports/upload_packages/hiddenova/2026-07-08_18-18-30",
+    "video_file_path": "agents/video_assembly/output/hiddenova/drafts/2026-07-08_17-56-39/video_draft.mp4",
+    "thumbnail_image_path": "agents/image_generation/output/hiddenova/images/2026-07-08_01-05-50.png"
+  },
+  "review": {
+    "status": "pending_review",
+    "notes": [
+      "First upload-ready pipeline test video.",
+      "Not final public quality.",
+      "Used for unlisted YouTube workflow validation."
+    ],
+    "next_step": "review_unlisted_video"
+  }
+}
