@@ -1,0 +1,6 @@
+channel: hiddenova
+provider: openai
+model: gpt-4o-mini-tts
+voice: cedar
+format: mp3
+next_agent: audio_qa
