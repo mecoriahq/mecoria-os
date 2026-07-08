@@ -1,0 +1,277 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "asset_plan",
+    "summary",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "visual_asset_plan"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "asset_plan_ready",
+        "blocked"
+      ]
+    },
+    "asset_plan": {
+      "type": "object",
+      "required": [
+        "plan_summary",
+        "production_strategy",
+        "reusable_assets",
+        "scene_asset_map",
+        "next_steps"
+      ],
+      "properties": {
+        "plan_summary": {
+          "type": "string"
+        },
+        "production_strategy": {
+          "type": "object",
+          "required": [
+            "target_asset_count",
+            "asset_reuse_strategy",
+            "recommended_first_build",
+            "quality_risks"
+          ],
+          "properties": {
+            "target_asset_count": {
+              "type": "integer"
+            },
+            "asset_reuse_strategy": {
+              "type": "string"
+            },
+            "recommended_first_build": {
+              "type": "string"
+            },
+            "quality_risks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "reusable_assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "asset_id",
+              "asset_type",
+              "priority",
+              "scenes_covered",
+              "purpose",
+              "production_method",
+              "creative_brief",
+              "ai_image_prompt",
+              "stock_search_query",
+              "motion_graphic_instructions",
+              "diagram_instructions",
+              "editing_notes",
+              "quality_constraints"
+            ],
+            "properties": {
+              "asset_id": {
+                "type": "string"
+              },
+              "asset_type": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              },
+              "scenes_covered": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "production_method": {
+                "type": "string"
+              },
+              "creative_brief": {
+                "type": "string"
+              },
+              "ai_image_prompt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "stock_search_query": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "motion_graphic_instructions": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "diagram_instructions": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "editing_notes": {
+                "type": "string"
+              },
+              "quality_constraints": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "scene_asset_map": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "section_sequence",
+              "scene_number",
+              "primary_asset_id",
+              "supporting_asset_ids"
+            ],
+            "properties": {
+              "section_sequence": {
+                "type": "integer"
+              },
+              "scene_number": {
+                "type": "integer"
+              },
+              "primary_asset_id": {
+                "type": "string"
+              },
+              "supporting_asset_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "next_steps": {
+          "type": "object",
+          "required": [
+            "next_agent",
+            "first_assets_to_create",
+            "manual_assets_needed"
+          ],
+          "properties": {
+            "next_agent": {
+              "type": "string"
+            },
+            "first_assets_to_create": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "manual_assets_needed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "storyboard_scene_count",
+        "reusable_asset_count",
+        "mapped_scene_count",
+        "high_priority_asset_count",
+        "next_agent"
+      ],
+      "properties": {
+        "storyboard_scene_count": {
+          "type": "integer"
+        },
+        "reusable_asset_count": {
+          "type": "integer"
+        },
+        "mapped_scene_count": {
+          "type": "integer"
+        },
+        "high_priority_asset_count": {
+          "type": "integer"
+        },
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "storyboard_reference"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "storyboard_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

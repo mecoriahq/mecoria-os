@@ -1,0 +1,4 @@
+channel: hiddenova
+target_asset_count_min: 15
+target_asset_count_max: 30
+next_agent: visual_asset_production
