@@ -1,0 +1,50 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "summary",
+    "image_checks",
+    "readiness",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "ai_visual_qa"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "needs_revision",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "image_checks": {
+      "type": "array"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "source": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
