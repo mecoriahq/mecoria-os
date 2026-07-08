@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import math
 import re
@@ -200,6 +200,12 @@ def load_stock_clips(stock_manifest_data: dict) -> list[dict]:
         status = item.get("status", "")
 
         if status.startswith("rejected"):
+            continue
+
+        if item.get("asset_id") not in {"A001", "A010", "A012"}:
+            continue
+
+        if status != "downloaded_pending_visual_qa":
             continue
 
         relative_path = item.get("relative_path")

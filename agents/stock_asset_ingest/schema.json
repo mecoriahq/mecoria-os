@@ -1,0 +1,50 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "summary",
+    "ingested_items",
+    "skipped_items",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "stock_asset_ingest"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ingest_ready",
+        "dry_run_ready",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "ingested_items": {
+      "type": "array"
+    },
+    "skipped_items": {
+      "type": "array"
+    },
+    "source": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
