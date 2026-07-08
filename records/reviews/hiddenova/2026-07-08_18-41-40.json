@@ -1,0 +1,40 @@
+{
+  "record_type": "unlisted_video_review",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "platform": "youtube",
+  "youtube_url": "https://youtu.be/vZZ9C0RXtfE",
+  "source_upload_record": "records/uploads/hiddenova/2026-07-08_18-36-30.json",
+  "reviewed_at": "2026-07-08T18:41:40",
+  "review_status": "completed",
+  "public_release_decision": "do_not_publish",
+  "quality_assessment": {
+    "voice": "medium",
+    "visuals": "weak",
+    "thumbnail": "medium",
+    "public_ready": false,
+    "main_issue": "The video has narration and a single animated image, but lacks real video flow, section visuals, b-roll, motion graphics, and animations."
+  },
+  "what_worked": [
+    "End-to-end pipeline successfully produced an upload-ready package.",
+    "Audio generation worked.",
+    "Video assembly produced a valid MP4.",
+    "Video QA approved the technical file.",
+    "Manual unlisted YouTube upload was completed."
+  ],
+  "what_failed": [
+    "Video is too static for public release.",
+    "Visual layer does not yet feel like a real documentary video.",
+    "There are no section-based visuals, b-roll scenes, charts, maps, or explanatory animations.",
+    "Voice quality is acceptable for testing but should become more fluid and conversational later."
+  ],
+  "required_next_systems": [
+    "Video Storyboard Agent",
+    "Section Visual Plan Agent",
+    "Visual Asset Agent",
+    "Motion Graphics / Animation Layer",
+    "Video Assembly v1 with section-based visuals",
+    "Hiddenova Quality Standard v1"
+  ],
+  "next_step": "build_video_storyboard_agent"
+}
