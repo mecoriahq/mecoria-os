@@ -1,0 +1,50 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "summary",
+    "video",
+    "readiness",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "hybrid_video_assembly"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft_ready",
+        "dry_run_ready",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "video": {
+      "type": "object"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "source": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
