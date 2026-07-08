@@ -62,3 +62,20 @@ node_modules/
 # Misc
 .cache/
 exports/
+
+# Local media assets - do not commit
+assets/stock/
+assets/raw/
+assets/video/
+assets/audio/
+
+# Large media files - do not commit
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.aac
+*.m4a
