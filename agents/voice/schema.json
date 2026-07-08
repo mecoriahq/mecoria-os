@@ -1,0 +1,237 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "voice_package",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "voice"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "narration_ready",
+        "blocked"
+      ]
+    },
+    "voice_package": {
+      "type": "object",
+      "required": [
+        "voice_profile",
+        "narration",
+        "assets",
+        "readiness"
+      ],
+      "properties": {
+        "voice_profile": {
+          "type": "object",
+          "required": [
+            "language",
+            "voice_style",
+            "tone",
+            "pace",
+            "target_platform",
+            "provider",
+            "voice_id"
+          ],
+          "properties": {
+            "language": {
+              "type": "string"
+            },
+            "voice_style": {
+              "type": "string"
+            },
+            "tone": {
+              "type": "string"
+            },
+            "pace": {
+              "type": "string"
+            },
+            "target_platform": {
+              "type": "string"
+            },
+            "provider": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "voice_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "narration": {
+          "type": "object",
+          "required": [
+            "title",
+            "estimated_script_duration",
+            "estimated_voice_duration_minutes",
+            "word_count",
+            "sections",
+            "full_text"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "estimated_script_duration": {
+              "type": "string"
+            },
+            "estimated_voice_duration_minutes": {
+              "type": "number"
+            },
+            "word_count": {
+              "type": "integer"
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "sequence",
+                  "section_type",
+                  "title",
+                  "narration",
+                  "word_count",
+                  "visual_direction"
+                ],
+                "properties": {
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "section_type": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "narration": {
+                    "type": "string"
+                  },
+                  "word_count": {
+                    "type": "integer"
+                  },
+                  "visual_direction": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "full_text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "assets": {
+          "type": "object",
+          "required": [
+            "script_reference",
+            "audio_file_path"
+          ],
+          "properties": {
+            "script_reference": {
+              "type": "string"
+            },
+            "audio_file_path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "readiness": {
+          "type": "object",
+          "required": [
+            "script_loaded",
+            "narration_ready",
+            "audio_ready",
+            "blocking_notes"
+          ],
+          "properties": {
+            "script_loaded": {
+              "type": "boolean"
+            },
+            "narration_ready": {
+              "type": "boolean"
+            },
+            "audio_ready": {
+              "type": "boolean"
+            },
+            "blocking_notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "script_title",
+        "idea_title"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "script_title": {
+          "type": "string"
+        },
+        "idea_title": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
