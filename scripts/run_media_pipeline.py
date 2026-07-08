@@ -114,7 +114,8 @@ def mark_skipped(step: dict, reason: str | None = None) -> dict:
 def can_execute_step(
     step_name: str,
     include_image_generation: bool,
-    include_image_qa: bool
+    include_image_qa: bool,
+    include_publisher: bool
 ) -> bool:
     if step_name in SAFE_EXECUTE_STEPS:
         return True
@@ -125,13 +126,17 @@ def can_execute_step(
     if step_name == "image_qa":
         return include_image_generation and include_image_qa
 
+    if step_name == "publisher":
+        return include_image_generation and include_image_qa and include_publisher
+
     return False
 
 
 def get_skip_reason(
     step_name: str,
     include_image_generation: bool,
-    include_image_qa: bool
+    include_image_qa: bool,
+    include_publisher: bool
 ) -> str:
     if step_name == "image_generation":
         return "Skipped because --include-image-generation was not provided."
@@ -141,6 +146,14 @@ def get_skip_reason(
             return "Skipped because image generation was not enabled."
         if not include_image_qa:
             return "Skipped because --include-image-qa was not provided."
+
+    if step_name == "publisher":
+        if not include_image_generation:
+            return "Skipped because image generation was not enabled."
+        if not include_image_qa:
+            return "Skipped because image QA was not enabled."
+        if not include_publisher:
+            return "Skipped because --include-publisher was not provided."
 
     return "Skipped by safe execute mode. This step is not enabled in this version."
 
@@ -215,7 +228,8 @@ def build_execute_output(
     until_step: str,
     timeout_seconds: int,
     include_image_generation: bool,
-    include_image_qa: bool
+    include_image_qa: bool,
+    include_publisher: bool
 ) -> dict:
     started_at = now_iso()
     steps = [create_step(step) for step in PIPELINE_STEPS]
@@ -243,14 +257,16 @@ def build_execute_output(
         if not can_execute_step(
             step_name=step["name"],
             include_image_generation=include_image_generation,
-            include_image_qa=include_image_qa
+            include_image_qa=include_image_qa,
+            include_publisher=include_publisher
         ):
             mark_skipped(
                 step,
                 reason=get_skip_reason(
                     step_name=step["name"],
                     include_image_generation=include_image_generation,
-                    include_image_qa=include_image_qa
+                    include_image_qa=include_image_qa,
+                    include_publisher=include_publisher
                 )
             )
 
@@ -338,6 +354,12 @@ def parse_args() -> argparse.Namespace:
         help="Allow the orchestrator to run the image_qa step."
     )
 
+    parser.add_argument(
+        "--include-publisher",
+        action="store_true",
+        help="Allow the orchestrator to run the publisher packaging step."
+    )
+
     return parser.parse_args()
 
 
@@ -351,7 +373,8 @@ def main() -> None:
             until_step=args.until,
             timeout_seconds=args.timeout,
             include_image_generation=args.include_image_generation,
-            include_image_qa=args.include_image_qa
+            include_image_qa=args.include_image_qa,
+            include_publisher=args.include_publisher
         )
     else:
         pipeline_output = build_dry_run_output(channel=channel)
