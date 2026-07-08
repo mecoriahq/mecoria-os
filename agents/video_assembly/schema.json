@@ -1,0 +1,150 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "video",
+    "readiness",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "video_assembly"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft_ready",
+        "blocked"
+      ]
+    },
+    "video": {
+      "type": "object",
+      "required": [
+        "filename",
+        "relative_path",
+        "format",
+        "size_bytes",
+        "resolution",
+        "fps",
+        "mode",
+        "thumbnail_image_path",
+        "audio_track_path"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "relative_path": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "size_bytes": {
+          "type": "integer"
+        },
+        "resolution": {
+          "type": "string"
+        },
+        "fps": {
+          "type": "integer"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "thumbnail_image_path": {
+          "type": "string"
+        },
+        "audio_track_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "readiness": {
+      "type": "object",
+      "required": [
+        "thumbnail_ready",
+        "audio_ready",
+        "video_ready",
+        "upload_ready",
+        "blocking_notes"
+      ],
+      "properties": {
+        "thumbnail_ready": {
+          "type": "boolean"
+        },
+        "audio_ready": {
+          "type": "boolean"
+        },
+        "video_ready": {
+          "type": "boolean"
+        },
+        "upload_ready": {
+          "type": "boolean"
+        },
+        "blocking_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "audio_assembly_reference",
+        "publisher_reference",
+        "title"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "audio_assembly_reference": {
+          "type": "string"
+        },
+        "publisher_reference": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

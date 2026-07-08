@@ -1,0 +1,6 @@
+channel: hiddenova
+format: mp4
+resolution: 1920x1080
+fps: 30
+mode: static_thumbnail_with_narration
+next_agent: video_qa
