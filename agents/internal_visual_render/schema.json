@@ -1,0 +1,188 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "rendered_visual_assets",
+    "summary",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "internal_visual_render"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "renders_ready",
+        "blocked"
+      ]
+    },
+    "rendered_visual_assets": {
+      "type": "object",
+      "required": [
+        "assets"
+      ],
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "asset_id",
+              "asset_type",
+              "source_output_folder",
+              "rendered_output_folder",
+              "source_files",
+              "rendered_files",
+              "status"
+            ],
+            "properties": {
+              "asset_id": {
+                "type": "string"
+              },
+              "asset_type": {
+                "type": "string"
+              },
+              "source_output_folder": {
+                "type": "string"
+              },
+              "rendered_output_folder": {
+                "type": "string"
+              },
+              "source_files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "filename",
+                    "relative_path",
+                    "format"
+                  ],
+                  "properties": {
+                    "filename": {
+                      "type": "string"
+                    },
+                    "relative_path": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "rendered_files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "filename",
+                    "relative_path",
+                    "format",
+                    "size_bytes",
+                    "resolution"
+                  ],
+                  "properties": {
+                    "filename": {
+                      "type": "string"
+                    },
+                    "relative_path": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "size_bytes": {
+                      "type": "integer"
+                    },
+                    "resolution": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "asset_count",
+        "rendered_file_count",
+        "next_agent"
+      ],
+      "properties": {
+        "asset_count": {
+          "type": "integer"
+        },
+        "rendered_file_count": {
+          "type": "integer"
+        },
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_agents",
+        "internal_visual_production_reference",
+        "internal_visual_qa_reference",
+        "internal_visual_qa_status"
+      ],
+      "properties": {
+        "source_agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "internal_visual_production_reference": {
+          "type": "string"
+        },
+        "internal_visual_qa_reference": {
+          "type": "string"
+        },
+        "internal_visual_qa_status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "next_agent"
+      ],
+      "properties": {
+        "next_agent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

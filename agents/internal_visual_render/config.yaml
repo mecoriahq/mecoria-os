@@ -1,0 +1,4 @@
+channel: hiddenova
+format: png
+resolution: 1920x1080
+next_agent: internal_visual_render_qa
