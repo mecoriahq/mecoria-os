@@ -1,0 +1,5 @@
+channel: hiddenova
+format: png
+expected_resolution: 1920x1080
+minimum_png_bytes: 1024
+next_agent: video_assembly_v1
