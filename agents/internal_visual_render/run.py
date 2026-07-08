@@ -125,6 +125,87 @@ def draw_box(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, label: s
     draw.rounded_rectangle((x, y, x + w, y + h), radius=18, fill=COLORS["panel"], outline=outline, width=4)
     draw_center_text(draw, (x + w // 2, y + h // 2 - 16), label, 30, COLORS["white"], bold=True)
 
+def draw_card(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    w: int,
+    h: int,
+    label: str,
+    subtitle: str | None = None,
+    outline=None,
+    fill=None
+) -> None:
+    outline = outline or COLORS["blue"]
+    fill = fill or COLORS["panel"]
+
+    shadow_offset = 10
+    draw.rounded_rectangle(
+        (x + shadow_offset, y + shadow_offset, x + w + shadow_offset, y + h + shadow_offset),
+        radius=28,
+        fill=(6, 8, 12)
+    )
+
+    draw.rounded_rectangle(
+        (x, y, x + w, y + h),
+        radius=28,
+        fill=fill,
+        outline=outline,
+        width=3
+    )
+
+    draw.ellipse((x + 28, y + 28, x + 48, y + 48), fill=outline)
+
+    draw.text(
+        (x + 68, y + 26),
+        label,
+        font=get_font(30, bold=True),
+        fill=COLORS["white"]
+    )
+
+    if subtitle:
+        draw.text(
+            (x + 68, y + 72),
+            subtitle,
+            font=get_font(22),
+            fill=COLORS["muted"]
+        )
+
+
+def draw_small_node(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    label: str,
+    outline=None
+) -> None:
+    outline = outline or COLORS["blue"]
+
+    draw.rounded_rectangle(
+        (x - 115, y - 45, x + 115, y + 45),
+        radius=22,
+        fill=COLORS["panel"],
+        outline=outline,
+        width=3
+    )
+
+    draw.ellipse((x - 92, y - 10, x - 72, y + 10), fill=outline)
+
+    draw.text(
+        (x - 58, y - 16),
+        label,
+        font=get_font(27, bold=True),
+        fill=COLORS["white"]
+    )
+
+
+def draw_soft_grid(draw: ImageDraw.ImageDraw) -> None:
+    for x in range(180, WIDTH, 180):
+        draw.line((x, 170, x, 930), fill=(20, 28, 36), width=1)
+
+    for y in range(180, HEIGHT, 120):
+        draw.line((180, y, 1740, y), fill=(20, 28, 36), width=1)
+
 
 def save_png(image: Image.Image, path: Path) -> dict:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -229,46 +310,159 @@ def render_a007(filename: str, output_path: Path) -> dict:
     image = new_canvas()
     draw = ImageDraw.Draw(image)
 
+    draw_soft_grid(draw)
+
     if "restock" in filename:
-        draw_center_text(draw, (960, 105), "THE RESTOCK GATE", 52, bold=True)
-        draw_box(draw, 720, 240, 480, 100, "CAN IT BE SOLD AS NEW?", COLORS["amber"])
-        draw_line(draw, (860, 340), (520, 540))
-        draw_line(draw, (1060, 340), (1400, 540))
-        draw_box(draw, 320, 540, 400, 100, "YES: RESTOCK", COLORS["green"])
-        draw_box(draw, 1200, 540, 400, 100, "NO: INSPECT", COLORS["red"])
-        draw_line(draw, (1400, 640), (1400, 790))
-        draw_box(draw, 1180, 790, 440, 100, "REPAIR / RESELL / LIQUIDATE", COLORS["blue"])
-        draw_center_text(draw, (960, 960), "A SIMPLE DECISION CAN CREATE MANY DOWNSTREAM ROUTES", 28, COLORS["muted"])
+        draw_center_text(draw, (960, 88), "THE RESTOCK GATE", 50, bold=True)
+
+        draw_card(
+            draw,
+            660,
+            205,
+            600,
+            132,
+            "CAN IT BE SOLD AS NEW?",
+            "The first major decision point",
+            outline=COLORS["amber"],
+            fill=(18, 27, 36)
+        )
+
+        draw_line(draw, (850, 337), (560, 500), COLORS["blue"], 4)
+        draw_line(draw, (1070, 337), (1360, 500), COLORS["blue"], 4)
+
+        draw_card(
+            draw,
+            320,
+            500,
+            430,
+            120,
+            "YES - RESTOCK",
+            "Return to sellable inventory",
+            outline=COLORS["green"],
+            fill=(16, 31, 25)
+        )
+
+        draw_card(
+            draw,
+            1170,
+            500,
+            430,
+            120,
+            "NO - INSPECT",
+            "Send to evaluation path",
+            outline=COLORS["red"],
+            fill=(34, 21, 24)
+        )
+
+        draw_line(draw, (1385, 620), (1385, 705), COLORS["blue"], 4)
+        draw_line(draw, (1385, 705), (1080, 790), COLORS["blue"], 4)
+        draw_line(draw, (1385, 705), (1385, 790), COLORS["blue"], 4)
+        draw_line(draw, (1385, 705), (1690, 790), COLORS["blue"], 4)
+
+        draw_small_node(draw, 1080, 820, "REPAIR", COLORS["blue"])
+        draw_small_node(draw, 1385, 820, "RESELL", COLORS["amber"])
+        draw_small_node(draw, 1690, 820, "LIQUIDATE", COLORS["red"])
+
+        draw_center_text(
+            draw,
+            (960, 970),
+            "One decision creates multiple downstream routes.",
+            30,
+            COLORS["muted"]
+        )
+
     elif "unrecoverable" in filename:
-        draw_center_text(draw, (960, 105), "WHEN VALUE CANNOT BE RECOVERED", 50, bold=True)
-        draw_box(draw, 760, 220, 400, 90, "UNRECOVERABLE ITEM", COLORS["amber"])
-        for point in [(520, 520), (820, 520), (1120, 520), (1420, 520)]:
-            draw_line(draw, (960, 310), point)
-        draw_box(draw, 320, 520, 390, 100, "PARTS")
-        draw_box(draw, 620, 520, 390, 100, "DONATION")
-        draw_box(draw, 920, 520, 390, 100, "RECYCLING")
-        draw_box(draw, 1220, 520, 390, 100, "DISPOSAL")
-        draw_center_text(draw, (960, 840), "This section should feel slower, heavier, and more reflective.", 30, (184, 199, 217))
-        draw_center_text(draw, (960, 930), "NO UNSUPPORTED NUMBERS. NO FAKE LABELS. NO BRANDS.", 26, COLORS["muted"])
+        draw_center_text(draw, (960, 88), "WHEN VALUE CANNOT BE RECOVERED", 48, bold=True)
+
+        draw_card(
+            draw,
+            680,
+            205,
+            560,
+            125,
+            "UNRECOVERABLE ITEM",
+            "The commercial value cannot be restored",
+            outline=COLORS["amber"],
+            fill=(18, 27, 36)
+        )
+
+        branch_y = 555
+        branch_nodes = [
+            (420, branch_y, "PARTS", COLORS["blue"]),
+            (780, branch_y, "DONATION", COLORS["green"]),
+            (1140, branch_y, "RECYCLING", COLORS["amber"]),
+            (1500, branch_y, "DISPOSAL", COLORS["red"])
+        ]
+
+        for x, y, label, color in branch_nodes:
+            draw_line(draw, (960, 330), (x, y - 55), COLORS["blue"], 4)
+            draw_small_node(draw, x, y, label, color)
+
+        draw_card(
+            draw,
+            500,
+            760,
+            920,
+            120,
+            "CONVENIENCE HAS A MATERIAL SHADOW",
+            "Every return still needs a destination",
+            outline=(60, 78, 96),
+            fill=(13, 19, 26)
+        )
+
+        draw_center_text(
+            draw,
+            (960, 960),
+            "No unsupported numbers. No fake labels. No brands.",
+            28,
+            COLORS["muted"]
+        )
+
     else:
-        draw_center_text(draw, (960, 105), "WHAT CAN HAPPEN TO A RETURNED PRODUCT?", 48, bold=True)
-        draw_box(draw, 760, 230, 400, 90, "RETURNED ITEM", COLORS["amber"])
-        for point in [(460, 500), (760, 500), (1060, 500), (1360, 500)]:
-            draw_line(draw, (960, 320), point)
-        draw_box(draw, 260, 500, 390, 90, "RESTOCK")
-        draw_box(draw, 560, 500, 390, 90, "INSPECT")
-        draw_box(draw, 860, 500, 390, 90, "REPAIR")
-        draw_box(draw, 1160, 500, 390, 90, "LIQUIDATE")
-        draw_line(draw, (760, 590), (560, 760))
-        draw_line(draw, (1060, 590), (960, 760))
-        draw_line(draw, (1360, 590), (1360, 760))
-        draw_box(draw, 360, 760, 390, 90, "RECYCLE")
-        draw_box(draw, 760, 760, 390, 90, "RESELL")
-        draw_box(draw, 1160, 760, 390, 90, "DISPOSE")
-        draw_center_text(draw, (960, 960), "OUTCOMES VARY BY ITEM, POLICY, AND LOCAL RULES", 28, COLORS["muted"])
+        draw_center_text(draw, (960, 88), "WHAT CAN HAPPEN TO A RETURNED PRODUCT?", 46, bold=True)
+
+        draw_card(
+            draw,
+            690,
+            190,
+            540,
+            120,
+            "RETURNED ITEM",
+            "One object, many possible outcomes",
+            outline=COLORS["amber"],
+            fill=(18, 27, 36)
+        )
+
+        primary_nodes = [
+            (400, 470, "RESTOCK", COLORS["green"]),
+            (775, 470, "INSPECT", COLORS["blue"]),
+            (1150, 470, "REPAIR", COLORS["amber"]),
+            (1525, 470, "LIQUIDATE", COLORS["red"])
+        ]
+
+        for x, y, label, color in primary_nodes:
+            draw_line(draw, (960, 310), (x, y - 55), COLORS["blue"], 4)
+            draw_small_node(draw, x, y, label, color)
+
+        secondary_nodes = [
+            (600, 735, "RECYCLE", COLORS["blue"]),
+            (960, 735, "RESELL", COLORS["amber"]),
+            (1320, 735, "DISPOSE", COLORS["red"])
+        ]
+
+        for x, y, label, color in secondary_nodes:
+            draw_line(draw, (960, 530), (x, y - 55), COLORS["blue"], 4)
+            draw_small_node(draw, x, y, label, color)
+
+        draw_center_text(
+            draw,
+            (960, 950),
+            "Outcomes vary by item, policy, and local rules.",
+            30,
+            COLORS["muted"]
+        )
 
     return save_png(image, output_path)
-
 
 def render_asset_file(asset_id: str, source_file: dict, output_dir: Path) -> dict:
     source_filename = source_file["filename"]
