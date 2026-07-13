@@ -596,6 +596,9 @@ def main() -> None:
     if args.apply and failed_apply_results:
         status = "apply_test_failed"
         next_step = "inspect_failed_apply_results"
+    elif args.apply and args.allow_full_apply:
+        status = "full_sync_passed"
+        next_step = "review_full_ai_agents_sync_then_build_youtube_channels_sync"
     elif args.apply:
         status = "apply_test_passed"
         next_step = "review_3_synced_agents_in_notion_then_full_sync"
@@ -647,8 +650,9 @@ def main() -> None:
             "token_printed_to_terminal": False,
             "openai_key_saved_to_output": False,
             "write_operations_performed": bool(args.apply),
-            "mode": "limited_apply" if args.apply else "dry_run_only",
-            "apply_limit": args.limit
+            "mode": "full_apply" if args.apply and args.allow_full_apply else ("limited_apply" if args.apply else "dry_run_only"),
+            "apply_limit": args.limit,
+            "allow_full_apply": bool(args.allow_full_apply)
         }
     }
 
