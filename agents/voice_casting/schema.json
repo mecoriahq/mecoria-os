@@ -1,0 +1,62 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "provider",
+    "model",
+    "summary",
+    "samples",
+    "failed_samples",
+    "evaluation_criteria",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "voice_casting"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "samples_ready",
+        "dry_run_ready",
+        "blocked"
+      ]
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "samples": {
+      "type": "array"
+    },
+    "failed_samples": {
+      "type": "array"
+    },
+    "evaluation_criteria": {
+      "type": "array"
+    },
+    "source": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
