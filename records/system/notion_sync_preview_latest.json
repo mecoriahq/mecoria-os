@@ -1,7 +1,7 @@
 {
   "record_type": "notion_sync_preview",
   "version": "1.0",
-  "created_at": "2026-07-13T22:36:03",
+  "created_at": "2026-07-13T22:39:16",
   "channel": "hiddenova",
   "status": "preview_ready",
   "summary": {
@@ -11,9 +11,7 @@
       "publishing_queue"
     ],
     "total_preview_rows": 40,
-    "missing_first_scope_database_ids": [
-      "publishing_queue"
-    ],
+    "missing_first_scope_database_ids": [],
     "notion_api_key_available": false,
     "dry_run_only": true,
     "next_step": "connect_notion_credentials_then_test_one_database"
@@ -57,7 +55,7 @@
     },
     "publishing_queue": {
       "env_key": "NOTION_PUBLISHING_QUEUE_DB_ID",
-      "database_id_available": false,
+      "database_id_available": true,
       "sync_status": "first_priority",
       "source": "records/uploads, records/releases, agents/publisher/output"
     },
