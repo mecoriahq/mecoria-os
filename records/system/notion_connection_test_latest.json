@@ -1,0 +1,165 @@
+{
+  "record_type": "notion_connection_test",
+  "version": "1.0",
+  "created_at": "2026-07-13T22:55:16",
+  "status": "connection_failed",
+  "summary": {
+    "total_targets": 3,
+    "accessible_target_count": 0,
+    "failed_target_count": 3,
+    "accessible_targets": [],
+    "failed_targets": [
+      "ai_agents",
+      "youtube_channels",
+      "publishing_queue"
+    ],
+    "notion_api_key_available": true,
+    "write_operations_performed": false,
+    "next_step": "check_token_database_ids_and_connection_sharing"
+  },
+  "targets": [
+    {
+      "key": "ai_agents",
+      "env_key": "NOTION_AI_AGENTS_DB_ID",
+      "database_id_available": true,
+      "database_id": "391135d3fbb6805ebec7eb4d7434d0df",
+      "connection_status": "failed",
+      "expected_purpose": "technical AI agent registry",
+      "attempts": [
+        {
+          "connection_status": "failed",
+          "api_mode": "legacy_database",
+          "api_version": "2022-06-28",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        },
+        {
+          "connection_status": "failed",
+          "api_mode": "current_database",
+          "api_version": "2025-09-03",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        },
+        {
+          "connection_status": "failed",
+          "api_mode": "direct_data_source",
+          "api_version": "2025-09-03",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        }
+      ]
+    },
+    {
+      "key": "youtube_channels",
+      "env_key": "NOTION_YOUTUBE_CHANNELS_DB_ID",
+      "database_id_available": true,
+      "database_id": "393135d3fbb680ffb0e7fd57c3260502",
+      "connection_status": "failed",
+      "expected_purpose": "YouTube channel dashboard",
+      "attempts": [
+        {
+          "connection_status": "failed",
+          "api_mode": "legacy_database",
+          "api_version": "2022-06-28",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        },
+        {
+          "connection_status": "failed",
+          "api_mode": "current_database",
+          "api_version": "2025-09-03",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        },
+        {
+          "connection_status": "failed",
+          "api_mode": "direct_data_source",
+          "api_version": "2025-09-03",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        }
+      ]
+    },
+    {
+      "key": "publishing_queue",
+      "env_key": "NOTION_PUBLISHING_QUEUE_DB_ID",
+      "database_id_available": true,
+      "database_id": "393135d3fbb6808a9c17cbba546f4583",
+      "connection_status": "failed",
+      "expected_purpose": "publishing queue / release tracker",
+      "attempts": [
+        {
+          "connection_status": "failed",
+          "api_mode": "legacy_database",
+          "api_version": "2022-06-28",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        },
+        {
+          "connection_status": "failed",
+          "api_mode": "current_database",
+          "api_version": "2025-09-03",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        },
+        {
+          "connection_status": "failed",
+          "api_mode": "direct_data_source",
+          "api_version": "2025-09-03",
+          "status_code": 400,
+          "error": {
+            "object": null,
+            "status": null,
+            "code": null,
+            "message": ""
+          }
+        }
+      ]
+    }
+  ],
+  "security": {
+    "token_saved_to_output": false,
+    "token_printed_to_terminal": false,
+    "write_operations_performed": false
+  }
+}
