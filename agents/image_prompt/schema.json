@@ -1,4 +1,4 @@
-﻿{
+{
   "type": "object",
   "required": ["agent", "version", "channel", "providers", "metadata"],
   "properties": {
