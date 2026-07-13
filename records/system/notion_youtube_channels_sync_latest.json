@@ -1,0 +1,280 @@
+{
+  "record_type": "notion_youtube_channels_sync",
+  "version": "1.0",
+  "created_at": "2026-07-14T00:29:13",
+  "status": "sync_passed",
+  "summary": {
+    "target_database": "youtube_channels",
+    "database_title": "📺 YouTube Channels",
+    "source_row_count": 1,
+    "selected_row_count": 1,
+    "write_operations_performed": true,
+    "schema_write_operations_performed": true,
+    "created_count": 0,
+    "updated_count": 1,
+    "failed_apply_count": 0,
+    "mapped_field_count": 11,
+    "unmapped_field_count": 0,
+    "next_step": "review_youtube_channels_in_notion_then_build_publishing_queue_sync"
+  },
+  "target": {
+    "env_key": "NOTION_YOUTUBE_CHANNELS_DB_ID",
+    "database_id_available": true,
+    "database_title": "📺 YouTube Channels",
+    "title_property_name": "Name",
+    "notion_property_count": 21,
+    "notion_properties": [
+      {
+        "name": "Domain",
+        "type": "url"
+      },
+      {
+        "name": "Handle",
+        "type": "rich_text"
+      },
+      {
+        "name": "Homepage Enabled",
+        "type": "checkbox"
+      },
+      {
+        "name": "Language",
+        "type": "select"
+      },
+      {
+        "name": "Launch Status",
+        "type": "rich_text"
+      },
+      {
+        "name": "Manager",
+        "type": "people"
+      },
+      {
+        "name": "Name",
+        "type": "title"
+      },
+      {
+        "name": "Next Step",
+        "type": "rich_text"
+      },
+      {
+        "name": "Niche",
+        "type": "select"
+      },
+      {
+        "name": "Platform",
+        "type": "multi_select"
+      },
+      {
+        "name": "Priority",
+        "type": "select"
+      },
+      {
+        "name": "Public Video URL",
+        "type": "url"
+      },
+      {
+        "name": "Public Video Visible",
+        "type": "checkbox"
+      },
+      {
+        "name": "Source Record",
+        "type": "rich_text"
+      },
+      {
+        "name": "Status",
+        "type": "status"
+      },
+      {
+        "name": "Subscribers",
+        "type": "number"
+      },
+      {
+        "name": "Sync Source",
+        "type": "rich_text"
+      },
+      {
+        "name": "System Key",
+        "type": "rich_text"
+      },
+      {
+        "name": "Videos",
+        "type": "number"
+      },
+      {
+        "name": "Website Link Visible",
+        "type": "checkbox"
+      },
+      {
+        "name": "🎬 Publishing Queue",
+        "type": "relation"
+      }
+    ]
+  },
+  "field_mapping": {
+    "mapped": {
+      "channel_title": {
+        "source_field": "channel_title",
+        "notion_property_name": "Name",
+        "notion_property_type": "title",
+        "write_policy": "required_title",
+        "write_supported": true
+      },
+      "platform": {
+        "source_field": "platform",
+        "notion_property_name": "Platform",
+        "notion_property_type": "multi_select",
+        "write_policy": "unsupported_type",
+        "write_supported": false
+      },
+      "launch_status": {
+        "source_field": "launch_status",
+        "notion_property_name": "Launch Status",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "public_video_url": {
+        "source_field": "public_video_url",
+        "notion_property_name": "Public Video URL",
+        "notion_property_type": "url",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "homepage_enabled": {
+        "source_field": "homepage_enabled",
+        "notion_property_name": "Homepage Enabled",
+        "notion_property_type": "checkbox",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "public_video_visible": {
+        "source_field": "public_video_visible",
+        "notion_property_name": "Public Video Visible",
+        "notion_property_type": "checkbox",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "website_link_visible": {
+        "source_field": "website_link_visible",
+        "notion_property_name": "Website Link Visible",
+        "notion_property_type": "checkbox",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "next_step": {
+        "source_field": "next_step",
+        "notion_property_name": "Next Step",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "source_record": {
+        "source_field": "source_record",
+        "notion_property_name": "Source Record",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "sync_source": {
+        "source_field": "sync_source",
+        "notion_property_name": "Sync Source",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "system_key": {
+        "source_field": "system_key",
+        "notion_property_name": "System Key",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      }
+    },
+    "unmapped": [],
+    "mapped_field_count": 11,
+    "unmapped_field_count": 0
+  },
+  "planned_operations": [
+    {
+      "key": "hiddenova",
+      "channel_title": "Hiddenova",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name",
+        "Launch Status",
+        "Public Video URL",
+        "Homepage Enabled",
+        "Public Video Visible",
+        "Website Link Visible",
+        "Next Step",
+        "Source Record",
+        "Sync Source",
+        "System Key"
+      ],
+      "mapped_source_values": {
+        "key": "hiddenova",
+        "channel_title": "Hiddenova",
+        "system_key": "hiddenova",
+        "sync_source": "GitHub",
+        "platform": "youtube",
+        "launch_status": "launch_ready",
+        "public_video_url": "https://youtu.be/j2-xEXd2fH4",
+        "homepage_enabled": true,
+        "public_video_visible": true,
+        "website_link_visible": true,
+        "next_step": "sprint_26_analytics_tracking",
+        "source_record": "records/channel/hiddenova/2026-07-13_hiddenova_channel_launch_ready.json"
+      },
+      "write_payload_field_count": 10
+    }
+  ],
+  "apply_results": [
+    {
+      "channel_title": "Hiddenova",
+      "system_key": "hiddenova",
+      "operation": "update_existing_page",
+      "ok": true,
+      "notion_page_id": "393135d3-fbb6-80a6-96c9-ea90ab6d4827",
+      "notion_page_url": "https://app.notion.com/p/Hiddenova-393135d3fbb680a696c9ea90ab6d4827",
+      "written_property_count": 10,
+      "written_property_names": [
+        "Name",
+        "Launch Status",
+        "Public Video URL",
+        "Homepage Enabled",
+        "Public Video Visible",
+        "Website Link Visible",
+        "Next Step",
+        "Source Record",
+        "Sync Source",
+        "System Key"
+      ]
+    }
+  ],
+  "schema_patch": {
+    "status": "schema_patch_not_needed",
+    "missing_properties_before_patch": [],
+    "added_properties": [],
+    "skipped_existing_properties": [
+      "Platform",
+      "Launch Status",
+      "Public Video URL",
+      "Homepage Enabled",
+      "Public Video Visible",
+      "Website Link Visible",
+      "Next Step",
+      "Source Record",
+      "Sync Source",
+      "System Key"
+    ],
+    "patch_status_code": 200,
+    "patch_error": null
+  },
+  "security": {
+    "token_saved_to_output": false,
+    "token_printed_to_terminal": false,
+    "openai_key_saved_to_output": false,
+    "write_operations_performed": true,
+    "mode": "apply"
+  }
+}
