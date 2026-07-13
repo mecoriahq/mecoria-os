@@ -1,4 +1,4 @@
-{
+﻿{
   "type": "object",
   "required": ["agent", "version", "channel", "providers", "metadata"],
   "properties": {
@@ -50,9 +50,29 @@
     },
     "metadata": {
       "type": "object",
-      "required": ["source_agents", "next_agent"],
+      "required": [
+        "source_agents",
+        "thumbnail_rules_reference",
+        "thumbnail_text_overlay_required",
+        "thumbnail_text_max_words",
+        "thumbnail_text_patterns",
+        "next_agent"
+      ],
       "properties": {
         "source_agents": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "thumbnail_rules_reference": {
+          "type": "string"
+        },
+        "thumbnail_text_overlay_required": {
+          "type": "boolean"
+        },
+        "thumbnail_text_max_words": {
+          "type": "integer"
+        },
+        "thumbnail_text_patterns": {
           "type": "array",
           "items": { "type": "string" }
         },
