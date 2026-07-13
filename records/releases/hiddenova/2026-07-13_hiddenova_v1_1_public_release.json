@@ -1,0 +1,63 @@
+{
+  "record_type": "youtube_public_release_record",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "platform": "youtube",
+  "release_version": "V1.1",
+  "youtube_url": "https://youtu.be/j2-xEXd2fH4",
+  "youtube_video_id": "j2-xEXd2fH4",
+  "visibility": "public",
+  "public_status": "public",
+  "release_date": "2026-07-13",
+  "title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+  "first_public_hiddenova_video": true,
+  "release_changes": [
+    "Hybrid stock + AI visual insert video flow.",
+    "Intro added with Hiddenova context and short video summary.",
+    "Outro CTA added.",
+    "Thumbnail standardized to 1280x720.",
+    "Cedar voice kept as current Hiddenova voice.",
+    "AI disclosure selected during YouTube upload."
+  ],
+  "source": {
+    "export_package_path": "exports/upload_packages/hiddenova/2026-07-13_21-05-40",
+    "export_metadata_reference": "exports/upload_packages/hiddenova/2026-07-13_21-05-40/metadata.json",
+    "publisher_reference": "agents/publisher/output/hiddenova/latest.json",
+    "video_qa_reference": "agents/video_qa/output/hiddenova/latest.json"
+  },
+  "qa": {
+    "video_qa_status": "approved",
+    "technical_result": "passed",
+    "unlisted_upload_ready": true,
+    "public_upload_ready": false,
+    "warnings": [
+      "Hybrid video still requires founder creative review before public release.",
+      "Stock footage license/public usage should be confirmed before public release."
+    ]
+  },
+  "publisher": {
+    "status": "upload_ready",
+    "upload_ready": true
+  },
+  "thumbnail_standard": {
+    "size": "1280x720",
+    "aspect_ratio": "16:9",
+    "normalization": "center_crop_resize",
+    "purpose": "YouTube-compatible thumbnail export without black bars."
+  },
+  "post_release_monitoring": {
+    "first_24h_metrics_to_watch": [
+      "impressions",
+      "click_through_rate",
+      "views",
+      "average_view_duration",
+      "average_percentage_viewed",
+      "likes",
+      "comments",
+      "subscribers_gained"
+    ],
+    "first_review_time": "after_24_hours",
+    "second_review_time": "after_72_hours"
+  },
+  "next_step": "analytics_tracking"
+}
