@@ -1,0 +1,49 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "summary",
+    "notion_targets",
+    "sync_preview",
+    "record",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "notion_sync_dry_run"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "preview_ready",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "notion_targets": {
+      "type": "object"
+    },
+    "sync_preview": {
+      "type": "object"
+    },
+    "record": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
