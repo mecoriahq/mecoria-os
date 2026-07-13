@@ -1,0 +1,914 @@
+{
+  "record_type": "notion_ai_agents_sync",
+  "version": "1.0",
+  "created_at": "2026-07-13T23:40:42",
+  "status": "dry_run_ready",
+  "summary": {
+    "target_database": "ai_agents",
+    "database_title": "🤖 AI Agents",
+    "source_row_count": 36,
+    "syncable_row_count": 35,
+    "selected_row_count": 35,
+    "excluded_row_count": 1,
+    "excluded_keys": [
+      "_template"
+    ],
+    "write_operations_performed": false,
+    "mapped_field_count": 2,
+    "unmapped_field_count": 7,
+    "next_step": "review_mapping_then_run_limited_apply_test"
+  },
+  "target": {
+    "env_key": "NOTION_AI_AGENTS_DB_ID",
+    "database_id_available": true,
+    "database_title": "🤖 AI Agents",
+    "title_property_name": "Name",
+    "notion_property_count": 15,
+    "notion_properties": [
+      {
+        "name": "Active",
+        "type": "checkbox"
+      },
+      {
+        "name": "Automation",
+        "type": "select"
+      },
+      {
+        "name": "Cost",
+        "type": "number"
+      },
+      {
+        "name": "Created Time",
+        "type": "created_time"
+      },
+      {
+        "name": "Last edited time",
+        "type": "last_edited_time"
+      },
+      {
+        "name": "MCP",
+        "type": "multi_select"
+      },
+      {
+        "name": "Model",
+        "type": "select"
+      },
+      {
+        "name": "Name",
+        "type": "title"
+      },
+      {
+        "name": "Owner",
+        "type": "select"
+      },
+      {
+        "name": "Priority",
+        "type": "select"
+      },
+      {
+        "name": "Prompt",
+        "type": "rich_text"
+      },
+      {
+        "name": "Role",
+        "type": "select"
+      },
+      {
+        "name": "Status",
+        "type": "status"
+      },
+      {
+        "name": "Version",
+        "type": "rich_text"
+      },
+      {
+        "name": "🎬 Publishing Queue",
+        "type": "relation"
+      }
+    ]
+  },
+  "field_mapping": {
+    "mapped": {
+      "agent_name": {
+        "source_field": "agent_name",
+        "notion_property_name": "Name",
+        "notion_property_type": "title",
+        "write_policy": "required_title",
+        "write_supported": true
+      },
+      "implementation_status": {
+        "source_field": "implementation_status",
+        "notion_property_name": "Status",
+        "notion_property_type": "status",
+        "write_policy": "cautious_write_later",
+        "write_supported": false
+      }
+    },
+    "unmapped": [
+      {
+        "source_field": "category",
+        "candidate_names": [
+          "Category",
+          "Agent Category",
+          "Type"
+        ]
+      },
+      {
+        "source_field": "output_status",
+        "candidate_names": [
+          "Output Status",
+          "Latest Output Status",
+          "Latest Status"
+        ]
+      },
+      {
+        "source_field": "next_agent",
+        "candidate_names": [
+          "Next Agent",
+          "Next Step",
+          "Next"
+        ]
+      },
+      {
+        "source_field": "has_latest_output",
+        "candidate_names": [
+          "Has Latest Output",
+          "Output Exists",
+          "Latest Output?"
+        ]
+      },
+      {
+        "source_field": "latest_output_path",
+        "candidate_names": [
+          "Latest Output Path",
+          "Output Path",
+          "Latest Output"
+        ]
+      },
+      {
+        "source_field": "run_py",
+        "candidate_names": [
+          "Run Path",
+          "Run PY",
+          "Run Script",
+          "run_py"
+        ]
+      },
+      {
+        "source_field": "schema_json",
+        "candidate_names": [
+          "Schema Path",
+          "Schema JSON",
+          "Schema",
+          "schema_json"
+        ]
+      }
+    ],
+    "mapped_field_count": 2,
+    "unmapped_field_count": 7
+  },
+  "planned_operations": [
+    {
+      "key": "agent_registry_scanner",
+      "agent_name": "agent_registry_scanner",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "agent_registry_scanner",
+        "agent_name": "agent_registry_scanner",
+        "category": "system",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": null,
+        "has_latest_output": false,
+        "latest_output_path": null,
+        "run_py": "agents/agent_registry_scanner/run.py",
+        "schema_json": "agents/agent_registry_scanner/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "ai_visual_generation",
+      "agent_name": "ai_visual_generation",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "ai_visual_generation",
+        "agent_name": "ai_visual_generation",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "images_ready",
+        "next_agent": "ai_visual_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/ai_visual_generation/output/hiddenova/latest.json",
+        "run_py": "agents/ai_visual_generation/run.py",
+        "schema_json": "agents/ai_visual_generation/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "ai_visual_insert_plan",
+      "agent_name": "ai_visual_insert_plan",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "ai_visual_insert_plan",
+        "agent_name": "ai_visual_insert_plan",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "plan_ready",
+        "next_agent": "ai_visual_generation",
+        "has_latest_output": true,
+        "latest_output_path": "agents/ai_visual_insert_plan/output/hiddenova/latest.json",
+        "run_py": "agents/ai_visual_insert_plan/run.py",
+        "schema_json": "agents/ai_visual_insert_plan/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "ai_visual_qa",
+      "agent_name": "ai_visual_qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "ai_visual_qa",
+        "agent_name": "ai_visual_qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "hybrid_video_assembly",
+        "has_latest_output": true,
+        "latest_output_path": "agents/ai_visual_qa/output/hiddenova/latest.json",
+        "run_py": "agents/ai_visual_qa/run.py",
+        "schema_json": "agents/ai_visual_qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "audio_assembly",
+      "agent_name": "audio_assembly",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "audio_assembly",
+        "agent_name": "audio_assembly",
+        "category": "audio",
+        "implementation_status": "implemented",
+        "output_status": "assembled",
+        "next_agent": "video_assembly",
+        "has_latest_output": true,
+        "latest_output_path": "agents/audio_assembly/output/hiddenova/latest.json",
+        "run_py": "agents/audio_assembly/run.py",
+        "schema_json": "agents/audio_assembly/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "audio_qa",
+      "agent_name": "audio_qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "audio_qa",
+        "agent_name": "audio_qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "audio_assembly",
+        "has_latest_output": true,
+        "latest_output_path": "agents/audio_qa/output/hiddenova/latest.json",
+        "run_py": "agents/audio_qa/run.py",
+        "schema_json": "agents/audio_qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "hybrid_video_assembly",
+      "agent_name": "hybrid_video_assembly",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "hybrid_video_assembly",
+        "agent_name": "hybrid_video_assembly",
+        "category": "video",
+        "implementation_status": "implemented",
+        "output_status": "draft_ready",
+        "next_agent": "video_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/hybrid_video_assembly/output/hiddenova/latest.json",
+        "run_py": "agents/hybrid_video_assembly/run.py",
+        "schema_json": "agents/hybrid_video_assembly/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "image_generation",
+      "agent_name": "image_generation",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "image_generation",
+        "agent_name": "image_generation",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": "publisher",
+        "has_latest_output": true,
+        "latest_output_path": "agents/image_generation/output/hiddenova/latest.json",
+        "run_py": "agents/image_generation/run.py",
+        "schema_json": "agents/image_generation/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "image_prompt",
+      "agent_name": "image_prompt",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "image_prompt",
+        "agent_name": "image_prompt",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": "image_generation",
+        "has_latest_output": true,
+        "latest_output_path": "agents/image_prompt/output/hiddenova/latest.json",
+        "run_py": "agents/image_prompt/run.py",
+        "schema_json": "agents/image_prompt/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "image_qa",
+      "agent_name": "image_qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "image_qa",
+        "agent_name": "image_qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "publisher",
+        "has_latest_output": true,
+        "latest_output_path": "agents/image_qa/output/hiddenova/latest.json",
+        "run_py": "agents/image_qa/run.py",
+        "schema_json": "agents/image_qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "image_revision",
+      "agent_name": "image_revision",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "image_revision",
+        "agent_name": "image_revision",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": "image_generation",
+        "has_latest_output": true,
+        "latest_output_path": "agents/image_revision/output/hiddenova/latest.json",
+        "run_py": "agents/image_revision/run.py",
+        "schema_json": "agents/image_revision/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "internal_visual_production",
+      "agent_name": "internal_visual_production",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "internal_visual_production",
+        "agent_name": "internal_visual_production",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "internal_assets_ready",
+        "next_agent": "internal_visual_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/internal_visual_production/output/hiddenova/latest.json",
+        "run_py": "agents/internal_visual_production/run.py",
+        "schema_json": "agents/internal_visual_production/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "internal_visual_qa",
+      "agent_name": "internal_visual_qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "internal_visual_qa",
+        "agent_name": "internal_visual_qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "visual_asset_integration",
+        "has_latest_output": true,
+        "latest_output_path": "agents/internal_visual_qa/output/hiddenova/latest.json",
+        "run_py": "agents/internal_visual_qa/run.py",
+        "schema_json": "agents/internal_visual_qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "internal_visual_render",
+      "agent_name": "internal_visual_render",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "internal_visual_render",
+        "agent_name": "internal_visual_render",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "renders_ready",
+        "next_agent": "internal_visual_render_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/internal_visual_render/output/hiddenova/latest.json",
+        "run_py": "agents/internal_visual_render/run.py",
+        "schema_json": "agents/internal_visual_render/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "internal_visual_render_qa",
+      "agent_name": "internal_visual_render_qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "internal_visual_render_qa",
+        "agent_name": "internal_visual_render_qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "video_assembly_v1",
+        "has_latest_output": true,
+        "latest_output_path": "agents/internal_visual_render_qa/output/hiddenova/latest.json",
+        "run_py": "agents/internal_visual_render_qa/run.py",
+        "schema_json": "agents/internal_visual_render_qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "intro_outro_audio_assembly",
+      "agent_name": "intro_outro_audio_assembly",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "intro_outro_audio_assembly",
+        "agent_name": "intro_outro_audio_assembly",
+        "category": "audio",
+        "implementation_status": "implemented",
+        "output_status": "assembled",
+        "next_agent": "hybrid_video_assembly",
+        "has_latest_output": true,
+        "latest_output_path": "agents/intro_outro_audio_assembly/output/hiddenova/latest.json",
+        "run_py": "agents/intro_outro_audio_assembly/run.py",
+        "schema_json": "agents/intro_outro_audio_assembly/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "intro_outro_plan",
+      "agent_name": "intro_outro_plan",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "intro_outro_plan",
+        "agent_name": "intro_outro_plan",
+        "category": "general",
+        "implementation_status": "implemented",
+        "output_status": "plan_ready",
+        "next_agent": "intro_outro_voice_generation",
+        "has_latest_output": true,
+        "latest_output_path": "agents/intro_outro_plan/output/hiddenova/latest.json",
+        "run_py": "agents/intro_outro_plan/run.py",
+        "schema_json": "agents/intro_outro_plan/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "intro_outro_voice_generation",
+      "agent_name": "intro_outro_voice_generation",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "intro_outro_voice_generation",
+        "agent_name": "intro_outro_voice_generation",
+        "category": "audio",
+        "implementation_status": "implemented",
+        "output_status": "audio_ready",
+        "next_agent": "intro_outro_audio_assembly",
+        "has_latest_output": true,
+        "latest_output_path": "agents/intro_outro_voice_generation/output/hiddenova/latest.json",
+        "run_py": "agents/intro_outro_voice_generation/run.py",
+        "schema_json": "agents/intro_outro_voice_generation/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "publisher",
+      "agent_name": "publisher",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "publisher",
+        "agent_name": "publisher",
+        "category": "publishing",
+        "implementation_status": "implemented",
+        "output_status": "upload_ready",
+        "next_agent": "youtube_upload",
+        "has_latest_output": true,
+        "latest_output_path": "agents/publisher/output/hiddenova/latest.json",
+        "run_py": "agents/publisher/run.py",
+        "schema_json": "agents/publisher/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "qa",
+      "agent_name": "qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "qa",
+        "agent_name": "qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "thumbnail",
+        "has_latest_output": true,
+        "latest_output_path": "agents/qa/output/hiddenova/latest.json",
+        "run_py": "agents/qa/run.py",
+        "schema_json": "agents/qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "research",
+      "agent_name": "research",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "research",
+        "agent_name": "research",
+        "category": "content",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": null,
+        "has_latest_output": true,
+        "latest_output_path": "agents/research/output/hiddenova/latest.json",
+        "run_py": "agents/research/run.py",
+        "schema_json": "agents/research/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "script",
+      "agent_name": "script",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "script",
+        "agent_name": "script",
+        "category": "content",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": null,
+        "has_latest_output": true,
+        "latest_output_path": "agents/script/output/hiddenova/latest.json",
+        "run_py": "agents/script/run.py",
+        "schema_json": "agents/script/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "seo",
+      "agent_name": "seo",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "seo",
+        "agent_name": "seo",
+        "category": "content",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": null,
+        "has_latest_output": true,
+        "latest_output_path": "agents/seo/output/hiddenova/latest.json",
+        "run_py": "agents/seo/run.py",
+        "schema_json": "agents/seo/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "stock_asset_ingest",
+      "agent_name": "stock_asset_ingest",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "stock_asset_ingest",
+        "agent_name": "stock_asset_ingest",
+        "category": "system",
+        "implementation_status": "implemented",
+        "output_status": "ingest_ready",
+        "next_agent": "stock_visual_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/stock_asset_ingest/output/hiddenova/latest.json",
+        "run_py": "agents/stock_asset_ingest/run.py",
+        "schema_json": "agents/stock_asset_ingest/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "video_assembly",
+      "agent_name": "video_assembly",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "video_assembly",
+        "agent_name": "video_assembly",
+        "category": "video",
+        "implementation_status": "implemented",
+        "output_status": "draft_ready",
+        "next_agent": "video_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/video_assembly/output/hiddenova/latest.json",
+        "run_py": "agents/video_assembly/run.py",
+        "schema_json": "agents/video_assembly/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "video_qa",
+      "agent_name": "video_qa",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "video_qa",
+        "agent_name": "video_qa",
+        "category": "qa",
+        "implementation_status": "implemented",
+        "output_status": "approved",
+        "next_agent": "publisher",
+        "has_latest_output": true,
+        "latest_output_path": "agents/video_qa/output/hiddenova/latest.json",
+        "run_py": "agents/video_qa/run.py",
+        "schema_json": "agents/video_qa/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "video_storyboard",
+      "agent_name": "video_storyboard",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "video_storyboard",
+        "agent_name": "video_storyboard",
+        "category": "video",
+        "implementation_status": "implemented",
+        "output_status": "storyboard_ready",
+        "next_agent": "visual_asset_plan",
+        "has_latest_output": true,
+        "latest_output_path": "agents/video_storyboard/output/hiddenova/latest.json",
+        "run_py": "agents/video_storyboard/run.py",
+        "schema_json": "agents/video_storyboard/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "visual_asset_acquisition",
+      "agent_name": "visual_asset_acquisition",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "visual_asset_acquisition",
+        "agent_name": "visual_asset_acquisition",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "acquisition_plan_ready",
+        "next_agent": "internal_visual_production",
+        "has_latest_output": true,
+        "latest_output_path": "agents/visual_asset_acquisition/output/hiddenova/latest.json",
+        "run_py": "agents/visual_asset_acquisition/run.py",
+        "schema_json": "agents/visual_asset_acquisition/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "visual_asset_integration",
+      "agent_name": "visual_asset_integration",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "visual_asset_integration",
+        "agent_name": "visual_asset_integration",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "integration_ready",
+        "next_agent": "video_assembly_v1",
+        "has_latest_output": true,
+        "latest_output_path": "agents/visual_asset_integration/output/hiddenova/latest.json",
+        "run_py": "agents/visual_asset_integration/run.py",
+        "schema_json": "agents/visual_asset_integration/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "visual_asset_plan",
+      "agent_name": "visual_asset_plan",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "visual_asset_plan",
+        "agent_name": "visual_asset_plan",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "asset_plan_ready",
+        "next_agent": "visual_asset_production",
+        "has_latest_output": true,
+        "latest_output_path": "agents/visual_asset_plan/output/hiddenova/latest.json",
+        "run_py": "agents/visual_asset_plan/run.py",
+        "schema_json": "agents/visual_asset_plan/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "visual_asset_production",
+      "agent_name": "visual_asset_production",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "visual_asset_production",
+        "agent_name": "visual_asset_production",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": "manifest_ready",
+        "next_agent": "visual_asset_acquisition",
+        "has_latest_output": true,
+        "latest_output_path": "agents/visual_asset_production/output/hiddenova/latest.json",
+        "run_py": "agents/visual_asset_production/run.py",
+        "schema_json": "agents/visual_asset_production/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "visual_brief",
+      "agent_name": "visual_brief",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "visual_brief",
+        "agent_name": "visual_brief",
+        "category": "visual",
+        "implementation_status": "implemented",
+        "output_status": null,
+        "next_agent": "image_prompt",
+        "has_latest_output": true,
+        "latest_output_path": "agents/visual_brief/output/hiddenova/latest.json",
+        "run_py": "agents/visual_brief/run.py",
+        "schema_json": "agents/visual_brief/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "voice",
+      "agent_name": "voice",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "voice",
+        "agent_name": "voice",
+        "category": "audio",
+        "implementation_status": "implemented",
+        "output_status": "narration_ready",
+        "next_agent": "voice_generation",
+        "has_latest_output": true,
+        "latest_output_path": "agents/voice/output/hiddenova/latest.json",
+        "run_py": "agents/voice/run.py",
+        "schema_json": "agents/voice/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "voice_casting",
+      "agent_name": "voice_casting",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "voice_casting",
+        "agent_name": "voice_casting",
+        "category": "audio",
+        "implementation_status": "implemented",
+        "output_status": "samples_ready",
+        "next_agent": "founder_voice_review",
+        "has_latest_output": true,
+        "latest_output_path": "agents/voice_casting/output/hiddenova/latest.json",
+        "run_py": "agents/voice_casting/run.py",
+        "schema_json": "agents/voice_casting/schema.json"
+      },
+      "write_payload_field_count": 1
+    },
+    {
+      "key": "voice_generation",
+      "agent_name": "voice_generation",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name"
+      ],
+      "mapped_source_values": {
+        "key": "voice_generation",
+        "agent_name": "voice_generation",
+        "category": "audio",
+        "implementation_status": "implemented",
+        "output_status": "audio_ready",
+        "next_agent": "audio_qa",
+        "has_latest_output": true,
+        "latest_output_path": "agents/voice_generation/output/hiddenova/latest.json",
+        "run_py": "agents/voice_generation/run.py",
+        "schema_json": "agents/voice_generation/schema.json"
+      },
+      "write_payload_field_count": 1
+    }
+  ],
+  "security": {
+    "token_saved_to_output": false,
+    "token_printed_to_terminal": false,
+    "openai_key_saved_to_output": false,
+    "write_operations_performed": false,
+    "mode": "dry_run_only"
+  }
+}
