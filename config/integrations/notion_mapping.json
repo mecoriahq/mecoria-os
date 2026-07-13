@@ -1,0 +1,73 @@
+﻿{
+  "integration": "notion",
+  "version": "1.0",
+  "status": "planned",
+  "purpose": "Map Mecoria OS records and agent outputs to Notion databases.",
+  "source_of_truth": {
+    "source_code": "github",
+    "runtime_outputs": "agents/*/output",
+    "permanent_business_records": "records/",
+    "operations_dashboard": "notion",
+    "automation_orchestration": "n8n"
+  },
+  "databases": {
+    "projects": {
+      "env_key": "NOTION_PROJECTS_DB_ID",
+      "sync_status": "planned",
+      "source": "records/system and docs/roadmap"
+    },
+    "tasks": {
+      "env_key": "NOTION_TASKS_DB_ID",
+      "sync_status": "planned",
+      "source": "records/tasks"
+    },
+    "business_units": {
+      "env_key": "NOTION_BUSINESS_UNITS_DB_ID",
+      "sync_status": "planned",
+      "source": "records/company"
+    },
+    "ai_agents": {
+      "env_key": "NOTION_AI_AGENTS_DB_ID",
+      "sync_status": "first_priority",
+      "source": "agents directory scan"
+    },
+    "knowledge_hub": {
+      "env_key": "NOTION_KNOWLEDGE_HUB_DB_ID",
+      "sync_status": "planned",
+      "source": "docs/"
+    },
+    "youtube_channels": {
+      "env_key": "NOTION_YOUTUBE_CHANNELS_DB_ID",
+      "sync_status": "first_priority",
+      "source": "records/channel"
+    },
+    "publishing_queue": {
+      "env_key": "NOTION_PUBLISHING_QUEUE_DB_ID",
+      "sync_status": "first_priority",
+      "source": "records/uploads, records/releases, agents/publisher/output"
+    },
+    "content_ideas": {
+      "env_key": "NOTION_CONTENT_IDEAS_DB_ID",
+      "sync_status": "planned",
+      "source": "agents/research/output"
+    },
+    "analytics": {
+      "env_key": "NOTION_ANALYTICS_DB_ID",
+      "sync_status": "later",
+      "source": "records/analytics"
+    }
+  },
+  "first_sync_scope": [
+    "ai_agents",
+    "youtube_channels",
+    "publishing_queue"
+  ],
+  "rules": [
+    "Do not sync secrets.",
+    "Do not commit Notion API keys.",
+    "Use repo-relative paths.",
+    "Founder decisions must be saved under records before public release actions.",
+    "Notion is a dashboard, not the only source of truth."
+  ],
+  "next_step": "build_agent_registry_scanner"
+}

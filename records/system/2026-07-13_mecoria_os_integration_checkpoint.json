@@ -1,0 +1,23 @@
+﻿{
+  "record_type": "mecoria_os_integration_checkpoint",
+  "version": "1.0",
+  "date": "2026-07-13",
+  "status": "integration_foundation_started",
+  "context": {
+    "hiddenova_first_public_video": "https://youtu.be/j2-xEXd2fH4",
+    "channel_launch_status": "launch_ready",
+    "current_waiting_period": "first_24h_analytics_collection"
+  },
+  "decision": {
+    "notion_role": "operations_dashboard",
+    "github_role": "source_code_and_records",
+    "records_role": "business_history",
+    "n8n_role": "scheduled_automation_and_orchestration"
+  },
+  "next_steps": [
+    "Build agent registry scanner.",
+    "Build Notion sync dry-run agent.",
+    "Connect Notion after database IDs are available.",
+    "Track first 24h YouTube analytics."
+  ]
+}
