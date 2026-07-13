@@ -1,12 +1,17 @@
-import argparse
+﻿import argparse
 import json
 import shutil
 from datetime import datetime
 from pathlib import Path
 
+from PIL import Image
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CHANNEL = "hiddenova"
+
+YOUTUBE_THUMBNAIL_SIZE = (1280, 720)
+YOUTUBE_THUMBNAIL_RATIO = 16 / 9
 
 
 def load_json(path: Path) -> dict:
@@ -18,6 +23,25 @@ def load_json(path: Path) -> dict:
 
 def write_text(path: Path, text: str) -> None:
     path.write_text(text.strip() + "\n", encoding="utf-8")
+
+
+def normalize_thumbnail(source_path: Path, target_path: Path) -> None:
+    image = Image.open(source_path).convert("RGB")
+
+    width, height = image.size
+    current_ratio = width / height
+
+    if current_ratio > YOUTUBE_THUMBNAIL_RATIO:
+        new_width = int(height * YOUTUBE_THUMBNAIL_RATIO)
+        left = (width - new_width) // 2
+        image = image.crop((left, 0, left + new_width, height))
+    else:
+        new_height = int(width / YOUTUBE_THUMBNAIL_RATIO)
+        top = (height - new_height) // 2
+        image = image.crop((0, top, width, top + new_height))
+
+    image = image.resize(YOUTUBE_THUMBNAIL_SIZE, Image.Resampling.LANCZOS)
+    image.save(target_path, quality=95)
 
 
 def get_publisher_latest_path(channel: str) -> Path:
@@ -57,7 +81,7 @@ def export_upload_package(channel: str) -> Path:
     thumbnail_target = export_dir / "thumbnail.png"
 
     shutil.copy2(video_source, video_target)
-    shutil.copy2(thumbnail_source, thumbnail_target)
+    normalize_thumbnail(thumbnail_source, thumbnail_target)
 
     write_text(export_dir / "title.txt", metadata["title"])
     write_text(export_dir / "description.txt", metadata["description"])
@@ -68,7 +92,22 @@ def export_upload_package(channel: str) -> Path:
         f'{chapter["time"]} {chapter["title"]}'
         for chapter in metadata.get("chapters", [])
     )
+
     write_text(export_dir / "chapters.txt", chapters_text)
+
+    description_youtube_ready = "\n\n".join(
+        part for part in [
+            metadata["description"].strip(),
+            chapters_text.strip(),
+            " ".join(metadata["hashtags"]).strip()
+        ]
+        if part
+    )
+
+    write_text(
+        export_dir / "description_youtube_ready.txt",
+        description_youtube_ready
+    )
 
     export_metadata = {
         "channel": publisher_data["channel"],
@@ -80,11 +119,18 @@ def export_upload_package(channel: str) -> Path:
             "thumbnail": "thumbnail.png",
             "title": "title.txt",
             "description": "description.txt",
+            "description_youtube_ready": "description_youtube_ready.txt",
             "tags": "tags.txt",
             "hashtags": "hashtags.txt",
             "chapters": "chapters.txt"
         },
-        "readiness": package["readiness"]
+        "readiness": package["readiness"],
+        "thumbnail_standard": {
+            "size": "1280x720",
+            "aspect_ratio": "16:9",
+            "normalization": "center_crop_resize",
+            "purpose": "YouTube-compatible thumbnail export without black bars."
+        }
     }
 
     (export_dir / "metadata.json").write_text(
@@ -100,7 +146,7 @@ def export_upload_package(channel: str) -> Path:
 - Upload video.mp4 to YouTube Studio.
 - Set visibility to Unlisted for first test.
 - Copy title from title.txt.
-- Copy description from description.txt.
+- Copy description from description_youtube_ready.txt.
 - Upload thumbnail.png.
 - Add tags from tags.txt.
 - Confirm chapters appear correctly.
