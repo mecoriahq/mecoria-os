@@ -1,0 +1,45 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "summary",
+    "agents",
+    "record",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "agent_registry_scanner"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "registry_ready",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "agents": {
+      "type": "array"
+    },
+    "record": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
