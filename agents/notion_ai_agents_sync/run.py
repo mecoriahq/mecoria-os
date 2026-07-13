@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import os
 from datetime import datetime
@@ -32,8 +32,23 @@ FIELD_CANDIDATES = {
     "has_latest_output": ["Has Latest Output", "Output Exists", "Latest Output?"],
     "latest_output_path": ["Latest Output Path", "Output Path", "Latest Output"],
     "run_py": ["Run Path", "Run PY", "Run Script", "run_py"],
-    "schema_json": ["Schema Path", "Schema JSON", "Schema", "schema_json"]
+    "schema_json": ["Schema Path", "Schema JSON", "Schema", "schema_json"],
+    "agent_layer": ["Agent Layer", "Layer"],
+    "sync_source": ["Sync Source", "Source"],
+    "system_key": ["System Key", "Agent Key", "Key"]
 }
+
+CATEGORY_TO_LAYER = {
+    "audio": "Audio",
+    "content": "Pipeline",
+    "general": "Pipeline",
+    "publishing": "Publishing",
+    "qa": "QA",
+    "system": "System",
+    "video": "Video",
+    "visual": "Visual"
+}
+
 
 SAFE_WRITE_TYPES = {
     "rich_text",
@@ -250,11 +265,17 @@ def load_source_rows() -> list[dict]:
     for row in rows:
         props = row.get("properties", {})
         agent_name = props.get("agent_name") or row.get("key")
+        system_key = row.get("key") or agent_name
+        category = props.get("category")
+        agent_layer = CATEGORY_TO_LAYER.get(str(category or "").lower(), "Pipeline")
 
         normalized_rows.append({
-            "key": row.get("key") or agent_name,
+            "key": system_key,
             "agent_name": agent_name,
-            "category": props.get("category"),
+            "system_key": system_key,
+            "sync_source": "GitHub",
+            "agent_layer": agent_layer,
+            "category": category,
             "implementation_status": props.get("implementation_status"),
             "output_status": props.get("output_status"),
             "next_agent": props.get("next_agent"),

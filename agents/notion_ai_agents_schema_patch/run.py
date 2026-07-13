@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -30,7 +30,10 @@ DESIRED_PROPERTIES = {
     "Has Latest Output": {"checkbox": {}},
     "Latest Output Path": {"rich_text": {}},
     "Run Path": {"rich_text": {}},
-    "Schema Path": {"rich_text": {}}
+    "Schema Path": {"rich_text": {}},
+    "Agent Layer": {"rich_text": {}},
+    "Sync Source": {"rich_text": {}},
+    "System Key": {"rich_text": {}}
 }
 
 

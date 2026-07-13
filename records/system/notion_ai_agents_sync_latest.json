@@ -1,7 +1,7 @@
 {
   "record_type": "notion_ai_agents_sync",
   "version": "1.1",
-  "created_at": "2026-07-13T23:46:48",
+  "created_at": "2026-07-13T23:55:32",
   "status": "apply_test_passed",
   "summary": {
     "target_database": "ai_agents",
@@ -15,10 +15,10 @@
     ],
     "write_operations_performed": true,
     "apply_mode": true,
-    "created_count": 3,
-    "updated_count": 0,
+    "created_count": 0,
+    "updated_count": 3,
     "failed_apply_count": 0,
-    "mapped_field_count": 9,
+    "mapped_field_count": 12,
     "unmapped_field_count": 0,
     "next_step": "review_3_synced_agents_in_notion_then_full_sync"
   },
@@ -27,7 +27,7 @@
     "database_id_available": true,
     "database_title": "🤖 AI Agents",
     "title_property_name": "Name",
-    "notion_property_count": 23,
+    "notion_property_count": 26,
     "notion_properties": [
       {
         "name": "Active",
@@ -35,6 +35,10 @@
       },
       {
         "name": "Agent Category",
+        "type": "rich_text"
+      },
+      {
+        "name": "Agent Layer",
         "type": "rich_text"
       },
       {
@@ -114,6 +118,14 @@
         "type": "status"
       },
       {
+        "name": "Sync Source",
+        "type": "rich_text"
+      },
+      {
+        "name": "System Key",
+        "type": "rich_text"
+      },
+      {
         "name": "Version",
         "type": "rich_text"
       },
@@ -187,10 +199,31 @@
         "notion_property_type": "rich_text",
         "write_policy": "safe_write",
         "write_supported": true
+      },
+      "agent_layer": {
+        "source_field": "agent_layer",
+        "notion_property_name": "Agent Layer",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "sync_source": {
+        "source_field": "sync_source",
+        "notion_property_name": "Sync Source",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "system_key": {
+        "source_field": "system_key",
+        "notion_property_name": "System Key",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
       }
     },
     "unmapped": [],
-    "mapped_field_count": 9,
+    "mapped_field_count": 12,
     "unmapped_field_count": 0
   },
   "planned_operations": [
@@ -207,11 +240,17 @@
         "Has Latest Output",
         "Latest Output Path",
         "Run Path",
-        "Schema Path"
+        "Schema Path",
+        "Agent Layer",
+        "Sync Source",
+        "System Key"
       ],
       "mapped_source_values": {
         "key": "agent_registry_scanner",
         "agent_name": "agent_registry_scanner",
+        "system_key": "agent_registry_scanner",
+        "sync_source": "GitHub",
+        "agent_layer": "System",
         "category": "system",
         "implementation_status": "implemented",
         "output_status": null,
@@ -221,7 +260,7 @@
         "run_py": "agents/agent_registry_scanner/run.py",
         "schema_json": "agents/agent_registry_scanner/schema.json"
       },
-      "write_payload_field_count": 9
+      "write_payload_field_count": 12
     },
     {
       "key": "ai_visual_generation",
@@ -236,11 +275,17 @@
         "Has Latest Output",
         "Latest Output Path",
         "Run Path",
-        "Schema Path"
+        "Schema Path",
+        "Agent Layer",
+        "Sync Source",
+        "System Key"
       ],
       "mapped_source_values": {
         "key": "ai_visual_generation",
         "agent_name": "ai_visual_generation",
+        "system_key": "ai_visual_generation",
+        "sync_source": "GitHub",
+        "agent_layer": "Visual",
         "category": "visual",
         "implementation_status": "implemented",
         "output_status": "images_ready",
@@ -250,7 +295,7 @@
         "run_py": "agents/ai_visual_generation/run.py",
         "schema_json": "agents/ai_visual_generation/schema.json"
       },
-      "write_payload_field_count": 9
+      "write_payload_field_count": 12
     },
     {
       "key": "ai_visual_insert_plan",
@@ -265,11 +310,17 @@
         "Has Latest Output",
         "Latest Output Path",
         "Run Path",
-        "Schema Path"
+        "Schema Path",
+        "Agent Layer",
+        "Sync Source",
+        "System Key"
       ],
       "mapped_source_values": {
         "key": "ai_visual_insert_plan",
         "agent_name": "ai_visual_insert_plan",
+        "system_key": "ai_visual_insert_plan",
+        "sync_source": "GitHub",
+        "agent_layer": "Visual",
         "category": "visual",
         "implementation_status": "implemented",
         "output_status": "plan_ready",
@@ -279,17 +330,17 @@
         "run_py": "agents/ai_visual_insert_plan/run.py",
         "schema_json": "agents/ai_visual_insert_plan/schema.json"
       },
-      "write_payload_field_count": 9
+      "write_payload_field_count": 12
     }
   ],
   "apply_results": [
     {
       "agent_name": "agent_registry_scanner",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8175-9d7d-f7e324ad3b8e",
       "notion_page_url": "https://app.notion.com/p/agent_registry_scanner-39c135d3fbb681759d7df7e324ad3b8e",
-      "written_property_count": 9,
+      "written_property_count": 12,
       "written_property_names": [
         "Name",
         "Agent Category",
@@ -299,16 +350,19 @@
         "Has Latest Output",
         "Latest Output Path",
         "Run Path",
-        "Schema Path"
+        "Schema Path",
+        "Agent Layer",
+        "Sync Source",
+        "System Key"
       ]
     },
     {
       "agent_name": "ai_visual_generation",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81d0-b7d6-fcfedeceb4fe",
       "notion_page_url": "https://app.notion.com/p/ai_visual_generation-39c135d3fbb681d0b7d6fcfedeceb4fe",
-      "written_property_count": 9,
+      "written_property_count": 12,
       "written_property_names": [
         "Name",
         "Agent Category",
@@ -318,16 +372,19 @@
         "Has Latest Output",
         "Latest Output Path",
         "Run Path",
-        "Schema Path"
+        "Schema Path",
+        "Agent Layer",
+        "Sync Source",
+        "System Key"
       ]
     },
     {
       "agent_name": "ai_visual_insert_plan",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81b2-8c65-ff4e7070c5ec",
       "notion_page_url": "https://app.notion.com/p/ai_visual_insert_plan-39c135d3fbb681b28c65ff4e7070c5ec",
-      "written_property_count": 9,
+      "written_property_count": 12,
       "written_property_names": [
         "Name",
         "Agent Category",
@@ -337,7 +394,10 @@
         "Has Latest Output",
         "Latest Output Path",
         "Run Path",
-        "Schema Path"
+        "Schema Path",
+        "Agent Layer",
+        "Sync Source",
+        "System Key"
       ]
     }
   ],
