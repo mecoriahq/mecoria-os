@@ -1,7 +1,7 @@
 {
   "record_type": "notion_sync_preview",
   "version": "1.0",
-  "created_at": "2026-07-13T22:30:30",
+  "created_at": "2026-07-13T22:36:03",
   "channel": "hiddenova",
   "status": "preview_ready",
   "summary": {
@@ -12,7 +12,6 @@
     ],
     "total_preview_rows": 40,
     "missing_first_scope_database_ids": [
-      "youtube_channels",
       "publishing_queue"
     ],
     "notion_api_key_available": false,
@@ -52,7 +51,7 @@
     },
     "youtube_channels": {
       "env_key": "NOTION_YOUTUBE_CHANNELS_DB_ID",
-      "database_id_available": false,
+      "database_id_available": true,
       "sync_status": "first_priority",
       "source": "records/channel"
     },
