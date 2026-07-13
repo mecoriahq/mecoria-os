@@ -1,7 +1,7 @@
 {
   "record_type": "notion_ai_agents_sync",
   "version": "1.0",
-  "created_at": "2026-07-13T23:40:42",
+  "created_at": "2026-07-13T23:43:20",
   "status": "dry_run_ready",
   "summary": {
     "target_database": "ai_agents",
@@ -14,8 +14,8 @@
       "_template"
     ],
     "write_operations_performed": false,
-    "mapped_field_count": 2,
-    "unmapped_field_count": 7,
+    "mapped_field_count": 9,
+    "unmapped_field_count": 0,
     "next_step": "review_mapping_then_run_limited_apply_test"
   },
   "target": {
@@ -23,11 +23,15 @@
     "database_id_available": true,
     "database_title": "🤖 AI Agents",
     "title_property_name": "Name",
-    "notion_property_count": 15,
+    "notion_property_count": 23,
     "notion_properties": [
       {
         "name": "Active",
         "type": "checkbox"
+      },
+      {
+        "name": "Agent Category",
+        "type": "rich_text"
       },
       {
         "name": "Automation",
@@ -42,8 +46,20 @@
         "type": "created_time"
       },
       {
+        "name": "Has Latest Output",
+        "type": "checkbox"
+      },
+      {
+        "name": "Implementation Status",
+        "type": "rich_text"
+      },
+      {
         "name": "Last edited time",
         "type": "last_edited_time"
+      },
+      {
+        "name": "Latest Output Path",
+        "type": "rich_text"
       },
       {
         "name": "MCP",
@@ -56,6 +72,14 @@
       {
         "name": "Name",
         "type": "title"
+      },
+      {
+        "name": "Next Agent",
+        "type": "rich_text"
+      },
+      {
+        "name": "Output Status",
+        "type": "rich_text"
       },
       {
         "name": "Owner",
@@ -72,6 +96,14 @@
       {
         "name": "Role",
         "type": "select"
+      },
+      {
+        "name": "Run Path",
+        "type": "rich_text"
+      },
+      {
+        "name": "Schema Path",
+        "type": "rich_text"
       },
       {
         "name": "Status",
@@ -96,76 +128,66 @@
         "write_policy": "required_title",
         "write_supported": true
       },
+      "category": {
+        "source_field": "category",
+        "notion_property_name": "Agent Category",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
       "implementation_status": {
         "source_field": "implementation_status",
-        "notion_property_name": "Status",
-        "notion_property_type": "status",
-        "write_policy": "cautious_write_later",
-        "write_supported": false
+        "notion_property_name": "Implementation Status",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "output_status": {
+        "source_field": "output_status",
+        "notion_property_name": "Output Status",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "next_agent": {
+        "source_field": "next_agent",
+        "notion_property_name": "Next Agent",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "has_latest_output": {
+        "source_field": "has_latest_output",
+        "notion_property_name": "Has Latest Output",
+        "notion_property_type": "checkbox",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "latest_output_path": {
+        "source_field": "latest_output_path",
+        "notion_property_name": "Latest Output Path",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "run_py": {
+        "source_field": "run_py",
+        "notion_property_name": "Run Path",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "schema_json": {
+        "source_field": "schema_json",
+        "notion_property_name": "Schema Path",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
       }
     },
-    "unmapped": [
-      {
-        "source_field": "category",
-        "candidate_names": [
-          "Category",
-          "Agent Category",
-          "Type"
-        ]
-      },
-      {
-        "source_field": "output_status",
-        "candidate_names": [
-          "Output Status",
-          "Latest Output Status",
-          "Latest Status"
-        ]
-      },
-      {
-        "source_field": "next_agent",
-        "candidate_names": [
-          "Next Agent",
-          "Next Step",
-          "Next"
-        ]
-      },
-      {
-        "source_field": "has_latest_output",
-        "candidate_names": [
-          "Has Latest Output",
-          "Output Exists",
-          "Latest Output?"
-        ]
-      },
-      {
-        "source_field": "latest_output_path",
-        "candidate_names": [
-          "Latest Output Path",
-          "Output Path",
-          "Latest Output"
-        ]
-      },
-      {
-        "source_field": "run_py",
-        "candidate_names": [
-          "Run Path",
-          "Run PY",
-          "Run Script",
-          "run_py"
-        ]
-      },
-      {
-        "source_field": "schema_json",
-        "candidate_names": [
-          "Schema Path",
-          "Schema JSON",
-          "Schema",
-          "schema_json"
-        ]
-      }
-    ],
-    "mapped_field_count": 2,
-    "unmapped_field_count": 7
+    "unmapped": [],
+    "mapped_field_count": 9,
+    "unmapped_field_count": 0
   },
   "planned_operations": [
     {
@@ -173,7 +195,15 @@
       "agent_name": "agent_registry_scanner",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "agent_registry_scanner",
@@ -187,14 +217,22 @@
         "run_py": "agents/agent_registry_scanner/run.py",
         "schema_json": "agents/agent_registry_scanner/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "ai_visual_generation",
       "agent_name": "ai_visual_generation",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "ai_visual_generation",
@@ -208,14 +246,22 @@
         "run_py": "agents/ai_visual_generation/run.py",
         "schema_json": "agents/ai_visual_generation/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "ai_visual_insert_plan",
       "agent_name": "ai_visual_insert_plan",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "ai_visual_insert_plan",
@@ -229,14 +275,22 @@
         "run_py": "agents/ai_visual_insert_plan/run.py",
         "schema_json": "agents/ai_visual_insert_plan/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "ai_visual_qa",
       "agent_name": "ai_visual_qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "ai_visual_qa",
@@ -250,14 +304,22 @@
         "run_py": "agents/ai_visual_qa/run.py",
         "schema_json": "agents/ai_visual_qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "audio_assembly",
       "agent_name": "audio_assembly",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "audio_assembly",
@@ -271,14 +333,22 @@
         "run_py": "agents/audio_assembly/run.py",
         "schema_json": "agents/audio_assembly/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "audio_qa",
       "agent_name": "audio_qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "audio_qa",
@@ -292,14 +362,22 @@
         "run_py": "agents/audio_qa/run.py",
         "schema_json": "agents/audio_qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "hybrid_video_assembly",
       "agent_name": "hybrid_video_assembly",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "hybrid_video_assembly",
@@ -313,14 +391,22 @@
         "run_py": "agents/hybrid_video_assembly/run.py",
         "schema_json": "agents/hybrid_video_assembly/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "image_generation",
       "agent_name": "image_generation",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "image_generation",
@@ -334,14 +420,22 @@
         "run_py": "agents/image_generation/run.py",
         "schema_json": "agents/image_generation/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "image_prompt",
       "agent_name": "image_prompt",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "image_prompt",
@@ -355,14 +449,22 @@
         "run_py": "agents/image_prompt/run.py",
         "schema_json": "agents/image_prompt/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "image_qa",
       "agent_name": "image_qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "image_qa",
@@ -376,14 +478,22 @@
         "run_py": "agents/image_qa/run.py",
         "schema_json": "agents/image_qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "image_revision",
       "agent_name": "image_revision",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "image_revision",
@@ -397,14 +507,22 @@
         "run_py": "agents/image_revision/run.py",
         "schema_json": "agents/image_revision/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "internal_visual_production",
       "agent_name": "internal_visual_production",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "internal_visual_production",
@@ -418,14 +536,22 @@
         "run_py": "agents/internal_visual_production/run.py",
         "schema_json": "agents/internal_visual_production/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "internal_visual_qa",
       "agent_name": "internal_visual_qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "internal_visual_qa",
@@ -439,14 +565,22 @@
         "run_py": "agents/internal_visual_qa/run.py",
         "schema_json": "agents/internal_visual_qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "internal_visual_render",
       "agent_name": "internal_visual_render",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "internal_visual_render",
@@ -460,14 +594,22 @@
         "run_py": "agents/internal_visual_render/run.py",
         "schema_json": "agents/internal_visual_render/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "internal_visual_render_qa",
       "agent_name": "internal_visual_render_qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "internal_visual_render_qa",
@@ -481,14 +623,22 @@
         "run_py": "agents/internal_visual_render_qa/run.py",
         "schema_json": "agents/internal_visual_render_qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "intro_outro_audio_assembly",
       "agent_name": "intro_outro_audio_assembly",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "intro_outro_audio_assembly",
@@ -502,14 +652,22 @@
         "run_py": "agents/intro_outro_audio_assembly/run.py",
         "schema_json": "agents/intro_outro_audio_assembly/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "intro_outro_plan",
       "agent_name": "intro_outro_plan",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "intro_outro_plan",
@@ -523,14 +681,22 @@
         "run_py": "agents/intro_outro_plan/run.py",
         "schema_json": "agents/intro_outro_plan/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "intro_outro_voice_generation",
       "agent_name": "intro_outro_voice_generation",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "intro_outro_voice_generation",
@@ -544,14 +710,22 @@
         "run_py": "agents/intro_outro_voice_generation/run.py",
         "schema_json": "agents/intro_outro_voice_generation/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "publisher",
       "agent_name": "publisher",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "publisher",
@@ -565,14 +739,22 @@
         "run_py": "agents/publisher/run.py",
         "schema_json": "agents/publisher/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "qa",
       "agent_name": "qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "qa",
@@ -586,14 +768,22 @@
         "run_py": "agents/qa/run.py",
         "schema_json": "agents/qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "research",
       "agent_name": "research",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "research",
@@ -607,14 +797,22 @@
         "run_py": "agents/research/run.py",
         "schema_json": "agents/research/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "script",
       "agent_name": "script",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "script",
@@ -628,14 +826,22 @@
         "run_py": "agents/script/run.py",
         "schema_json": "agents/script/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "seo",
       "agent_name": "seo",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "seo",
@@ -649,14 +855,22 @@
         "run_py": "agents/seo/run.py",
         "schema_json": "agents/seo/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "stock_asset_ingest",
       "agent_name": "stock_asset_ingest",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "stock_asset_ingest",
@@ -670,14 +884,22 @@
         "run_py": "agents/stock_asset_ingest/run.py",
         "schema_json": "agents/stock_asset_ingest/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "video_assembly",
       "agent_name": "video_assembly",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "video_assembly",
@@ -691,14 +913,22 @@
         "run_py": "agents/video_assembly/run.py",
         "schema_json": "agents/video_assembly/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "video_qa",
       "agent_name": "video_qa",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "video_qa",
@@ -712,14 +942,22 @@
         "run_py": "agents/video_qa/run.py",
         "schema_json": "agents/video_qa/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "video_storyboard",
       "agent_name": "video_storyboard",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "video_storyboard",
@@ -733,14 +971,22 @@
         "run_py": "agents/video_storyboard/run.py",
         "schema_json": "agents/video_storyboard/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "visual_asset_acquisition",
       "agent_name": "visual_asset_acquisition",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "visual_asset_acquisition",
@@ -754,14 +1000,22 @@
         "run_py": "agents/visual_asset_acquisition/run.py",
         "schema_json": "agents/visual_asset_acquisition/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "visual_asset_integration",
       "agent_name": "visual_asset_integration",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "visual_asset_integration",
@@ -775,14 +1029,22 @@
         "run_py": "agents/visual_asset_integration/run.py",
         "schema_json": "agents/visual_asset_integration/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "visual_asset_plan",
       "agent_name": "visual_asset_plan",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "visual_asset_plan",
@@ -796,14 +1058,22 @@
         "run_py": "agents/visual_asset_plan/run.py",
         "schema_json": "agents/visual_asset_plan/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "visual_asset_production",
       "agent_name": "visual_asset_production",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "visual_asset_production",
@@ -817,14 +1087,22 @@
         "run_py": "agents/visual_asset_production/run.py",
         "schema_json": "agents/visual_asset_production/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "visual_brief",
       "agent_name": "visual_brief",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "visual_brief",
@@ -838,14 +1116,22 @@
         "run_py": "agents/visual_brief/run.py",
         "schema_json": "agents/visual_brief/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "voice",
       "agent_name": "voice",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "voice",
@@ -859,14 +1145,22 @@
         "run_py": "agents/voice/run.py",
         "schema_json": "agents/voice/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "voice_casting",
       "agent_name": "voice_casting",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "voice_casting",
@@ -880,14 +1174,22 @@
         "run_py": "agents/voice_casting/run.py",
         "schema_json": "agents/voice_casting/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     },
     {
       "key": "voice_generation",
       "agent_name": "voice_generation",
       "operation": "upsert_preview",
       "write_payload_property_names": [
-        "Name"
+        "Name",
+        "Agent Category",
+        "Implementation Status",
+        "Output Status",
+        "Next Agent",
+        "Has Latest Output",
+        "Latest Output Path",
+        "Run Path",
+        "Schema Path"
       ],
       "mapped_source_values": {
         "key": "voice_generation",
@@ -901,7 +1203,7 @@
         "run_py": "agents/voice_generation/run.py",
         "schema_json": "agents/voice_generation/schema.json"
       },
-      "write_payload_field_count": 1
+      "write_payload_field_count": 9
     }
   ],
   "security": {

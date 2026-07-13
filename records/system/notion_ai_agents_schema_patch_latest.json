@@ -1,0 +1,129 @@
+{
+  "record_type": "notion_ai_agents_schema_patch",
+  "version": "1.0",
+  "created_at": "2026-07-13T23:43:20",
+  "status": "schema_patch_applied",
+  "summary": {
+    "target_database": "ai_agents",
+    "database_title": "🤖 AI Agents",
+    "desired_property_count": 8,
+    "missing_property_count_before_patch": 8,
+    "added_property_count": 8,
+    "skipped_existing_property_count": 0,
+    "write_operations_performed": true,
+    "next_step": "rerun_ai_agents_sync_dry_run"
+  },
+  "target": {
+    "env_key": "NOTION_AI_AGENTS_DB_ID",
+    "database_id_available": true,
+    "database_id": "391135d3fbb6805ebec7eb4d7434d0df",
+    "database_title": "🤖 AI Agents"
+  },
+  "schema_patch": {
+    "desired_properties": [
+      {
+        "name": "Agent Category",
+        "type": "rich_text"
+      },
+      {
+        "name": "Implementation Status",
+        "type": "rich_text"
+      },
+      {
+        "name": "Output Status",
+        "type": "rich_text"
+      },
+      {
+        "name": "Next Agent",
+        "type": "rich_text"
+      },
+      {
+        "name": "Has Latest Output",
+        "type": "checkbox"
+      },
+      {
+        "name": "Latest Output Path",
+        "type": "rich_text"
+      },
+      {
+        "name": "Run Path",
+        "type": "rich_text"
+      },
+      {
+        "name": "Schema Path",
+        "type": "rich_text"
+      }
+    ],
+    "missing_properties_before_patch": [
+      "Agent Category",
+      "Implementation Status",
+      "Output Status",
+      "Next Agent",
+      "Has Latest Output",
+      "Latest Output Path",
+      "Run Path",
+      "Schema Path"
+    ],
+    "added_properties": [
+      "Agent Category",
+      "Implementation Status",
+      "Output Status",
+      "Next Agent",
+      "Has Latest Output",
+      "Latest Output Path",
+      "Run Path",
+      "Schema Path"
+    ],
+    "skipped_existing_properties": [],
+    "before_property_names": [
+      "Active",
+      "Automation",
+      "Cost",
+      "Created Time",
+      "Last edited time",
+      "MCP",
+      "Model",
+      "Name",
+      "Owner",
+      "Priority",
+      "Prompt",
+      "Role",
+      "Status",
+      "Version",
+      "🎬 Publishing Queue"
+    ],
+    "after_property_names": [
+      "Active",
+      "Agent Category",
+      "Automation",
+      "Cost",
+      "Created Time",
+      "Has Latest Output",
+      "Implementation Status",
+      "Last edited time",
+      "Latest Output Path",
+      "MCP",
+      "Model",
+      "Name",
+      "Next Agent",
+      "Output Status",
+      "Owner",
+      "Priority",
+      "Prompt",
+      "Role",
+      "Run Path",
+      "Schema Path",
+      "Status",
+      "Version",
+      "🎬 Publishing Queue"
+    ],
+    "patch_status_code": 200,
+    "patch_error": null
+  },
+  "security": {
+    "token_saved_to_output": false,
+    "token_printed_to_terminal": false,
+    "openai_key_saved_to_output": false,
+    "operation_scope": "add_missing_ai_agents_database_properties_only"
+  }
+}
