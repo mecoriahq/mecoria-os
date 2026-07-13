@@ -1,0 +1,45 @@
+﻿{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "status",
+    "audio",
+    "readiness",
+    "source",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "intro_outro_audio_assembly"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "assembled",
+        "blocked"
+      ]
+    },
+    "audio": {
+      "type": "object"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "source": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

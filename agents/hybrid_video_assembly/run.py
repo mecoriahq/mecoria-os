@@ -49,6 +49,11 @@ def load_schema() -> dict:
 
 
 def get_audio_assembly_latest_path(channel: str) -> Path:
+    extended_audio_path = PROJECT_ROOT / "agents" / "intro_outro_audio_assembly" / "output" / channel.lower() / "latest.json"
+
+    if extended_audio_path.exists():
+        return extended_audio_path
+
     return PROJECT_ROOT / "agents" / "audio_assembly" / "output" / channel.lower() / "latest.json"
 
 
