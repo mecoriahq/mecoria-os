@@ -25,7 +25,7 @@ TARGET_ENV_KEY = "NOTION_AI_AGENTS_DB_ID"
 TARGET_KEY = "ai_agents"
 
 FIELD_CANDIDATES = {
-    "category": ["Category", "Agent Category", "Type"],
+    "category": ["Agent Category", "Category", "Type"],
     "implementation_status": ["Implementation Status", "Build Status", "Status"],
     "output_status": ["Output Status", "Latest Output Status", "Latest Status"],
     "next_agent": ["Next Agent", "Next Step", "Next"],
@@ -40,11 +40,6 @@ SAFE_WRITE_TYPES = {
     "checkbox",
     "url",
     "number"
-}
-
-CAUTIOUS_WRITE_TYPES = {
-    "select",
-    "status"
 }
 
 
@@ -208,9 +203,6 @@ def build_field_mapping(properties: dict) -> dict:
             if notion_type in SAFE_WRITE_TYPES:
                 write_policy = "safe_write"
                 write_supported = True
-            elif notion_type in CAUTIOUS_WRITE_TYPES:
-                write_policy = "cautious_write_later"
-                write_supported = False
             else:
                 write_policy = "unsupported_type"
                 write_supported = False
@@ -379,10 +371,132 @@ def build_planned_operations(rows: list[dict], field_mapping: dict) -> list[dict
     return operations
 
 
+def query_existing_page(token: str, database_id: str, title_property_name: str, agent_name: str) -> dict:
+    response = notion_request(
+        method="POST",
+        path=f"/databases/{quote(database_id)}/query",
+        token=token,
+        body={
+            "filter": {
+                "property": title_property_name,
+                "title": {
+                    "equals": agent_name
+                }
+            },
+            "page_size": 1
+        }
+    )
+
+    if not response.get("ok"):
+        return {
+            "ok": False,
+            "error": response.get("error"),
+            "status_code": response.get("status_code")
+        }
+
+    results = response.get("data", {}).get("results", [])
+
+    if not results:
+        return {
+            "ok": True,
+            "found": False
+        }
+
+    page = results[0]
+
+    return {
+        "ok": True,
+        "found": True,
+        "page_id": page.get("id"),
+        "page_url": page.get("url")
+    }
+
+
+def apply_row(token: str, database_id: str, title_property_name: str, row: dict, field_mapping: dict) -> dict:
+    agent_name = row["agent_name"]
+    properties_payload = build_properties_payload(row, field_mapping)
+
+    existing = query_existing_page(
+        token=token,
+        database_id=database_id,
+        title_property_name=title_property_name,
+        agent_name=agent_name
+    )
+
+    if not existing.get("ok"):
+        return {
+            "agent_name": agent_name,
+            "operation": "query_failed",
+            "ok": False,
+            "status_code": existing.get("status_code"),
+            "error": existing.get("error")
+        }
+
+    if existing.get("found"):
+        page_id = existing["page_id"]
+
+        response = notion_request(
+            method="PATCH",
+            path=f"/pages/{quote(page_id)}",
+            token=token,
+            body={
+                "properties": properties_payload
+            }
+        )
+
+        operation = "update_existing_page"
+
+    else:
+        response = notion_request(
+            method="POST",
+            path="/pages",
+            token=token,
+            body={
+                "parent": {
+                    "database_id": database_id
+                },
+                "properties": properties_payload
+            }
+        )
+
+        operation = "create_new_page"
+
+    if response.get("ok"):
+        page = response["data"]
+
+        return {
+            "agent_name": agent_name,
+            "operation": operation,
+            "ok": True,
+            "notion_page_id": page.get("id"),
+            "notion_page_url": page.get("url"),
+            "written_property_count": len(properties_payload),
+            "written_property_names": list(properties_payload.keys())
+        }
+
+    return {
+        "agent_name": agent_name,
+        "operation": operation,
+        "ok": False,
+        "status_code": response.get("status_code"),
+        "error": response.get("error"),
+        "written_property_count": len(properties_payload),
+        "written_property_names": list(properties_payload.keys())
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--allow-full-apply", action="store_true")
     args = parser.parse_args()
+
+    if args.apply and args.limit is None and not args.allow_full_apply:
+        raise RuntimeError("Apply mode requires --limit unless --allow-full-apply is provided.")
+
+    if args.apply and args.limit is not None and args.limit > 5 and not args.allow_full_apply:
+        raise RuntimeError("Limited apply is capped at 5 rows unless --allow-full-apply is provided.")
 
     load_dotenv(PROJECT_ROOT / ".env", override=True)
 
@@ -401,11 +515,13 @@ def main() -> None:
     title_property_name = get_title_property_name(properties)
 
     source_rows = load_source_rows()
+
     excluded_rows = [
         row
         for row in source_rows
         if not is_syncable_agent(row)
     ]
+
     syncable_rows = [
         row
         for row in source_rows
@@ -418,13 +534,59 @@ def main() -> None:
         selected_rows = syncable_rows
 
     field_mapping = build_field_mapping(properties)
+
+    if args.apply and field_mapping["unmapped_field_count"] > 0:
+        raise RuntimeError("Apply blocked because unmapped fields exist. Run schema patch first.")
+
     planned_operations = build_planned_operations(selected_rows, field_mapping)
+
+    apply_results = []
+
+    if args.apply:
+        for row in selected_rows:
+            apply_results.append(
+                apply_row(
+                    token=token,
+                    database_id=database_id,
+                    title_property_name=title_property_name,
+                    row=row,
+                    field_mapping=field_mapping
+                )
+            )
+
+    failed_apply_results = [
+        result
+        for result in apply_results
+        if not result.get("ok")
+    ]
+
+    created_count = len([
+        result
+        for result in apply_results
+        if result.get("operation") == "create_new_page" and result.get("ok")
+    ])
+
+    updated_count = len([
+        result
+        for result in apply_results
+        if result.get("operation") == "update_existing_page" and result.get("ok")
+    ])
+
+    if args.apply and failed_apply_results:
+        status = "apply_test_failed"
+        next_step = "inspect_failed_apply_results"
+    elif args.apply:
+        status = "apply_test_passed"
+        next_step = "review_3_synced_agents_in_notion_then_full_sync"
+    else:
+        status = "dry_run_ready"
+        next_step = "review_mapping_then_run_limited_apply_test"
 
     record = {
         "record_type": "notion_ai_agents_sync",
-        "version": "1.0",
+        "version": "1.1",
         "created_at": datetime.now().isoformat(timespec="seconds"),
-        "status": "dry_run_ready",
+        "status": status,
         "summary": {
             "target_database": TARGET_KEY,
             "database_title": database_title,
@@ -433,10 +595,14 @@ def main() -> None:
             "selected_row_count": len(selected_rows),
             "excluded_row_count": len(excluded_rows),
             "excluded_keys": [row["key"] for row in excluded_rows],
-            "write_operations_performed": False,
+            "write_operations_performed": bool(args.apply),
+            "apply_mode": bool(args.apply),
+            "created_count": created_count,
+            "updated_count": updated_count,
+            "failed_apply_count": len(failed_apply_results),
             "mapped_field_count": field_mapping["mapped_field_count"],
             "unmapped_field_count": field_mapping["unmapped_field_count"],
-            "next_step": "review_mapping_then_run_limited_apply_test"
+            "next_step": next_step
         },
         "target": {
             "env_key": TARGET_ENV_KEY,
@@ -454,12 +620,14 @@ def main() -> None:
         },
         "field_mapping": field_mapping,
         "planned_operations": planned_operations,
+        "apply_results": apply_results,
         "security": {
             "token_saved_to_output": False,
             "token_printed_to_terminal": False,
             "openai_key_saved_to_output": False,
-            "write_operations_performed": False,
-            "mode": "dry_run_only"
+            "write_operations_performed": bool(args.apply),
+            "mode": "limited_apply" if args.apply else "dry_run_only",
+            "apply_limit": args.limit
         }
     }
 
@@ -468,14 +636,17 @@ def main() -> None:
     save_json(record, OUTPUT_PATH)
     save_json(record, RECORD_PATH)
 
-    print("Notion AI Agents Sync Dry-Run completed.")
+    print("Notion AI Agents Sync completed.")
     print(f"Status: {record['status']}")
     print(f"Database title: {database_title}")
     print(f"Source rows: {len(source_rows)}")
     print(f"Syncable rows: {len(syncable_rows)}")
     print(f"Selected rows: {len(selected_rows)}")
     print(f"Excluded rows: {len(excluded_rows)}")
-    print(f"Write operations performed: False")
+    print(f"Write operations performed: {bool(args.apply)}")
+    print(f"Created: {created_count}")
+    print(f"Updated: {updated_count}")
+    print(f"Failed apply: {len(failed_apply_results)}")
     print("")
     print("Field mapping:")
 
@@ -493,6 +664,17 @@ def main() -> None:
 
         for item in field_mapping["unmapped"]:
             print(f"- {item['source_field']}")
+
+    if args.apply:
+        print("")
+        print("Apply results:")
+
+        for result in apply_results:
+            print(
+                f"- {result.get('agent_name')}: "
+                f"{result.get('operation')} "
+                f"ok={result.get('ok')}"
+            )
 
     print("")
     print(f"Record path: {RECORD_PATH.relative_to(PROJECT_ROOT)}")
