@@ -1,7 +1,7 @@
 {
   "record_type": "notion_sync_preview",
   "version": "1.0",
-  "created_at": "2026-07-13T22:20:50",
+  "created_at": "2026-07-13T22:30:30",
   "channel": "hiddenova",
   "status": "preview_ready",
   "summary": {
@@ -12,7 +12,6 @@
     ],
     "total_preview_rows": 40,
     "missing_first_scope_database_ids": [
-      "ai_agents",
       "youtube_channels",
       "publishing_queue"
     ],
@@ -41,7 +40,7 @@
     },
     "ai_agents": {
       "env_key": "NOTION_AI_AGENTS_DB_ID",
-      "database_id_available": false,
+      "database_id_available": true,
       "sync_status": "first_priority",
       "source": "agents directory scan"
     },
