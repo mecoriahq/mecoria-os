@@ -1,0 +1,47 @@
+{
+  "record_type": "founder_final_review",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "platform": "youtube",
+  "youtube_url": "https://youtu.be/tmwQjq5C3fA",
+  "visibility": "unlisted",
+  "review_date": "2026-07-13",
+  "review_result": "needs_revision_before_public",
+  "scores": {
+    "visual_flow": "good",
+    "voice": "medium",
+    "thumbnail": "good",
+    "repetition": "acceptable_after_improvement"
+  },
+  "founder_feedback": [
+    "Video opens in incognito, so Unlisted visibility is working.",
+    "Visual flow is good.",
+    "Voice is medium.",
+    "Thumbnail is good after 1280x720 fix.",
+    "Before public release, the video should include a stronger opening structure.",
+    "Founder wants a short Hiddenova welcome/context line and a brief summary near the beginning.",
+    "Founder wants an outro asking viewers to comment, like, and subscribe for more similar content."
+  ],
+  "public_decision": {
+    "public_ready": false,
+    "reason": "Intro/outro structure should be added before public release."
+  },
+  "required_changes": [
+    {
+      "change_id": "R001",
+      "type": "intro_standard",
+      "description": "Add a short cold open, then a Hiddenova brand/context line, then a very short video summary."
+    },
+    {
+      "change_id": "R002",
+      "type": "outro_cta",
+      "description": "Add a short final CTA asking viewers to comment, like, and subscribe for more Hiddenova-style documentaries."
+    },
+    {
+      "change_id": "R003",
+      "type": "pipeline_standard",
+      "description": "Make intro/outro structure reusable for future Hiddenova videos, not a one-off manual edit."
+    }
+  ],
+  "next_step": "build_intro_outro_standard_then_rerender"
+}
