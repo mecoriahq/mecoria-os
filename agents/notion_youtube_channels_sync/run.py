@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import os
 from datetime import datetime
@@ -54,7 +54,9 @@ SAFE_WRITE_TYPES = {
     "rich_text",
     "checkbox",
     "url",
-    "number"
+    "number",
+    "select",
+    "multi_select"
 }
 
 
@@ -411,6 +413,20 @@ def build_properties_payload(row: dict, field_mapping: dict) -> dict:
             text = str(value or "")
             if text.startswith("http://") or text.startswith("https://"):
                 payload[notion_property_name] = {"url": text}
+        elif notion_property_type == "select":
+            text = str(value or "").strip()
+            if text:
+                payload[notion_property_name] = {"select": {"name": text}}
+        elif notion_property_type == "multi_select":
+            text = str(value or "").strip()
+            if text:
+                payload[notion_property_name] = {
+                    "multi_select": [
+                        {
+                            "name": text
+                        }
+                    ]
+                }
         elif notion_property_type == "number":
             try:
                 payload[notion_property_name] = {"number": float(value)}

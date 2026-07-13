@@ -1,7 +1,7 @@
 {
   "record_type": "notion_youtube_channels_sync",
   "version": "1.0",
-  "created_at": "2026-07-14T00:29:13",
+  "created_at": "2026-07-14T00:31:02",
   "status": "sync_passed",
   "summary": {
     "target_database": "youtube_channels",
@@ -9,7 +9,7 @@
     "source_row_count": 1,
     "selected_row_count": 1,
     "write_operations_performed": true,
-    "schema_write_operations_performed": true,
+    "schema_write_operations_performed": false,
     "created_count": 0,
     "updated_count": 1,
     "failed_apply_count": 0,
@@ -123,8 +123,8 @@
         "source_field": "platform",
         "notion_property_name": "Platform",
         "notion_property_type": "multi_select",
-        "write_policy": "unsupported_type",
-        "write_supported": false
+        "write_policy": "safe_write",
+        "write_supported": true
       },
       "launch_status": {
         "source_field": "launch_status",
@@ -201,6 +201,7 @@
       "operation": "upsert_preview",
       "write_payload_property_names": [
         "Name",
+        "Platform",
         "Launch Status",
         "Public Video URL",
         "Homepage Enabled",
@@ -225,7 +226,7 @@
         "next_step": "sprint_26_analytics_tracking",
         "source_record": "records/channel/hiddenova/2026-07-13_hiddenova_channel_launch_ready.json"
       },
-      "write_payload_field_count": 10
+      "write_payload_field_count": 11
     }
   ],
   "apply_results": [
@@ -236,9 +237,10 @@
       "ok": true,
       "notion_page_id": "393135d3-fbb6-80a6-96c9-ea90ab6d4827",
       "notion_page_url": "https://app.notion.com/p/Hiddenova-393135d3fbb680a696c9ea90ab6d4827",
-      "written_property_count": 10,
+      "written_property_count": 11,
       "written_property_names": [
         "Name",
+        "Platform",
         "Launch Status",
         "Public Video URL",
         "Homepage Enabled",
@@ -251,25 +253,7 @@
       ]
     }
   ],
-  "schema_patch": {
-    "status": "schema_patch_not_needed",
-    "missing_properties_before_patch": [],
-    "added_properties": [],
-    "skipped_existing_properties": [
-      "Platform",
-      "Launch Status",
-      "Public Video URL",
-      "Homepage Enabled",
-      "Public Video Visible",
-      "Website Link Visible",
-      "Next Step",
-      "Source Record",
-      "Sync Source",
-      "System Key"
-    ],
-    "patch_status_code": 200,
-    "patch_error": null
-  },
+  "schema_patch": null,
   "security": {
     "token_saved_to_output": false,
     "token_printed_to_terminal": false,
