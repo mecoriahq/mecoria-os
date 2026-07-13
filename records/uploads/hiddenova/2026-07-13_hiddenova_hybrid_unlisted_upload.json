@@ -1,0 +1,50 @@
+{
+  "record_type": "youtube_upload_record",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "platform": "youtube",
+  "youtube_url": "https://youtu.be/tmwQjq5C3fA",
+  "youtube_video_id": "tmwQjq5C3fA",
+  "visibility": "unlisted",
+  "public_status": "not_public",
+  "upload_date": "2026-07-13",
+  "title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+  "source": {
+    "export_package_path": "exports/upload_packages/hiddenova/2026-07-13_19-53-10",
+    "export_metadata_reference": "exports/upload_packages/hiddenova/2026-07-13_19-53-10/metadata.json",
+    "publisher_reference": "agents/publisher/output/hiddenova/latest.json",
+    "video_qa_reference": "agents/video_qa/output/hiddenova/latest.json"
+  },
+  "files": {
+    "video_file": "exports/upload_packages/hiddenova/2026-07-13_19-53-10/video.mp4",
+    "video_size_bytes": 236238074,
+    "thumbnail_file": "exports/upload_packages/hiddenova/2026-07-13_19-53-10/thumbnail.png",
+    "thumbnail_size_bytes": 1319500
+  },
+  "qa": {
+    "video_qa_status": "approved",
+    "technical_result": "passed",
+    "unlisted_upload_ready": true,
+    "public_upload_ready": false,
+    "warnings": [
+      "Hybrid video still requires founder creative review before public release.",
+      "Stock footage license/public usage should be confirmed before public release."
+    ]
+  },
+  "publisher": {
+    "status": "upload_ready",
+    "upload_ready": true
+  },
+  "thumbnail_standard": {
+    "size": "1280x720",
+    "aspect_ratio": "16:9",
+    "normalization": "center_crop_resize",
+    "purpose": "YouTube-compatible thumbnail export without black bars."
+  },
+  "notes": [
+    "Uploaded as Unlisted for founder final review.",
+    "Do not publish publicly until final watch-through is complete.",
+    "Storyblocks license/public usage should remain documented before public release."
+  ],
+  "next_step": "founder_final_review"
+}
