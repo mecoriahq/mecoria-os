@@ -27,7 +27,7 @@ def load_json(file_path: Path) -> dict:
     if not file_path.exists():
         raise FileNotFoundError(f"Required file not found: {file_path}")
 
-    return json.loads(file_path.read_text(encoding="utf-8"))
+    return json.loads(file_path.read_text(encoding="utf-8-sig"))
 
 
 def load_schema() -> dict:
@@ -158,9 +158,14 @@ def build_rejected_output(image_generation_data: dict, image_path: Path, technic
             "subject_visibility": make_check("fail", 0),
             "composition_quality": make_check("fail", 0),
             "lighting_quality": make_check("fail", 0),
-            "text_absence": make_check("fail", 0),
+            "thumbnail_text_presence": make_check("fail", 0),
+            "thumbnail_text_readability": make_check("fail", 0),
+            "thumbnail_text_word_count": make_check("fail", 0),
+            "thumbnail_text_contrast": make_check("fail", 0),
+            "thumbnail_text_not_covering_subject": make_check("fail", 0),
             "logo_absence": make_check("fail", 0),
-            "standard_alignment": make_check("fail", 0)
+            "standard_alignment": make_check("fail", 0),
+            "ctr_potential": make_check("fail", 0)
         },
         "issues": [
             {

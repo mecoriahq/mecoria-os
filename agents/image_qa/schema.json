@@ -55,17 +55,27 @@
         "subject_visibility",
         "composition_quality",
         "lighting_quality",
-        "text_absence",
+        "thumbnail_text_presence",
+        "thumbnail_text_readability",
+        "thumbnail_text_word_count",
+        "thumbnail_text_contrast",
+        "thumbnail_text_not_covering_subject",
         "logo_absence",
-        "standard_alignment"
+        "standard_alignment",
+        "ctr_potential"
       ],
       "properties": {
         "subject_visibility": { "$ref": "#/$defs/check_result" },
         "composition_quality": { "$ref": "#/$defs/check_result" },
         "lighting_quality": { "$ref": "#/$defs/check_result" },
-        "text_absence": { "$ref": "#/$defs/check_result" },
+        "thumbnail_text_presence": { "$ref": "#/$defs/check_result" },
+        "thumbnail_text_readability": { "$ref": "#/$defs/check_result" },
+        "thumbnail_text_word_count": { "$ref": "#/$defs/check_result" },
+        "thumbnail_text_contrast": { "$ref": "#/$defs/check_result" },
+        "thumbnail_text_not_covering_subject": { "$ref": "#/$defs/check_result" },
         "logo_absence": { "$ref": "#/$defs/check_result" },
-        "standard_alignment": { "$ref": "#/$defs/check_result" }
+        "standard_alignment": { "$ref": "#/$defs/check_result" },
+        "ctr_potential": { "$ref": "#/$defs/check_result" }
       },
       "additionalProperties": false
     },
