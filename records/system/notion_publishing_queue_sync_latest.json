@@ -1,0 +1,514 @@
+{
+  "record_type": "notion_publishing_queue_sync",
+  "version": "1.0",
+  "created_at": "2026-07-14T00:34:07",
+  "status": "sync_passed",
+  "summary": {
+    "target_database": "publishing_queue",
+    "database_title": "🎬 Publishing Queue",
+    "source_row_count": 3,
+    "selected_row_count": 3,
+    "write_operations_performed": true,
+    "schema_write_operations_performed": true,
+    "created_count": 3,
+    "updated_count": 0,
+    "failed_apply_count": 0,
+    "mapped_field_count": 17,
+    "unmapped_field_count": 0,
+    "next_step": "review_publishing_queue_in_notion_then_build_os_sync_runner"
+  },
+  "target": {
+    "env_key": "NOTION_PUBLISHING_QUEUE_DB_ID",
+    "database_id_available": true,
+    "database_title": "🎬 Publishing Queue",
+    "title_property_name": "Name",
+    "notion_property_count": 28,
+    "notion_properties": [
+      {
+        "name": "AI Agent",
+        "type": "relation"
+      },
+      {
+        "name": "Channel",
+        "type": "relation"
+      },
+      {
+        "name": "Channel Key",
+        "type": "rich_text"
+      },
+      {
+        "name": "First Public Video",
+        "type": "checkbox"
+      },
+      {
+        "name": "Name",
+        "type": "title"
+      },
+      {
+        "name": "Next Step",
+        "type": "rich_text"
+      },
+      {
+        "name": "Platform",
+        "type": "select"
+      },
+      {
+        "name": "Priority",
+        "type": "select"
+      },
+      {
+        "name": "Public Status",
+        "type": "rich_text"
+      },
+      {
+        "name": "Public URL",
+        "type": "url"
+      },
+      {
+        "name": "Publish Date",
+        "type": "date"
+      },
+      {
+        "name": "Published URL",
+        "type": "url"
+      },
+      {
+        "name": "Queue Status",
+        "type": "rich_text"
+      },
+      {
+        "name": "Release Version",
+        "type": "rich_text"
+      },
+      {
+        "name": "Source Record",
+        "type": "rich_text"
+      },
+      {
+        "name": "Status",
+        "type": "status"
+      },
+      {
+        "name": "Sync Source",
+        "type": "rich_text"
+      },
+      {
+        "name": "System Key",
+        "type": "rich_text"
+      },
+      {
+        "name": "Thumbnail",
+        "type": "files"
+      },
+      {
+        "name": "Thumbnail Image Path",
+        "type": "rich_text"
+      },
+      {
+        "name": "Unlisted URL",
+        "type": "url"
+      },
+      {
+        "name": "Upload Ready",
+        "type": "checkbox"
+      },
+      {
+        "name": "Video File",
+        "type": "files"
+      },
+      {
+        "name": "Video File Path",
+        "type": "rich_text"
+      },
+      {
+        "name": "Video Title",
+        "type": "rich_text"
+      },
+      {
+        "name": "Video URL",
+        "type": "url"
+      },
+      {
+        "name": "Visibility",
+        "type": "rich_text"
+      },
+      {
+        "name": "📺 YouTube Channels",
+        "type": "relation"
+      }
+    ]
+  },
+  "field_mapping": {
+    "mapped": {
+      "queue_item_title": {
+        "source_field": "queue_item_title",
+        "notion_property_name": "Name",
+        "notion_property_type": "title",
+        "write_policy": "required_title",
+        "write_supported": true
+      },
+      "channel_key": {
+        "source_field": "channel_key",
+        "notion_property_name": "Channel Key",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "video_title": {
+        "source_field": "video_title",
+        "notion_property_name": "Video Title",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "queue_status": {
+        "source_field": "queue_status",
+        "notion_property_name": "Queue Status",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "release_version": {
+        "source_field": "release_version",
+        "notion_property_name": "Release Version",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "public_url": {
+        "source_field": "public_url",
+        "notion_property_name": "Public URL",
+        "notion_property_type": "url",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "unlisted_url": {
+        "source_field": "unlisted_url",
+        "notion_property_name": "Unlisted URL",
+        "notion_property_type": "url",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "visibility": {
+        "source_field": "visibility",
+        "notion_property_name": "Visibility",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "public_status": {
+        "source_field": "public_status",
+        "notion_property_name": "Public Status",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "upload_ready": {
+        "source_field": "upload_ready",
+        "notion_property_name": "Upload Ready",
+        "notion_property_type": "checkbox",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "first_public_video": {
+        "source_field": "first_public_video",
+        "notion_property_name": "First Public Video",
+        "notion_property_type": "checkbox",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "next_step": {
+        "source_field": "next_step",
+        "notion_property_name": "Next Step",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "source_record": {
+        "source_field": "source_record",
+        "notion_property_name": "Source Record",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "video_file_path": {
+        "source_field": "video_file_path",
+        "notion_property_name": "Video File Path",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "thumbnail_image_path": {
+        "source_field": "thumbnail_image_path",
+        "notion_property_name": "Thumbnail Image Path",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "sync_source": {
+        "source_field": "sync_source",
+        "notion_property_name": "Sync Source",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      },
+      "system_key": {
+        "source_field": "system_key",
+        "notion_property_name": "System Key",
+        "notion_property_type": "rich_text",
+        "write_policy": "safe_write",
+        "write_supported": true
+      }
+    },
+    "unmapped": [],
+    "mapped_field_count": 17,
+    "unmapped_field_count": 0
+  },
+  "planned_operations": [
+    {
+      "key": "j2-xEXd2fH4",
+      "queue_item_title": "Hiddenova | j2-xEXd2fH4",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name",
+        "Channel Key",
+        "Video Title",
+        "Queue Status",
+        "Release Version",
+        "Public URL",
+        "Visibility",
+        "Public Status",
+        "Upload Ready",
+        "First Public Video",
+        "Next Step",
+        "Source Record",
+        "Video File Path",
+        "Thumbnail Image Path",
+        "Sync Source",
+        "System Key"
+      ],
+      "mapped_source_values": {
+        "key": "j2-xEXd2fH4",
+        "queue_item_title": "Hiddenova | j2-xEXd2fH4",
+        "system_key": "j2-xEXd2fH4",
+        "sync_source": "GitHub",
+        "channel_key": "hiddenova",
+        "video_title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+        "queue_status": "public_released",
+        "release_version": "V1.1",
+        "public_url": "https://youtu.be/j2-xEXd2fH4",
+        "unlisted_url": null,
+        "visibility": "public",
+        "public_status": null,
+        "upload_ready": null,
+        "first_public_video": true,
+        "next_step": "analytics_tracking",
+        "source_record": "records/releases/hiddenova/2026-07-13_hiddenova_v1_1_public_release.json",
+        "video_file_path": null,
+        "thumbnail_image_path": null
+      },
+      "write_payload_field_count": 16
+    },
+    {
+      "key": "tmwQjq5C3fA",
+      "queue_item_title": "Hiddenova | tmwQjq5C3fA",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name",
+        "Channel Key",
+        "Video Title",
+        "Queue Status",
+        "Release Version",
+        "Unlisted URL",
+        "Visibility",
+        "Public Status",
+        "Upload Ready",
+        "First Public Video",
+        "Next Step",
+        "Source Record",
+        "Video File Path",
+        "Thumbnail Image Path",
+        "Sync Source",
+        "System Key"
+      ],
+      "mapped_source_values": {
+        "key": "tmwQjq5C3fA",
+        "queue_item_title": "Hiddenova | tmwQjq5C3fA",
+        "system_key": "tmwQjq5C3fA",
+        "sync_source": "GitHub",
+        "channel_key": "hiddenova",
+        "video_title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+        "queue_status": "unlisted_upload_record",
+        "release_version": null,
+        "public_url": null,
+        "unlisted_url": "https://youtu.be/tmwQjq5C3fA",
+        "visibility": "unlisted",
+        "public_status": "not_public",
+        "upload_ready": null,
+        "first_public_video": null,
+        "next_step": "founder_final_review",
+        "source_record": "records/uploads/hiddenova/2026-07-13_hiddenova_hybrid_unlisted_upload.json",
+        "video_file_path": null,
+        "thumbnail_image_path": null
+      },
+      "write_payload_field_count": 16
+    },
+    {
+      "key": "publisher_latest",
+      "queue_item_title": "Hiddenova | publisher_latest",
+      "operation": "upsert_preview",
+      "write_payload_property_names": [
+        "Name",
+        "Channel Key",
+        "Video Title",
+        "Queue Status",
+        "Release Version",
+        "Visibility",
+        "Public Status",
+        "Upload Ready",
+        "First Public Video",
+        "Next Step",
+        "Source Record",
+        "Video File Path",
+        "Thumbnail Image Path",
+        "Sync Source",
+        "System Key"
+      ],
+      "mapped_source_values": {
+        "key": "publisher_latest",
+        "queue_item_title": "Hiddenova | publisher_latest",
+        "system_key": "publisher_latest",
+        "sync_source": "GitHub",
+        "channel_key": "hiddenova",
+        "video_title": "What Really Happens to Your Online Returns? The Hidden Reverse Logistics Network",
+        "queue_status": "upload_ready",
+        "release_version": null,
+        "public_url": null,
+        "unlisted_url": null,
+        "visibility": null,
+        "public_status": null,
+        "upload_ready": true,
+        "first_public_video": null,
+        "next_step": null,
+        "source_record": "agents/publisher/output/hiddenova/latest.json",
+        "video_file_path": "agents/hybrid_video_assembly/output/hiddenova/drafts/2026-07-13_21-02-54/hybrid_video_draft.mp4",
+        "thumbnail_image_path": "agents/image_generation/output/hiddenova/images/2026-07-08_01-05-50.png"
+      },
+      "write_payload_field_count": 15
+    }
+  ],
+  "apply_results": [
+    {
+      "queue_item_title": "Hiddenova | j2-xEXd2fH4",
+      "system_key": "j2-xEXd2fH4",
+      "operation": "create_new_page",
+      "ok": true,
+      "notion_page_id": "39c135d3-fbb6-81e3-bc68-fa300c63c6c9",
+      "notion_page_url": "https://app.notion.com/p/Hiddenova-j2-xEXd2fH4-39c135d3fbb681e3bc68fa300c63c6c9",
+      "written_property_count": 16,
+      "written_property_names": [
+        "Name",
+        "Channel Key",
+        "Video Title",
+        "Queue Status",
+        "Release Version",
+        "Public URL",
+        "Visibility",
+        "Public Status",
+        "Upload Ready",
+        "First Public Video",
+        "Next Step",
+        "Source Record",
+        "Video File Path",
+        "Thumbnail Image Path",
+        "Sync Source",
+        "System Key"
+      ]
+    },
+    {
+      "queue_item_title": "Hiddenova | tmwQjq5C3fA",
+      "system_key": "tmwQjq5C3fA",
+      "operation": "create_new_page",
+      "ok": true,
+      "notion_page_id": "39c135d3-fbb6-81ec-977a-f0af3c4c1b5e",
+      "notion_page_url": "https://app.notion.com/p/Hiddenova-tmwQjq5C3fA-39c135d3fbb681ec977af0af3c4c1b5e",
+      "written_property_count": 16,
+      "written_property_names": [
+        "Name",
+        "Channel Key",
+        "Video Title",
+        "Queue Status",
+        "Release Version",
+        "Unlisted URL",
+        "Visibility",
+        "Public Status",
+        "Upload Ready",
+        "First Public Video",
+        "Next Step",
+        "Source Record",
+        "Video File Path",
+        "Thumbnail Image Path",
+        "Sync Source",
+        "System Key"
+      ]
+    },
+    {
+      "queue_item_title": "Hiddenova | publisher_latest",
+      "system_key": "publisher_latest",
+      "operation": "create_new_page",
+      "ok": true,
+      "notion_page_id": "39c135d3-fbb6-8153-9434-c4e5927f9b3c",
+      "notion_page_url": "https://app.notion.com/p/Hiddenova-publisher_latest-39c135d3fbb681539434c4e5927f9b3c",
+      "written_property_count": 15,
+      "written_property_names": [
+        "Name",
+        "Channel Key",
+        "Video Title",
+        "Queue Status",
+        "Release Version",
+        "Visibility",
+        "Public Status",
+        "Upload Ready",
+        "First Public Video",
+        "Next Step",
+        "Source Record",
+        "Video File Path",
+        "Thumbnail Image Path",
+        "Sync Source",
+        "System Key"
+      ]
+    }
+  ],
+  "schema_patch": {
+    "status": "schema_patch_not_needed",
+    "missing_properties_before_patch": [],
+    "added_properties": [],
+    "skipped_existing_properties": [
+      "Channel Key",
+      "Video Title",
+      "Queue Status",
+      "Release Version",
+      "Public URL",
+      "Unlisted URL",
+      "Visibility",
+      "Public Status",
+      "Upload Ready",
+      "First Public Video",
+      "Next Step",
+      "Source Record",
+      "Video File Path",
+      "Thumbnail Image Path",
+      "Sync Source",
+      "System Key"
+    ],
+    "patch_status_code": 200,
+    "patch_error": null
+  },
+  "security": {
+    "token_saved_to_output": false,
+    "token_printed_to_terminal": false,
+    "openai_key_saved_to_output": false,
+    "write_operations_performed": true,
+    "mode": "apply"
+  }
+}

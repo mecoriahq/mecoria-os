@@ -1,0 +1,28 @@
+﻿{
+  "type": "object",
+  "required": [
+    "record_type",
+    "version",
+    "created_at",
+    "status",
+    "summary",
+    "target",
+    "field_mapping",
+    "planned_operations",
+    "apply_results",
+    "security"
+  ],
+  "properties": {
+    "record_type": { "type": "string" },
+    "version": { "type": "string" },
+    "created_at": { "type": "string" },
+    "status": { "type": "string" },
+    "summary": { "type": "object" },
+    "target": { "type": "object" },
+    "field_mapping": { "type": "object" },
+    "planned_operations": { "type": "array" },
+    "apply_results": { "type": "array" },
+    "security": { "type": "object" }
+  },
+  "additionalProperties": true
+}
