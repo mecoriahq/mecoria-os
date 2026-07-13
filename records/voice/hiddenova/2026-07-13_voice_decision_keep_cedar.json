@@ -1,0 +1,11 @@
+﻿{
+  "record_type": "voice_decision",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "decision": "keep_cedar",
+  "provider": "openai",
+  "model": "gpt-4o-mini-tts",
+  "voice": "cedar",
+  "reason": "Founder listened to voice samples and decided not to change the current voice.",
+  "next_step": "generate_intro_outro_audio_with_cedar"
+}

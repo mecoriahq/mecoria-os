@@ -1,0 +1,14 @@
+﻿{
+  "channel": "hiddenova",
+  "voice_profile_version": "1.0",
+  "provider": "openai",
+  "model": "gpt-4o-mini-tts",
+  "voice": "cedar",
+  "status": "active",
+  "decision": "keep_current_voice",
+  "notes": [
+    "Voice casting was tested.",
+    "Founder decided to keep cedar for now.",
+    "Do not change Hiddenova voice unless founder requests a new casting round."
+  ]
+}
