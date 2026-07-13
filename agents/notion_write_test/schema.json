@@ -1,0 +1,22 @@
+﻿{
+  "type": "object",
+  "required": [
+    "record_type",
+    "version",
+    "created_at",
+    "status",
+    "summary",
+    "target",
+    "security"
+  ],
+  "properties": {
+    "record_type": { "type": "string" },
+    "version": { "type": "string" },
+    "created_at": { "type": "string" },
+    "status": { "type": "string" },
+    "summary": { "type": "object" },
+    "target": { "type": "object" },
+    "security": { "type": "object" }
+  },
+  "additionalProperties": true
+}
