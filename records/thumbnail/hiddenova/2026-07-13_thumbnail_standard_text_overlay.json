@@ -1,0 +1,16 @@
+﻿{
+  "record_type": "thumbnail_standard_decision",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "decision_date": "2026-07-13",
+  "decision": "enable_short_text_overlay_on_thumbnails",
+  "reason": "Founder decided that short and effective thumbnail text is more aligned with YouTube algorithm and click-through optimization.",
+  "summary": {
+    "text_overlay_required": true,
+    "max_words": 4,
+    "preferred_word_count": 2,
+    "style": "short_punchy_curiosity_driven",
+    "platform_standard": "1280x720_youtube"
+  },
+  "next_step": "connect_thumbnail_agent_to_thumbnail_rules_config"
+}
