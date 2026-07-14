@@ -1,0 +1,24 @@
+{
+    "record_type":  "video_topic_selection",
+    "version":  "1.0",
+    "created_at":  "2026-07-14T21:22:34",
+    "channel":  "hiddenova",
+    "sprint":  "27B",
+    "selected_idea_index":  0,
+    "selected_idea_id":  1,
+    "selected_title":  "The Hidden System That Moves Your Luggage After Check-In",
+    "selection_status":  "approved_for_script",
+    "decision_reason":  [
+                            "Strong universal curiosity",
+                            "Clear hidden system angle",
+                            "Good visual sourcing potential",
+                            "Medium production difficulty",
+                            "Avoids repeating the first e-commerce returns topic"
+                        ],
+    "thumbnail_angles":  [
+                             "WHERE BAGS GO",
+                             "LOST IN THE SYSTEM",
+                             "BEHIND CHECK-IN"
+                         ],
+    "next_agent":  "script"
+}
