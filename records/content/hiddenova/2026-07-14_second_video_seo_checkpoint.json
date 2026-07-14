@@ -1,0 +1,15 @@
+{
+  "record_type": "seo_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-14T21:27:52",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "seo_ready_for_qa",
+  "video_title": "What Really Happens to Your Luggage After Check-In?",
+  "description_char_count": 717,
+  "tag_count": 18,
+  "hashtag_count": 5,
+  "chapter_count": 14,
+  "source_output": "agents/seo/output/hiddenova/latest.json",
+  "next_agent": "qa"
+}
