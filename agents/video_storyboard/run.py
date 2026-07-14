@@ -146,7 +146,7 @@ def build_prompt(
     )
 
     title = publisher_data["publishing_package"]["video_metadata"]["title"]
-    review_summary = review_data["quality_assessment"] if review_data else {}
+    review_summary = (review_data.get("quality_assessment") or review_data.get("summary") or {"status": review_data.get("status"), "overall_score": review_data.get("overall_score"), "issue_count": review_data.get("issue_count"), "recommendation_count": review_data.get("recommendation_count"), "issues_preview": review_data.get("issues_preview"), "recommendations_preview": review_data.get("recommendations_preview")}) if review_data else {}
 
     return f"""
 You are the Video Storyboard Agent for Mecoria Media's Hiddenova channel.

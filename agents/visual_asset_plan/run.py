@@ -1,5 +1,6 @@
 import argparse
 import json
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -271,6 +272,59 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+
+def normalize_scene_references(payload: dict) -> None:
+    def normalize_scene_list(values):
+        normalized = []
+
+        if not isinstance(values, list):
+            return normalized
+
+        for value in values:
+            scene_number = None
+
+            if isinstance(value, bool):
+                continue
+
+            if isinstance(value, int):
+                scene_number = value
+
+            elif isinstance(value, float):
+                scene_number = int(value)
+
+            elif isinstance(value, str):
+                cleaned = value.strip()
+
+                if not cleaned:
+                    continue
+
+                try:
+                    scene_number = int(float(cleaned))
+                except ValueError:
+                    continue
+
+            if scene_number is None:
+                continue
+
+            if scene_number not in normalized:
+                normalized.append(scene_number)
+
+        return normalized
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            if "scenes_covered" in obj:
+                obj["scenes_covered"] = normalize_scene_list(obj.get("scenes_covered"))
+
+            for value in obj.values():
+                walk(value)
+
+        elif isinstance(obj, list):
+            for item in obj:
+                walk(item)
+
+    walk(payload)
+
 def main() -> None:
     args = parse_args()
 
@@ -284,7 +338,32 @@ def main() -> None:
         return
 
     prompt = build_prompt(storyboard_data=storyboard_data)
-    raw_asset_plan = generate_asset_plan(prompt)
+    raw_asset_plan = None
+    last_generation_error = None
+
+    for generation_attempt in range(1, 4):
+        try:
+            raw_asset_plan = generate_asset_plan(prompt)
+
+            if raw_asset_plan:
+                break
+
+        except ValueError as error:
+            last_generation_error = error
+            error_text = str(error).lower()
+
+            if "empty response" not in error_text or generation_attempt == 3:
+                raise
+
+            print(
+                "VISUAL_ASSET_PLAN_EMPTY_RESPONSE_RETRY:"
+                f" attempt={generation_attempt}"
+            )
+            time.sleep(5)
+
+    if raw_asset_plan is None:
+        raise last_generation_error or ValueError("Visual asset plan generation failed.")
+
 
     final_output = normalize_output(
         channel=args.channel,
@@ -294,6 +373,7 @@ def main() -> None:
     )
 
     schema = load_schema()
+    normalize_scene_references(final_output)
     validate(instance=final_output, schema=schema)
 
     latest_path = save_output(
