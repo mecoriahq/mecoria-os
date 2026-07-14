@@ -1,0 +1,409 @@
+{
+  "record_type": "stock_download_checklist",
+  "version": "1.0",
+  "created_at": "2026-07-14T22:17:31",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "stock_download_checklist_ready",
+  "target_folder": "assets/stock/hiddenova/inbox",
+  "item_count": 24,
+  "items": [
+    {
+      "asset_id": "A001",
+      "title": "airport baggage stock clip 1",
+      "description": "Establish the core visual metaphor: the passenger gives up the bag, and it vanishes behind the curtain into the hidden system.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "1",
+        "2",
+        "9",
+        "10",
+        "57",
+        "59"
+      ],
+      "suggested_filename": "A001_airport_baggage_stock_clip_1.mp4"
+    },
+    {
+      "asset_id": "A005",
+      "title": "airport baggage stock clip 2",
+      "description": "Establish the hidden back-of-house baggage environment and its scale.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "6",
+        "13",
+        "14"
+      ],
+      "suggested_filename": "A005_airport_baggage_stock_clip_2.mp4"
+    },
+    {
+      "asset_id": "A008",
+      "title": "airport baggage stock clip 3",
+      "description": "Show the physical reality of baggage systems: belts, rollers, motors, sensors, soft bags, hard cases, wheels, straps, and imperfect luggage shapes.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "16",
+        "20",
+        "43"
+      ],
+      "suggested_filename": "A008_airport_baggage_stock_clip_3.mp4"
+    },
+    {
+      "asset_id": "A002",
+      "title": "airport baggage stock clip 4",
+      "description": "Show the transformation from physical suitcase to digital profile and later recap the complete journey.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "3",
+        "11",
+        "55"
+      ],
+      "suggested_filename": "A002_airport_baggage_stock_clip_4.mp4"
+    },
+    {
+      "asset_id": "A007",
+      "title": "airport baggage stock clip 5",
+      "description": "Give viewers a mental model of the airport as visible terminal above and hidden baggage network below.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "8",
+        "15"
+      ],
+      "suggested_filename": "A007_airport_baggage_stock_clip_5.mp4"
+    },
+    {
+      "asset_id": "A016",
+      "title": "airport baggage stock clip 6",
+      "description": "Explain live routing, disruption, rerouting, and the ripple effect of jams.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "29",
+        "30",
+        "50"
+      ],
+      "suggested_filename": "A016_airport_baggage_stock_clip_6.mp4"
+    },
+    {
+      "asset_id": "A003",
+      "title": "airport baggage stock clip 7",
+      "description": "Create energetic montage sequences that make the system feel like a hidden city rather than a static process.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "4",
+        "56"
+      ],
+      "suggested_filename": "A003_airport_baggage_stock_clip_7.mp4"
+    },
+    {
+      "asset_id": "A004",
+      "title": "airport baggage stock clip 8",
+      "description": "Represent the visible passenger-facing airport: queues, gates, corridors, and baggage reclaim.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "5",
+        "35",
+        "54"
+      ],
+      "suggested_filename": "A004_airport_baggage_stock_clip_8.mp4"
+    },
+    {
+      "asset_id": "A006",
+      "title": "airport baggage stock clip 9",
+      "description": "Explain baggage data, early risks, and failure chains in a clean, non-technical way.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "7",
+        "12",
+        "46"
+      ],
+      "suggested_filename": "A006_airport_baggage_stock_clip_9.mp4"
+    },
+    {
+      "asset_id": "A009",
+      "title": "airport baggage stock clip 10",
+      "description": "Create an immersive bag-POV feeling as the suitcase travels through curves, inclines, and junctions.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "17"
+      ],
+      "suggested_filename": "A009_airport_baggage_stock_clip_10.mp4"
+    },
+    {
+      "asset_id": "A011",
+      "title": "airport baggage stock clip 11",
+      "description": "Show real timing choreography: bags merging, spacing, and diverting.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "19"
+      ],
+      "suggested_filename": "A011_airport_baggage_stock_clip_11.mp4"
+    },
+    {
+      "asset_id": "A012",
+      "title": "airport baggage stock clip 12",
+      "description": "Represent scanning/read zones and manual encoding without revealing sensitive procedures or private data.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "21",
+        "24",
+        "25"
+      ],
+      "suggested_filename": "A012_airport_baggage_stock_clip_12.mp4"
+    },
+    {
+      "asset_id": "A013",
+      "title": "airport baggage stock clip 13",
+      "description": "Explain how a bag is read, matched, routed, or sent to manual check.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "22",
+        "23"
+      ],
+      "suggested_filename": "A013_airport_baggage_stock_clip_13.mp4"
+    },
+    {
+      "asset_id": "A015",
+      "title": "airport baggage stock clip 14",
+      "description": "Show the human operational layer: control rooms, operators, radios, and coordination.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "28",
+        "31",
+        "48"
+      ],
+      "suggested_filename": "A015_airport_baggage_stock_clip_14.mp4"
+    },
+    {
+      "asset_id": "A019",
+      "title": "airport baggage stock clip 15",
+      "description": "Show the parallel urgency of passengers transferring and bags being unloaded from an arriving aircraft.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "35",
+        "36"
+      ],
+      "suggested_filename": "A019_airport_baggage_stock_clip_15.mp4"
+    },
+    {
+      "asset_id": "A020",
+      "title": "airport baggage stock clip 16",
+      "description": "Explain the transfer-bag race and compressed connection window.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "37",
+        "38"
+      ],
+      "suggested_filename": "A020_airport_baggage_stock_clip_16.mp4"
+    },
+    {
+      "asset_id": "A021",
+      "title": "airport baggage stock clip 17",
+      "description": "Show the make-up area and the skilled physical labor of ground handlers.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "39",
+        "40",
+        "49"
+      ],
+      "suggested_filename": "A021_airport_baggage_stock_clip_17.mp4"
+    },
+    {
+      "asset_id": "A023",
+      "title": "airport baggage stock clip 18",
+      "description": "Provide cinematic ramp, aircraft loading, bad-weather pressure, arrival unloading, and cart movement footage.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "42",
+        "45",
+        "51",
+        "52"
+      ],
+      "suggested_filename": "A023_airport_baggage_stock_clip_18.mp4"
+    },
+    {
+      "asset_id": "A010",
+      "title": "airport baggage stock clip 19",
+      "description": "Provide a visual glossary of conveyor components.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "18"
+      ],
+      "suggested_filename": "A010_airport_baggage_stock_clip_19.mp4"
+    },
+    {
+      "asset_id": "A014",
+      "title": "airport baggage stock clip 20",
+      "description": "Show baggage security screening at a high, non-instructional level.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "26",
+        "27"
+      ],
+      "suggested_filename": "A014_airport_baggage_stock_clip_20.mp4"
+    },
+    {
+      "asset_id": "A017",
+      "title": "airport baggage stock clip 21",
+      "description": "Show that early bags may be staged or held rather than immediately loaded.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "32"
+      ],
+      "suggested_filename": "A017_airport_baggage_stock_clip_21.mp4"
+    },
+    {
+      "asset_id": "A018",
+      "title": "airport baggage stock clip 22",
+      "description": "Explain storage, waiting, release, and timing as capacity management.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "33",
+        "34"
+      ],
+      "suggested_filename": "A018_airport_baggage_stock_clip_22.mp4"
+    },
+    {
+      "asset_id": "A022",
+      "title": "airport baggage stock clip 23",
+      "description": "Explain aircraft loading types and arrival-routing outcomes.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "41",
+        "53"
+      ],
+      "suggested_filename": "A022_airport_baggage_stock_clip_23.mp4"
+    },
+    {
+      "asset_id": "A024",
+      "title": "airport baggage stock clip 24",
+      "description": "Show maintenance, stopped or slowed conveyors, and an empty conveyor background for the restrained CTA.",
+      "method": "stock",
+      "search_terms": [
+        "airport baggage handling",
+        "airport luggage conveyor",
+        "baggage sorting system"
+      ],
+      "scenes_covered": [
+        "44",
+        "47",
+        "58"
+      ],
+      "suggested_filename": "A024_airport_baggage_stock_clip_24.mp4"
+    }
+  ],
+  "next_step": "download_storyblocks_clips_to_inbox"
+}
