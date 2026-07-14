@@ -1,0 +1,38 @@
+{
+  "record_type": "visual_brief_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-14T21:36:00",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "visual_brief_ready",
+  "source_output": "agents/visual_brief/output/hiddenova/latest.json",
+  "script_title": "The Hidden System That Moves Your Luggage After Check-In",
+  "seo_title": "What Really Happens to Your Luggage After Check-In?",
+  "qa_status": "approved",
+  "qa_score": 93,
+  "thumbnail_text": "WHERE BAGS GO",
+  "goal": "Create a clear, intriguing visual concept that makes the hidden airport baggage handling system immediately understandable, showing that a suitcase disappears from the passenger-facing terminal into a complex world of conveyors, scanners, routing data, and machinery.",
+  "style": "Cinematic documentary realism with a polished, high-clarity infrastructure aesthetic; the suitcase should feel tangible and real while the surrounding data overlays feel subtle and technical.",
+  "tone": null,
+  "primary_visual_count": 0,
+  "scene_count": 0,
+  "largest_detected_visual_list_key": null,
+  "largest_detected_visual_list_count": 0,
+  "required_visual_theme": "airport baggage handling system",
+  "required_thumbnail_scene": "suitcase entering conveyor belts behind check-in",
+  "visual_must_include": [
+    "airport baggage belts",
+    "luggage sorting system",
+    "scanner tunnel",
+    "behind-the-scenes airport operations",
+    "aircraft loading or baggage cart handoff"
+  ],
+  "visual_must_avoid": [
+    "generic airport terminal only",
+    "cartoon style",
+    "fake airline logos",
+    "unreadable text",
+    "random suitcase with no system context"
+  ],
+  "next_agent": "video_storyboard_or_visual_asset_plan"
+}
