@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
 
 DEFAULT_CHANNEL = "hiddenova"
-DEFAULT_SOURCE = Path.home() / "Desktop" / "storyblocks"
+DEFAULT_SOURCE = Path("assets") / "stock" / "hiddenova" / "inbox"
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
 
