@@ -1,0 +1,40 @@
+{
+  "record_type": "qa_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-14T21:31:11",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "approved",
+  "overall_score": 93,
+  "check_count": 6,
+  "issue_count": 2,
+  "recommendation_count": 3,
+  "issues_preview": [
+    {
+      "field": "thumbnail_text",
+      "severity": "low",
+      "message": "Thumbnail text is short and intriguing, but slightly generic and does not clearly signal luggage or airport baggage handling on its own."
+    },
+    {
+      "field": "chapters",
+      "severity": "low",
+      "message": "Chapter timestamps are plausible for the estimated duration, but should be verified after final voiceover timing because the script may run slightly longer depending on narration pace."
+    }
+  ],
+  "recommendations_preview": [
+    {
+      "field": "thumbnail_text",
+      "suggestion": "Confirm that the thumbnail visual clearly shows luggage or airport baggage infrastructure so the generic text remains contextually clear."
+    },
+    {
+      "field": "chapters",
+      "suggestion": "Validate chapter timestamps after the final narration or edit lock to ensure they match the actual video pacing."
+    },
+    {
+      "field": "script",
+      "suggestion": "Proceed to the next production stage; no script rewrite is required based on current quality."
+    }
+  ],
+  "source_output": "agents/qa/output/hiddenova/latest.json",
+  "next_agent": "thumbnail_strategy_if_approved"
+}
