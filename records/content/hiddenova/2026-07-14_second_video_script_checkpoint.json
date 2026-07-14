@@ -1,21 +1,33 @@
 {
   "record_type": "script_checkpoint",
-  "version": "1.0",
-  "created_at": "2026-07-14T21:27:26",
+  "version": "1.1",
+  "created_at": "2026-07-14T21:29:32",
   "channel": "hiddenova",
   "video_number": 2,
-  "status": "script_ready_for_seo",
+  "status": "script_ready_for_qa",
   "title": "The Hidden System That Moves Your Luggage After Check-In",
   "estimated_duration": "14-16 minutes",
-  "section_count": 4,
-  "section_keys": [
-    "hook",
-    "introduction",
-    "conclusion",
-    "call_to_action"
+  "narration_part_count": 16,
+  "word_count": 2751,
+  "char_count": 17002,
+  "narration_paths_preview": [
+    "script.hook.narration",
+    "script.introduction.narration",
+    "script.main_sections[0].narration",
+    "script.main_sections[1].narration",
+    "script.main_sections[2].narration",
+    "script.main_sections[3].narration",
+    "script.main_sections[4].narration",
+    "script.main_sections[5].narration",
+    "script.main_sections[6].narration",
+    "script.main_sections[7].narration",
+    "script.main_sections[8].narration",
+    "script.main_sections[9].narration",
+    "script.main_sections[10].narration",
+    "script.main_sections[11].narration",
+    "script.conclusion.narration",
+    "script.call_to_action.narration"
   ],
-  "word_count": 416,
-  "char_count": 2544,
   "source_output": "agents/script/output/hiddenova/latest.json",
-  "next_agent": "seo"
+  "next_agent": "qa"
 }
