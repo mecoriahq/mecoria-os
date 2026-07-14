@@ -1,0 +1,194 @@
+{
+  "record_type": "notion_os_sync_runner",
+  "version": "1.0",
+  "created_at": "2026-07-14T19:31:12",
+  "status": "os_sync_passed",
+  "summary": {
+    "mode": "apply",
+    "total_defined_steps": 5,
+    "executed_step_count": 5,
+    "passed_step_count": 5,
+    "failed_step_count": 0,
+    "failed_step_keys": [],
+    "write_operations_performed": true,
+    "notion_write_step_count": 3,
+    "synced_targets": [
+      "ai_agents_sync",
+      "youtube_channels_sync",
+      "publishing_queue_sync"
+    ],
+    "next_step": "connect_os_sync_runner_to_n8n_or_schedule"
+  },
+  "steps": [
+    {
+      "key": "notion_connection_test",
+      "label": "Notion connection test",
+      "mode": "preflight",
+      "writes_to_notion": false,
+      "ok": true,
+      "returncode": 0,
+      "expected_statuses": [
+        "connection_ready"
+      ],
+      "child_status": "connection_ready",
+      "child_summary": {
+        "total_targets": 3,
+        "accessible_target_count": 3,
+        "failed_target_count": 0,
+        "accessible_targets": [
+          "ai_agents",
+          "youtube_channels",
+          "publishing_queue"
+        ],
+        "failed_targets": [],
+        "notion_api_key_available": true,
+        "write_operations_performed": false,
+        "next_step": "build_one_database_write_test_for_ai_agents"
+      },
+      "child_record_path": "records/system/notion_connection_test_latest.json",
+      "command": "C:\\Users\\memnc\\Desktop\\mecoria-os\\.venv\\Scripts\\python.exe agents/notion_connection_test/run.py",
+      "started_at": "2026-07-14T19:30:25",
+      "finished_at": "2026-07-14T19:30:27",
+      "stdout_tail": "Notion Connection Test completed.\nStatus: connection_ready\nAccessible targets: 3 / 3\nFailed targets: []\nWrite operations performed: False\nRecord path: records\\system\\notion_connection_test_latest.json\n\n- ai_agents: accessible\n  api_mode: legacy_database\n  title: 🤖 AI Agents\n  property_count: 26\n  title_properties: ['Name']\n\n- youtube_channels: accessible\n  api_mode: legacy_database\n  title: 📺 YouTube Channels\n  property_count: 21\n  title_properties: ['Name']\n\n- publishing_queue: accessible\n  api_mode: legacy_database\n  title: 🎬 Publishing Queue\n  property_count: 28\n  title_properties: ['Name']\n\nOutput saved to: C:\\Users\\memnc\\Desktop\\mecoria-os\\agents\\notion_connection_test\\output\\hiddenova\\latest.json",
+      "stderr_tail": ""
+    },
+    {
+      "key": "notion_sync_preview",
+      "label": "Notion sync preview refresh",
+      "mode": "preflight",
+      "writes_to_notion": false,
+      "ok": true,
+      "returncode": 0,
+      "expected_statuses": [
+        "preview_ready"
+      ],
+      "child_status": "preview_ready",
+      "child_summary": {
+        "first_sync_scope": [
+          "ai_agents",
+          "youtube_channels",
+          "publishing_queue"
+        ],
+        "total_preview_rows": 40,
+        "missing_first_scope_database_ids": [],
+        "notion_api_key_available": true,
+        "dry_run_only": true,
+        "next_step": "connect_notion_credentials_then_test_one_database"
+      },
+      "child_record_path": "records/system/notion_sync_preview_latest.json",
+      "command": "C:\\Users\\memnc\\Desktop\\mecoria-os\\.venv\\Scripts\\python.exe agents/notion_sync_dry_run/run.py",
+      "started_at": "2026-07-14T19:30:27",
+      "finished_at": "2026-07-14T19:30:27",
+      "stdout_tail": "Notion Sync Dry-Run Agent completed successfully.\nStatus: preview_ready\nTotal preview rows: 40\nNotion API key available: True\nMissing DB IDs: []\nRecord path: records/system/notion_sync_preview_latest.json\n\nRow counts:\n- ai_agents: 36\n- youtube_channels: 1\n- publishing_queue: 3\nOutput saved to: C:\\Users\\memnc\\Desktop\\mecoria-os\\agents\\notion_sync_dry_run\\output\\hiddenova\\latest.json",
+      "stderr_tail": ""
+    },
+    {
+      "key": "ai_agents_sync",
+      "label": "AI Agents full sync",
+      "mode": "apply",
+      "writes_to_notion": true,
+      "ok": true,
+      "returncode": 0,
+      "expected_statuses": [
+        "full_sync_passed"
+      ],
+      "child_status": "full_sync_passed",
+      "child_summary": {
+        "target_database": "ai_agents",
+        "database_title": "🤖 AI Agents",
+        "source_row_count": 36,
+        "syncable_row_count": 35,
+        "selected_row_count": 35,
+        "excluded_row_count": 1,
+        "excluded_keys": [
+          "_template"
+        ],
+        "write_operations_performed": true,
+        "apply_mode": true,
+        "created_count": 0,
+        "updated_count": 35,
+        "failed_apply_count": 0,
+        "mapped_field_count": 12,
+        "unmapped_field_count": 0,
+        "next_step": "review_full_ai_agents_sync_then_build_youtube_channels_sync"
+      },
+      "child_record_path": "records/system/notion_ai_agents_sync_latest.json",
+      "command": "C:\\Users\\memnc\\Desktop\\mecoria-os\\.venv\\Scripts\\python.exe agents/notion_ai_agents_sync/run.py --apply --allow-full-apply",
+      "started_at": "2026-07-14T19:30:27",
+      "finished_at": "2026-07-14T19:31:07",
+      "stdout_tail": "Selected rows: 35\nExcluded rows: 1\nWrite operations performed: True\nCreated: 0\nUpdated: 35\nFailed apply: 0\n\nField mapping:\n- agent_name -> Name (title) [required_title]\n- category -> Agent Category (rich_text) [safe_write]\n- implementation_status -> Implementation Status (rich_text) [safe_write]\n- output_status -> Output Status (rich_text) [safe_write]\n- next_agent -> Next Agent (rich_text) [safe_write]\n- has_latest_output -> Has Latest Output (checkbox) [safe_write]\n- latest_output_path -> Latest Output Path (rich_text) [safe_write]\n- run_py -> Run Path (rich_text) [safe_write]\n- schema_json -> Schema Path (rich_text) [safe_write]\n- agent_layer -> Agent Layer (rich_text) [safe_write]\n- sync_source -> Sync Source (rich_text) [safe_write]\n- system_key -> System Key (rich_text) [safe_write]\n\nApply results:\n- agent_registry_scanner: update_existing_page ok=True\n- ai_visual_generation: update_existing_page ok=True\n- ai_visual_insert_plan: update_existing_page ok=True\n- ai_visual_qa: update_existing_page ok=True\n- audio_assembly: update_existing_page ok=True\n- audio_qa: update_existing_page ok=True\n- hybrid_video_assembly: update_existing_page ok=True\n- image_generation: update_existing_page ok=True\n- image_prompt: update_existing_page ok=True\n- image_qa: update_existing_page ok=True\n- image_revision: update_existing_page ok=True\n- internal_visual_production: update_existing_page ok=True\n- internal_visual_qa: update_existing_page ok=True\n- internal_visual_render: update_existing_page ok=True\n- internal_visual_render_qa: update_existing_page ok=True\n- intro_outro_audio_assembly: update_existing_page ok=True\n- intro_outro_plan: update_existing_page ok=True\n- intro_outro_voice_generation: update_existing_page ok=True\n- publisher: update_existing_page ok=True\n- qa: update_existing_page ok=True\n- research: update_existing_page ok=True\n- script: update_existing_page ok=True\n- seo: update_existing_page ok=True\n- stock_asset_ingest: update_existing_page ok=True\n- video_assembly: update_existing_page ok=True\n- video_qa: update_existing_page ok=True\n- video_storyboard: update_existing_page ok=True\n- visual_asset_acquisition: update_existing_page ok=True\n- visual_asset_integration: update_existing_page ok=True\n- visual_asset_plan: update_existing_page ok=True\n- visual_asset_production: update_existing_page ok=True\n- visual_brief: update_existing_page ok=True\n- voice: update_existing_page ok=True\n- voice_casting: update_existing_page ok=True\n- voice_generation: update_existing_page ok=True\n\nRecord path: records\\system\\notion_ai_agents_sync_latest.json\nOutput saved to: C:\\Users\\memnc\\Desktop\\mecoria-os\\agents\\notion_ai_agents_sync\\output\\hiddenova\\latest.json",
+      "stderr_tail": ""
+    },
+    {
+      "key": "youtube_channels_sync",
+      "label": "YouTube Channels sync",
+      "mode": "apply",
+      "writes_to_notion": true,
+      "ok": true,
+      "returncode": 0,
+      "expected_statuses": [
+        "sync_passed"
+      ],
+      "child_status": "sync_passed",
+      "child_summary": {
+        "target_database": "youtube_channels",
+        "database_title": "📺 YouTube Channels",
+        "source_row_count": 1,
+        "selected_row_count": 1,
+        "write_operations_performed": true,
+        "schema_write_operations_performed": false,
+        "created_count": 0,
+        "updated_count": 1,
+        "failed_apply_count": 0,
+        "mapped_field_count": 11,
+        "unmapped_field_count": 0,
+        "next_step": "review_youtube_channels_in_notion_then_build_publishing_queue_sync"
+      },
+      "child_record_path": "records/system/notion_youtube_channels_sync_latest.json",
+      "command": "C:\\Users\\memnc\\Desktop\\mecoria-os\\.venv\\Scripts\\python.exe agents/notion_youtube_channels_sync/run.py --apply",
+      "started_at": "2026-07-14T19:31:07",
+      "finished_at": "2026-07-14T19:31:09",
+      "stdout_tail": "Notion YouTube Channels Sync completed.\nStatus: sync_passed\nDatabase title: 📺 YouTube Channels\nSource rows: 1\nWrite operations performed: True\nSchema patch requested: False\nCreated: 0\nUpdated: 1\nFailed apply: 0\n\nField mapping:\n- channel_title -> Name (title) [required_title]\n- platform -> Platform (multi_select) [safe_write]\n- launch_status -> Launch Status (rich_text) [safe_write]\n- public_video_url -> Public Video URL (url) [safe_write]\n- homepage_enabled -> Homepage Enabled (checkbox) [safe_write]\n- public_video_visible -> Public Video Visible (checkbox) [safe_write]\n- website_link_visible -> Website Link Visible (checkbox) [safe_write]\n- next_step -> Next Step (rich_text) [safe_write]\n- source_record -> Source Record (rich_text) [safe_write]\n- sync_source -> Sync Source (rich_text) [safe_write]\n- system_key -> System Key (rich_text) [safe_write]\n\nApply results:\n- Hiddenova: update_existing_page ok=True\n\nRecord path: records\\system\\notion_youtube_channels_sync_latest.json\nOutput saved to: C:\\Users\\memnc\\Desktop\\mecoria-os\\agents\\notion_youtube_channels_sync\\output\\hiddenova\\latest.json",
+      "stderr_tail": ""
+    },
+    {
+      "key": "publishing_queue_sync",
+      "label": "Publishing Queue sync",
+      "mode": "apply",
+      "writes_to_notion": true,
+      "ok": true,
+      "returncode": 0,
+      "expected_statuses": [
+        "sync_passed"
+      ],
+      "child_status": "sync_passed",
+      "child_summary": {
+        "target_database": "publishing_queue",
+        "database_title": "🎬 Publishing Queue",
+        "source_row_count": 3,
+        "selected_row_count": 3,
+        "write_operations_performed": true,
+        "schema_write_operations_performed": false,
+        "created_count": 0,
+        "updated_count": 3,
+        "failed_apply_count": 0,
+        "mapped_field_count": 17,
+        "unmapped_field_count": 0,
+        "next_step": "review_publishing_queue_in_notion_then_build_os_sync_runner"
+      },
+      "child_record_path": "records/system/notion_publishing_queue_sync_latest.json",
+      "command": "C:\\Users\\memnc\\Desktop\\mecoria-os\\.venv\\Scripts\\python.exe agents/notion_publishing_queue_sync/run.py --apply",
+      "started_at": "2026-07-14T19:31:09",
+      "finished_at": "2026-07-14T19:31:12",
+      "stdout_tail": "Notion Publishing Queue Sync completed.\nStatus: sync_passed\nDatabase title: 🎬 Publishing Queue\nSource rows: 3\nWrite operations performed: True\nSchema patch requested: False\nCreated: 0\nUpdated: 3\nFailed apply: 0\n\nField mapping:\n- queue_item_title -> Name (title) [required_title]\n- channel_key -> Channel Key (rich_text) [safe_write]\n- video_title -> Video Title (rich_text) [safe_write]\n- queue_status -> Queue Status (rich_text) [safe_write]\n- release_version -> Release Version (rich_text) [safe_write]\n- public_url -> Public URL (url) [safe_write]\n- unlisted_url -> Unlisted URL (url) [safe_write]\n- visibility -> Visibility (rich_text) [safe_write]\n- public_status -> Public Status (rich_text) [safe_write]\n- upload_ready -> Upload Ready (checkbox) [safe_write]\n- first_public_video -> First Public Video (checkbox) [safe_write]\n- next_step -> Next Step (rich_text) [safe_write]\n- source_record -> Source Record (rich_text) [safe_write]\n- video_file_path -> Video File Path (rich_text) [safe_write]\n- thumbnail_image_path -> Thumbnail Image Path (rich_text) [safe_write]\n- sync_source -> Sync Source (rich_text) [safe_write]\n- system_key -> System Key (rich_text) [safe_write]\n\nApply results:\n- Hiddenova | j2-xEXd2fH4: update_existing_page ok=True\n- Hiddenova | tmwQjq5C3fA: update_existing_page ok=True\n- Hiddenova | publisher_latest: update_existing_page ok=True\n\nRecord path: records\\system\\notion_publishing_queue_sync_latest.json\nOutput saved to: C:\\Users\\memnc\\Desktop\\mecoria-os\\agents\\notion_publishing_queue_sync\\output\\hiddenova\\latest.json",
+      "stderr_tail": ""
+    }
+  ],
+  "security": {
+    "token_saved_to_output": false,
+    "token_printed_to_terminal": false,
+    "openai_key_saved_to_output": false,
+    "write_operations_performed": true,
+    "mode": "apply"
+  }
+}

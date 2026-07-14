@@ -1,7 +1,7 @@
 {
   "record_type": "notion_ai_agents_sync",
   "version": "1.1",
-  "created_at": "2026-07-13T23:58:41",
+  "created_at": "2026-07-14T19:31:07",
   "status": "full_sync_passed",
   "summary": {
     "target_database": "ai_agents",
@@ -15,8 +15,8 @@
     ],
     "write_operations_performed": true,
     "apply_mode": true,
-    "created_count": 32,
-    "updated_count": 3,
+    "created_count": 0,
+    "updated_count": 35,
     "failed_apply_count": 0,
     "mapped_field_count": 12,
     "unmapped_field_count": 0,
@@ -1522,7 +1522,7 @@
     },
     {
       "agent_name": "ai_visual_qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81ce-b333-f3b17ea756a7",
       "notion_page_url": "https://app.notion.com/p/ai_visual_qa-39c135d3fbb681ceb333f3b17ea756a7",
@@ -1544,7 +1544,7 @@
     },
     {
       "agent_name": "audio_assembly",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81f9-8243-ea8e950567dc",
       "notion_page_url": "https://app.notion.com/p/audio_assembly-39c135d3fbb681f98243ea8e950567dc",
@@ -1566,7 +1566,7 @@
     },
     {
       "agent_name": "audio_qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8180-9c10-d0c523f5ca72",
       "notion_page_url": "https://app.notion.com/p/audio_qa-39c135d3fbb681809c10d0c523f5ca72",
@@ -1588,7 +1588,7 @@
     },
     {
       "agent_name": "hybrid_video_assembly",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8197-93ad-e1f5c797b591",
       "notion_page_url": "https://app.notion.com/p/hybrid_video_assembly-39c135d3fbb6819793ade1f5c797b591",
@@ -1610,7 +1610,7 @@
     },
     {
       "agent_name": "image_generation",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8158-ab38-f5b4fba6af6b",
       "notion_page_url": "https://app.notion.com/p/image_generation-39c135d3fbb68158ab38f5b4fba6af6b",
@@ -1632,7 +1632,7 @@
     },
     {
       "agent_name": "image_prompt",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81e0-9654-f27c23dcddbe",
       "notion_page_url": "https://app.notion.com/p/image_prompt-39c135d3fbb681e09654f27c23dcddbe",
@@ -1654,7 +1654,7 @@
     },
     {
       "agent_name": "image_qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8169-a343-f4f797207832",
       "notion_page_url": "https://app.notion.com/p/image_qa-39c135d3fbb68169a343f4f797207832",
@@ -1676,7 +1676,7 @@
     },
     {
       "agent_name": "image_revision",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8119-9407-c81fc44b8860",
       "notion_page_url": "https://app.notion.com/p/image_revision-39c135d3fbb681199407c81fc44b8860",
@@ -1698,7 +1698,7 @@
     },
     {
       "agent_name": "internal_visual_production",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8106-80ef-e14e5e1ba756",
       "notion_page_url": "https://app.notion.com/p/internal_visual_production-39c135d3fbb6810680efe14e5e1ba756",
@@ -1720,7 +1720,7 @@
     },
     {
       "agent_name": "internal_visual_qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8195-ab59-fd69a71fe0e1",
       "notion_page_url": "https://app.notion.com/p/internal_visual_qa-39c135d3fbb68195ab59fd69a71fe0e1",
@@ -1742,7 +1742,7 @@
     },
     {
       "agent_name": "internal_visual_render",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8168-a7c3-ed068cfbd504",
       "notion_page_url": "https://app.notion.com/p/internal_visual_render-39c135d3fbb68168a7c3ed068cfbd504",
@@ -1764,7 +1764,7 @@
     },
     {
       "agent_name": "internal_visual_render_qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81ec-b78e-ea65468be76e",
       "notion_page_url": "https://app.notion.com/p/internal_visual_render_qa-39c135d3fbb681ecb78eea65468be76e",
@@ -1786,7 +1786,7 @@
     },
     {
       "agent_name": "intro_outro_audio_assembly",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81ec-a6e1-fd39f67fabb1",
       "notion_page_url": "https://app.notion.com/p/intro_outro_audio_assembly-39c135d3fbb681eca6e1fd39f67fabb1",
@@ -1808,7 +1808,7 @@
     },
     {
       "agent_name": "intro_outro_plan",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8164-9708-e6ce91c64bf1",
       "notion_page_url": "https://app.notion.com/p/intro_outro_plan-39c135d3fbb681649708e6ce91c64bf1",
@@ -1830,7 +1830,7 @@
     },
     {
       "agent_name": "intro_outro_voice_generation",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81ab-bd6b-ec46ebe0444f",
       "notion_page_url": "https://app.notion.com/p/intro_outro_voice_generation-39c135d3fbb681abbd6bec46ebe0444f",
@@ -1852,7 +1852,7 @@
     },
     {
       "agent_name": "publisher",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81ef-b99b-da2d186dc728",
       "notion_page_url": "https://app.notion.com/p/publisher-39c135d3fbb681efb99bda2d186dc728",
@@ -1874,7 +1874,7 @@
     },
     {
       "agent_name": "qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81dc-9172-c470f27f280b",
       "notion_page_url": "https://app.notion.com/p/qa-39c135d3fbb681dc9172c470f27f280b",
@@ -1896,7 +1896,7 @@
     },
     {
       "agent_name": "research",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8176-b9d2-f33d9de0b92c",
       "notion_page_url": "https://app.notion.com/p/research-39c135d3fbb68176b9d2f33d9de0b92c",
@@ -1918,7 +1918,7 @@
     },
     {
       "agent_name": "script",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8159-b272-fb2b9157be34",
       "notion_page_url": "https://app.notion.com/p/script-39c135d3fbb68159b272fb2b9157be34",
@@ -1940,7 +1940,7 @@
     },
     {
       "agent_name": "seo",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8128-9862-c4e702298885",
       "notion_page_url": "https://app.notion.com/p/seo-39c135d3fbb681289862c4e702298885",
@@ -1962,7 +1962,7 @@
     },
     {
       "agent_name": "stock_asset_ingest",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81f6-8872-dd770189717a",
       "notion_page_url": "https://app.notion.com/p/stock_asset_ingest-39c135d3fbb681f68872dd770189717a",
@@ -1984,7 +1984,7 @@
     },
     {
       "agent_name": "video_assembly",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81f9-97cc-c37b38a15edb",
       "notion_page_url": "https://app.notion.com/p/video_assembly-39c135d3fbb681f997ccc37b38a15edb",
@@ -2006,7 +2006,7 @@
     },
     {
       "agent_name": "video_qa",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81d9-af68-c9fc62f2f7ba",
       "notion_page_url": "https://app.notion.com/p/video_qa-39c135d3fbb681d9af68c9fc62f2f7ba",
@@ -2028,7 +2028,7 @@
     },
     {
       "agent_name": "video_storyboard",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8195-ab73-f1788ab82c59",
       "notion_page_url": "https://app.notion.com/p/video_storyboard-39c135d3fbb68195ab73f1788ab82c59",
@@ -2050,7 +2050,7 @@
     },
     {
       "agent_name": "visual_asset_acquisition",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8115-9066-f752633c2d59",
       "notion_page_url": "https://app.notion.com/p/visual_asset_acquisition-39c135d3fbb681159066f752633c2d59",
@@ -2072,7 +2072,7 @@
     },
     {
       "agent_name": "visual_asset_integration",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8147-810e-e49a38d2d490",
       "notion_page_url": "https://app.notion.com/p/visual_asset_integration-39c135d3fbb68147810ee49a38d2d490",
@@ -2094,7 +2094,7 @@
     },
     {
       "agent_name": "visual_asset_plan",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8180-993c-f857fb6a8d8d",
       "notion_page_url": "https://app.notion.com/p/visual_asset_plan-39c135d3fbb68180993cf857fb6a8d8d",
@@ -2116,7 +2116,7 @@
     },
     {
       "agent_name": "visual_asset_production",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81db-9063-e30b6eb6a683",
       "notion_page_url": "https://app.notion.com/p/visual_asset_production-39c135d3fbb681db9063e30b6eb6a683",
@@ -2138,7 +2138,7 @@
     },
     {
       "agent_name": "visual_brief",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81b9-bb09-fee82949d58f",
       "notion_page_url": "https://app.notion.com/p/visual_brief-39c135d3fbb681b9bb09fee82949d58f",
@@ -2160,7 +2160,7 @@
     },
     {
       "agent_name": "voice",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81c7-831a-cc62d10c6f4f",
       "notion_page_url": "https://app.notion.com/p/voice-39c135d3fbb681c7831acc62d10c6f4f",
@@ -2182,7 +2182,7 @@
     },
     {
       "agent_name": "voice_casting",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-814a-9ffb-c34dc364a13a",
       "notion_page_url": "https://app.notion.com/p/voice_casting-39c135d3fbb6814a9ffbc34dc364a13a",
@@ -2204,7 +2204,7 @@
     },
     {
       "agent_name": "voice_generation",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8121-bae4-c9e773874804",
       "notion_page_url": "https://app.notion.com/p/voice_generation-39c135d3fbb68121bae4c9e773874804",

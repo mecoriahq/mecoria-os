@@ -1,7 +1,7 @@
 {
   "record_type": "notion_publishing_queue_sync",
   "version": "1.0",
-  "created_at": "2026-07-14T00:34:07",
+  "created_at": "2026-07-14T19:31:12",
   "status": "sync_passed",
   "summary": {
     "target_database": "publishing_queue",
@@ -9,9 +9,9 @@
     "source_row_count": 3,
     "selected_row_count": 3,
     "write_operations_performed": true,
-    "schema_write_operations_performed": true,
-    "created_count": 3,
-    "updated_count": 0,
+    "schema_write_operations_performed": false,
+    "created_count": 0,
+    "updated_count": 3,
     "failed_apply_count": 0,
     "mapped_field_count": 17,
     "unmapped_field_count": 0,
@@ -401,7 +401,7 @@
     {
       "queue_item_title": "Hiddenova | j2-xEXd2fH4",
       "system_key": "j2-xEXd2fH4",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81e3-bc68-fa300c63c6c9",
       "notion_page_url": "https://app.notion.com/p/Hiddenova-j2-xEXd2fH4-39c135d3fbb681e3bc68fa300c63c6c9",
@@ -428,7 +428,7 @@
     {
       "queue_item_title": "Hiddenova | tmwQjq5C3fA",
       "system_key": "tmwQjq5C3fA",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-81ec-977a-f0af3c4c1b5e",
       "notion_page_url": "https://app.notion.com/p/Hiddenova-tmwQjq5C3fA-39c135d3fbb681ec977af0af3c4c1b5e",
@@ -455,7 +455,7 @@
     {
       "queue_item_title": "Hiddenova | publisher_latest",
       "system_key": "publisher_latest",
-      "operation": "create_new_page",
+      "operation": "update_existing_page",
       "ok": true,
       "notion_page_id": "39c135d3-fbb6-8153-9434-c4e5927f9b3c",
       "notion_page_url": "https://app.notion.com/p/Hiddenova-publisher_latest-39c135d3fbb681539434c4e5927f9b3c",
@@ -479,31 +479,7 @@
       ]
     }
   ],
-  "schema_patch": {
-    "status": "schema_patch_not_needed",
-    "missing_properties_before_patch": [],
-    "added_properties": [],
-    "skipped_existing_properties": [
-      "Channel Key",
-      "Video Title",
-      "Queue Status",
-      "Release Version",
-      "Public URL",
-      "Unlisted URL",
-      "Visibility",
-      "Public Status",
-      "Upload Ready",
-      "First Public Video",
-      "Next Step",
-      "Source Record",
-      "Video File Path",
-      "Thumbnail Image Path",
-      "Sync Source",
-      "System Key"
-    ],
-    "patch_status_code": 200,
-    "patch_error": null
-  },
+  "schema_patch": null,
   "security": {
     "token_saved_to_output": false,
     "token_printed_to_terminal": false,
