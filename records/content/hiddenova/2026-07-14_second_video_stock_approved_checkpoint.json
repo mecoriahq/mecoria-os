@@ -1,0 +1,13 @@
+{
+  "record_type": "stock_approved_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-14T22:48:59",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "stock_approved_ready",
+  "approved_file_count": 17,
+  "total_size_mb": 840.52,
+  "manifest_path": "records/assets/hiddenova/video_002_stock_footage_manifest.json",
+  "approved_folder": "assets/stock/hiddenova/video_002_luggage/approved",
+  "next_agent": "stock_visual_qa_or_visual_asset_integration"
+}
