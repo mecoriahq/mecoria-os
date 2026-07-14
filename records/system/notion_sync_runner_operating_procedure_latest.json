@@ -1,0 +1,33 @@
+{
+    "record_type":  "operating_procedure_checkpoint",
+    "version":  "1.0",
+    "created_at":  "2026-07-14T20:00:23",
+    "status":  "documented",
+    "procedure":  "Mecoria OS Notion Sync Runner",
+    "doc_path":  "docs/operations/notion-sync-runner.md",
+    "runner_path":  "agents/notion_os_sync_runner/run.py",
+    "safe_commands":  {
+                          "dry_run":  "python agents\\notion_os_sync_runner\\run.py",
+                          "apply":  "python agents\\notion_os_sync_runner\\run.py --apply"
+                      },
+    "synced_databases":  [
+                             "AI Agents",
+                             "YouTube Channels",
+                             "Publishing Queue"
+                         ],
+    "source_of_truth":  [
+                            "GitHub",
+                            "records/",
+                            "agents/",
+                            "docs/"
+                        ],
+    "dashboard_layer":  "Notion",
+    "safety_rules":  [
+                         "Never commit .env",
+                         "Never paste API keys into ChatGPT",
+                         "Always run dry-run before apply when sync logic changes",
+                         "Do not automatically delete manual Notion rows",
+                         "Keep GitHub and records as source of truth"
+                     ],
+    "next_step":  "Sprint 26K - n8n manual trigger preparation"
+}

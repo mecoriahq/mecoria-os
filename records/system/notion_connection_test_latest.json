@@ -1,7 +1,7 @@
 {
   "record_type": "notion_connection_test",
   "version": "1.0",
-  "created_at": "2026-07-14T19:41:53",
+  "created_at": "2026-07-14T19:55:09",
   "status": "connection_ready",
   "summary": {
     "total_targets": 3,
