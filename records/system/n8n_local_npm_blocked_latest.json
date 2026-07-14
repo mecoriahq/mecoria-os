@@ -1,0 +1,22 @@
+{
+    "record_type":  "technical_decision",
+    "version":  "1.0",
+    "created_at":  "2026-07-14T20:49:52",
+    "status":  "blocked",
+    "decision":  "Do not continue local Windows npm installation of n8n",
+    "blocked_path":  "local_windows_npm_n8n",
+    "reason":  "n8n npm install failed on sqlite3 native dependency and node-gyp requires Visual Studio C++ Build Tools",
+    "evidence":  [
+                     "sqlite3 install failed",
+                     "prebuild-install timed out",
+                     "node-gyp rebuild failed",
+                     "Visual Studio C++ Build Tools missing",
+                     "n8n command left in partial broken state"
+                 ],
+    "current_working_runner":  "scripts/notion_os_sync_runner.ps1",
+    "safe_dry_run_command":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\notion_os_sync_runner.ps1",
+    "safe_apply_command":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\notion_os_sync_runner.ps1 -Apply",
+    "next_architecture":  "vps_self_hosted_n8n_later",
+    "install_visual_studio_build_tools":  false,
+    "next_step":  "Continue Mecoria Media pipeline; revisit n8n on VPS/self-hosted setup"
+}
