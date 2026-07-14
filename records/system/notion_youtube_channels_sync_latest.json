@@ -1,7 +1,7 @@
 {
   "record_type": "notion_youtube_channels_sync",
   "version": "1.0",
-  "created_at": "2026-07-14T19:31:09",
+  "created_at": "2026-07-14T19:42:30",
   "status": "sync_passed",
   "summary": {
     "target_database": "youtube_channels",
