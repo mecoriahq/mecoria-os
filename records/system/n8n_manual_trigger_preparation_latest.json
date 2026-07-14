@@ -1,0 +1,12 @@
+{
+    "record_type":  "n8n_manual_trigger_preparation",
+    "version":  "1.0",
+    "created_at":  "2026-07-14T20:09:02",
+    "status":  "prepared",
+    "runner_wrapper":  "scripts/notion_os_sync_runner.ps1",
+    "runbook_path":  "docs/operations/n8n-notion-sync-manual-trigger.md",
+    "blueprint_path":  "config/automation/n8n/notion_os_sync_manual_trigger.json",
+    "dry_run_test_required":  true,
+    "apply_test_required_later":  true,
+    "next_step":  "Create n8n manual trigger workflow"
+}

@@ -1,0 +1,26 @@
+{
+    "record_type":  "n8n_manual_trigger_blueprint",
+    "version":  "1.0",
+    "created_at":  "2026-07-14T20:09:02",
+    "status":  "prepared",
+    "workflow_name":  "Mecoria OS - Notion Sync Manual Trigger",
+    "trigger_type":  "manual",
+    "schedule_enabled":  false,
+    "wrapper_script":  "scripts/notion_os_sync_runner.ps1",
+    "dry_run_command":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\notion_os_sync_runner.ps1",
+    "apply_command":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\notion_os_sync_runner.ps1 -Apply",
+    "expected_dry_run_status":  "os_sync_dry_run_ready",
+    "expected_apply_status":  "os_sync_passed",
+    "expected_failed_step_count":  0,
+    "success_signal":  "MECORIA_NOTION_SYNC_RESULT: ok",
+    "notification_policy":  "notify_on_failure_only",
+    "retry_policy":  "no_auto_retry_v1",
+    "safety_rules":  [
+                         "Do not expose .env",
+                         "Do not paste API keys into n8n notes",
+                         "Manual trigger first",
+                         "No schedule until pipeline is stable",
+                         "No automatic retries in v1"
+                     ],
+    "next_step":  "Create n8n manual trigger workflow"
+}
