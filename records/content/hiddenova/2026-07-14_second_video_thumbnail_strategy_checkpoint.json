@@ -1,0 +1,50 @@
+{
+  "record_type": "thumbnail_strategy_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-14T21:34:11",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "thumbnail_strategy_ready",
+  "source_mode": "manual_strategy_from_approved_script_seo_qa",
+  "script_title": "The Hidden System That Moves Your Luggage After Check-In",
+  "seo_title": "What Really Happens to Your Luggage After Check-In?",
+  "qa_status": "approved",
+  "qa_score": 93,
+  "preferred_thumbnail_text": "WHERE BAGS GO",
+  "thumbnail_text_word_count": 3,
+  "backup_thumbnail_texts": [
+    "LOST IN SYSTEM",
+    "BEHIND CHECK-IN",
+    "BAGGAGE MAZE"
+  ],
+  "click_angle": "The viewer thinks luggage simply disappears after check-in, but the video reveals a hidden airport system of belts, scanners, routing software, and loading deadlines.",
+  "visual_direction": {
+    "style": "cinematic documentary",
+    "scene": "airport baggage handling system behind check-in",
+    "main_subject": "suitcase moving through an airport conveyor system",
+    "background": "industrial airport baggage belts, scanner tunnel, sorting machinery, low light, high contrast",
+    "composition": "large suitcase in foreground, conveyor lines leading into a hidden system, airport machinery in background, strong depth",
+    "camera_angle": "low cinematic angle looking into the baggage system",
+    "lighting": "cool industrial lighting with dramatic contrast",
+    "color_palette": "dark blue, steel gray, airport yellow highlights",
+    "emotion": "curiosity, hidden complexity, slight anxiety",
+    "visual_focus": "the moment luggage leaves the passenger area and enters the hidden airport system"
+  },
+  "thumbnail_rules": {
+    "text_required": true,
+    "language": "English",
+    "max_words": 4,
+    "mobile_readable": true,
+    "high_contrast": true,
+    "avoid_small_text": true
+  },
+  "avoid": [
+    "cartoon style",
+    "generic airport terminal only",
+    "fake airline logos",
+    "too much text",
+    "unreadable small text",
+    "random suitcase in empty airport"
+  ],
+  "next_agent": "visual_brief"
+}
