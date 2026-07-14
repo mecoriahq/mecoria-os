@@ -1,0 +1,127 @@
+{
+  "record_type": "voice_audio_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-14T23:04:42",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "voice_audio_ready",
+  "script_title": "The Hidden System That Moves Your Luggage After Check-In",
+  "script_word_count": 2751,
+  "script_char_count": 17002,
+  "voice_source_output": "agents/voice/output/hiddenova/latest.json",
+  "voice_generation_source_output": "agents/voice_generation/output/hiddenova/latest.json",
+  "audio_qa_source_output": "agents/audio_qa/output/hiddenova/latest.json",
+  "voice_agent_status": "narration_ready",
+  "voice_generation_status": "audio_ready",
+  "audio_qa_status": "approved",
+  "audio_qa_score": 100,
+  "voice_name": "unknown",
+  "model_name": "gpt-4o-mini-tts",
+  "audio_path_count": 32,
+  "existing_audio_count": 16,
+  "audio_path_checks": [
+    {
+      "path": "section_01.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_01.mp3",
+      "exists": true,
+      "size_bytes": 665856
+    },
+    {
+      "path": "section_02.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_02.mp3",
+      "exists": true,
+      "size_bytes": 816768
+    },
+    {
+      "path": "section_03.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_03.mp3",
+      "exists": true,
+      "size_bytes": 1035264
+    },
+    {
+      "path": "section_04.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_04.mp3",
+      "exists": true,
+      "size_bytes": 1223424
+    },
+    {
+      "path": "section_05.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_05.mp3",
+      "exists": true,
+      "size_bytes": 1497600
+    },
+    {
+      "path": "section_06.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_06.mp3",
+      "exists": true,
+      "size_bytes": 1158528
+    },
+    {
+      "path": "section_07.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_07.mp3",
+      "exists": true,
+      "size_bytes": 1101696
+    },
+    {
+      "path": "section_08.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_08.mp3",
+      "exists": true,
+      "size_bytes": 1180800
+    },
+    {
+      "path": "section_09.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_09.mp3",
+      "exists": true,
+      "size_bytes": 1031424
+    },
+    {
+      "path": "section_10.mp3",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "path": "agents/voice_generation/output/hiddenova/audio/2026-07-14_23-02-04/section_10.mp3",
+      "exists": true,
+      "size_bytes": 1020288
+    }
+  ],
+  "largest_audio_qa_list_path": "root.section_checks",
+  "largest_audio_qa_list_count": 16,
+  "next_agent": "audio_assembly"
+}
