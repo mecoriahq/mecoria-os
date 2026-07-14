@@ -1,7 +1,7 @@
 {
   "record_type": "audio_assembly_checkpoint",
-  "version": "1.0",
-  "created_at": "2026-07-14T23:36:00",
+  "version": "1.2",
+  "created_at": "2026-07-14T23:39:49",
   "channel": "hiddenova",
   "video_number": 2,
   "status": "audio_assembly_ready",
@@ -11,7 +11,7 @@
   "voice_audio_existing_audio_count": 16,
   "assembly_source_output": "agents/audio_assembly/output/hiddenova/latest.json",
   "assembly_agent_status": "assembled",
-  "duration_seconds": null,
+  "duration_seconds": 998.45,
   "audio_path_count": 18,
   "existing_audio_count": 17,
   "audio_checks": [
@@ -108,5 +108,8 @@
   ],
   "largest_output_list_path": "root.audio.source_sections",
   "largest_output_list_count": 16,
-  "next_agent": "video_assembly_or_hybrid_video_assembly"
+  "next_agent": "video_assembly_or_hybrid_video_assembly",
+  "duration_source": "mp3_frame_parser",
+  "assembled_audio_path": "agents/audio_assembly/output/hiddenova/assembled/2026-07-14_23-35-59/narration_track.mp3",
+  "assembled_audio_size_bytes": 15975212
 }
