@@ -1,0 +1,278 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-07-15T19:18:08.486806+00:00",
+  "assets": {
+    "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db": {
+      "sha256": "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db",
+      "size_bytes": 9119299,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486589+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A001_airport_baggage_stock_clip_1.mp4",
+          "registered_at": "2026-07-15T19:18:08.486591+00:00"
+        }
+      ]
+    },
+    "2bd8c8db930e22f0a2bad80733bd1fbf2455fcf165461203d18c34c0bd045e91": {
+      "sha256": "2bd8c8db930e22f0a2bad80733bd1fbf2455fcf165461203d18c34c0bd045e91",
+      "size_bytes": 19497496,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486595+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A002_airport_baggage_stock_clip_4.mp4",
+          "registered_at": "2026-07-15T19:18:08.486596+00:00"
+        }
+      ]
+    },
+    "f1dcb345ae4a3e1eccfd23831914da967bb391bdf0ef929b3224eeffe4eeb121": {
+      "sha256": "f1dcb345ae4a3e1eccfd23831914da967bb391bdf0ef929b3224eeffe4eeb121",
+      "size_bytes": 29265370,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486598+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A003_airport_baggage_stock_clip_7.mp4",
+          "registered_at": "2026-07-15T19:18:08.486599+00:00"
+        }
+      ]
+    },
+    "9611a5b716310d5aa4afb56f96a2184b45960b026fd148772dc52678a600dbb6": {
+      "sha256": "9611a5b716310d5aa4afb56f96a2184b45960b026fd148772dc52678a600dbb6",
+      "size_bytes": 10749678,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486601+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A004_airport_baggage_stock_clip_8.mp4",
+          "registered_at": "2026-07-15T19:18:08.486602+00:00"
+        }
+      ]
+    },
+    "6f34916864a3bf059c546661d4e7a48af7c3cce4c9cdad178ee51a926db56c30": {
+      "sha256": "6f34916864a3bf059c546661d4e7a48af7c3cce4c9cdad178ee51a926db56c30",
+      "size_bytes": 45800630,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486603+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A005_airport_baggage_stock_clip_2.mp4",
+          "registered_at": "2026-07-15T19:18:08.486604+00:00"
+        }
+      ]
+    },
+    "f228cb2202c72e25e192e447c00944489d397d70319978493682fd600b20d063": {
+      "sha256": "f228cb2202c72e25e192e447c00944489d397d70319978493682fd600b20d063",
+      "size_bytes": 21297119,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486606+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A006_airport_baggage_stock_clip_9.mp4",
+          "registered_at": "2026-07-15T19:18:08.486607+00:00"
+        }
+      ]
+    },
+    "1e9824460cd2b535c69eb0d78bb27fdc8d827e688988d2ac2e4b6e2ccabd82a6": {
+      "sha256": "1e9824460cd2b535c69eb0d78bb27fdc8d827e688988d2ac2e4b6e2ccabd82a6",
+      "size_bytes": 25746507,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486608+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A007_airport_baggage_stock_clip_5.mp4",
+          "registered_at": "2026-07-15T19:18:08.486609+00:00"
+        }
+      ]
+    },
+    "948173cca1d311643bbe91e843adc6d75051c53a4c8fab226e9f8037427f96aa": {
+      "sha256": "948173cca1d311643bbe91e843adc6d75051c53a4c8fab226e9f8037427f96aa",
+      "size_bytes": 45384709,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486610+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A008_airport_baggage_stock_clip_3.mp4",
+          "registered_at": "2026-07-15T19:18:08.486611+00:00"
+        }
+      ]
+    },
+    "e2e0a76c928b265f691f981266bfa72b1b7e488de89995385f6235d90504040a": {
+      "sha256": "e2e0a76c928b265f691f981266bfa72b1b7e488de89995385f6235d90504040a",
+      "size_bytes": 21116619,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486612+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A009_airport_baggage_stock_clip_10.mp4",
+          "registered_at": "2026-07-15T19:18:08.486613+00:00"
+        }
+      ]
+    },
+    "7976fe0df52ef10ae114ecf0d156a11d5d3443b3e163434f46a48ebe01567091": {
+      "sha256": "7976fe0df52ef10ae114ecf0d156a11d5d3443b3e163434f46a48ebe01567091",
+      "size_bytes": 19978623,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486614+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A011_airport_baggage_stock_clip_11.mp4",
+          "registered_at": "2026-07-15T19:18:08.486615+00:00"
+        }
+      ]
+    },
+    "ac2996336bc921569f27db9686814741246fe65ec1fc829127e6a9bb424faab0": {
+      "sha256": "ac2996336bc921569f27db9686814741246fe65ec1fc829127e6a9bb424faab0",
+      "size_bytes": 14850658,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486617+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A012_airport_baggage_stock_clip_12.mp4",
+          "registered_at": "2026-07-15T19:18:08.486618+00:00"
+        }
+      ]
+    },
+    "aa00ff815cb83ccddc656e457e114adf770ad8ef15a63d67f0d80097935dd7e8": {
+      "sha256": "aa00ff815cb83ccddc656e457e114adf770ad8ef15a63d67f0d80097935dd7e8",
+      "size_bytes": 34219717,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486619+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A013_airport_baggage_stock_clip_13.mp4",
+          "registered_at": "2026-07-15T19:18:08.486620+00:00"
+        }
+      ]
+    },
+    "65d957752bfa0efd728691d2151c12e4abe2b02732ba7f2e213832c35d015cc0": {
+      "sha256": "65d957752bfa0efd728691d2151c12e4abe2b02732ba7f2e213832c35d015cc0",
+      "size_bytes": 15766243,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486621+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A014_airport_baggage_stock_clip_14.mp4",
+          "registered_at": "2026-07-15T19:18:08.486625+00:00"
+        }
+      ]
+    },
+    "a85f9fc696542ad602b0aea7b0aaef431152aae1416c401abf2934009d688bb2": {
+      "sha256": "a85f9fc696542ad602b0aea7b0aaef431152aae1416c401abf2934009d688bb2",
+      "size_bytes": 86600389,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486627+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A015_airport_baggage_stock_clip_15.mp4",
+          "registered_at": "2026-07-15T19:18:08.486628+00:00"
+        }
+      ]
+    },
+    "f19e6eada904f8bc12d01ed6e68c6dee8c934fd9235b99fd3c73b3b125a56cde": {
+      "sha256": "f19e6eada904f8bc12d01ed6e68c6dee8c934fd9235b99fd3c73b3b125a56cde",
+      "size_bytes": 124685160,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486629+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A016_airport_baggage_stock_clip_6.mp4",
+          "registered_at": "2026-07-15T19:18:08.486630+00:00"
+        }
+      ]
+    },
+    "bd8ae54800be8a449d6289832721fff87d8c1939fd03740900993c72668d3362": {
+      "sha256": "bd8ae54800be8a449d6289832721fff87d8c1939fd03740900993c72668d3362",
+      "size_bytes": 335896809,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486631+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A017_airport_baggage_stock_clip_16.mp4",
+          "registered_at": "2026-07-15T19:18:08.486632+00:00"
+        }
+      ]
+    },
+    "fc618839a34adba9e4ddb71c2524a26bfcdb8c0f10a84e53d2e12dee8d34d338": {
+      "sha256": "fc618839a34adba9e4ddb71c2524a26bfcdb8c0f10a84e53d2e12dee8d34d338",
+      "size_bytes": 21378092,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T19:18:08.486634+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_002",
+          "run_id": "hiddenova_video_002_v1",
+          "relative_path": "assets/stock/hiddenova/video_002_luggage/approved/A018_airport_baggage_stock_clip_17.mp4",
+          "registered_at": "2026-07-15T19:18:08.486635+00:00"
+        }
+      ]
+    }
+  }
+}

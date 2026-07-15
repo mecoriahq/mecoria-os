@@ -27,6 +27,11 @@ from core.video_run_context import (
     set_status,
 )
 
+
+from core.asset_usage_registry import (
+    assert_asset_registered,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 OUTPUT_FILENAME = "hybrid_video_draft.mp4"
 VIDEO_WIDTH = 1920
@@ -36,17 +41,6 @@ FPS = 30
 STOCK_SEGMENT_SECONDS = 6
 AI_INSERT_AFTER_STOCK_SEGMENTS = 2
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
-
-PREFERRED_STOCK_ORDER = [
-    "A001-C001",
-    "A010-C005",
-    "A010-C001",
-    "A010-C006",
-    "A012-C001",
-    "A010-C007",
-    "A010-C008"
-]
-
 
 def load_json(file_path: Path) -> dict:
     if not file_path.exists():
@@ -120,14 +114,35 @@ def get_publisher_latest_path(channel: str) -> Path:
     return PROJECT_ROOT / "agents" / "publisher" / "output" / channel.lower() / "latest.json"
 
 
-def get_stock_manifest_path(channel: str, video_id: str | None = None) -> Path:
-    if video_id == "video_002":
-        video_specific_manifest = PROJECT_ROOT / "records" / "assets" / channel.lower() / "video_002_stock_footage_manifest.json"
+def get_stock_manifest_path(
+    channel: str,
+    video_id: str | None = None
+) -> Path:
+    if video_id:
+        return get_video_context_reference_path(
+            channel=channel,
+            video_id=video_id,
+            key="stock_manifest"
+        )
 
-        if video_specific_manifest.exists():
-            return video_specific_manifest
+    return (
+        PROJECT_ROOT
+        / "records"
+        / "assets"
+        / channel.lower()
+        / "stock_footage_manifest.json"
+    )
 
-    return PROJECT_ROOT / "records" / "assets" / channel.lower() / "stock_footage_manifest.json"
+
+def get_stock_qa_path(
+    channel: str,
+    video_id: str
+) -> Path:
+    return get_video_context_reference_path(
+        channel=channel,
+        video_id=video_id,
+        key="stock_qa"
+    )
 
 
 def get_video_context_reference_path(
@@ -349,109 +364,345 @@ def get_audio_path(audio_data: dict) -> Path:
     return audio_path
 
 
-def preferred_stock_sort_key(item: dict) -> tuple[int, int, str]:
-    candidate_id = item["candidate_id"]
-
-    if candidate_id in PREFERRED_STOCK_ORDER:
-        order_index = PREFERRED_STOCK_ORDER.index(candidate_id)
-    else:
-        order_index = 999
-
+def preferred_stock_sort_key(
+    item: dict
+) -> tuple[int, str]:
     return (
-        order_index,
-        item.get("usage_priority", 999),
-        candidate_id
+        int(item.get("usage_priority", 999)),
+        str(item["candidate_id"])
     )
 
 
-def load_stock_clips(stock_manifest_data: dict) -> list[dict]:
+def load_stock_clips(
+    stock_manifest_data: dict,
+    channel: str,
+    video_id: str | None,
+    run_id: str | None
+) -> list[dict]:
+    manifest_status = str(
+        stock_manifest_data.get("status", "")
+    ).lower()
+
+    if not manifest_status.startswith("approved"):
+        raise ValueError("Stock manifest is not approved.")
+
+    if (
+        stock_manifest_data.get("channel")
+        and stock_manifest_data["channel"].lower() != channel
+    ):
+        raise ValueError("Stock manifest channel mismatch.")
+
+    if video_id:
+        manifest_video_id = stock_manifest_data.get(
+            "video_id"
+        )
+
+        if manifest_video_id and manifest_video_id != video_id:
+            raise ValueError("Stock manifest video_id mismatch.")
+
+        manifest_run_id = stock_manifest_data.get("run_id")
+
+        if manifest_run_id and manifest_run_id != run_id:
+            raise ValueError("Stock manifest run_id mismatch.")
+
     clips = []
-    video_specific_manifest = stock_manifest_data.get("record_type") == "video_specific_stock_footage_manifest"
+    used_paths = set()
 
-    for index, item in enumerate(stock_manifest_data.get("items", []), start=1):
-        status = item.get("status", "")
+    for index, item in enumerate(
+        stock_manifest_data.get("items", []),
+        start=1
+    ):
+        status = str(item.get("status", "")).lower()
 
-        if status.startswith("rejected"):
+        if not status.startswith("approved"):
             continue
 
-        if video_specific_manifest:
-            if status != "approved_for_video_002":
-                continue
-        else:
-            if item.get("asset_id") not in {"A001", "A010", "A012"}:
-                continue
-
-            if status != "downloaded_pending_visual_qa":
-                continue
-
         relative_path = item.get("relative_path")
+
         if not relative_path:
             continue
 
-        path = PROJECT_ROOT / relative_path
+        normalized_path = relative_path.replace("\\", "/")
+
+        if normalized_path in used_paths:
+            raise ValueError(
+                f"Duplicate stock path: {normalized_path}"
+            )
+
+        path = PROJECT_ROOT / normalized_path
 
         if path.suffix.lower() not in VIDEO_EXTENSIONS:
             continue
 
         if not path.exists():
-            raise FileNotFoundError(f"Stock footage file not found: {path}")
+            raise FileNotFoundError(
+                f"Stock footage file not found: {path}"
+            )
+
+        if video_id:
+            expected_sha256 = item.get("sha256")
+
+            if not expected_sha256:
+                raise ValueError(
+                    "Stock manifest item has no SHA-256 fingerprint."
+                )
+
+            assert_asset_registered(
+                path=path,
+                channel=channel,
+                video_id=video_id,
+                expected_sha256=expected_sha256
+            )
+
+        used_paths.add(normalized_path)
 
         clip = dict(item)
-        asset_id = str(clip.get("asset_id") or f"A{index:03d}")
-        candidate_id = (
+        asset_id = str(
+            clip.get("asset_id")
+            or f"A{index:03d}"
+        )
+        candidate_id = str(
             clip.get("candidate_id")
             or clip.get("clip_id")
             or f"{asset_id}-C{index:03d}"
         )
 
         clip["asset_id"] = asset_id
-        clip["candidate_id"] = str(candidate_id)
-        clip["role"] = clip.get("role", "stock_footage")
-        clip["risk_level"] = clip.get("risk_level", "low")
-        clip["usage_priority"] = int(clip.get("usage_priority", index))
+        clip["candidate_id"] = candidate_id
+        clip["role"] = clip.get(
+            "role",
+            "topic_specific_stock_footage"
+        )
+        clip["risk_level"] = clip.get(
+            "risk_level",
+            "low"
+        )
+        clip["usage_priority"] = int(
+            clip.get("usage_priority", index)
+        )
         clip["path"] = path
-        clip["duration_seconds"] = get_media_duration_seconds(path)
+        clip["duration_seconds"] = float(
+            clip.get("duration_seconds")
+            or get_media_duration_seconds(path)
+        )
 
         clips.append(clip)
 
     if not clips:
-        raise ValueError("No usable stock clips found.")
+        raise ValueError("No usable approved stock clips found.")
 
-    return sorted(clips, key=preferred_stock_sort_key)
+    return sorted(
+        clips,
+        key=preferred_stock_sort_key
+    )
 
-def build_stock_segment_specs(stock_clips: list[dict]) -> list[dict]:
-    specs = []
+
+def build_stock_segment_specs(
+    stock_clips: list[dict],
+    max_segments_per_clip: int = 5
+) -> list[dict]:
+    clip_buckets = []
 
     for clip in stock_clips:
         duration = clip["duration_seconds"]
-        segment_count = max(1, math.ceil(duration / STOCK_SEGMENT_SECONDS))
+        possible_count = max(
+            1,
+            math.ceil(duration / STOCK_SEGMENT_SECONDS)
+        )
+        segment_count = min(
+            possible_count,
+            max_segments_per_clip
+        )
 
-        for index in range(segment_count):
-            start = index * STOCK_SEGMENT_SECONDS
+        if segment_count == 1:
+            starts = [0.0]
+        elif possible_count <= max_segments_per_clip:
+            starts = [
+                index * STOCK_SEGMENT_SECONDS
+                for index in range(segment_count)
+            ]
+        else:
+            maximum_start = max(
+                0.0,
+                duration - STOCK_SEGMENT_SECONDS
+            )
+            step = maximum_start / (segment_count - 1)
+            starts = [
+                round(index * step, 2)
+                for index in range(segment_count)
+            ]
 
-            if start >= duration:
-                continue
+        bucket = []
 
+        for index, start in enumerate(starts, start=1):
             remaining = duration - start
-            segment_duration = min(STOCK_SEGMENT_SECONDS, remaining)
+            segment_duration = min(
+                STOCK_SEGMENT_SECONDS,
+                remaining
+            )
 
             if segment_duration < 2:
                 continue
 
-            specs.append({
+            bucket.append({
                 "type": "stock",
-                "segment_id": f"{clip['candidate_id']}_S{index + 1:02d}",
+                "segment_id": (
+                    f"{clip['candidate_id']}_S{index:02d}"
+                ),
                 "asset_id": clip["asset_id"],
                 "candidate_id": clip["candidate_id"],
                 "role": clip["role"],
                 "source_path": clip["path"],
-                "source_relative_path": get_relative_path(clip["path"]),
+                "source_relative_path": get_relative_path(
+                    clip["path"]
+                ),
                 "start_seconds": round(start, 2),
-                "duration_seconds": round(segment_duration, 2),
-                "risk_level": clip.get("risk_level", "unknown")
+                "duration_seconds": round(
+                    segment_duration,
+                    2
+                ),
+                "risk_level": clip.get(
+                    "risk_level",
+                    "unknown"
+                )
             })
 
+        clip_buckets.append(bucket)
+
+    specs = []
+    maximum_bucket_size = max(
+        len(bucket)
+        for bucket in clip_buckets
+    )
+
+    for segment_index in range(maximum_bucket_size):
+        for bucket in clip_buckets:
+            if segment_index < len(bucket):
+                specs.append(bucket[segment_index])
+
     return specs
+
+
+def validate_stock_repetition(
+    context: dict | None,
+    stock_clips: list[dict],
+    stock_specs: list[dict],
+    ai_specs: list[dict],
+    audio_duration: float
+) -> dict:
+    gates = (
+        context.get("quality_gates", {})
+        if context
+        else {}
+    )
+
+    minimum_clips = int(
+        gates.get("minimum_stock_clip_count", 10)
+    )
+    maximum_share = float(
+        gates.get(
+            "maximum_single_stock_clip_share",
+            0.25
+        )
+    )
+    minimum_coverage = float(
+        gates.get(
+            "minimum_timeline_cycle_coverage",
+            0.70
+        )
+    )
+    maximum_cycles = int(
+        gates.get("maximum_timeline_cycles", 2)
+    )
+
+    unique_clip_count = len({
+        item["candidate_id"]
+        for item in stock_clips
+    })
+
+    total_stock_duration = sum(
+        item["duration_seconds"]
+        for item in stock_clips
+    )
+
+    largest_clip_share = (
+        max(
+            item["duration_seconds"]
+            for item in stock_clips
+        ) / total_stock_duration
+        if total_stock_duration > 0
+        else 1.0
+    )
+
+    cycle_duration = sum(
+        item["duration_seconds"]
+        for item in stock_specs
+    ) + sum(
+        item["duration_seconds"]
+        for item in ai_specs
+    )
+
+    coverage_ratio = (
+        cycle_duration / audio_duration
+        if audio_duration > 0
+        else 0.0
+    )
+
+    timeline_cycles = (
+        math.ceil(audio_duration / cycle_duration)
+        if cycle_duration > 0
+        else 999
+    )
+
+    issues = []
+
+    if unique_clip_count < minimum_clips:
+        issues.append(
+            "Stock clip count is below the diversity gate."
+        )
+
+    if largest_clip_share > maximum_share:
+        issues.append(
+            "One stock clip dominates the package."
+        )
+
+    if coverage_ratio < minimum_coverage:
+        issues.append(
+            "Timeline cycle coverage is too low."
+        )
+
+    if timeline_cycles > maximum_cycles:
+        issues.append(
+            "Timeline would repeat too many cycles."
+        )
+
+    if issues:
+        raise ValueError(
+            "Stock repetition gate failed: "
+            + " | ".join(issues)
+        )
+
+    return {
+        "stock_unique_clip_count": unique_clip_count,
+        "stock_total_source_duration_seconds": round(
+            total_stock_duration,
+            2
+        ),
+        "stock_largest_clip_share": round(
+            largest_clip_share,
+            4
+        ),
+        "stock_cycle_coverage_ratio": round(
+            coverage_ratio,
+            4
+        ),
+        "stock_timeline_cycles": timeline_cycles,
+        "stock_repetition_risk": "acceptable",
+        "cross_video_reused_clip_count": 0,
+        "asset_registry_verified_count": len(
+            stock_clips
+        )
+    }
 
 
 def load_ai_specs(ai_generation_data: dict, ai_qa_data: dict) -> list[dict]:
@@ -1000,11 +1251,41 @@ def main() -> None:
 
     load_dotenv(PROJECT_ROOT / ".env")
 
+    context = (
+        load_context(
+            channel=channel,
+            video_id=video_id
+        )
+        if video_id
+        else None
+    )
+
     if video_id:
         print(f"VIDEO_CONTEXT_ID: {video_id}")
 
-    audio_assembly_path = get_audio_assembly_latest_path(channel, video_id=video_id)
-    publisher_path = get_publisher_latest_path(channel)
+    audio_assembly_path = get_audio_assembly_latest_path(
+        channel,
+        video_id=video_id
+    )
+
+    if context:
+        publisher_path = (
+            PROJECT_ROOT
+            / "records"
+            / "run_contexts"
+            / channel
+            / f"{video_id}.json"
+        )
+        publisher_data = {
+            "publishing_package": {
+                "video_metadata": {
+                    "title": context["topic_title"]
+                }
+            }
+        }
+    else:
+        publisher_path = get_publisher_latest_path(channel)
+        publisher_data = load_json(publisher_path)
     stock_manifest_path = get_stock_manifest_path(channel, video_id=video_id)
     ai_generation_path = get_ai_generation_latest_path(
         channel,
@@ -1016,8 +1297,36 @@ def main() -> None:
     )
 
     audio_data = load_json(audio_assembly_path)
-    publisher_data = load_json(publisher_path)
     stock_manifest_data = load_json(stock_manifest_path)
+
+    if video_id:
+        stock_qa_path = get_stock_qa_path(
+            channel=channel,
+            video_id=video_id
+        )
+        stock_qa_data = load_json(stock_qa_path)
+
+        if stock_qa_data.get("status") != "approved":
+            raise ValueError("Stock QA is not approved.")
+
+        if (
+            stock_qa_data.get("summary", {}).get(
+                "reused_clip_count"
+            )
+            != 0
+        ):
+            raise ValueError(
+                "Cross-video stock reuse was detected."
+            )
+
+        if not stock_qa_data.get(
+            "checks",
+            {}
+        ).get("cross_video_asset_reuse"):
+            raise ValueError(
+                "Cross-video stock registry gate is missing."
+            )
+
     ai_generation_data = load_json(ai_generation_path)
     ai_qa_data = load_json(ai_qa_path)
 
@@ -1040,8 +1349,27 @@ def main() -> None:
     print(f"SELECTED_STOCK_MANIFEST_PATH: {get_relative_path(stock_manifest_path)}")
     print(f"AI_INSERTS_ENABLED: {ai_inserts_enabled}")
 
-    stock_clips = load_stock_clips(stock_manifest_data)
-    stock_specs = build_stock_segment_specs(stock_clips)
+    stock_clips = load_stock_clips(
+        stock_manifest_data=stock_manifest_data,
+        channel=channel,
+        video_id=video_id,
+        run_id=context["run_id"] if context else None
+    )
+
+    maximum_segments = int(
+        context.get(
+            "quality_gates",
+            {}
+        ).get(
+            "maximum_stock_segments_per_clip",
+            5
+        )
+    ) if context else 5
+
+    stock_specs = build_stock_segment_specs(
+        stock_clips=stock_clips,
+        max_segments_per_clip=maximum_segments
+    )
     if ai_inserts_enabled:
         ai_specs = load_ai_specs(
             ai_generation_data=ai_generation_data,
@@ -1056,6 +1384,32 @@ def main() -> None:
         stock_specs=stock_specs,
         ai_specs=ai_specs
     )
+
+    stock_report = validate_stock_repetition(
+        context=context,
+        stock_clips=stock_clips,
+        stock_specs=stock_specs,
+        ai_specs=ai_specs,
+        audio_duration=audio_duration
+    )
+
+    print(
+        "STOCK_UNIQUE_CLIPS: "
+        f"{stock_report['stock_unique_clip_count']}"
+    )
+    print(
+        "STOCK_CYCLE_COVERAGE: "
+        f"{stock_report['stock_cycle_coverage_ratio']}"
+    )
+    print(
+        "STOCK_TIMELINE_CYCLES: "
+        f"{stock_report['stock_timeline_cycles']}"
+    )
+    print(
+        "STOCK_REPETITION_RISK: "
+        f"{stock_report['stock_repetition_risk']}"
+    )
+
     timeline_entries = build_timeline_sequence(
         cycle=cycle,
         audio_duration=audio_duration
@@ -1071,7 +1425,8 @@ def main() -> None:
         "timeline_entry_count": len(timeline_entries),
         "timeline_plan_path": None,
         "concat_list_path": None,
-        "silent_video_path": None
+        "silent_video_path": None,
+        **stock_report
     }
 
     if args.dry_run:
@@ -1108,6 +1463,8 @@ def main() -> None:
         ai_specs=ai_specs,
         output_dir=output_dir
     )
+
+    render_summary.update(stock_report)
 
     final_output = build_output(
         channel=channel,

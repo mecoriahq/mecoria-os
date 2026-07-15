@@ -24,13 +24,24 @@
     "youtube_url": "https://youtu.be/L7fmWb8bOTI",
     "hybrid_video_assembly": "agents/hybrid_video_assembly/output/hiddenova/video_002/hiddenova_video_002_v1/hybrid_video_assembly.json",
     "video_qa": "agents/video_qa/output/hiddenova/video_002/hiddenova_video_002_v1/video_qa.json",
-    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/thumbnail.json"
+    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/thumbnail.json",
+    "stock_manifest": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_manifest.json",
+    "stock_qa": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_qa.json"
   },
   "quality_gates": {
     "require_ai_visuals": true,
     "minimum_ai_insert_count": 8,
     "require_thumbnail": true,
-    "require_founder_review": true
+    "require_founder_review": true,
+    "minimum_stock_clip_count": 10,
+    "minimum_stock_duration_seconds": 180,
+    "maximum_single_stock_clip_share": 0.25,
+    "maximum_stock_segments_per_clip": 5,
+    "minimum_timeline_cycle_coverage": 0.7,
+    "maximum_timeline_cycles": 2,
+    "require_stock_qa_approval": true,
+    "allow_cross_video_asset_reuse": false,
+    "require_asset_registry_ownership": true
   },
   "release": {
     "uploaded_at": "2026-07-15T20:09:06.050666+03:00",
@@ -57,8 +68,32 @@
       "status": "upload_ready",
       "output_reference": "agents/video_publisher/output/hiddenova/video_002/hiddenova_video_002_v1/publisher.json",
       "recorded_at": "2026-07-15T18:50:10.475363+00:00"
+    },
+    {
+      "agent": "stock_manifest",
+      "status": "approved_stock_ready",
+      "output_reference": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_manifest.json",
+      "recorded_at": "2026-07-15T19:07:03.659237+00:00"
+    },
+    {
+      "agent": "stock_qa",
+      "status": "approved",
+      "output_reference": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_qa.json",
+      "recorded_at": "2026-07-15T19:07:03.659283+00:00"
+    },
+    {
+      "agent": "stock_manifest",
+      "status": "approved_stock_ready",
+      "output_reference": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_manifest.json",
+      "recorded_at": "2026-07-15T19:18:08.488024+00:00"
+    },
+    {
+      "agent": "stock_qa",
+      "status": "approved",
+      "output_reference": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_qa.json",
+      "recorded_at": "2026-07-15T19:18:08.488055+00:00"
     }
   ],
-  "updated_at": "2026-07-15T18:50:10.475376+00:00",
+  "updated_at": "2026-07-15T19:18:08.488059+00:00",
   "created_at": "2026-07-15T18:09:15.167729+00:00"
 }
