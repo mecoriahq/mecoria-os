@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-15T20:53:40.362401+00:00",
+  "updated_at": "2026-07-15T21:21:13.972022+00:00",
   "assets": {
     "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db": {
       "sha256": "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db",
@@ -959,6 +959,294 @@
           "run_id": "hiddenova_video_003_v1",
           "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.jpg",
           "registered_at": "2026-07-15T20:53:40.362315+00:00"
+        }
+      ]
+    },
+    "80802db820d5a35b62e59a514e53479a5469ce604855886077d97d2842f41a11": {
+      "sha256": "80802db820d5a35b62e59a514e53479a5469ce604855886077d97d2842f41a11",
+      "size_bytes": 225085047,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971856+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A001-undersea-cable-map.mp4",
+          "registered_at": "2026-07-15T21:21:13.971869+00:00"
+        }
+      ]
+    },
+    "308c29a8226136bc165a780cd4e02edbf4112471c740856e1f04f7fd02b0a906": {
+      "sha256": "308c29a8226136bc165a780cd4e02edbf4112471c740856e1f04f7fd02b0a906",
+      "size_bytes": 131198514,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971873+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A002-cable-laying-ship.mp4",
+          "registered_at": "2026-07-15T21:21:13.971875+00:00"
+        }
+      ]
+    },
+    "e4a0726d3a0bf24f94e75d21d36eadadfa3787a7b88ed4244134640f6cac4db0": {
+      "sha256": "e4a0726d3a0bf24f94e75d21d36eadadfa3787a7b88ed4244134640f6cac4db0",
+      "size_bytes": 81092085,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971877+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A003-cable-on-ocean-floor.mp4",
+          "registered_at": "2026-07-15T21:21:13.971878+00:00"
+        }
+      ]
+    },
+    "563618e8d86ac71109c9bf3446c8d86ee07cf6cc241e01255fc0ad85fb136f8d": {
+      "sha256": "563618e8d86ac71109c9bf3446c8d86ee07cf6cc241e01255fc0ad85fb136f8d",
+      "size_bytes": 107117509,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971879+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A004-fiber-optic-closeup.mp4",
+          "registered_at": "2026-07-15T21:21:13.971881+00:00"
+        }
+      ]
+    },
+    "23adf75eb1d40c370549c7c87a458072209256b4f685d38f815051aa566284b7": {
+      "sha256": "23adf75eb1d40c370549c7c87a458072209256b4f685d38f815051aa566284b7",
+      "size_bytes": 158789803,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971882+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A005-cable-landing-station.mp4",
+          "registered_at": "2026-07-15T21:21:13.971883+00:00"
+        }
+      ]
+    },
+    "5b5c10b895f31f63ced5ea32b9ffc96cea2b5027188134a24334b240667ff7d4": {
+      "sha256": "5b5c10b895f31f63ced5ea32b9ffc96cea2b5027188134a24334b240667ff7d4",
+      "size_bytes": 88603718,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971884+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A006-data-center-servers.mp4",
+          "registered_at": "2026-07-15T21:21:13.971885+00:00"
+        }
+      ]
+    },
+    "c92438e69979dad539a95893bda22b5283879f27e799d74d01563e8ba997c275": {
+      "sha256": "c92438e69979dad539a95893bda22b5283879f27e799d74d01563e8ba997c275",
+      "size_bytes": 23926329,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971886+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A007-network-operations-center.mp4",
+          "registered_at": "2026-07-15T21:21:13.971889+00:00"
+        }
+      ]
+    },
+    "a1eb6bce1dab9c26b54b06774183bc0571025524369b13942ace99c037c874dd": {
+      "sha256": "a1eb6bce1dab9c26b54b06774183bc0571025524369b13942ace99c037c874dd",
+      "size_bytes": 83955837,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971891+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A008-internet-traffic-routing.mp4",
+          "registered_at": "2026-07-15T21:21:13.971892+00:00"
+        }
+      ]
+    },
+    "da9a4b60ec3180e6d977684d544573e9fba6bd46c4316bbea9fdbfc1369c540b": {
+      "sha256": "da9a4b60ec3180e6d977684d544573e9fba6bd46c4316bbea9fdbfc1369c540b",
+      "size_bytes": 47059412,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971893+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A009-ship-anchor-ocean.mp4",
+          "registered_at": "2026-07-15T21:21:13.971895+00:00"
+        }
+      ]
+    },
+    "499204333752cc65a7b33fc57a3233a107fb4a1677f13cb6cc261f2cc7400ac1": {
+      "sha256": "499204333752cc65a7b33fc57a3233a107fb4a1677f13cb6cc261f2cc7400ac1",
+      "size_bytes": 177826904,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971896+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A010-fishing-trawler-sea.mp4",
+          "registered_at": "2026-07-15T21:21:13.971898+00:00"
+        }
+      ]
+    },
+    "b7f06284dd485e525e14fa129dd3e4c6d861a847eff020ef1d4bd2e368b3383a": {
+      "sha256": "b7f06284dd485e525e14fa129dd3e4c6d861a847eff020ef1d4bd2e368b3383a",
+      "size_bytes": 12335449,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971899+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A011-underwater-earthquake.mp4",
+          "registered_at": "2026-07-15T21:21:13.971900+00:00"
+        }
+      ]
+    },
+    "6342a4bad3dd4a12b700d4d46e7b75fa8fcd1bf4e63375c21c8a6cc6a0c56001": {
+      "sha256": "6342a4bad3dd4a12b700d4d46e7b75fa8fcd1bf4e63375c21c8a6cc6a0c56001",
+      "size_bytes": 123021565,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971901+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A012-cable-repair-ship.mp4",
+          "registered_at": "2026-07-15T21:21:13.971902+00:00"
+        }
+      ]
+    },
+    "6df48a31f6b5f5e72f220c018117ff425e0ce3c1680da4619ce7f84cf865bb8a": {
+      "sha256": "6df48a31f6b5f5e72f220c018117ff425e0ce3c1680da4619ce7f84cf865bb8a",
+      "size_bytes": 63136802,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971903+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A013-subsea-robot-rov.mp4",
+          "registered_at": "2026-07-15T21:21:13.971904+00:00"
+        }
+      ]
+    },
+    "59474c4e70ff2572903e138323c88e4ab5ac4693a7c5a1deadda95c835d2c1f6": {
+      "sha256": "59474c4e70ff2572903e138323c88e4ab5ac4693a7c5a1deadda95c835d2c1f6",
+      "size_bytes": 14665400,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971905+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A014-cable-retrieval-deck.mp4",
+          "registered_at": "2026-07-15T21:21:13.971907+00:00"
+        }
+      ]
+    },
+    "d4a7411709ed5eeaf78d3b6b8f9a87b05d933c0bca056298fb7b7f3e3b0e22f4": {
+      "sha256": "d4a7411709ed5eeaf78d3b6b8f9a87b05d933c0bca056298fb7b7f3e3b0e22f4",
+      "size_bytes": 14338464,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971908+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A015-fiber-cable-splicing.mp4",
+          "registered_at": "2026-07-15T21:21:13.971909+00:00"
+        }
+      ]
+    },
+    "f0ca91e98729bccdf0c3e00aac47bd18f90f8fd0d967537042f4649577b77e41": {
+      "sha256": "f0ca91e98729bccdf0c3e00aac47bd18f90f8fd0d967537042f4649577b77e41",
+      "size_bytes": 166227955,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971910+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A016-global-connected-cities.mp4",
+          "registered_at": "2026-07-15T21:21:13.971911+00:00"
+        }
+      ]
+    },
+    "7d2029848a32da9f640404f42dcaac234fa29aa70af0a27e61f51f4cbae3f159": {
+      "sha256": "7d2029848a32da9f640404f42dcaac234fa29aa70af0a27e61f51f4cbae3f159",
+      "size_bytes": 149369511,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971912+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A017-cable-repair-deck.mp4",
+          "registered_at": "2026-07-15T21:21:13.971913+00:00"
+        }
+      ]
+    },
+    "5b160f13a6b024e26b84c03810a95fb4d68b529d0204ce4b336bf108c2e9b52a": {
+      "sha256": "5b160f13a6b024e26b84c03810a95fb4d68b529d0204ce4b336bf108c2e9b52a",
+      "size_bytes": 74216290,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:21:13.971914+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A018-cable-landing-beach.mp4",
+          "registered_at": "2026-07-15T21:21:13.971916+00:00"
         }
       ]
     }
