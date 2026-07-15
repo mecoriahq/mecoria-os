@@ -250,5 +250,7 @@
       "usage_notes": "Use for Hiddenova video 002 airport luggage and baggage handling sequence."
     }
   ],
-  "next_agent": "stock_visual_qa_or_visual_asset_integration"
+  "next_agent": "stock_visual_qa_or_visual_asset_integration",
+  "video_id": "video_002",
+  "run_id": "hiddenova_video_002_v1"
 }

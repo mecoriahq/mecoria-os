@@ -314,7 +314,7 @@
         "creative_brief": "Abstract top-down bag icon moving through a reading zone. Camera-angle cones attempt identification; a route path lights up when matched. A branch shows unreadable bags going to manual check.",
         "ai_image_prompt": null,
         "stock_search_query": null,
-        "motion_graphic_instructions": "Animate READ → MATCH → ROUTE as three steps. Then show decision tree: successful read continues in blue to flight routing; unreadable bag diverts in amber to manual check. Use abstract cones, dots, and path lines only. No barcode graphics.",
+        "motion_graphic_instructions": "Animate READ \u2192 MATCH \u2192 ROUTE as three steps. Then show decision tree: successful read continues in blue to flight routing; unreadable bag diverts in amber to manual check. Use abstract cones, dots, and path lines only. No barcode graphics.",
         "diagram_instructions": null,
         "editing_notes": "Transition to A012 operator footage after the amber manual-check branch.",
         "quality_constraints": [
@@ -1033,5 +1033,7 @@
   },
   "metadata": {
     "next_agent": "visual_asset_production"
-  }
+  },
+  "video_id": "video_002",
+  "run_id": "hiddenova_video_002_v1"
 }

@@ -322,6 +322,8 @@ def main() -> None:
             }
         },
         "source": {
+            "video_id": video_id,
+            "run_id": context["run_id"],
             "source_agents": [
                 "script",
                 "seo",

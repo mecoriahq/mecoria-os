@@ -38,6 +38,7 @@ def get_context_path(channel: str, video_id: str) -> Path:
 def validate_context_data(context: dict) -> None:
     validate(instance=context, schema=load_schema())
     assert_no_latest_sources(context)
+    assert_no_latest_outputs(context)
 
 
 def assert_no_latest_sources(context: dict) -> None:
@@ -57,6 +58,26 @@ def assert_no_latest_sources(context: dict) -> None:
         if Path(reference).is_absolute():
             raise ValueError(
                 f"Context source must be repo-relative: {key}"
+            )
+
+
+def assert_no_latest_outputs(context: dict) -> None:
+    for key, reference in context.get("outputs", {}).items():
+        if not isinstance(reference, str):
+            raise TypeError(
+                f"Context output must be a string: {key}"
+            )
+
+        normalized = reference.replace("\\", "/").lower()
+
+        if normalized.endswith("/latest.json"):
+            raise ValueError(
+                f"Production output cannot use latest.json: {key}"
+            )
+
+        if Path(reference).is_absolute():
+            raise ValueError(
+                f"Context output must be repo-relative: {key}"
             )
 
 

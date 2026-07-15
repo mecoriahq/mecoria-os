@@ -46,5 +46,7 @@
     "unreadable small text",
     "random suitcase in empty airport"
   ],
-  "next_agent": "visual_brief"
+  "next_agent": "visual_brief",
+  "video_id": "video_002",
+  "run_id": "hiddenova_video_002_v1"
 }
