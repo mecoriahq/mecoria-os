@@ -115,6 +115,14 @@
         }
       },
       "additionalProperties": false
+    },
+    "video_id": {
+      "type": "string",
+      "pattern": "^video_[0-9]{3,}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "additionalProperties": false

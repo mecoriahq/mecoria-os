@@ -1,4 +1,4 @@
-﻿import json
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -129,6 +129,44 @@ def resolve_source(
     if must_exist and not path.exists():
         raise FileNotFoundError(
             f"Context source file not found: {path}"
+        )
+
+    return path
+
+
+
+def resolve_output(
+    context: dict,
+    key: str,
+    must_exist: bool = True
+) -> Path:
+    if key not in context.get("outputs", {}):
+        raise KeyError(f"Context output is missing: {key}")
+
+    reference = context["outputs"][key]
+
+    if not isinstance(reference, str):
+        raise TypeError(
+            f"Context output must be a string path: {key}"
+        )
+
+    normalized = reference.replace("\\", "/").lower()
+
+    if normalized.endswith("/latest.json"):
+        raise ValueError(
+            f"Production output cannot use latest.json: {key}"
+        )
+
+    if Path(reference).is_absolute():
+        raise ValueError(
+            f"Context output must be repo-relative: {key}"
+        )
+
+    path = PROJECT_ROOT / reference
+
+    if must_exist and not path.exists():
+        raise FileNotFoundError(
+            f"Context output file not found: {path}"
         )
 
     return path

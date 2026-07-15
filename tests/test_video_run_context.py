@@ -1,9 +1,10 @@
-﻿import copy
+import copy
 import unittest
 
 from core.video_run_context import (
     assert_no_latest_sources,
     load_context,
+    resolve_output,
     resolve_source
 )
 
@@ -29,6 +30,19 @@ class VideoRunContextTests(unittest.TestCase):
 
         script_path = resolve_source(context, "script")
         self.assertTrue(script_path.exists())
+
+    def test_latest_json_output_is_rejected(self):
+        context = load_context(
+            channel="hiddenova",
+            video_id="video_002"
+        )
+        context["outputs"]["script"] = (
+            "agents/script/output/hiddenova/latest.json"
+        )
+
+        with self.assertRaises(ValueError):
+            resolve_output(context, "script")
+
 
     def test_latest_json_source_is_rejected(self):
         context = load_context(

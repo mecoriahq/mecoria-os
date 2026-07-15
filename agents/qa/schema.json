@@ -24,7 +24,10 @@
     },
     "status": {
       "type": "string",
-      "enum": ["approved", "rejected"]
+      "enum": [
+        "approved",
+        "rejected"
+      ]
     },
     "overall_score": {
       "type": "integer",
@@ -89,10 +92,21 @@
           }
         },
         "next_agent": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
+    },
+    "video_id": {
+      "type": "string",
+      "pattern": "^video_[0-9]{3,}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "$defs": {
@@ -105,7 +119,11 @@
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["pass", "warning", "fail"]
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ]
         },
         "score": {
           "type": "integer",
@@ -128,7 +146,11 @@
         },
         "severity": {
           "type": "string",
-          "enum": ["low", "medium", "high"]
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
         },
         "message": {
           "type": "string"
