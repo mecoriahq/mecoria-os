@@ -26,7 +26,9 @@
     "video_qa": "agents/video_qa/output/hiddenova/video_002/hiddenova_video_002_v1/video_qa.json",
     "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/thumbnail.json",
     "stock_manifest": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_manifest.json",
-    "stock_qa": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_qa.json"
+    "stock_qa": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_qa.json",
+    "narration_audio": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/assembly/narration_track.mp3",
+    "final_video": "agents/hybrid_video_assembly/output/hiddenova/video_002/hiddenova_video_002_v1/render/hybrid_video_draft.mp4"
   },
   "quality_gates": {
     "require_ai_visuals": true,
@@ -43,7 +45,9 @@
     "allow_cross_video_asset_reuse": false,
     "require_asset_registry_ownership": true,
     "require_visual_asset_registry_ownership": true,
-    "require_thumbnail_asset_registry_ownership": true
+    "require_thumbnail_asset_registry_ownership": true,
+    "require_audio_asset_registry_ownership": true,
+    "require_final_video_asset_registry_ownership": true
   },
   "release": {
     "uploaded_at": "2026-07-15T20:09:06.050666+03:00",
@@ -94,8 +98,32 @@
       "status": "approved",
       "output_reference": "records/run_contexts/hiddenova/video_002/outputs/stock/hiddenova_video_002_v1/stock_qa.json",
       "recorded_at": "2026-07-15T19:18:08.488055+00:00"
+    },
+    {
+      "agent": "narration_audio",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/assembly/narration_track.mp3",
+      "recorded_at": "2026-07-15T19:34:27.129851+00:00"
+    },
+    {
+      "agent": "final_video",
+      "status": "draft_ready",
+      "output_reference": "agents/hybrid_video_assembly/output/hiddenova/video_002/hiddenova_video_002_v1/render/hybrid_video_draft.mp4",
+      "recorded_at": "2026-07-15T19:34:27.221442+00:00"
+    },
+    {
+      "agent": "video_qa",
+      "status": "approved",
+      "output_reference": "agents/video_qa/output/hiddenova/video_002/hiddenova_video_002_v1/video_qa.json",
+      "recorded_at": "2026-07-15T19:34:28.280854+00:00"
+    },
+    {
+      "agent": "publisher",
+      "status": "upload_ready",
+      "output_reference": "agents/video_publisher/output/hiddenova/video_002/hiddenova_video_002_v1/publisher.json",
+      "recorded_at": "2026-07-15T19:34:28.467666+00:00"
     }
   ],
-  "updated_at": "2026-07-15T19:25:07.931437+00:00",
+  "updated_at": "2026-07-15T19:34:28.467682+00:00",
   "created_at": "2026-07-15T18:09:15.167729+00:00"
 }

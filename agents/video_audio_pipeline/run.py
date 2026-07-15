@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import re
 import subprocess
@@ -22,6 +22,13 @@ from core.video_run_context import (
     resolve_source,
     save_context,
     set_status,
+)
+
+
+from core.asset_usage_registry import (
+    build_asset_record,
+    register_asset_batch,
+    validate_asset_batch,
 )
 
 
@@ -476,6 +483,123 @@ def build_assembly_output(
     }
 
 
+
+def register_audio_asset_ownership(
+    context: dict,
+    generation_data: dict,
+    qa_data: dict,
+    assembly_data: dict
+) -> Path:
+    records = []
+    section_hashes = {}
+
+    sections = generation_data["audio"]["sections"]
+
+    for section in sections:
+        path = PROJECT_ROOT / section["relative_path"]
+
+        record = build_asset_record(
+            path=path,
+            asset_type="narration_section",
+            channel=context["channel"],
+            video_id=context["video_id"],
+            run_id=context["run_id"],
+            shared_brand_asset=False
+        )
+
+        section["sha256"] = record["sha256"]
+        section_hashes[section["sequence"]] = record[
+            "sha256"
+        ]
+        records.append(record)
+
+    for check in qa_data.get("section_checks", []):
+        sequence = check["sequence"]
+
+        if sequence not in section_hashes:
+            raise ValueError(
+                f"Audio QA section has no asset: {sequence}"
+            )
+
+        check["sha256"] = section_hashes[sequence]
+
+    combined = assembly_data["audio"]["combined_audio"]
+    combined_path = PROJECT_ROOT / combined["relative_path"]
+
+    combined_record = build_asset_record(
+        path=combined_path,
+        asset_type="narration_audio",
+        channel=context["channel"],
+        video_id=context["video_id"],
+        run_id=context["run_id"],
+        shared_brand_asset=False
+    )
+
+    combined["sha256"] = combined_record["sha256"]
+    records.append(combined_record)
+
+    validate_asset_batch(records=records)
+
+    registry_path = register_asset_batch(
+        records=records
+    )
+
+    registry_reference = relative_path(registry_path)
+
+    generation_data.setdefault(
+        "source",
+        {}
+    ).update({
+        "video_id": context["video_id"],
+        "run_id": context["run_id"],
+        "asset_registry_reference": registry_reference
+    })
+
+    qa_data.setdefault(
+        "checks",
+        {}
+    ).update({
+        "cross_video_asset_reuse": True,
+        "asset_registry_ownership": True
+    })
+
+    qa_data.setdefault(
+        "summary",
+        {}
+    ).update({
+        "registered_audio_asset_count": len(records),
+        "reused_audio_asset_count": 0
+    })
+
+    qa_data.setdefault(
+        "source",
+        {}
+    ).update({
+        "video_id": context["video_id"],
+        "run_id": context["run_id"],
+        "asset_registry_reference": registry_reference
+    })
+
+    assembly_data.setdefault(
+        "source",
+        {}
+    ).update({
+        "video_id": context["video_id"],
+        "run_id": context["run_id"],
+        "asset_registry_reference": registry_reference
+    })
+
+    assembly_data.setdefault(
+        "readiness",
+        {}
+    ).update({
+        "asset_registry_ownership": True,
+        "cross_video_asset_reuse": False
+    })
+
+    return registry_path
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -575,8 +699,24 @@ def main() -> None:
         qa_data=qa_data,
         audio_path=assembled_audio_path
     )
+
+    registry_path = register_audio_asset_ownership(
+        context=context,
+        generation_data=generation_data,
+        qa_data=qa_data,
+        assembly_data=assembly_data
+    )
+
+    save_json(generation_path, generation_data)
+    save_json(qa_path, qa_data)
+
     assembly_path = output_dir / "audio_assembly.json"
     save_json(assembly_path, assembly_data)
+
+    print(
+        "AUDIO_ASSET_REGISTRY: "
+        f"{relative_path(registry_path)}"
+    )
 
     context = register_output(
         context,
@@ -602,6 +742,21 @@ def main() -> None:
         relative_path(assembly_path),
         "assembled"
     )
+    context = register_output(
+        context,
+        "narration_audio",
+        relative_path(assembled_audio_path),
+        "assembled"
+    )
+
+    context.setdefault(
+        "quality_gates",
+        {}
+    ).update({
+        "allow_cross_video_asset_reuse": False,
+        "require_audio_asset_registry_ownership": True
+    })
+
     context = set_status(
         context,
         "audio_ready",

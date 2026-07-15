@@ -10,76 +10,115 @@
       {
         "sequence": 1,
         "title": "Hook",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_01.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/01_section.mp3",
+        "filename": "01_section.mp3",
+        "sha256": "8e25f87432b1cfeb8da16cab30ab0d5d0b6929e50a3eb58e912f7b8a49be2c0b",
+        "size_bytes": 459264
       },
       {
         "sequence": 2,
         "title": "Introduction",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_02.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/02_section.mp3",
+        "filename": "02_section.mp3",
+        "sha256": "e8be1d9af86c5b8613451b4598b1de2528f0b10fafc927dff03815c5eb1ed262",
+        "size_bytes": 449664
       },
       {
         "sequence": 3,
         "title": "1. The Bag Becomes Data",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_03.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/03_section.mp3",
+        "filename": "03_section.mp3",
+        "sha256": "d8fa248d19a8b2379ac9c0d133a8b3cd087feb01cfdd80a14ca28c41c1e3dd9c",
+        "size_bytes": 617856
       },
       {
         "sequence": 4,
         "title": "2. Behind the Curtain",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_04.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/04_section.mp3",
+        "filename": "04_section.mp3",
+        "sha256": "80894c595c79a16b06b1a532a51ab814b04392973d2b26680a4910313c62865b",
+        "size_bytes": 585600
       },
       {
         "sequence": 5,
         "title": "3. The Conveyor Network",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_05.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/05_section.mp3",
+        "filename": "05_section.mp3",
+        "sha256": "8611123a1ea44db63092ff79faf8bf3096654f2fd995cf9b70d62e726bc0f69d",
+        "size_bytes": 505728
       },
       {
         "sequence": 6,
         "title": "4. Security Screening Passengers Never See",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_06.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/06_section.mp3",
+        "filename": "06_section.mp3",
+        "sha256": "57700dcd5922914b69bc249d4f5b820a3c127062e8c108de9d96cbc627b0e9e7",
+        "size_bytes": 552192
       },
       {
         "sequence": 7,
         "title": "5. The Software Deciding the Route",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_07.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/07_section.mp3",
+        "filename": "07_section.mp3",
+        "sha256": "3d3310dba67f4b5886af8470077d7ff7813c1935e35c16f8578a1faba04ad91b",
+        "size_bytes": 499200
       },
       {
         "sequence": 8,
         "title": "6. Why Bags Go Missing",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_08.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/08_section.mp3",
+        "filename": "08_section.mp3",
+        "sha256": "eced2cea2d8bc2a4fa05d80f83bed616f2a7786dbda56f7bd61f76a279298ced",
+        "size_bytes": 559488
       },
       {
         "sequence": 9,
         "title": "7. The People Keeping It Moving",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_09.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/09_section.mp3",
+        "filename": "09_section.mp3",
+        "sha256": "ebd19f60df53dc03a392f02bf1086b9d5b3e8dc4312c4b331094520e28854509",
+        "size_bytes": 439296
       },
       {
         "sequence": 10,
         "title": "8. The Final Reveal",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_10.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/10_section.mp3",
+        "filename": "10_section.mp3",
+        "sha256": "097b7d981984c8d8190255fd2acc8f6a146093b1440801c6b082710ef926397f",
+        "size_bytes": 499200
       },
       {
         "sequence": 11,
         "title": "Conclusion",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_11.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/11_section.mp3",
+        "filename": "11_section.mp3",
+        "sha256": "df6ff623000f9da03eaa7ad22c88b49a77a1ffdf9f7bb67aaac267d0a6339d4d",
+        "size_bytes": 357888
       },
       {
         "sequence": 12,
         "title": "Call to Action",
-        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_12.mp3"
+        "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/sections/12_section.mp3",
+        "filename": "12_section.mp3",
+        "sha256": "1d71f2c07df47bb987eb8331327a92f5f7ee83eb80650ba452f0be85a713608b",
+        "size_bytes": 151296
       }
     ],
     "combined_audio": {
       "filename": "narration_track.mp3",
-      "relative_path": "agents/audio_assembly/output/hiddenova/assembled/2026-07-15_17-46-02/narration_track.mp3",
+      "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_002/hiddenova_video_002_v1/migrated_audio/assembly/narration_track.mp3",
       "format": "mp3",
-      "size_bytes": 5677100
+      "size_bytes": 5677100,
+      "sha256": "86a12bbf96257dccf53a9a4aaf8be13a8e495557aecd9fcd804076910b618f57"
     }
   },
   "readiness": {
     "audio_qa_approved": true,
     "sections_loaded": 12,
     "combined_audio_ready": true,
-    "blocking_notes": []
+    "blocking_notes": [],
+    "asset_registry_ownership": true,
+    "cross_video_asset_reuse": false
   },
   "source": {
     "source_agents": [
@@ -87,9 +126,14 @@
       "audio_qa"
     ],
     "voice_generation_reference": "agents/voice_generation/output/hiddenova/latest.json",
-    "audio_qa_reference": "agents/audio_qa/output/hiddenova/latest.json"
+    "audio_qa_reference": "agents/audio_qa/output/hiddenova/latest.json",
+    "video_id": "video_002",
+    "run_id": "hiddenova_video_002_v1",
+    "asset_registry_reference": "records/assets/asset_usage_registry.json"
   },
   "metadata": {
     "next_agent": "video_assembly"
-  }
+  },
+  "video_id": "video_002",
+  "run_id": "hiddenova_video_002_v1"
 }

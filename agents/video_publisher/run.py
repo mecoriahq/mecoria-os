@@ -22,6 +22,11 @@ from core.video_run_context import (
 )
 
 
+from core.asset_usage_registry import (
+    assert_asset_registered,
+)
+
+
 def load_json(path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(f"Required file not found: {path}")
@@ -225,6 +230,66 @@ def main() -> None:
         raise FileNotFoundError(
             f"Video file not found: {video_path}"
         )
+
+    if not thumbnail_record:
+        raise ValueError(
+            "Production publisher requires thumbnail_record."
+        )
+
+    thumbnail_sha256 = thumbnail_record.get(
+        "thumbnail",
+        {}
+    ).get("sha256")
+
+    if not thumbnail_sha256:
+        raise ValueError(
+            "Thumbnail SHA-256 fingerprint is missing."
+        )
+
+    video_sha256 = (
+        video_qa_data.get(
+            "summary",
+            {}
+        ).get("video_sha256")
+        or video_qa_data.get(
+            "source",
+            {}
+        ).get("video_sha256")
+    )
+
+    if not video_sha256:
+        raise ValueError(
+            "Final video SHA-256 fingerprint is missing."
+        )
+
+    qa_video_id = video_qa_data.get(
+        "source",
+        {}
+    ).get("video_id")
+    qa_run_id = video_qa_data.get(
+        "source",
+        {}
+    ).get("run_id")
+
+    if qa_video_id != video_id:
+        raise ValueError("Video QA video_id mismatch.")
+
+    if qa_run_id != context["run_id"]:
+        raise ValueError("Video QA run_id mismatch.")
+
+    assert_asset_registered(
+        path=thumbnail_path,
+        channel=channel,
+        video_id=video_id,
+        expected_sha256=thumbnail_sha256
+    )
+
+    assert_asset_registered(
+        path=video_path,
+        channel=channel,
+        video_id=video_id,
+        expected_sha256=video_sha256
+    )
 
     package = {
         "agent": "publisher",

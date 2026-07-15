@@ -25,6 +25,11 @@ from core.video_run_context import (
     set_status,
 )
 
+
+from core.asset_usage_registry import (
+    assert_asset_registered,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_SOURCE_AGENT = "hybrid_video_assembly"
 
@@ -147,7 +152,13 @@ def parse_media_info(video_path: Path) -> dict:
     }
 
 
-def build_output(channel: str, source_agent: str, source_path: Path, source_data: dict) -> dict:
+def build_output(
+    channel: str,
+    source_agent: str,
+    source_path: Path,
+    source_data: dict,
+    context: dict | None = None
+) -> dict:
     issues = []
     warnings = []
 
@@ -164,6 +175,40 @@ def build_output(channel: str, source_agent: str, source_path: Path, source_data
 
     if not video_path.exists():
         raise FileNotFoundError(f"Video file not found: {video_path}")
+
+    video_sha256 = video_data.get("sha256")
+
+    if context:
+        source_video_id = source_data.get(
+            "source",
+            {}
+        ).get("video_id")
+        source_run_id = source_data.get(
+            "source",
+            {}
+        ).get("run_id")
+
+        if source_video_id != context["video_id"]:
+            raise ValueError(
+                "Hybrid video output video_id mismatch."
+            )
+
+        if source_run_id != context["run_id"]:
+            raise ValueError(
+                "Hybrid video output run_id mismatch."
+            )
+
+        if not video_sha256:
+            raise ValueError(
+                "Final video has no SHA-256 fingerprint."
+            )
+
+        assert_asset_registered(
+            path=video_path,
+            channel=context["channel"],
+            video_id=context["video_id"],
+            expected_sha256=video_sha256
+        )
 
     size_bytes = video_path.stat().st_size
     media_info = parse_media_info(video_path)
@@ -222,6 +267,7 @@ def build_output(channel: str, source_agent: str, source_path: Path, source_data
         "summary": {
             "source_agent": source_agent,
             "video_path": get_relative_path(video_path),
+            "video_sha256": video_sha256,
             "duration_seconds": duration_seconds,
             "size_bytes": size_bytes,
             "resolution": f"{media_info['width']}x{media_info['height']}",
@@ -240,6 +286,9 @@ def build_output(channel: str, source_agent: str, source_path: Path, source_data
             "duration_ok": bool(duration_seconds and duration_seconds >= MIN_DURATION_SECONDS),
             "resolution_ok": media_info["width"] == TARGET_WIDTH and media_info["height"] == TARGET_HEIGHT,
             "fps_ok": bool(media_info["fps"] and MIN_FPS <= media_info["fps"] <= MAX_FPS),
+            "asset_registry_ownership": (
+                True if context else None
+            ),
             "issues": issues,
             "warnings": warnings
         },
@@ -258,6 +307,13 @@ def build_output(channel: str, source_agent: str, source_path: Path, source_data
             "source_agent": source_agent,
             "source_reference": get_relative_path(source_path),
             "video_reference": get_relative_path(video_path),
+            "video_sha256": video_sha256,
+            "video_id": (
+                context["video_id"] if context else None
+            ),
+            "run_id": (
+                context["run_id"] if context else None
+            ),
             "title": source_data.get("source", {}).get("title")
         },
         "metadata": {
@@ -372,7 +428,8 @@ def main() -> None:
         channel=channel,
         source_agent=source_agent,
         source_path=source_path,
-        source_data=source_data
+        source_data=source_data,
+        context=context
     )
 
     if context:

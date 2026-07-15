@@ -30,6 +30,8 @@ from core.video_run_context import (
 
 from core.asset_usage_registry import (
     assert_asset_registered,
+    build_asset_record,
+    register_asset_batch,
 )
 
 DEFAULT_CHANNEL = "hiddenova"
@@ -232,9 +234,37 @@ def get_relative_path(path: Path) -> str:
     return str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
 
 
-def get_output_dir(channel: str) -> Path:
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    output_dir = BASE_DIR / "output" / channel.lower() / "drafts" / timestamp
+def get_output_dir(
+    channel: str,
+    video_id: str | None = None,
+    run_id: str | None = None
+) -> Path:
+    if video_id:
+        if not run_id:
+            raise ValueError(
+                "run_id is required for video-specific render output."
+            )
+
+        output_dir = (
+            BASE_DIR
+            / "output"
+            / channel.lower()
+            / video_id.lower()
+            / run_id
+            / "render"
+        )
+    else:
+        timestamp = datetime.now().strftime(
+            "%Y-%m-%d_%H-%M-%S"
+        )
+        output_dir = (
+            BASE_DIR
+            / "output"
+            / channel.lower()
+            / "drafts"
+            / timestamp
+        )
+
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
 
@@ -362,6 +392,61 @@ def get_audio_path(audio_data: dict) -> Path:
         raise FileNotFoundError(f"Combined audio file not found: {audio_path}")
 
     return audio_path
+
+
+
+def validate_audio_asset_ownership(
+    audio_data: dict,
+    audio_path: Path,
+    context: dict
+) -> None:
+    audio_video_id = (
+        audio_data.get("video_id")
+        or audio_data.get("source", {}).get("video_id")
+    )
+    audio_run_id = (
+        audio_data.get("run_id")
+        or audio_data.get("source", {}).get("run_id")
+    )
+
+    if audio_video_id != context["video_id"]:
+        raise ValueError(
+            "Audio assembly video_id mismatch."
+        )
+
+    if audio_run_id != context["run_id"]:
+        raise ValueError(
+            "Audio assembly run_id mismatch."
+        )
+
+    combined = audio_data.get(
+        "audio",
+        {}
+    ).get("combined_audio", {})
+
+    expected_sha256 = combined.get("sha256")
+
+    if not expected_sha256:
+        raise ValueError(
+            "Narration audio has no SHA-256 fingerprint."
+        )
+
+    declared_path = combined.get("relative_path")
+
+    if (
+        not declared_path
+        or PROJECT_ROOT / declared_path != audio_path
+    ):
+        raise ValueError(
+            "Narration audio path does not match assembly record."
+        )
+
+    assert_asset_registered(
+        path=audio_path,
+        channel=context["channel"],
+        video_id=context["video_id"],
+        expected_sha256=expected_sha256
+    )
 
 
 def preferred_stock_sort_key(
@@ -1311,6 +1396,19 @@ def save_video_specific_output(
         status="draft_ready"
     )
 
+    video_reference = data.get(
+        "video",
+        {}
+    ).get("relative_path")
+
+    if video_reference:
+        context = register_output(
+            context=context,
+            agent="final_video",
+            reference=video_reference,
+            status="draft_ready"
+        )
+
     if context.get("status") not in {
         "uploaded_for_founder_review",
         "published",
@@ -1452,6 +1550,13 @@ def main() -> None:
 
     audio_path = get_audio_path(audio_data)
 
+    if context:
+        validate_audio_asset_ownership(
+            audio_data=audio_data,
+            audio_path=audio_path,
+            context=context
+        )
+
     print(f"SELECTED_AUDIO_ASSEMBLY_PATH: {get_relative_path(audio_assembly_path)}")
     print(f"SELECTED_AUDIO_FILE_PATH: {get_relative_path(audio_path)}")
     print(f"SELECTED_STOCK_MANIFEST_PATH: {get_relative_path(stock_manifest_path)}")
@@ -1564,7 +1669,11 @@ def main() -> None:
         )
         return
 
-    output_dir = get_output_dir(channel)
+    output_dir = get_output_dir(
+        channel=channel,
+        video_id=video_id,
+        run_id=context["run_id"] if context else None
+    )
 
     video_path, render_summary = assemble_hybrid_video(
         audio_path=audio_path,
@@ -1575,6 +1684,34 @@ def main() -> None:
     )
 
     render_summary.update(stock_report)
+
+    final_video_record = None
+    final_video_registry_path = None
+
+    if context:
+        final_video_record = build_asset_record(
+            path=video_path,
+            asset_type="final_video",
+            channel=context["channel"],
+            video_id=context["video_id"],
+            run_id=context["run_id"],
+            shared_brand_asset=False
+        )
+
+        final_video_registry_path = register_asset_batch(
+            records=[final_video_record]
+        )
+
+        context.setdefault(
+            "quality_gates",
+            {}
+        ).update({
+            "allow_cross_video_asset_reuse": False,
+            "require_audio_asset_registry_ownership": True,
+            "require_final_video_asset_registry_ownership": True
+        })
+
+        save_context(context)
 
     final_output = build_output(
         channel=channel,
@@ -1589,6 +1726,23 @@ def main() -> None:
         video_path=video_path,
         summary=render_summary
     )
+
+    if context and final_video_record:
+        final_output["video"]["sha256"] = (
+            final_video_record["sha256"]
+        )
+        final_output["video"][
+            "asset_registry_reference"
+        ] = get_relative_path(
+            final_video_registry_path
+        )
+        final_output["source"].update({
+            "video_id": context["video_id"],
+            "run_id": context["run_id"],
+            "asset_registry_reference": get_relative_path(
+                final_video_registry_path
+            )
+        })
 
     schema = load_schema()
     validate(instance=final_output, schema=schema)
