@@ -1,0 +1,23 @@
+{
+  "record_type": "hybrid_video_assembly_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-15T15:36:04",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "hybrid_video_draft_ready",
+  "script_title": "The Hidden System That Moves Your Luggage After Check-In",
+  "seo_title": "What Really Happens to Your Luggage After Check-In?",
+  "thumbnail_text": "WHERE BAGS GO",
+  "source_output": "agents/hybrid_video_assembly/output/hiddenova/latest.json",
+  "assembly_agent_status": "draft_ready",
+  "draft_video_path": "agents/hybrid_video_assembly/output/hiddenova/drafts/2026-07-15_15-35-25/hybrid_video_draft.mp4",
+  "draft_video_size_bytes": 244495568,
+  "draft_video_size_mb": 233.17,
+  "draft_duration_seconds": 707.2,
+  "expected_audio_duration_seconds": 998.45,
+  "stock_item_count": 17,
+  "matched_stock_item_count": 17,
+  "largest_output_list_path": "root.readiness.blocking_notes",
+  "largest_output_list_count": 2,
+  "next_agent": "video_qa"
+}
