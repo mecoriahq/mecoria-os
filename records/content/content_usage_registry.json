@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-15T20:39:41.088148+00:00",
+  "updated_at": "2026-07-15T20:55:10.644335+00:00",
   "records": {
     "script": [
       {
@@ -94,6 +94,18 @@
         "word_count": 528,
         "similarity_threshold": 0.88,
         "registered_at": "2026-07-15T19:47:04.865692+00:00"
+      },
+      {
+        "record_type": "visual_plan",
+        "channel": "hiddenova",
+        "video_id": "video_003",
+        "run_id": "hiddenova_video_003_v1",
+        "source_reference": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/visual_plan.json",
+        "exact_sha256": "ac6f956a80f53192484081e9f042656a55caaf7289b190b73a8990a99ad2bb25",
+        "normalized_text": "realistic cinematic 16 9 documentary still of a lonely undersea fiber optic cable crossing a pitch black deep ocean floor cable no thicker than a garden hose faint blue light pulsing through a small exposed section suspended particles in the water vast darkness around it moody high contrast lighting no text no logos no labels hook reveal the hidden fragile backbone beneath the sea premium documentary cgi style still of earth from low orbit at night thin glowing submarine fiber routes crossing the atlantic and pacific between continents subtle coastlines and city lights the ocean presented as part of the network elegant realistic lighting no country names no labels no text no logos 16 9 ocean floor network show global cables as a physical network across oceans extreme macro cinematic still of hair thin glass fiber strands inside an undersea cable cross section tiny pulses of blue and amber light traveling through transparent fibers surrounding protective steel and insulation layers visible shallow depth of field realistic engineering detail dark premium background no text no labels no logos 16 9 fiber optics explain data moving as light through glass strands realistic underwater documentary still of a large ship anchor dragging through sandy seabed near a submarine cable disturbed sediment cloud rising cable pulled taut and partially exposed tense cinematic lighting from above no visible ship branding no text no labels no logos 16 9 cable break depict a common failure caused by human activity cinematic abstract realistic network visualization over a dark ocean map one undersea route dimmed at a break point while glowing data streams curve around through alternate oceanic paths and landing points sense of dynamic rerouting and congestion premium documentary graphics style no readable interface no labels no text no logos 16 9 rerouting traffic visualize data avoiding the broken route realistic cinematic interior of a large modern data center corridor with rows of server racks receding into depth cool blue lighting overlaid subtle non textual glowing connection lines branching toward several distant regions one line dark while others glow brighter no readable screens no logos no text no labels 16 9 redundancy show multiple systems absorbing traffic after failure premium documentary still of a specialized cable repair ship leaving a gray harbor under heavy storm clouds large cable handling equipment and winches visible on deck rough water small crew silhouettes in safety gear serious cinematic atmosphere no vessel name no logos no readable markings no text 16 9 finding the break introduce the human repair response at sea cinematic close up documentary still inside a shipboard cable room technician hands carefully aligning and splicing delicate fiber optic strands under a precision tool warm work light against dark surroundings repaired cable joint housing nearby human expertise and fragile glass emphasized no readable instruments no text no labels no logos 16 9 conclusion show restoration through precise human engineering cinematic underwater scene on a dark ocean floor one dominant subject a severed undersea fiber optic cable lying in silt torn armor strands visible faint blue white light glowing from the broken core deep black water fading into darkness dramatic side lighting high contrast large clean negative space on the left for title text realistic premium documentary style 16 9 no text no logos no labels when cables snap left how the internet survives a broken cable under the ocean",
+        "word_count": 560,
+        "similarity_threshold": 0.88,
+        "registered_at": "2026-07-15T20:55:10.644217+00:00"
       }
     ]
   }

@@ -3,7 +3,7 @@
   "channel": "hiddenova",
   "video_id": "video_003",
   "run_id": "hiddenova_video_003_v1",
-  "status": "content_qa_ready",
+  "status": "visual_assets_ready",
   "topic_title": "How the Internet Survives a Broken Cable Under the Ocean",
   "sources": {
     "research": "records/run_contexts/hiddenova/video_003/inputs/research.json",
@@ -12,7 +12,17 @@
   "outputs": {
     "script": "agents/script/output/hiddenova/video_003/hiddenova_video_003_v1/script.json",
     "seo": "agents/seo/output/hiddenova/video_003/hiddenova_video_003_v1/seo.json",
-    "qa": "agents/qa/output/hiddenova/video_003/hiddenova_video_003_v1/qa.json"
+    "qa": "agents/qa/output/hiddenova/video_003/hiddenova_video_003_v1/qa.json",
+    "voice": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/voice.json",
+    "voice_generation": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/voice_generation.json",
+    "audio_qa": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/audio_qa.json",
+    "audio_assembly": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/audio_assembly.json",
+    "narration_audio": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/assembled/narration_track.mp3",
+    "visual_plan": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/visual_plan.json",
+    "ai_visual_generation": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/ai_visual_generation.json",
+    "ai_visual_qa": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/ai_visual_qa.json",
+    "thumbnail": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.jpg",
+    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.json"
   },
   "quality_gates": {
     "no_latest_json_sources": true,
@@ -33,9 +43,13 @@
     "require_topic_novelty": true,
     "allow_topic_reuse": false,
     "require_content_fingerprint": true,
-    "allow_cross_video_content_reuse": false
+    "allow_cross_video_content_reuse": false,
+    "allow_cross_video_asset_reuse": false,
+    "require_audio_asset_registry_ownership": true,
+    "require_visual_asset_registry_ownership": true,
+    "require_thumbnail_asset_registry_ownership": true
   },
-  "next_agent": "video_audio_pipeline",
+  "next_agent": "hybrid_video_assembly",
   "release": {
     "topic_approved": true,
     "public_release_approved": false,
@@ -117,8 +131,74 @@
       "status": "approved",
       "recorded_at": "2026-07-15T20:39:41.088896+00:00",
       "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-15T20:43:51.059485+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "voice",
+      "status": "narration_ready",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/voice.json",
+      "recorded_at": "2026-07-15T20:45:05.147946+00:00"
+    },
+    {
+      "agent": "voice_generation",
+      "status": "audio_ready",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/voice_generation.json",
+      "recorded_at": "2026-07-15T20:45:05.147977+00:00"
+    },
+    {
+      "agent": "audio_qa",
+      "status": "approved",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/audio_qa.json",
+      "recorded_at": "2026-07-15T20:45:05.148001+00:00"
+    },
+    {
+      "agent": "audio_assembly",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/audio_assembly.json",
+      "recorded_at": "2026-07-15T20:45:05.148025+00:00"
+    },
+    {
+      "agent": "narration_audio",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/assembled/narration_track.mp3",
+      "recorded_at": "2026-07-15T20:45:05.148049+00:00"
+    },
+    {
+      "agent": "visual_plan",
+      "status": "plan_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/visual_plan.json",
+      "recorded_at": "2026-07-15T20:53:40.364226+00:00"
+    },
+    {
+      "agent": "ai_visual_generation",
+      "status": "images_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/ai_visual_generation.json",
+      "recorded_at": "2026-07-15T20:53:40.364266+00:00"
+    },
+    {
+      "agent": "ai_visual_qa",
+      "status": "approved",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/ai_visual_qa.json",
+      "recorded_at": "2026-07-15T20:53:40.364298+00:00"
+    },
+    {
+      "agent": "thumbnail",
+      "status": "thumbnail_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.jpg",
+      "recorded_at": "2026-07-15T20:53:40.364305+00:00"
+    },
+    {
+      "agent": "thumbnail_record",
+      "status": "thumbnail_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.json",
+      "recorded_at": "2026-07-15T20:53:40.364332+00:00"
     }
   ],
   "created_at": "2026-07-15T20:08:11.765809+00:00",
-  "updated_at": "2026-07-15T20:39:41.088906+00:00"
+  "updated_at": "2026-07-15T20:53:40.364339+00:00"
 }

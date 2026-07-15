@@ -799,12 +799,24 @@ def register_visual_asset_ownership(
     return registry_path
 
 
+
+def existing_image_is_valid(path: Path) -> bool:
+    if not path.exists():
+        return False
+
+    try:
+        return inspect_image(path)["approved"] is True
+    except Exception:
+        return False
+
+
 def generate_outputs(
     context: dict,
     plan: dict,
     image_model: str,
     image_size: str,
-    image_quality: str
+    image_quality: str,
+    force_regenerate: bool = False
 ) -> dict:
     channel = context["channel"]
     video_id = context["video_id"]
@@ -818,8 +830,16 @@ def generate_outputs(
     output_dir.mkdir(parents=True, exist_ok=True)
     image_dir.mkdir(parents=True, exist_ok=True)
 
-    client = OpenAI()
+    client = None
     generated_images = []
+
+    def get_image_client() -> OpenAI:
+        nonlocal client
+
+        if client is None:
+            client = OpenAI()
+
+        return client
 
     for item in plan["ai_visual_insert_plan"]["items"]:
         insert_id = item["insert_id"]
@@ -832,20 +852,33 @@ def generate_outputs(
             f"Must avoid: {item['negative_prompt']}."
         )
 
-        print(
-            f"Generating {insert_id}: {item['section_hint']}",
-            flush=True
+        reuse_image = (
+            not force_regenerate
+            and existing_image_is_valid(image_path)
         )
 
-        image_path.write_bytes(
-            generate_image_bytes(
-                client=client,
-                model=image_model,
-                prompt=full_prompt,
-                size=image_size,
-                quality=image_quality
+        if reuse_image:
+            print(
+                f"Reusing existing {insert_id}: "
+                f"{item['section_hint']}",
+                flush=True
             )
-        )
+        else:
+            print(
+                f"Generating {insert_id}: "
+                f"{item['section_hint']}",
+                flush=True
+            )
+
+            image_path.write_bytes(
+                generate_image_bytes(
+                    client=get_image_client(),
+                    model=image_model,
+                    prompt=full_prompt,
+                    size=image_size,
+                    quality=image_quality
+                )
+            )
 
         generated_images.append({
             "insert_id": insert_id,
@@ -881,26 +914,53 @@ def generate_outputs(
         "barcodes, private data, or unrelated imagery."
     )
 
-    print("Generating thumbnail background.", flush=True)
-
-    thumbnail_background_path.write_bytes(
-        generate_image_bytes(
-            client=client,
-            model=image_model,
-            prompt=thumbnail_prompt,
-            size=image_size,
-            quality=image_quality
+    reuse_thumbnail_background = (
+        not force_regenerate
+        and existing_image_is_valid(
+            thumbnail_background_path
         )
     )
 
+    if reuse_thumbnail_background:
+        print(
+            "Reusing existing thumbnail background.",
+            flush=True
+        )
+    else:
+        print(
+            "Generating thumbnail background.",
+            flush=True
+        )
+
+        thumbnail_background_path.write_bytes(
+            generate_image_bytes(
+                client=get_image_client(),
+                model=image_model,
+                prompt=thumbnail_prompt,
+                size=image_size,
+                quality=image_quality
+            )
+        )
+
     thumbnail_path = output_dir / "thumbnail.jpg"
 
-    create_thumbnail(
-        background_path=thumbnail_background_path,
-        output_path=thumbnail_path,
-        overlay_text=plan["thumbnail"]["overlay_text"],
-        text_position=plan["thumbnail"]["text_position"]
+    reuse_thumbnail = (
+        not force_regenerate
+        and existing_image_is_valid(thumbnail_path)
     )
+
+    if reuse_thumbnail:
+        print(
+            "Reusing existing final thumbnail.",
+            flush=True
+        )
+    else:
+        create_thumbnail(
+            background_path=thumbnail_background_path,
+            output_path=thumbnail_path,
+            overlay_text=plan["thumbnail"]["overlay_text"],
+            text_position=plan["thumbnail"]["text_position"]
+        )
 
     generation_output = {
         "agent": "ai_visual_generation",
@@ -1012,13 +1072,13 @@ def generate_outputs(
             "height": 720,
             "text_style": {
                 "size": "large",
-                "two_color": true,
+                "two_color": True,
                 "colors": [
                     "white",
                     "yellow"
                 ],
                 "stroke": "black",
-                "mobile_readable": true
+                "mobile_readable": True
             }
         }
     }
@@ -1101,6 +1161,14 @@ def parse_args() -> argparse.Namespace:
         default=os.getenv(
             "OPENAI_IMAGE_QUALITY",
             "medium"
+        )
+    )
+    parser.add_argument(
+        "--force-regenerate",
+        action="store_true",
+        help=(
+            "Regenerate visual assets even when valid "
+            "video-specific files already exist."
         )
     )
     parser.add_argument(
@@ -1217,26 +1285,62 @@ def main() -> None:
         print(f"OUTPUT_DIR: {relative_path(output_dir)}")
         return
 
-    plan = build_dynamic_plan(
-        context=context,
-        script_data=script_data,
-        seo_data=seo_data,
-        visual_asset_plan_data=visual_asset_plan_data,
-        thumbnail_strategy_data=thumbnail_strategy_data,
-        text_model=args.text_model,
-        image_count=args.image_count
-    )
-
     output_dir.mkdir(parents=True, exist_ok=True)
     plan_path = output_dir / "visual_plan.json"
-    save_json(plan_path, plan)
+
+    if (
+        plan_path.exists()
+        and not args.force_regenerate
+    ):
+        plan = load_json(plan_path)
+
+        if plan.get("channel") != context["channel"]:
+            raise ValueError(
+                "Existing visual plan channel mismatch."
+            )
+
+        if plan.get("video_id") != context["video_id"]:
+            raise ValueError(
+                "Existing visual plan video_id mismatch."
+            )
+
+        if plan.get("run_id") != context["run_id"]:
+            raise ValueError(
+                "Existing visual plan run_id mismatch."
+            )
+
+        planned_items = plan.get(
+            "ai_visual_insert_plan",
+            {}
+        ).get("items", [])
+
+        if len(planned_items) != args.image_count:
+            raise ValueError(
+                "Existing visual plan insert count mismatch."
+            )
+
+        print("VISUAL_PLAN_MODE: reused_existing")
+    else:
+        plan = build_dynamic_plan(
+            context=context,
+            script_data=script_data,
+            seo_data=seo_data,
+            visual_asset_plan_data=visual_asset_plan_data,
+            thumbnail_strategy_data=thumbnail_strategy_data,
+            text_model=args.text_model,
+            image_count=args.image_count
+        )
+
+        save_json(plan_path, plan)
+        print("VISUAL_PLAN_MODE: generated")
 
     outputs = generate_outputs(
         context=context,
         plan=plan,
         image_model=args.image_model,
         image_size=args.image_size,
-        image_quality=args.image_quality
+        image_quality=args.image_quality,
+        force_regenerate=args.force_regenerate
     )
 
     context.setdefault(
