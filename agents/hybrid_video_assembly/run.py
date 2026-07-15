@@ -48,17 +48,61 @@ def load_schema() -> dict:
     return load_json(BASE_DIR / "schema.json")
 
 
-def get_audio_assembly_latest_path(channel: str, video_id: str | None = None) -> Path:
-    audio_assembly_path = PROJECT_ROOT / "agents" / "audio_assembly" / "output" / channel.lower() / "latest.json"
-    extended_audio_path = PROJECT_ROOT / "agents" / "intro_outro_audio_assembly" / "output" / channel.lower() / "latest.json"
-
+def get_audio_assembly_latest_path(
+    channel: str,
+    video_id: str | None = None
+) -> Path:
     if video_id:
-        return audio_assembly_path
+        context_path = (
+            PROJECT_ROOT
+            / "records"
+            / "run_contexts"
+            / channel.lower()
+            / f"{video_id.lower()}.json"
+        )
+        context_data = load_json(context_path)
+
+        reference = (
+            context_data.get("outputs", {}).get("audio_assembly")
+            or context_data.get("sources", {}).get("audio_assembly")
+        )
+
+        if not reference:
+            raise ValueError(
+                "Run context has no audio_assembly reference."
+            )
+
+        normalized = reference.replace("\\", "/").lower()
+
+        if normalized.endswith("/latest.json"):
+            raise ValueError(
+                "Production audio source cannot use latest.json."
+            )
+
+        return PROJECT_ROOT / reference
+
+    extended_audio_path = (
+        PROJECT_ROOT
+        / "agents"
+        / "intro_outro_audio_assembly"
+        / "output"
+        / channel.lower()
+        / "latest.json"
+    )
+    audio_assembly_path = (
+        PROJECT_ROOT
+        / "agents"
+        / "audio_assembly"
+        / "output"
+        / channel.lower()
+        / "latest.json"
+    )
 
     if extended_audio_path.exists():
         return extended_audio_path
 
     return audio_assembly_path
+
 
 
 def get_publisher_latest_path(channel: str) -> Path:
