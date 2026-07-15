@@ -705,16 +705,85 @@ def validate_stock_repetition(
     }
 
 
-def load_ai_specs(ai_generation_data: dict, ai_qa_data: dict) -> list[dict]:
+def load_ai_specs(
+    ai_generation_data: dict,
+    ai_qa_data: dict,
+    channel: str,
+    video_id: str | None
+) -> list[dict]:
+    if video_id:
+        generation_video_id = (
+            ai_generation_data.get(
+                "source",
+                {}
+            ).get("video_id")
+            or ai_generation_data.get("video_id")
+        )
+
+        qa_video_id = (
+            ai_qa_data.get(
+                "source",
+                {}
+            ).get("video_id")
+            or ai_qa_data.get("video_id")
+        )
+
+        if generation_video_id != video_id:
+            raise ValueError(
+                "AI visual generation video_id mismatch."
+            )
+
+        if qa_video_id != video_id:
+            raise ValueError(
+                "AI visual QA video_id mismatch."
+            )
+
+        qa_checks = ai_qa_data.get(
+            "checks",
+            {}
+        )
+
+        if not qa_checks.get(
+            "cross_video_asset_reuse"
+        ):
+            raise ValueError(
+                "AI visual cross-video reuse gate is missing."
+            )
+
+        if not qa_checks.get(
+            "asset_registry_ownership"
+        ):
+            raise ValueError(
+                "AI visual registry ownership gate is missing."
+            )
+
+        if (
+            ai_qa_data.get(
+                "summary",
+                {}
+            ).get("reused_visual_asset_count")
+            != 0
+        ):
+            raise ValueError(
+                "Cross-video AI visual reuse was detected."
+            )
+
     approved_ids = {
         item["insert_id"]
-        for item in ai_qa_data.get("image_checks", [])
+        for item in ai_qa_data.get(
+            "image_checks",
+            []
+        )
         if item.get("approved") is True
     }
 
     specs = []
+    used_hashes = set()
 
-    for item in ai_generation_data.get("generated_images", []):
+    for item in ai_generation_data.get(
+        "generated_images",
+        []
+    ):
         insert_id = item["insert_id"]
 
         if insert_id not in approved_ids:
@@ -723,7 +792,32 @@ def load_ai_specs(ai_generation_data: dict, ai_qa_data: dict) -> list[dict]:
         path = PROJECT_ROOT / item["relative_path"]
 
         if not path.exists():
-            raise FileNotFoundError(f"AI visual image not found: {path}")
+            raise FileNotFoundError(
+                f"AI visual image not found: {path}"
+            )
+
+        if video_id:
+            expected_sha256 = item.get("sha256")
+
+            if not expected_sha256:
+                raise ValueError(
+                    "AI visual has no SHA-256 fingerprint."
+                )
+
+            if expected_sha256 in used_hashes:
+                raise ValueError(
+                    "Duplicate AI visual hash detected "
+                    "inside the current video."
+                )
+
+            assert_asset_registered(
+                path=path,
+                channel=channel,
+                video_id=video_id,
+                expected_sha256=expected_sha256
+            )
+
+            used_hashes.add(expected_sha256)
 
         specs.append({
             "type": "ai_insert",
@@ -732,14 +826,28 @@ def load_ai_specs(ai_generation_data: dict, ai_qa_data: dict) -> list[dict]:
             "section_hint": item["section_hint"],
             "visual_role": item["visual_role"],
             "source_path": path,
-            "source_relative_path": get_relative_path(path),
-            "duration_seconds": int(item.get("target_duration_seconds", 5))
+            "source_relative_path": get_relative_path(
+                path
+            ),
+            "sha256": item.get("sha256"),
+            "duration_seconds": int(
+                item.get(
+                    "target_duration_seconds",
+                    5
+                )
+            )
         })
 
     if not specs:
-        raise ValueError("No approved AI visual inserts found.")
+        raise ValueError(
+            "No approved AI visual inserts found."
+        )
 
-    return sorted(specs, key=lambda item: item["insert_id"])
+    return sorted(
+        specs,
+        key=lambda item: item["insert_id"]
+    )
+
 
 
 def build_hybrid_cycle(stock_specs: list[dict], ai_specs: list[dict]) -> list[dict]:
@@ -1373,7 +1481,9 @@ def main() -> None:
     if ai_inserts_enabled:
         ai_specs = load_ai_specs(
             ai_generation_data=ai_generation_data,
-            ai_qa_data=ai_qa_data
+            ai_qa_data=ai_qa_data,
+            channel=channel,
+            video_id=video_id
         )
     else:
         ai_specs = []

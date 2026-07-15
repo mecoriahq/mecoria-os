@@ -27,6 +27,13 @@ from core.video_run_context import (
     set_status,
 )
 
+
+from core.asset_usage_registry import (
+    build_asset_record,
+    register_asset_batch,
+    validate_asset_batch,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IMAGE_MODEL = "gpt-image-1"
 DEFAULT_TEXT_MODEL = "gpt-5.5"
@@ -631,6 +638,167 @@ def inspect_image(path: Path) -> dict:
     }
 
 
+
+def register_visual_asset_ownership(
+    context: dict,
+    generation_output: dict,
+    qa_output: dict,
+    thumbnail_output: dict
+) -> Path:
+    if qa_output.get("status") != "approved":
+        raise ValueError(
+            "Visual assets cannot be registered before QA approval."
+        )
+
+    records = []
+    used_hashes = {}
+    insert_hashes = {}
+
+    for item in generation_output.get(
+        "generated_images",
+        []
+    ):
+        image_path = PROJECT_ROOT / item["relative_path"]
+
+        record = build_asset_record(
+            path=image_path,
+            asset_type="ai_visual",
+            channel=context["channel"],
+            video_id=context["video_id"],
+            run_id=context["run_id"],
+            shared_brand_asset=False
+        )
+
+        existing_label = used_hashes.get(
+            record["sha256"]
+        )
+
+        if existing_label:
+            raise ValueError(
+                "Duplicate visual content detected inside "
+                f"the current video: {existing_label} and "
+                f"{item['insert_id']}."
+            )
+
+        used_hashes[record["sha256"]] = item[
+            "insert_id"
+        ]
+        insert_hashes[item["insert_id"]] = record[
+            "sha256"
+        ]
+        item["sha256"] = record["sha256"]
+        records.append(record)
+
+    thumbnail_data = thumbnail_output["thumbnail"]
+    thumbnail_path = (
+        PROJECT_ROOT
+        / thumbnail_data["relative_path"]
+    )
+
+    thumbnail_record = build_asset_record(
+        path=thumbnail_path,
+        asset_type="thumbnail",
+        channel=context["channel"],
+        video_id=context["video_id"],
+        run_id=context["run_id"],
+        shared_brand_asset=False
+    )
+
+    if thumbnail_record["sha256"] in used_hashes:
+        raise ValueError(
+            "Thumbnail duplicates an AI visual asset."
+        )
+
+    thumbnail_data["sha256"] = thumbnail_record[
+        "sha256"
+    ]
+    records.append(thumbnail_record)
+
+    for check in qa_output.get(
+        "image_checks",
+        []
+    ):
+        insert_id = check["insert_id"]
+
+        if insert_id not in insert_hashes:
+            raise ValueError(
+                f"Visual QA item has no generated asset: {insert_id}"
+            )
+
+        check["sha256"] = insert_hashes[insert_id]
+
+    validate_asset_batch(records=records)
+
+    registry_path = register_asset_batch(
+        records=records
+    )
+
+    registry_reference = relative_path(
+        registry_path
+    )
+
+    generation_output.setdefault(
+        "summary",
+        {}
+    ).update({
+        "registered_visual_asset_count": len(
+            generation_output.get(
+                "generated_images",
+                []
+            )
+        ),
+        "reused_visual_asset_count": 0,
+        "asset_registry_reference": registry_reference
+    })
+
+    generation_output.setdefault(
+        "source",
+        {}
+    )["asset_registry_reference"] = (
+        registry_reference
+    )
+
+    qa_output.setdefault(
+        "checks",
+        {}
+    ).update({
+        "cross_video_asset_reuse": True,
+        "unique_generated_asset_hashes": True,
+        "asset_registry_ownership": True
+    })
+
+    qa_output.setdefault(
+        "summary",
+        {}
+    ).update({
+        "reused_visual_asset_count": 0,
+        "asset_registry_verified_count": len(
+            generation_output.get(
+                "generated_images",
+                []
+            )
+        )
+    })
+
+    qa_output.setdefault(
+        "source",
+        {}
+    )["asset_registry_reference"] = (
+        registry_reference
+    )
+
+    thumbnail_output.setdefault(
+        "source",
+        {}
+    ).update({
+        "asset_registry_reference": registry_reference,
+        "video_id": context["video_id"],
+        "run_id": context["run_id"]
+    })
+
+    return registry_path
+
+
 def generate_outputs(
     context: dict,
     plan: dict,
@@ -855,6 +1023,18 @@ def generate_outputs(
         }
     }
 
+    registry_path = register_visual_asset_ownership(
+        context=context,
+        generation_output=generation_output,
+        qa_output=qa_output,
+        thumbnail_output=thumbnail_output
+    )
+
+    print(
+        "VISUAL_ASSET_REGISTRY: "
+        f"{relative_path(registry_path)}"
+    )
+
     save_json(
         output_dir / "ai_visual_generation.json",
         generation_output
@@ -1058,6 +1238,16 @@ def main() -> None:
         image_size=args.image_size,
         image_quality=args.image_quality
     )
+
+    context.setdefault(
+        "quality_gates",
+        {}
+    ).update({
+        "allow_cross_video_asset_reuse": False,
+        "require_visual_asset_registry_ownership": True,
+        "require_thumbnail_asset_registry_ownership": True
+    })
+
 
     generated_count = outputs[
         "generation"
