@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import sys
 from pathlib import Path
 
@@ -60,6 +60,10 @@ def main() -> None:
     print(
         "VALIDATED_ASSETS: "
         f"{result['validated_asset_count']}"
+    )
+    print(
+        "VALIDATED_CONTENT_RECORDS: "
+        f"{result['validated_content_record_count']}"
     )
     print(
         "MEDIA_CONTEXT_INTEGRITY: passed"

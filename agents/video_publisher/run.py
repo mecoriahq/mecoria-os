@@ -27,6 +27,14 @@ from core.asset_usage_registry import (
 )
 
 
+from core.content_usage_registry import (
+    register_context_content,
+)
+from core.media_context_integrity import (
+    validate_media_context,
+)
+
+
 def load_json(path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(f"Required file not found: {path}")
@@ -94,6 +102,24 @@ def main() -> None:
         channel=channel,
         video_id=video_id
     )
+
+    content_registration = register_context_content(
+        context=context
+    )
+
+    integrity_result = validate_media_context(
+        context=context
+    )
+
+    print(
+        "CONTENT_FINGERPRINT_RECORDS: "
+        f"{content_registration['record_count']}"
+    )
+    print(
+        "MEDIA_CONTEXT_VALIDATED_ASSETS: "
+        f"{integrity_result['validated_asset_count']}"
+    )
+
 
     script_path = resolve_context_asset(
         context,

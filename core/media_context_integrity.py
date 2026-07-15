@@ -1,9 +1,14 @@
-﻿import json
+import json
 from pathlib import Path
 
 from core.asset_usage_registry import (
     DEFAULT_REGISTRY_PATH,
     assert_asset_registered,
+)
+
+
+from core.content_usage_registry import (
+    assert_context_content_registered,
 )
 from core.video_run_context import (
     PROJECT_ROOT,
@@ -535,6 +540,13 @@ def validate_media_context(
             label="publisher_thumbnail"
         )
 
+    content_result = (
+        assert_context_content_registered(
+            context=context,
+            project_root=project_root
+        )
+    )
+
     return {
         "channel": context["channel"],
         "video_id": context["video_id"],
@@ -543,5 +555,8 @@ def validate_media_context(
             validated_json_records
         ),
         "validated_asset_count": validated_assets,
+        "validated_content_record_count": (
+            content_result["record_count"]
+        ),
         "status": "passed"
     }
