@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from jsonschema import validate
@@ -7,6 +8,18 @@ from jsonschema import validate
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.video_run_context import (
+    load_context,
+    register_output,
+    resolve_output,
+    resolve_source,
+    save_context,
+    set_status,
+)
 
 
 def load_json(path: Path) -> dict:
@@ -26,6 +39,25 @@ def save_json(path: Path, data: dict) -> None:
 
 def relative_path(path: Path) -> str:
     return str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+
+
+def resolve_context_asset(
+    context: dict,
+    key: str
+) -> Path:
+    if key in context.get("outputs", {}):
+        return resolve_output(
+            context=context,
+            key=key
+        )
+
+    if key in context.get("sources", {}):
+        return resolve_source(
+            context=context,
+            key=key
+        )
+
+    raise KeyError(f"Context asset is missing: {key}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,25 +85,44 @@ def main() -> None:
         / f"{video_id}.json"
     )
 
-    context = load_json(context_path)
-
-    if context.get("video_id") != video_id:
-        raise ValueError("Run context video_id mismatch.")
-
-    script_path = PROJECT_ROOT / context["sources"]["script"]
-    seo_path = PROJECT_ROOT / context["sources"]["seo"]
-
-    visual_output_dir = (
-        PROJECT_ROOT
-        / "agents"
-        / "video_visual_pipeline"
-        / "output"
-        / channel
-        / video_id
+    context = load_context(
+        channel=channel,
+        video_id=video_id
     )
 
-    thumbnail_record_path = visual_output_dir / "thumbnail.json"
-    visual_qa_path = visual_output_dir / "ai_visual_qa.json"
+    script_path = resolve_context_asset(
+        context,
+        "script"
+    )
+    seo_path = resolve_context_asset(
+        context,
+        "seo"
+    )
+    visual_qa_path = resolve_context_asset(
+        context,
+        "ai_visual_qa"
+    )
+
+    thumbnail_record_path = None
+
+    if "thumbnail_record" in context.get("outputs", {}):
+        thumbnail_record_path = resolve_context_asset(
+            context,
+            "thumbnail_record"
+        )
+        thumbnail_record = load_json(
+            thumbnail_record_path
+        )
+        thumbnail_path = (
+            PROJECT_ROOT
+            / thumbnail_record["thumbnail"]["relative_path"]
+        )
+    else:
+        thumbnail_record = None
+        thumbnail_path = resolve_context_asset(
+            context,
+            "thumbnail"
+        )
 
     video_qa_reference = context.get(
         "outputs",
@@ -94,24 +145,55 @@ def main() -> None:
 
     script_data = load_json(script_path)
     seo_data = load_json(seo_path)
-    thumbnail_record = load_json(thumbnail_record_path)
     visual_qa_data = load_json(visual_qa_path)
     video_qa_data = load_json(video_qa_path)
 
     if script_data.get("channel") != channel:
         raise ValueError("Script channel mismatch.")
 
-    if thumbnail_record.get("video_id") != video_id:
-        raise ValueError("Thumbnail video_id mismatch.")
+    for name, data in (
+        ("script", script_data),
+        ("seo", seo_data)
+    ):
+        source_video_id = data.get("video_id")
+        source_run_id = data.get("run_id")
+
+        if (
+            name in context.get("outputs", {})
+            and source_video_id != video_id
+        ):
+            raise ValueError(f"{name} video_id mismatch.")
+
+        if (
+            name in context.get("outputs", {})
+            and source_run_id != context["run_id"]
+        ):
+            raise ValueError(f"{name} run_id mismatch.")
+
+    if thumbnail_record:
+        if thumbnail_record.get("video_id") != video_id:
+            raise ValueError("Thumbnail video_id mismatch.")
+
+        if thumbnail_record.get("run_id") != context["run_id"]:
+            raise ValueError("Thumbnail run_id mismatch.")
 
     if visual_qa_data.get("status") != "approved":
         raise ValueError("AI Visual QA is not approved.")
 
-    if (
-        visual_qa_data.get("source", {}).get("video_id")
-        != video_id
-    ):
+    visual_video_id = (
+        visual_qa_data.get("video_id")
+        or visual_qa_data.get("source", {}).get("video_id")
+    )
+    visual_run_id = (
+        visual_qa_data.get("run_id")
+        or visual_qa_data.get("source", {}).get("run_id")
+    )
+
+    if visual_video_id != video_id:
         raise ValueError("AI Visual QA video_id mismatch.")
+
+    if visual_run_id != context["run_id"]:
+        raise ValueError("AI Visual QA run_id mismatch.")
 
     if video_qa_data.get("status") != "approved":
         raise ValueError("Video QA is not approved.")
@@ -123,11 +205,6 @@ def main() -> None:
 
     if not title or not description or not tags:
         raise ValueError("SEO metadata is incomplete.")
-
-    thumbnail_path = (
-        PROJECT_ROOT
-        / thumbnail_record["thumbnail"]["relative_path"]
-    )
 
     video_path_text = (
         video_qa_data.get("summary", {}).get("video_path")
@@ -226,6 +303,7 @@ def main() -> None:
         / "output"
         / channel
         / video_id
+        / context["run_id"]
         / "publisher.json"
     )
 
@@ -241,11 +319,25 @@ def main() -> None:
     save_json(video_output_path, package)
     save_json(legacy_latest_path, package)
 
-    context["status"] = "publisher_ready"
-    context["outputs"]["publisher"] = relative_path(
-        video_output_path
+    context = register_output(
+        context=context,
+        agent="publisher",
+        reference=relative_path(video_output_path),
+        status="upload_ready"
     )
-    save_json(context_path, context)
+
+    if context.get("status") not in {
+        "uploaded_for_founder_review",
+        "published",
+        "public"
+    }:
+        context = set_status(
+            context=context,
+            status="publisher_ready",
+            next_agent="youtube_upload"
+        )
+
+    save_context(context)
 
     print(
         "VIDEO_PUBLISHER_OUTPUT: "

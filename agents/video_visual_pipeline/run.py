@@ -1,9 +1,9 @@
-﻿import argparse
+import argparse
 import base64
 import json
 import os
 import re
-import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -14,6 +14,18 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.video_run_context import (
+    load_context,
+    register_output,
+    resolve_output,
+    resolve_source,
+    save_context,
+    set_status,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IMAGE_MODEL = "gpt-image-1"
@@ -50,152 +62,70 @@ def get_context_path(channel: str, video_id: str) -> Path:
     )
 
 
-def get_context_input_dir(channel: str, video_id: str) -> Path:
+
+def get_output_dir(
+    channel: str,
+    video_id: str,
+    run_id: str
+) -> Path:
     return (
-        PROJECT_ROOT
-        / "records"
-        / "run_contexts"
+        BASE_DIR
+        / "output"
         / channel
         / video_id
-        / "inputs"
+        / run_id
     )
 
 
-def get_output_dir(channel: str, video_id: str) -> Path:
-    return BASE_DIR / "output" / channel / video_id
+def resolve_context_input(
+    context: dict,
+    key: str,
+    required: bool = True
+) -> tuple[Path | None, dict]:
+    source_type = None
 
-
-def get_source_defaults(channel: str, video_id: str) -> dict[str, Path]:
-    return {
-        "script": (
-            PROJECT_ROOT
-            / "agents"
-            / "script"
-            / "output"
-            / channel
-            / "latest.json"
-        ),
-        "seo": (
-            PROJECT_ROOT
-            / "agents"
-            / "seo"
-            / "output"
-            / channel
-            / "latest.json"
-        ),
-        "qa": (
-            PROJECT_ROOT
-            / "agents"
-            / "qa"
-            / "output"
-            / channel
-            / "latest.json"
-        ),
-        "visual_asset_plan": (
-            PROJECT_ROOT
-            / "agents"
-            / "visual_asset_plan"
-            / "output"
-            / channel
-            / "latest.json"
-        ),
-        "thumbnail_strategy": (
-            PROJECT_ROOT
-            / "agents"
-            / "thumbnail_strategy"
-            / "output"
-            / channel
-            / "latest.json"
-        ) if (
-            PROJECT_ROOT
-            / "agents"
-            / "thumbnail_strategy"
-            / "output"
-            / channel
-            / "latest.json"
-        ).exists() else max(
-            (
-                PROJECT_ROOT
-                / "records"
-                / "content"
-                / channel
-            ).glob("*thumbnail_strategy_checkpoint.json"),
-            key=lambda item: item.stat().st_mtime
-        ),
-        "stock_manifest": (
-            PROJECT_ROOT
-            / "records"
-            / "assets"
-            / channel
-            / f"{video_id}_stock_footage_manifest.json"
-        ),
-        "audio_assembly": (
-            PROJECT_ROOT
-            / "agents"
-            / "audio_assembly"
-            / "output"
-            / channel
-            / "latest.json"
+    if key in context.get("outputs", {}):
+        path = resolve_output(
+            context=context,
+            key=key
         )
-    }
+        source_type = "output"
+    elif key in context.get("sources", {}):
+        path = resolve_source(
+            context=context,
+            key=key
+        )
+        source_type = "source"
+    elif required:
+        raise KeyError(f"Context input is missing: {key}")
+    else:
+        return None, {}
 
+    data = load_json(path)
 
-def create_context(
-    channel: str,
-    video_id: str,
-    refresh: bool
-) -> dict:
-    context_path = get_context_path(channel, video_id)
+    source_video_id = data.get("video_id")
+    source_run_id = data.get("run_id")
 
-    if context_path.exists() and not refresh:
-        return load_json(context_path)
+    if source_type == "output":
+        if source_video_id != context["video_id"]:
+            raise ValueError(f"{key} output video_id mismatch.")
 
-    input_dir = get_context_input_dir(channel, video_id)
-    input_dir.mkdir(parents=True, exist_ok=True)
+        if source_run_id != context["run_id"]:
+            raise ValueError(f"{key} output run_id mismatch.")
+    else:
+        if (
+            source_video_id is not None
+            and source_video_id != context["video_id"]
+        ):
+            raise ValueError(f"{key} source video_id mismatch.")
 
-    sources = {}
+        if (
+            source_run_id is not None
+            and source_run_id != context["run_id"]
+        ):
+            raise ValueError(f"{key} source run_id mismatch.")
 
-    for key, source_path in get_source_defaults(channel, video_id).items():
-        if not source_path.exists():
-            raise FileNotFoundError(
-                f"Context source missing: {key} -> {source_path}"
-            )
-
-        snapshot_path = input_dir / f"{key}.json"
-        shutil.copy2(source_path, snapshot_path)
-        sources[key] = relative_path(snapshot_path)
-
-    script_data = load_json(PROJECT_ROOT / sources["script"])
-    title = script_data.get("script", {}).get("title", "").strip()
-
-    if not title:
-        raise ValueError("Script title is missing.")
-
-    context = {
-        "schema_version": "1.0",
-        "channel": channel,
-        "video_id": video_id,
-        "run_id": f"{channel}_{video_id}_v1",
-        "status": "context_ready",
-        "topic_title": title,
-        "sources": sources,
-        "outputs": {},
-        "quality_gates": {
-            "require_ai_visuals": True,
-            "minimum_ai_insert_count": DEFAULT_IMAGE_COUNT,
-            "require_thumbnail": True,
-            "require_founder_review": True
-        }
-    }
-
-    save_json(context_path, context)
-    return context
-
-
-def load_context_source(context: dict, key: str) -> tuple[Path, dict]:
-    source_reference = context["sources"][key]
-    source_path = PROJECT_ROOT / source_reference
-    return source_path, load_json(source_path)
+    return path, data
 
 
 def find_text_value(data, preferred_keys: set[str]) -> str | None:
@@ -307,42 +237,58 @@ def call_text_model(prompt: str, model: str) -> dict:
 def build_dynamic_plan(
     context: dict,
     script_data: dict,
+    seo_data: dict,
     visual_asset_plan_data: dict,
     thumbnail_strategy_data: dict,
     text_model: str,
     image_count: int
 ) -> dict:
     script_payload = script_data.get("script", {})
-    asset_payload = visual_asset_plan_data.get("asset_plan", {})
-    thumbnail_hint = get_thumbnail_hint(thumbnail_strategy_data)
+    seo_payload = seo_data.get("seo", {})
+
+    asset_payload = visual_asset_plan_data.get(
+        "asset_plan",
+        visual_asset_plan_data
+    )
+
+    thumbnail_hint = (
+        get_thumbnail_hint(thumbnail_strategy_data)
+        or normalize_overlay_text(
+            seo_payload.get("thumbnail_text")
+        )
+    )
 
     prompt = f"""
-You are the visual director for Hiddenova, a premium English documentary YouTube channel.
+You are the visual director for Hiddenova, a premium English
+documentary YouTube channel.
 
 Create a topic-specific visual production plan for this exact video.
 
 CHANNEL: {context["channel"]}
 VIDEO_ID: {context["video_id"]}
+RUN_ID: {context["run_id"]}
 VIDEO_TITLE: {context["topic_title"]}
+SEO_TITLE: {seo_payload.get("video_title", "")}
 THUMBNAIL_TEXT_HINT: {thumbnail_hint or "none"}
 
 SCRIPT:
 {json.dumps(script_payload, ensure_ascii=True)}
 
-VISUAL_ASSET_PLAN:
+OPTIONAL_VISUAL_ASSET_PLAN:
 {json.dumps(asset_payload, ensure_ascii=True)}
 
 Return one JSON object with exactly this structure:
+
 {{
   "thumbnail": {{
     "overlay_text": "1 to 4 English words in uppercase",
     "text_position": "left or right",
-    "background_prompt": "cinematic thumbnail background prompt with no text"
+    "background_prompt": "specific cinematic thumbnail background prompt with no text"
   }},
   "inserts": [
     {{
       "section_hint": "short section name",
-      "visual_role": "short role",
+      "visual_role": "short visual role",
       "target_duration_seconds": 5,
       "prompt": "specific cinematic 16:9 documentary still prompt"
     }}
@@ -351,24 +297,34 @@ Return one JSON object with exactly this structure:
 
 Rules:
 - Return exactly {image_count} inserts.
-- Every insert must directly match this luggage and airport baggage topic.
-- Cover hook, baggage identity, conveyors, screening, software routing, failure risk, workers, and final carousel.
-- Each visual must be different.
-- Use realistic documentary imagery.
-- No logos, no readable tags, no barcodes, no airline names, no private data.
-- No fake operational interfaces.
-- No text inside generated images.
-- Thumbnail must be simple, high contrast, mobile readable, and not repeat the full video title.
-- Prefer the supplied thumbnail text hint when it is valid.
+- Every insert must directly match this exact video topic.
+- Cover the hook, key explanations, human/system layer,
+  failure or tension point, and conclusion.
+- Every visual must be meaningfully different.
+- Use realistic premium documentary imagery.
+- Do not reuse imagery from another video topic.
+- No logos, readable labels, barcodes, private data,
+  fake dashboards, or operational interfaces.
+- No embedded text inside generated images.
+- Thumbnail must use one dominant subject.
+- Thumbnail must have strong contrast and clear text space.
+- Thumbnail text must contain 1 to 4 words.
+- Thumbnail text must not repeat the full video title.
+- Prefer the supplied thumbnail hint when valid.
 """
 
-    raw_plan = call_text_model(prompt=prompt, model=text_model)
+    raw_plan = call_text_model(
+        prompt=prompt,
+        model=text_model
+    )
+
     thumbnail = raw_plan.get("thumbnail", {})
     raw_items = raw_plan.get("inserts", [])
 
     if len(raw_items) != image_count:
         raise ValueError(
-            f"Expected {image_count} AI inserts, received {len(raw_items)}."
+            f"Expected {image_count} AI inserts, "
+            f"received {len(raw_items)}."
         )
 
     overlay_text = normalize_overlay_text(
@@ -379,7 +335,9 @@ Rules:
         overlay_text = thumbnail_hint
 
     if not overlay_text:
-        overlay_text = "HIDDEN SYSTEM"
+        raise ValueError(
+            "Thumbnail overlay text is missing or invalid."
+        )
 
     items = []
 
@@ -387,7 +345,9 @@ Rules:
         item_prompt = str(item.get("prompt", "")).strip()
 
         if not item_prompt:
-            raise ValueError(f"AI insert {index} has no prompt.")
+            raise ValueError(
+                f"AI insert {index} has no prompt."
+            )
 
         items.append({
             "insert_id": f"AI-{index:03d}",
@@ -401,9 +361,9 @@ Rules:
             "target_duration_seconds": 5,
             "prompt": item_prompt,
             "negative_prompt": (
-                "no logos, no readable text, no barcodes, no QR codes, "
-                "no airline branding, no private data, no fake UI, "
-                "no distorted hands, no cartoon style"
+                "no logos, no readable text, no barcodes, "
+                "no QR codes, no brand names, no private data, "
+                "no fake UI, no distorted hands, no cartoon style"
             ),
             "status": "planned"
         })
@@ -427,18 +387,18 @@ Rules:
         "ai_visual_insert_plan": {
             "style_rules": [
                 "realistic documentary look",
-                "cinematic airport infrastructure",
-                "dark premium Hiddenova atmosphere",
+                "premium cinematic lighting",
+                "dark Hiddenova atmosphere",
                 "16:9 composition",
                 "no embedded text"
             ],
             "negative_rules": [
+                "no unrelated previous-video imagery",
                 "no logos",
                 "no readable labels",
                 "no barcodes",
                 "no QR codes",
-                "no airline branding",
-                "no private passenger data",
+                "no private information",
                 "no fake operational interface",
                 "no cartoon style"
             ],
@@ -509,6 +469,16 @@ def create_thumbnail(
     overlay_text: str,
     text_position: str
 ) -> None:
+    words = re.findall(
+        r"[A-Za-z0-9]+",
+        overlay_text.upper()
+    )
+
+    if not 1 <= len(words) <= 4:
+        raise ValueError(
+            "Thumbnail text must contain 1 to 4 words."
+        )
+
     with Image.open(background_path) as source:
         image = ImageOps.fit(
             source.convert("RGB"),
@@ -517,63 +487,113 @@ def create_thumbnail(
         )
 
     draw = ImageDraw.Draw(image, "RGBA")
-    font_size = 118
+
+    if len(words) == 1:
+        split_at = max(1, len(words[0]) // 2)
+        line_groups = [
+            [
+                (words[0][:split_at], (255, 255, 255, 255)),
+                (words[0][split_at:], (255, 210, 0, 255))
+            ]
+        ]
+    elif len(words) == 2:
+        line_groups = [
+            [(words[0], (255, 255, 255, 255))],
+            [(words[1], (255, 210, 0, 255))]
+        ]
+    elif len(words) == 3:
+        line_groups = [
+            [(words[0], (255, 255, 255, 255))],
+            [(" ".join(words[1:]), (255, 210, 0, 255))]
+        ]
+    else:
+        line_groups = [
+            [(" ".join(words[:2]), (255, 255, 255, 255))],
+            [(" ".join(words[2:]), (255, 210, 0, 255))]
+        ]
+
+    font_size = 158
     font = get_font(font_size)
 
-    while font_size > 58:
-        box = draw.multiline_textbbox(
-            (0, 0),
-            overlay_text,
-            font=font,
-            spacing=8,
-            stroke_width=6
-        )
+    def line_width(group) -> int:
+        total = 0
 
-        if box[2] - box[0] <= 520:
+        for segment, _ in group:
+            box = draw.textbbox(
+                (0, 0),
+                segment,
+                font=font,
+                stroke_width=10
+            )
+            total += box[2] - box[0]
+
+        return total
+
+    while font_size > 76:
+        widths = [
+            line_width(group)
+            for group in line_groups
+        ]
+
+        if max(widths) <= 570:
             break
 
         font_size -= 6
         font = get_font(font_size)
 
-    x = 70 if text_position == "left" else 700
-    y = 250
-    text_box = draw.multiline_textbbox(
-        (x, y),
-        overlay_text,
-        font=font,
-        spacing=8,
-        stroke_width=7
-    )
+    line_height = font_size + 30
+    total_height = len(line_groups) * line_height
+    y = max(100, int((720 - total_height) / 2))
 
-    padding = 24
-    background_box = (
-        text_box[0] - padding,
-        text_box[1] - padding,
-        text_box[2] + padding,
-        text_box[3] + padding
-    )
+    for group in line_groups:
+        width = line_width(group)
 
-    draw.rounded_rectangle(
-        background_box,
-        radius=18,
-        fill=(0, 0, 0, 150)
-    )
+        x = (
+            70
+            if text_position == "left"
+            else 1210 - width
+        )
 
-    draw.multiline_text(
-        (x, y),
-        overlay_text,
-        font=font,
-        fill=(255, 255, 255, 255),
-        spacing=8,
-        stroke_width=7,
-        stroke_fill=(0, 0, 0, 255)
-    )
+        background_box = (
+            x - 22,
+            y - 14,
+            x + width + 22,
+            y + font_size + 20
+        )
+
+        draw.rounded_rectangle(
+            background_box,
+            radius=18,
+            fill=(0, 0, 0, 155)
+        )
+
+        cursor_x = x
+
+        for segment, color in group:
+            draw.text(
+                (cursor_x, y),
+                segment,
+                font=font,
+                fill=color,
+                stroke_width=10,
+                stroke_fill=(0, 0, 0, 255)
+            )
+
+            box = draw.textbbox(
+                (0, 0),
+                segment,
+                font=font,
+                stroke_width=10
+            )
+            cursor_x += box[2] - box[0]
+
+        y += line_height
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(
         output_path,
         format="JPEG",
-        quality=92,
+        quality=95,
         optimize=True
     )
 
@@ -620,7 +640,11 @@ def generate_outputs(
 ) -> dict:
     channel = context["channel"]
     video_id = context["video_id"]
-    output_dir = get_output_dir(channel, video_id)
+    output_dir = get_output_dir(
+        channel,
+        video_id,
+        context["run_id"]
+    )
     image_dir = output_dir / "images"
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -680,13 +704,13 @@ def generate_outputs(
 
     thumbnail_prompt = (
         f"{plan['thumbnail']['background_prompt']}\n"
+        f"Exact documentary topic: {context['topic_title']}.\n"
         "Create a premium cinematic YouTube documentary thumbnail "
-        "background about airport baggage handling. "
-        "Use one dominant suitcase and visible hidden conveyor "
-        "infrastructure. Keep clear negative space for a short text "
-        f"overlay on the {plan['thumbnail']['text_position']}. "
-        "Do not include any text, logos, airline branding, barcodes, "
-        "or readable luggage tags."
+        "background with one dominant subject and strong visual tension. "
+        "Keep clear negative space for a large short text overlay on the "
+        f"{plan['thumbnail']['text_position']}. "
+        "Do not include any embedded text, logos, brand names, "
+        "barcodes, private data, or unrelated imagery."
     )
 
     print("Generating thumbnail background.", flush=True)
@@ -714,6 +738,8 @@ def generate_outputs(
         "agent": "ai_visual_generation",
         "version": "2.0",
         "channel": channel,
+        "video_id": video_id,
+        "run_id": context["run_id"],
         "status": "images_ready",
         "summary": {
             "planned_insert_count": len(generated_images),
@@ -765,6 +791,8 @@ def generate_outputs(
         "agent": "ai_visual_qa",
         "version": "2.0",
         "channel": channel,
+        "video_id": video_id,
+        "run_id": context["run_id"],
         "status": qa_status,
         "summary": {
             "generated_image_count": len(image_checks),
@@ -813,7 +841,17 @@ def generate_outputs(
             "relative_path": relative_path(thumbnail_path),
             "size_bytes": thumbnail_path.stat().st_size,
             "width": 1280,
-            "height": 720
+            "height": 720,
+            "text_style": {
+                "size": "large",
+                "two_color": true,
+                "colors": [
+                    "white",
+                    "yellow"
+                ],
+                "stroke": "black",
+                "mobile_readable": true
+            }
         }
     }
 
@@ -886,10 +924,6 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        "--refresh-context",
-        action="store_true"
-    )
-    parser.add_argument(
         "--dry-run",
         action="store_true"
     )
@@ -904,49 +938,97 @@ def main() -> None:
 
     load_dotenv(PROJECT_ROOT / ".env")
 
-    context = create_context(
+    context = load_context(
         channel=channel,
-        video_id=video_id,
-        refresh=args.refresh_context
+        video_id=video_id
     )
 
-    script_path, script_data = load_context_source(
-        context,
-        "script"
+    script_path, script_data = resolve_context_input(
+        context=context,
+        key="script"
     )
-    qa_path, qa_data = load_context_source(
-        context,
-        "qa"
+    seo_path, seo_data = resolve_context_input(
+        context=context,
+        key="seo"
     )
-    asset_plan_path, visual_asset_plan_data = load_context_source(
-        context,
-        "visual_asset_plan"
+    qa_path, qa_data = resolve_context_input(
+        context=context,
+        key="qa"
     )
-    thumbnail_strategy_path, thumbnail_strategy_data = (
-        load_context_source(
-            context,
-            "thumbnail_strategy"
+
+    asset_plan_path, visual_asset_plan_data = (
+        resolve_context_input(
+            context=context,
+            key="visual_asset_plan",
+            required=False
         )
     )
 
-    if qa_data.get("status") != "approved":
-        raise ValueError("Script QA is not approved.")
+    thumbnail_strategy_path, thumbnail_strategy_data = (
+        resolve_context_input(
+            context=context,
+            key="thumbnail_strategy",
+            required=False
+        )
+    )
 
-    output_dir = get_output_dir(channel, video_id)
+    if not thumbnail_strategy_data:
+        thumbnail_strategy_data = {
+            "preferred_thumbnail_text": (
+                seo_data.get("seo", {}).get(
+                    "thumbnail_text"
+                )
+            )
+        }
+
+    if qa_data.get("status") != "approved":
+        raise ValueError("Content QA is not approved.")
+
+    minimum_qa_score = context.get(
+        "quality_gates",
+        {}
+    ).get("minimum_content_qa_score", 85)
+
+    if qa_data.get("overall_score", 0) < minimum_qa_score:
+        raise ValueError(
+            "Content QA score is below the required gate."
+        )
+
+    minimum_ai_count = context.get(
+        "quality_gates",
+        {}
+    ).get("minimum_ai_insert_count", DEFAULT_IMAGE_COUNT)
+
+    if args.image_count < minimum_ai_count:
+        raise ValueError(
+            f"AI insert count must be at least {minimum_ai_count}."
+        )
+
+    output_dir = get_output_dir(
+        channel,
+        video_id,
+        context["run_id"]
+    )
 
     print(f"VIDEO_CONTEXT_ID: {video_id}")
     print(f"RUN_ID: {context['run_id']}")
     print(f"VIDEO_TITLE: {context['topic_title']}")
     print(f"SCRIPT_SOURCE: {relative_path(script_path)}")
+    print(f"SEO_SOURCE: {relative_path(seo_path)}")
     print(f"QA_SOURCE: {relative_path(qa_path)}")
-    print(f"ASSET_PLAN_SOURCE: {relative_path(asset_plan_path)}")
+    print(
+        "ASSET_PLAN_SOURCE: "
+        f"{relative_path(asset_plan_path) if asset_plan_path else 'derived'}"
+    )
     print(
         "THUMBNAIL_STRATEGY_SOURCE: "
-        f"{relative_path(thumbnail_strategy_path)}"
+        f"{relative_path(thumbnail_strategy_path) if thumbnail_strategy_path else 'seo'}"
     )
+    print("LATEST_JSON_INPUTS: blocked")
+    print("THUMBNAIL_STYLE: large_two_color")
 
     if args.dry_run:
-        print("STATUS: context_ready")
+        print("STATUS: visual_pipeline_dry_run_ready")
         print(f"PLANNED_AI_INSERT_COUNT: {args.image_count}")
         print(
             "THUMBNAIL_TEXT_HINT: "
@@ -958,6 +1040,7 @@ def main() -> None:
     plan = build_dynamic_plan(
         context=context,
         script_data=script_data,
+        seo_data=seo_data,
         visual_asset_plan_data=visual_asset_plan_data,
         thumbnail_strategy_data=thumbnail_strategy_data,
         text_model=args.text_model,
@@ -976,31 +1059,75 @@ def main() -> None:
         image_quality=args.image_quality
     )
 
-    context["status"] = "visual_assets_ready"
-    context["outputs"].update({
-        "visual_plan": relative_path(plan_path),
-        "ai_visual_generation": relative_path(
+    generated_count = outputs[
+        "generation"
+    ]["summary"]["generated_image_count"]
+
+    if generated_count < minimum_ai_count:
+        raise ValueError(
+            "Generated AI insert count is below the required gate."
+        )
+
+    if outputs["qa"]["status"] != "approved":
+        raise ValueError(
+            "AI visual QA is not approved."
+        )
+
+    context = register_output(
+        context=context,
+        agent="visual_plan",
+        reference=relative_path(plan_path),
+        status="plan_ready"
+    )
+    context = register_output(
+        context=context,
+        agent="ai_visual_generation",
+        reference=relative_path(
             output_dir / "ai_visual_generation.json"
         ),
-        "ai_visual_qa": relative_path(
+        status="images_ready"
+    )
+    context = register_output(
+        context=context,
+        agent="ai_visual_qa",
+        reference=relative_path(
             output_dir / "ai_visual_qa.json"
         ),
-        "thumbnail": outputs["thumbnail"]["thumbnail"][
+        status="approved"
+    )
+    context = register_output(
+        context=context,
+        agent="thumbnail",
+        reference=outputs["thumbnail"]["thumbnail"][
             "relative_path"
-        ]
-    })
+        ],
+        status="thumbnail_ready"
+    )
+    context = register_output(
+        context=context,
+        agent="thumbnail_record",
+        reference=relative_path(
+            output_dir / "thumbnail.json"
+        ),
+        status="thumbnail_ready"
+    )
 
-    save_json(get_context_path(channel, video_id), context)
+    if context.get("status") not in {
+        "uploaded_for_founder_review",
+        "published",
+        "public"
+    }:
+        context = set_status(
+            context=context,
+            status="visual_assets_ready",
+            next_agent="hybrid_video_assembly"
+        )
+
+    save_context(context)
 
     print("Video Visual Pipeline completed successfully.")
-    print(
-        "AI_INSERT_COUNT: "
-        f"{outputs['generation']['summary']['generated_image_count']}"
-    )
-    print(
-        "AI_QA_STATUS: "
-        f"{outputs['qa']['status']}"
-    )
+    print(f"AI_INSERT_COUNT: {generated_count}")
+    print(f"AI_QA_STATUS: {outputs['qa']['status']}")
     print(
         "THUMBNAIL_TEXT: "
         f"{outputs['thumbnail']['thumbnail']['overlay_text']}"

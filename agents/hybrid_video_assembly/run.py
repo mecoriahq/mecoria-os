@@ -130,22 +130,66 @@ def get_stock_manifest_path(channel: str, video_id: str | None = None) -> Path:
     return PROJECT_ROOT / "records" / "assets" / channel.lower() / "stock_footage_manifest.json"
 
 
+def get_video_context_reference_path(
+    channel: str,
+    video_id: str,
+    key: str
+) -> Path:
+    context_path = (
+        PROJECT_ROOT
+        / "records"
+        / "run_contexts"
+        / channel.lower()
+        / f"{video_id.lower()}.json"
+    )
+    context_data = load_json(context_path)
+
+    reference = (
+        context_data.get("outputs", {}).get(key)
+        or context_data.get("sources", {}).get(key)
+    )
+
+    if not reference:
+        raise ValueError(
+            f"Run context has no {key} reference."
+        )
+
+    normalized = reference.replace("\\", "/").lower()
+
+    if normalized.endswith("/latest.json"):
+        raise ValueError(
+            f"Production source cannot use latest.json: {key}"
+        )
+
+    path = PROJECT_ROOT / reference
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Context file not found: {path}"
+        )
+
+    return path
+
+
 def get_ai_generation_latest_path(
     channel: str,
     video_id: str | None = None
 ) -> Path:
     if video_id:
-        return (
-            PROJECT_ROOT
-            / "agents"
-            / "video_visual_pipeline"
-            / "output"
-            / channel.lower()
-            / video_id
-            / "ai_visual_generation.json"
+        return get_video_context_reference_path(
+            channel=channel,
+            video_id=video_id,
+            key="ai_visual_generation"
         )
 
-    return PROJECT_ROOT / "agents" / "ai_visual_generation" / "output" / channel.lower() / "latest.json"
+    return (
+        PROJECT_ROOT
+        / "agents"
+        / "ai_visual_generation"
+        / "output"
+        / channel.lower()
+        / "latest.json"
+    )
 
 
 def get_ai_qa_latest_path(
@@ -153,17 +197,20 @@ def get_ai_qa_latest_path(
     video_id: str | None = None
 ) -> Path:
     if video_id:
-        return (
-            PROJECT_ROOT
-            / "agents"
-            / "video_visual_pipeline"
-            / "output"
-            / channel.lower()
-            / video_id
-            / "ai_visual_qa.json"
+        return get_video_context_reference_path(
+            channel=channel,
+            video_id=video_id,
+            key="ai_visual_qa"
         )
 
-    return PROJECT_ROOT / "agents" / "ai_visual_qa" / "output" / channel.lower() / "latest.json"
+    return (
+        PROJECT_ROOT
+        / "agents"
+        / "ai_visual_qa"
+        / "output"
+        / channel.lower()
+        / "latest.json"
+    )
 
 
 def get_relative_path(path: Path) -> str:
