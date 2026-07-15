@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import os
 import re
@@ -280,7 +280,7 @@ def main() -> None:
             "parent_reference": relative_path(research_path)
         },
         "metadata": {
-            "next_agent": "script"
+            "next_agent": "founder_topic_approval"
         }
     }
 
@@ -291,7 +291,7 @@ def main() -> None:
         "channel": channel,
         "video_id": video_id,
         "run_id": run_id,
-        "status": "idea_selected",
+        "status": "topic_approval_required",
         "topic_title": str(selected_idea["title"]).strip(),
         "sources": {
             "research": relative_path(research_path),
@@ -312,9 +312,14 @@ def main() -> None:
             "thumbnail_text_min_words": 1,
             "thumbnail_text_max_words": 4,
             "thumbnail_two_color_text": True,
-            "require_founder_review": True
+            "require_founder_review": True,
+            "require_topic_approval": True
         },
-        "next_agent": "script",
+        "next_agent": "founder_topic_approval",
+        "release": {
+            "topic_approved": False,
+            "public_release_approved": False
+        },
         "history": [
             {
                 "agent": "content_idea_selector",

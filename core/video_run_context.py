@@ -129,6 +129,33 @@ def assert_identity(
         raise ValueError("Run context run_id mismatch.")
 
 
+def topic_is_approved(context: dict) -> bool:
+    return (
+        context.get("release", {}).get(
+            "topic_approved"
+        )
+        is True
+    )
+
+
+def assert_topic_approved(context: dict) -> None:
+    approval_required = (
+        context.get("quality_gates", {}).get(
+            "require_topic_approval"
+        )
+        is True
+    )
+
+    if (
+        approval_required
+        and not topic_is_approved(context)
+    ):
+        raise ValueError(
+            "Founder topic approval is required "
+            "before content production."
+        )
+
+
 def resolve_source(
     context: dict,
     key: str,

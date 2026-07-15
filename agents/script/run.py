@@ -18,6 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from core.video_run_context import (
+    assert_topic_approved,
     load_context,
     register_output,
     resolve_source,
@@ -261,6 +262,8 @@ def resolve_script_inputs(
         channel=channel,
         video_id=video_id
     )
+
+    assert_topic_approved(context)
 
     research_path = resolve_source(
         context=context,
