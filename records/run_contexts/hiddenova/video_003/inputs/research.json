@@ -1,0 +1,93 @@
+{
+  "agent": "research",
+  "version": "2.0",
+  "channel": "hiddenova",
+  "video_id": "video_003",
+  "run_id": "hiddenova_video_003_v1",
+  "status": "research_ready",
+  "ideas": [
+    {
+      "id": 1,
+      "title": "The Invisible Network That Keeps Grocery Shelves Full",
+      "summary": "A documentary-style look at the forecasting, warehousing, trucking, and cold-chain systems that move food from producers to supermarkets before customers ever notice.",
+      "target_audience": "Viewers interested in logistics, food supply chains, retail operations, and hidden infrastructure.",
+      "potential": "Groceries are universally relatable, and the unseen complexity behind everyday supermarket availability creates strong curiosity and evergreen appeal.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 2,
+      "title": "How Your Online Order Finds the Fastest Route to Your Door",
+      "summary": "An exploration of the algorithms, fulfillment centers, delivery networks, and last-mile routing systems that turn a click into a package at your doorstep.",
+      "target_audience": "E-commerce shoppers, technology enthusiasts, logistics fans, and business operations viewers.",
+      "potential": "Online shopping is familiar to nearly everyone, while the behind-the-scenes delivery system is complex, scalable, and highly clickable.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 3,
+      "title": "The Hidden System Behind Emergency 911 Calls",
+      "summary": "A deep dive into how emergency calls are routed, prioritized, dispatched, and coordinated across telecom networks, call centers, and first responders.",
+      "target_audience": "Documentary viewers, public safety audiences, infrastructure enthusiasts, and technology-curious viewers.",
+      "potential": "The topic combines urgency, public importance, and unseen technology, making it emotionally engaging and highly informative.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 4,
+      "title": "The Secret Life of Airport Baggage: Where Your Suitcase Really Goes",
+      "summary": "A behind-the-scenes look at baggage handling systems, barcode tracking, conveyor networks, security screening, and the logistics that reunite bags with passengers.",
+      "target_audience": "Travelers, aviation enthusiasts, engineering fans, and viewers curious about airport operations.",
+      "potential": "Air travel is widely relatable, and baggage systems are visually compelling, mysterious, and full of operational drama.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 5,
+      "title": "How Cities Know When to Change Traffic Lights",
+      "summary": "An investigation into the sensors, cameras, timing algorithms, control rooms, and traffic engineering systems that manage urban movement.",
+      "target_audience": "Urbanism fans, commuters, smart city enthusiasts, engineers, and general documentary viewers.",
+      "potential": "Traffic frustration is universal, and revealing the hidden intelligence behind intersections makes the subject both practical and shareable.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 6,
+      "title": "Inside the Payment Networks That Move Money in Seconds",
+      "summary": "A documentary explanation of card networks, bank authorization systems, fraud detection, settlement processes, and the infrastructure behind everyday payments.",
+      "target_audience": "Finance-curious viewers, tech audiences, business students, and anyone who uses digital payments.",
+      "potential": "Payments are a daily habit, but the invisible systems behind them are rarely understood, creating strong evergreen educational value.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 7,
+      "title": "The Underground Infrastructure That Keeps Big Cities From Flooding",
+      "summary": "A look at storm drains, retention tunnels, pumping stations, sensors, and flood-control systems designed to move massive amounts of water out of urban areas.",
+      "target_audience": "Infrastructure enthusiasts, urban planning viewers, climate adaptation audiences, and documentary fans.",
+      "potential": "Extreme weather and urban resilience are increasingly relevant, while underground flood systems offer dramatic and visually interesting storytelling.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 8,
+      "title": "How Hospitals Track Thousands of Patients, Beds, Drugs, and Devices",
+      "summary": "An exploration of the scheduling software, inventory systems, electronic records, pharmacy logistics, and command centers that keep hospitals functioning.",
+      "target_audience": "Healthcare workers, operations nerds, technology viewers, and people interested in complex institutions.",
+      "potential": "Hospitals are high-stakes environments, and the hidden operational systems behind patient care create both urgency and broad public interest.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 9,
+      "title": "The Hidden Cold Chain That Keeps Vaccines, Seafood, and Medicine Alive",
+      "summary": "A documentary look at refrigerated warehouses, temperature sensors, specialized packaging, aircraft holds, and trucks that protect temperature-sensitive goods worldwide.",
+      "target_audience": "Science viewers, logistics fans, healthcare audiences, and global trade enthusiasts.",
+      "potential": "The cold chain connects food, medicine, and global commerce, giving the idea multiple audience angles and long-term relevance.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 10,
+      "title": "How the Internet Survives a Broken Cable Under the Ocean",
+      "summary": "An explanation of undersea fiber cables, traffic rerouting, repair ships, network redundancy, and the systems that keep global internet traffic moving after failures.",
+      "target_audience": "Technology enthusiasts, internet users, infrastructure fans, and documentary audiences.",
+      "potential": "The internet feels invisible but essential, and the fragility and resilience of undersea cables make for a highly clickable hidden-systems story.",
+      "difficulty": "Hard"
+    }
+  ],
+  "metadata": {
+    "next_agent": "content_idea_selector"
+  }
+}

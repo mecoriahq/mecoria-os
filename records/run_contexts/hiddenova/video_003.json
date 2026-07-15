@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_003",
+  "run_id": "hiddenova_video_003_v1",
+  "status": "topic_approval_required",
+  "topic_title": "How the Internet Survives a Broken Cable Under the Ocean",
+  "sources": {
+    "research": "records/run_contexts/hiddenova/video_003/inputs/research.json",
+    "idea_selection": "records/run_contexts/hiddenova/video_003/inputs/idea_selection.json"
+  },
+  "outputs": {},
+  "quality_gates": {
+    "no_latest_json_sources": true,
+    "minimum_content_qa_score": 85,
+    "target_script_word_count_min": 800,
+    "target_script_word_count_max": 1300,
+    "require_hiddenova_brand_intro": true,
+    "require_standard_cta": true,
+    "require_end_screen_area": true,
+    "require_ai_visuals": true,
+    "minimum_ai_insert_count": 8,
+    "require_thumbnail": true,
+    "thumbnail_text_min_words": 1,
+    "thumbnail_text_max_words": 4,
+    "thumbnail_two_color_text": true,
+    "require_founder_review": true,
+    "require_topic_approval": true,
+    "require_topic_novelty": true,
+    "allow_topic_reuse": false
+  },
+  "next_agent": "founder_topic_approval",
+  "release": {
+    "topic_approved": false,
+    "public_release_approved": false
+  },
+  "history": [
+    {
+      "agent": "content_idea_selector",
+      "status": "selected",
+      "output_reference": "records/run_contexts/hiddenova/video_003/inputs/idea_selection.json"
+    }
+  ],
+  "created_at": "2026-07-15T20:08:11.765809+00:00",
+  "updated_at": "2026-07-15T20:08:11.765821+00:00"
+}

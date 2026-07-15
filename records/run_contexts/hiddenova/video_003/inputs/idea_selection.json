@@ -1,0 +1,119 @@
+{
+  "agent": "content_idea_selector",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_003",
+  "run_id": "hiddenova_video_003_v1",
+  "status": "selected",
+  "selected_index": 9,
+  "selected_idea": {
+    "id": 10,
+    "title": "How the Internet Survives a Broken Cable Under the Ocean",
+    "summary": "An explanation of undersea fiber cables, traffic rerouting, repair ships, network redundancy, and the systems that keep global internet traffic moving after failures.",
+    "target_audience": "Technology enthusiasts, internet users, infrastructure fans, and documentary audiences.",
+    "potential": "The internet feels invisible but essential, and the fragility and resilience of undersea cables make for a highly clickable hidden-systems story.",
+    "difficulty": "Hard"
+  },
+  "score": 93,
+  "reason": "The undersea cable failure topic is the strongest genuinely new idea because it explains an essential but invisible global system with high stakes, international relevance, strong curiosity, clear failure-and-recovery drama, and no meaningful duplication with existing Hiddenova logistics or baggage videos.",
+  "novelty_status": "approved",
+  "novelty_score": 96,
+  "content_score": 93,
+  "closest_video_id": null,
+  "duplicate_indices": [
+    0,
+    1,
+    3,
+    8
+  ],
+  "historical_topic_count": 2,
+  "novelty_evaluations": [
+    {
+      "index": 0,
+      "duplicate": true,
+      "closest_video_id": "video_001",
+      "novelty_score": 18,
+      "content_score": 82,
+      "reason": "Substantially overlaps with the existing overnight logistics video, especially supermarket replenishment, distribution centers, trucking, warehousing, and cold-chain movement. It is a narrowed grocery-focused version of an already covered logistics system."
+    },
+    {
+      "index": 1,
+      "duplicate": true,
+      "closest_video_id": "video_001",
+      "novelty_score": 20,
+      "content_score": 86,
+      "reason": "Duplicates the existing logistics documentary\u2019s parcel networks, fulfillment flow, dispatch, routing, cargo hubs, and last-mile delivery themes. The online-order framing is a different consumer angle on the same package logistics infrastructure."
+    },
+    {
+      "index": 2,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 94,
+      "content_score": 90,
+      "reason": "Genuinely new system focused on emergency telecom routing, public-safety answering points, triage, dispatch, and responder coordination. High stakes, strong public relevance, and clear documentary tension, though access and accuracy requirements make it harder."
+    },
+    {
+      "index": 3,
+      "duplicate": true,
+      "closest_video_id": "video_002",
+      "novelty_score": 2,
+      "content_score": 88,
+      "reason": "Direct duplicate of the existing airport baggage video. It covers the same suitcase journey, barcode tracking, conveyor networks, security screening, baggage handling, and passenger reunion promise."
+    },
+    {
+      "index": 4,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 90,
+      "content_score": 87,
+      "reason": "New urban infrastructure topic centered on traffic sensors, cameras, signal timing, control rooms, and adaptive traffic systems. Highly relatable, visually understandable, evergreen, and advertiser safe."
+    },
+    {
+      "index": 5,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 92,
+      "content_score": 89,
+      "reason": "New financial infrastructure topic explaining card networks, authorization, fraud detection, bank messaging, and settlement. Very evergreen and globally relevant, though some parts are abstract and require careful visual storytelling."
+    },
+    {
+      "index": 6,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 91,
+      "content_score": 88,
+      "reason": "New infrastructure topic about stormwater systems, retention tunnels, pumps, sensors, and flood control. Strong climate relevance and visual potential, with good documentary depth, though local examples may vary by city."
+    },
+    {
+      "index": 7,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 86,
+      "content_score": 85,
+      "reason": "Mostly new institutional operations topic covering hospital command centers, bed management, records, pharmacy inventory, scheduling, and device tracking. It has minor overlap with the prior logistics video\u2019s hospital couriers, but the core workflow is hospital operations rather than delivery logistics."
+    },
+    {
+      "index": 8,
+      "duplicate": true,
+      "closest_video_id": "video_001",
+      "novelty_score": 16,
+      "content_score": 84,
+      "reason": "Substantially duplicates the existing logistics documentary\u2019s cold-chain coverage, including refrigerated warehouses, sensors, specialized handling, trucks, aircraft movement, food, and medicine logistics."
+    },
+    {
+      "index": 9,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 96,
+      "content_score": 93,
+      "reason": "Genuinely new global internet infrastructure topic focused on undersea fiber cables, redundancy, traffic rerouting, cable breaks, and repair ships. It has strong international relevance, high click appeal, evergreen value, visual storytelling options, and deep hidden-system mechanics."
+    }
+  ],
+  "source": {
+    "parent_agent": "research",
+    "parent_reference": "records/run_contexts/hiddenova/video_003/inputs/research.json"
+  },
+  "metadata": {
+    "next_agent": "founder_topic_approval"
+  }
+}

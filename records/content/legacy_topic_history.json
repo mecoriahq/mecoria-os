@@ -1,0 +1,13 @@
+﻿{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "topics": [
+    {
+      "video_id": "video_001",
+      "title": "The Secret Logistics Empire That Moves the World While You Sleep",
+      "summary": "An overnight logistics documentary covering distribution centers, cold chains, hospital couriers, robots, supermarket replenishment, cargo hubs, parcel networks, dispatch rooms, and night-shift workers.",
+      "status": "published",
+      "source": "legacy_migration"
+    }
+  ]
+}

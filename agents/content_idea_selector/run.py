@@ -15,6 +15,11 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.topic_novelty import (
+    load_historical_topics,
+    resolve_selected_index,
+    validate_novelty_analysis,
+)
 from core.video_run_context import save_context
 
 
@@ -117,38 +122,66 @@ def extract_json(text: str) -> dict:
 
 def select_with_ai(
     ideas: list[dict],
+    historical_topics: list[dict],
     model: str
 ) -> dict:
     client = OpenAI()
 
     prompt = f"""
-You are the Head Content Agent for Hiddenova.
+You are the Topic Novelty Gate and Head Content Agent
+for Hiddenova.
 
-Select the single best idea for the next documentary.
+Evaluate every proposed idea before selecting the next
+documentary topic.
 
-Criteria:
-- strong click potential
-- international relevance
-- visual production feasibility
-- evergreen value
-- advertiser safety
-- documentary depth
-- low repetition risk
-- fit for a new YouTube channel
+A topic is a duplicate when it explains substantially
+the same underlying system, workflow, infrastructure,
+institution, viewer promise, or operational process as
+an existing video.
 
-IDEAS:
+Different wording does not make a topic unique.
+Baggage, luggage, and suitcase handling are the same
+topic. A new title or click angle is not enough.
+
+EXISTING HIDDENOVA VIDEOS:
+{json.dumps(historical_topics, indent=2, ensure_ascii=True)}
+
+NEW RESEARCH IDEAS:
 {json.dumps(ideas, indent=2, ensure_ascii=True)}
 
-Return only valid JSON:
+Evaluate all ideas. Reject thematic and semantic
+duplicates. Select the strongest genuinely new idea.
+
+Return only valid JSON with exactly this structure:
 
 {{
+  "evaluations": [
+    {{
+      "index": 0,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 0,
+      "content_score": 0,
+      "reason": "string"
+    }}
+  ],
   "selected_index": 0,
   "score": 0,
   "reason": "string"
 }}
 
-selected_index must be zero-based.
-score must be an integer from 0 to 100.
+Rules:
+- Include exactly one evaluation for every idea.
+- index must be zero-based.
+- duplicate must be a JSON boolean.
+- novelty_score and content_score must be 0 to 100.
+- selected_index must reference an idea where
+  duplicate is false.
+- Do not select a renamed, narrowed, broadened, or
+  synonym-based version of an existing video.
+- Prefer international relevance, click potential,
+  evergreen value, visual feasibility, advertiser
+  safety, and documentary depth.
 """
 
     response = client.chat.completions.create(
@@ -159,7 +192,7 @@ score must be an integer from 0 to 100.
                 "content": prompt
             }
         ],
-        max_completion_tokens=1500,
+        max_completion_tokens=5000,
         response_format={
             "type": "json_object"
         }
@@ -168,9 +201,12 @@ score must be an integer from 0 to 100.
     content = response.choices[0].message.content
 
     if not content:
-        raise ValueError("Idea Selector returned an empty response.")
+        raise ValueError(
+            "Idea Selector returned an empty response."
+        )
 
     return extract_json(content)
+
 
 
 def parse_args() -> argparse.Namespace:
@@ -237,29 +273,77 @@ def main() -> None:
             f"Run context already exists: {context_path}"
         )
 
-    if args.selected_index is None:
-        load_dotenv(PROJECT_ROOT / ".env")
+    load_dotenv(PROJECT_ROOT / ".env")
 
-        if not os.getenv("OPENAI_API_KEY"):
-            raise ValueError("OpenAI API Key not found.")
+    if not os.getenv("OPENAI_API_KEY"):
+        raise ValueError("OpenAI API Key not found.")
 
-        selection = select_with_ai(
-            ideas=research_data["ideas"],
-            model=args.model
-        )
-        selected_index = int(
-            selection.get("selected_index", -1)
-        )
-    else:
-        selected_index = args.selected_index
-        selection = {
-            "selected_index": selected_index,
-            "score": 100,
-            "reason": "Founder-selected idea index."
-        }
+    historical_topics = load_historical_topics(
+        project_root=PROJECT_ROOT,
+        channel=channel,
+        exclude_video_id=video_id
+    )
 
-    if not 0 <= selected_index < len(research_data["ideas"]):
-        raise ValueError("Selected idea index is out of range.")
+    raw_analysis = select_with_ai(
+        ideas=research_data["ideas"],
+        historical_topics=historical_topics,
+        model=args.model
+    )
+
+    novelty_analysis = validate_novelty_analysis(
+        analysis=raw_analysis,
+        idea_count=len(research_data["ideas"])
+    )
+
+    selected_index = resolve_selected_index(
+        analysis=novelty_analysis,
+        requested_index=args.selected_index,
+        idea_count=len(research_data["ideas"])
+    )
+
+    selected_evaluation = next(
+        item
+        for item in novelty_analysis["evaluations"]
+        if item["index"] == selected_index
+    )
+
+    duplicate_indices = [
+        item["index"]
+        for item in novelty_analysis["evaluations"]
+        if item["duplicate"]
+    ]
+
+    selection = {
+        "selected_index": selected_index,
+        "score": (
+            100
+            if args.selected_index is not None
+            else novelty_analysis["score"]
+        ),
+        "reason": (
+            "Founder-selected idea passed the "
+            "topic novelty gate. "
+            + selected_evaluation["reason"]
+            if args.selected_index is not None
+            else novelty_analysis["reason"]
+        ),
+        "novelty_score": selected_evaluation[
+            "novelty_score"
+        ],
+        "content_score": selected_evaluation[
+            "content_score"
+        ],
+        "closest_video_id": selected_evaluation[
+            "closest_video_id"
+        ],
+        "duplicate_indices": duplicate_indices,
+        "historical_topic_count": len(
+            historical_topics
+        ),
+        "novelty_evaluations": novelty_analysis[
+            "evaluations"
+        ]
+    }
 
     selected_idea = research_data["ideas"][selected_index]
     selection_path = get_selection_path(channel, video_id)
@@ -275,6 +359,17 @@ def main() -> None:
         "selected_idea": selected_idea,
         "score": int(selection.get("score", 0)),
         "reason": str(selection.get("reason", "")).strip(),
+        "novelty_status": "approved",
+        "novelty_score": selection["novelty_score"],
+        "content_score": selection["content_score"],
+        "closest_video_id": selection["closest_video_id"],
+        "duplicate_indices": selection["duplicate_indices"],
+        "historical_topic_count": selection[
+            "historical_topic_count"
+        ],
+        "novelty_evaluations": selection[
+            "novelty_evaluations"
+        ],
         "source": {
             "parent_agent": "research",
             "parent_reference": relative_path(research_path)
@@ -313,7 +408,9 @@ def main() -> None:
             "thumbnail_text_max_words": 4,
             "thumbnail_two_color_text": True,
             "require_founder_review": True,
-            "require_topic_approval": True
+            "require_topic_approval": True,
+            "require_topic_novelty": True,
+            "allow_topic_reuse": False
         },
         "next_agent": "founder_topic_approval",
         "release": {
@@ -332,8 +429,20 @@ def main() -> None:
     save_context(context)
 
     print("Content Idea Selector completed successfully.")
+    print(
+        "HISTORICAL_TOPIC_COUNT: "
+        f"{selection['historical_topic_count']}"
+    )
+    print(
+        "DUPLICATE_IDEA_INDEXES: "
+        f"{selection['duplicate_indices']}"
+    )
     print(f"SELECTED_INDEX: {selected_index}")
     print(f"SELECTED_TOPIC: {context['topic_title']}")
+    print(
+        "TOPIC_NOVELTY_SCORE: "
+        f"{selection['novelty_score']}"
+    )
     print(f"CONTEXT_SAVED: {relative_path(context_path)}")
 
 
