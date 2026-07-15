@@ -26,6 +26,11 @@ from core.video_run_context import (
     set_status,
 )
 
+
+from core.content_quality import (
+    assert_script_word_count,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IDEA_INDEX = 0
 
@@ -81,7 +86,7 @@ def generate_script(prompt: str) -> dict:
                 "content": prompt
             }
         ],
-        max_completion_tokens=8000,
+        max_completion_tokens=5000,
         response_format={
             "type": "json_object"
         }
@@ -345,9 +350,31 @@ def main() -> None:
         print("STATUS: script_dry_run_ready")
         return
 
+    target_word_min = int(
+        context.get(
+            "quality_gates",
+            {}
+        ).get(
+            "target_script_word_count_min",
+            800
+        )
+    ) if context else 800
+
+    target_word_max = int(
+        context.get(
+            "quality_gates",
+            {}
+        ).get(
+            "target_script_word_count_max",
+            1300
+        )
+    ) if context else 1300
+
     prompt = build_prompt(
         research_data=research_data,
-        selected_idea=selected_idea
+        selected_idea=selected_idea,
+        target_word_count_min=target_word_min,
+        target_word_count_max=target_word_max
     )
 
     raw_script_data = generate_script(prompt)
@@ -368,6 +395,20 @@ def main() -> None:
         final_output["source"]["parent_reference"] = (
             get_relative_path(selection_path)
         )
+
+    word_gate = assert_script_word_count(
+        script_data=final_output,
+        minimum=target_word_min,
+        maximum=target_word_max
+    )
+
+    print(
+        "SCRIPT_NARRATION_WORD_COUNT: "
+        f"{word_gate['word_count']}"
+    )
+    print(
+        "SCRIPT_WORD_GATE: passed"
+    )
 
     schema = load_schema()
     validate(instance=final_output, schema=schema)

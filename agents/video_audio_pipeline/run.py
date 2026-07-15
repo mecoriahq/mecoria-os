@@ -19,7 +19,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from core.video_run_context import (
     load_context,
     register_output,
-    resolve_source,
+    resolve_context_input,
     save_context,
     set_status,
 )
@@ -626,7 +626,10 @@ def main() -> None:
         channel=channel,
         video_id=video_id
     )
-    script_path = resolve_source(context, "script")
+    script_path = resolve_context_input(
+        context=context,
+        key="script"
+    )
     script_data = load_json(script_path)
     sections = build_sections(script_data)
     output_dir = get_output_dir(context)

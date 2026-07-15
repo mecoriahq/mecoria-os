@@ -156,6 +156,30 @@ def assert_topic_approved(context: dict) -> None:
         )
 
 
+def resolve_context_input(
+    context: dict,
+    key: str,
+    must_exist: bool = True
+) -> Path:
+    if key in context.get("outputs", {}):
+        return resolve_output(
+            context=context,
+            key=key,
+            must_exist=must_exist
+        )
+
+    if key in context.get("sources", {}):
+        return resolve_source(
+            context=context,
+            key=key,
+            must_exist=must_exist
+        )
+
+    raise KeyError(
+        f"Context input is missing from outputs and sources: {key}"
+    )
+
+
 def resolve_source(
     context: dict,
     key: str,

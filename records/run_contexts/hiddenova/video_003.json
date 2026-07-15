@@ -3,13 +3,17 @@
   "channel": "hiddenova",
   "video_id": "video_003",
   "run_id": "hiddenova_video_003_v1",
-  "status": "topic_approval_required",
+  "status": "content_qa_ready",
   "topic_title": "How the Internet Survives a Broken Cable Under the Ocean",
   "sources": {
     "research": "records/run_contexts/hiddenova/video_003/inputs/research.json",
     "idea_selection": "records/run_contexts/hiddenova/video_003/inputs/idea_selection.json"
   },
-  "outputs": {},
+  "outputs": {
+    "script": "agents/script/output/hiddenova/video_003/hiddenova_video_003_v1/script.json",
+    "seo": "agents/seo/output/hiddenova/video_003/hiddenova_video_003_v1/seo.json",
+    "qa": "agents/qa/output/hiddenova/video_003/hiddenova_video_003_v1/qa.json"
+  },
   "quality_gates": {
     "no_latest_json_sources": true,
     "minimum_content_qa_score": 85,
@@ -27,20 +31,94 @@
     "require_founder_review": true,
     "require_topic_approval": true,
     "require_topic_novelty": true,
-    "allow_topic_reuse": false
+    "allow_topic_reuse": false,
+    "require_content_fingerprint": true,
+    "allow_cross_video_content_reuse": false
   },
-  "next_agent": "founder_topic_approval",
+  "next_agent": "video_audio_pipeline",
   "release": {
-    "topic_approved": false,
-    "public_release_approved": false
+    "topic_approved": true,
+    "public_release_approved": false,
+    "topic_approved_at": "2026-07-15T20:29:16.021432+00:00",
+    "topic_approved_by": "founder"
   },
   "history": [
     {
       "agent": "content_idea_selector",
       "status": "selected",
       "output_reference": "records/run_contexts/hiddenova/video_003/inputs/idea_selection.json"
+    },
+    {
+      "agent": "founder_topic_approval",
+      "status": "approved",
+      "recorded_at": "2026-07-15T20:15:55.301767+00:00"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_003/hiddenova_video_003_v1/script.json",
+      "recorded_at": "2026-07-15T20:17:26.952134+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_003/hiddenova_video_003_v1/seo.json",
+      "recorded_at": "2026-07-15T20:17:51.657986+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "approved",
+      "output_reference": "agents/qa/output/hiddenova/video_003/hiddenova_video_003_v1/qa.json",
+      "recorded_at": "2026-07-15T20:18:12.311709+00:00"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-15T20:18:15.177150+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "founder_topic_approval",
+      "status": "approved",
+      "recorded_at": "2026-07-15T20:29:16.021444+00:00"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-15T20:29:18.846002+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "content_word_count_gate",
+      "status": "invalidated",
+      "recorded_at": "2026-07-15T20:38:04.358349+00:00",
+      "output_reference": "word_count=2266;removed_outputs=script,seo,qa;removed_registry_records=2"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_003/hiddenova_video_003_v1/script.json",
+      "recorded_at": "2026-07-15T20:38:58.319265+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_003/hiddenova_video_003_v1/seo.json",
+      "recorded_at": "2026-07-15T20:39:20.444912+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "approved",
+      "output_reference": "agents/qa/output/hiddenova/video_003/hiddenova_video_003_v1/qa.json",
+      "recorded_at": "2026-07-15T20:39:40.018982+00:00"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-15T20:39:41.088896+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
     }
   ],
   "created_at": "2026-07-15T20:08:11.765809+00:00",
-  "updated_at": "2026-07-15T20:08:11.765821+00:00"
+  "updated_at": "2026-07-15T20:39:41.088906+00:00"
 }

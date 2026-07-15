@@ -534,6 +534,56 @@ def register_content_batch(
     )
 
 
+
+def remove_video_content_records(
+    channel: str,
+    video_id: str,
+    record_types: list[str] | None = None,
+    registry_path: Path = DEFAULT_REGISTRY_PATH
+) -> int:
+    registry = load_registry(registry_path)
+    requested_types = (
+        set(record_types)
+        if record_types
+        else None
+    )
+
+    removed_count = 0
+
+    for record_type, bucket in list(
+        registry.get("records", {}).items()
+    ):
+        if (
+            requested_types is not None
+            and record_type not in requested_types
+        ):
+            continue
+
+        retained = []
+
+        for record in bucket:
+            same_video = (
+                record.get("channel") == channel.lower()
+                and record.get("video_id")
+                == video_id.lower()
+            )
+
+            if same_video:
+                removed_count += 1
+            else:
+                retained.append(record)
+
+        registry["records"][record_type] = retained
+
+    if removed_count:
+        save_registry(
+            registry=registry,
+            registry_path=registry_path
+        )
+
+    return removed_count
+
+
 def assert_content_batch_registered(
     records: list[dict],
     registry_path: Path = DEFAULT_REGISTRY_PATH

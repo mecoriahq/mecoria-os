@@ -25,6 +25,11 @@ from core.video_run_context import (
     set_status,
 )
 
+
+from core.content_quality import (
+    evaluate_script_word_count,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 
 
@@ -83,6 +88,65 @@ def generate_qa(prompt: str) -> dict:
         raise ValueError("OpenAI returned an empty response.")
 
     return extract_json(content)
+
+
+
+def build_word_count_rejection(
+    word_gate: dict
+) -> dict:
+    return {
+        "status": "rejected",
+        "overall_score": 0,
+        "checks": {
+            "script_quality": {
+                "status": "fail",
+                "score": 0
+            },
+            "seo_alignment": {
+                "status": "warning",
+                "score": 0
+            },
+            "title_quality": {
+                "status": "warning",
+                "score": 0
+            },
+            "description_quality": {
+                "status": "warning",
+                "score": 0
+            },
+            "tags_quality": {
+                "status": "warning",
+                "score": 0
+            },
+            "thumbnail_text_quality": {
+                "status": "warning",
+                "score": 0
+            }
+        },
+        "issues": [
+            {
+                "field": "script.narration_word_count",
+                "severity": "high",
+                "message": (
+                    "Script narration word count is outside "
+                    "the approved range. "
+                    f"Actual: {word_gate['word_count']}. "
+                    f"Required: {word_gate['minimum']} to "
+                    f"{word_gate['maximum']}."
+                )
+            }
+        ],
+        "recommendations": [
+            {
+                "field": "script",
+                "suggestion": (
+                    "Regenerate the script within the "
+                    "required narration word range before "
+                    "audio or visual production."
+                )
+            }
+        ]
+    }
 
 
 def normalize_output(script_data: dict, qa_data: dict) -> dict:
@@ -271,16 +335,56 @@ def main() -> None:
         f"{seo_data['seo']['video_title']}"
     )
 
+    target_word_min = int(
+        context.get(
+            "quality_gates",
+            {}
+        ).get(
+            "target_script_word_count_min",
+            800
+        )
+    ) if context else 800
+
+    target_word_max = int(
+        context.get(
+            "quality_gates",
+            {}
+        ).get(
+            "target_script_word_count_max",
+            1300
+        )
+    ) if context else 1300
+
+    word_gate = evaluate_script_word_count(
+        script_data=script_data,
+        minimum=target_word_min,
+        maximum=target_word_max
+    )
+
+    print(
+        "SCRIPT_NARRATION_WORD_COUNT: "
+        f"{word_gate['word_count']}"
+    )
+    print(
+        "SCRIPT_WORD_GATE: "
+        f"{word_gate['status']}"
+    )
+
     if args.dry_run:
         print("STATUS: qa_dry_run_ready")
         return
 
-    prompt = build_prompt(
-        script_data=script_data,
-        seo_data=seo_data
-    )
+    if not word_gate["approved"]:
+        raw_qa_data = build_word_count_rejection(
+            word_gate
+        )
+    else:
+        prompt = build_prompt(
+            script_data=script_data,
+            seo_data=seo_data
+        )
 
-    raw_qa_data = generate_qa(prompt)
+        raw_qa_data = generate_qa(prompt)
 
     final_output = normalize_output(
         script_data=script_data,

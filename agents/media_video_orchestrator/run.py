@@ -12,8 +12,12 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.content_quality import (
+    evaluate_script_word_count,
+)
 from core.content_usage_registry import (
     register_context_content,
+    remove_video_content_records,
 )
 from core.media_context_integrity import (
     validate_media_context,
@@ -451,10 +455,111 @@ def run_agent_if_missing(
     return context
 
 
+
+def invalidate_bad_content_outputs(
+    context: dict
+) -> dict:
+    script_ready = reference_exists(
+        context,
+        "script"
+    )
+
+    if not script_ready:
+        return context
+
+    script_data = load_context_record(
+        context=context,
+        key="script"
+    )
+
+    gates = context.get(
+        "quality_gates",
+        {}
+    )
+
+    word_gate = evaluate_script_word_count(
+        script_data=script_data,
+        minimum=int(
+            gates.get(
+                "target_script_word_count_min",
+                800
+            )
+        ),
+        maximum=int(
+            gates.get(
+                "target_script_word_count_max",
+                1300
+            )
+        )
+    )
+
+    if word_gate["approved"]:
+        return context
+
+    removed_outputs = []
+
+    for key in ("script", "seo", "qa"):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key)
+            removed_outputs.append(key)
+
+    removed_registry_records = (
+        remove_video_content_records(
+            channel=context["channel"],
+            video_id=context["video_id"],
+            record_types=[
+                "script",
+                "seo"
+            ]
+        )
+    )
+
+    append_history(
+        context=context,
+        agent="content_word_count_gate",
+        status="invalidated",
+        reference=(
+            "word_count="
+            f"{word_gate['word_count']};"
+            "removed_outputs="
+            f"{','.join(removed_outputs)};"
+            "removed_registry_records="
+            f"{removed_registry_records}"
+        )
+    )
+
+    context = set_status(
+        context=context,
+        status="topic_approved",
+        next_agent="script"
+    )
+
+    save_context(context)
+
+    print(
+        "INVALIDATED_CONTENT_OUTPUTS: "
+        f"{removed_outputs}"
+    )
+    print(
+        "REMOVED_CONTENT_REGISTRY_RECORDS: "
+        f"{removed_registry_records}"
+    )
+    print(
+        "INVALID_SCRIPT_WORD_COUNT: "
+        f"{word_gate['word_count']}"
+    )
+
+    return context
+
+
 def run_content_phase(
     context: dict
 ) -> dict:
     assert_topic_approved(context)
+
+    context = invalidate_bad_content_outputs(
+        context
+    )
 
     steps = [
         (
@@ -480,6 +585,38 @@ def run_content_phase(
             agent_name=name,
             agent_path=path,
             required_outputs=outputs
+        )
+
+    script_data = load_context_record(
+        context=context,
+        key="script"
+    )
+
+    gates = context.get(
+        "quality_gates",
+        {}
+    )
+
+    final_word_gate = evaluate_script_word_count(
+        script_data=script_data,
+        minimum=int(
+            gates.get(
+                "target_script_word_count_min",
+                800
+            )
+        ),
+        maximum=int(
+            gates.get(
+                "target_script_word_count_max",
+                1300
+            )
+        )
+    )
+
+    if not final_word_gate["approved"]:
+        raise ValueError(
+            "Content phase produced an invalid "
+            "script narration word count."
         )
 
     qa_data = load_context_record(
@@ -857,6 +994,10 @@ def parse_args() -> argparse.Namespace:
         action="store_true"
     )
     parser.add_argument(
+        "--stop-after-content",
+        action="store_true"
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true"
     )
@@ -971,6 +1112,20 @@ def main() -> None:
         save_context(context)
 
     context = run_content_phase(context)
+
+    if args.stop_after_content:
+        print(
+            "Media Video Orchestrator stopped "
+            "after content validation."
+        )
+        print(
+            f"STATUS: {context['status']}"
+        )
+        print(
+            f"NEXT_AGENT: {context['next_agent']}"
+        )
+        return
+
     context = run_audio_and_visual_phase(
         context
     )

@@ -14,7 +14,12 @@ def load_text_file(filename: str) -> str:
     return file_path.read_text(encoding="utf-8")
 
 
-def build_prompt(research_data: dict, selected_idea: dict) -> str:
+def build_prompt(
+    research_data: dict,
+    selected_idea: dict,
+    target_word_count_min: int = 800,
+    target_word_count_max: int = 1300
+) -> str:
     system_prompt = load_text_file("system.md")
     workflow = load_text_file("workflow.md")
 
@@ -70,6 +75,23 @@ Difficulty:
 --------------------------------------------------
 OUTPUT REQUIREMENTS
 --------------------------------------------------
+
+NARRATION LENGTH REQUIREMENTS:
+
+- Total narration word count across hook, introduction,
+  all main sections, conclusion, and call_to_action
+  MUST be between {target_word_count_min} and
+  {target_word_count_max} words.
+- Target runtime: approximately 6 to 9 minutes.
+- Hook target: 60 to 100 words.
+- Introduction target: 80 to 140 words.
+- Use 5 to 7 main sections.
+- Combined main section narration target:
+  550 to 900 words.
+- Conclusion target: 60 to 100 words.
+- Call to action target: 25 to 50 words.
+- Do not repeat explanations merely to increase length.
+- Visual direction text does not count toward narration length.
 
 Return ONLY valid JSON.
 
