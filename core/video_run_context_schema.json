@@ -1,0 +1,83 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "channel",
+    "video_id",
+    "run_id",
+    "status",
+    "topic_title",
+    "sources",
+    "outputs",
+    "quality_gates"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "minLength": 1
+    },
+    "video_id": {
+      "type": "string",
+      "pattern": "^video_[0-9]{3,}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "topic_title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    "quality_gates": {
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "next_agent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "release": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
