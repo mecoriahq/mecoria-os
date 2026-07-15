@@ -1,0 +1,70 @@
+{
+  "agent": "script",
+  "version": "2.1",
+  "channel": "hiddenova",
+  "source": {
+    "agent": "manual_rebuild",
+    "version": "1.0",
+    "idea_title": "The Hidden System That Moves Your Luggage After Check-In",
+    "reason": "Shorter V2.1 rebuild after rejected long draft"
+  },
+  "script": {
+    "title": "The Hidden System That Moves Your Luggage After Check-In",
+    "format": "Long-form documentary YouTube script",
+    "estimated_duration": "8-10 minutes",
+    "hook": {
+      "narration": "You hand over your suitcase, watch it disappear behind a black rubber curtain, and then you walk away. From that moment, your bag enters a hidden airport system most passengers never see: belts, scanners, sorting machines, security checks, software decisions, ground crews, and strict departure deadlines. The terminal may look calm, but behind the wall, your luggage is racing through a logistics network that has to work almost perfectly, thousands of times a day."
+    },
+    "introduction": {
+      "narration": "This is Hiddenova, where we uncover the systems operating behind everyday life. Today, we are following the invisible journey of checked luggage after check-in. A suitcase may look simple from the outside, but inside the airport it becomes data: a flight number, a destination, a transfer connection, a security status, a weight, and a deadline. If everything works, the passenger never thinks about it. If one small step fails, the trip can begin with a missing bag."
+    },
+    "main_sections": [
+      {
+        "title": "1. The Bag Becomes Data",
+        "narration": "The journey begins at the check-in counter or bag drop. The airline system connects the bag to a passenger, a flight, a destination, and sometimes a second or third connection. A luggage tag is printed and attached. To a traveler, it looks like paper. To the airport, it is the bag's identity. That tag allows machines and workers to read where the bag should go next. If the tag is damaged, scanned incorrectly, or attached too late, the system can lose track of the bag. This is why the first step matters. Before the bag even reaches the first conveyor, it has already become part of a controlled logistics chain.",
+        "visual_direction": "Check-in scale, luggage tag, barcode close-up, suitcase moving into the baggage system."
+      },
+      {
+        "title": "2. Behind the Curtain",
+        "narration": "Once the bag disappears from the passenger area, the airport changes completely. The quiet terminal gives way to belts, motors, steel frames, sensors, maintenance walkways, warning lights, and service roads. Some airports use simple conveyor systems. Larger airports use huge automated networks with diverters, sorters, storage areas, and routing software. The goal is simple: move every bag from the check-in area to the correct aircraft loading point. The challenge is scale. Thousands of bags are moving at once, and every bag has a different deadline.",
+        "visual_direction": "Behind-the-scenes baggage hall, conveyor belts, airport infrastructure, service workers."
+      },
+      {
+        "title": "3. The Conveyor Network",
+        "narration": "The most visible part of the hidden system is the conveyor network. Bags move through belts that turn, climb, drop, merge, and separate. A suitcase may pass through several zones before it gets anywhere near the aircraft. At each point, the system needs to decide whether the bag should continue straight, turn left, wait, be inspected, or move toward a specific flight area. This is where automation matters. A single delay can affect more than one bag. When the network is busy, the system has to keep moving without letting bags collide, pile up, or miss their sorting window.",
+        "visual_direction": "Moving conveyors, diverters, bags turning at junctions, wide airport sorting system shots."
+      },
+      {
+        "title": "4. Security Screening Passengers Never See",
+        "narration": "Before a checked bag can be loaded, it must pass security screening. Passengers usually experience airport security personally, but checked luggage goes through its own hidden process. Bags are scanned by machines designed to detect dangerous items. Most bags clear automatically. Some are sent to additional screening. If a bag needs extra inspection, the clock keeps running. The airport still has to protect the flight, keep the system moving, and avoid delaying the aircraft. This is one reason baggage handling is not only a logistics problem. It is also a security operation.",
+        "visual_direction": "Security scanner area, monitored conveyor lines, inspection zones, abstract security overlays."
+      },
+      {
+        "title": "5. The Software Deciding the Route",
+        "narration": "Behind the belts is software deciding where everything goes. The system reads the bag tag, checks the flight, calculates the routing path, and sends instructions to the equipment. Some bags need to move directly to a loading area. Others are early and must be stored until the flight is ready. Transfer bags are even more urgent because they may arrive from one aircraft and need to reach another aircraft in a short connection window. The passenger sees a boarding pass. The baggage system sees a deadline map.",
+        "visual_direction": "Control room, digital route overlays, airport operation screens, baggage data graphics."
+      },
+      {
+        "title": "6. Why Bags Go Missing",
+        "narration": "When luggage goes missing, it is rarely because one person simply forgot it. More often, it is a chain problem. A tag may fail to scan. A transfer may be too tight. A bag may be delayed in security screening. A belt may stop. A loading area may receive the bag too late. Bad weather, aircraft changes, staffing pressure, and late arrivals can all create stress in the system. The surprising part is not that bags sometimes go missing. The surprising part is that most bags make it through such a complex network at all.",
+        "visual_direction": "Delayed bags, crowded baggage hall, workers moving luggage, close-ups of tags and carts."
+      },
+      {
+        "title": "7. The People Keeping It Moving",
+        "narration": "Even in automated airports, people are essential. Workers handle oversized luggage, clear jams, inspect exceptions, drive baggage carts, load containers, and make decisions when the system cannot. They work in loud spaces, under time pressure, and often out of public view. A passenger may only notice baggage staff when something goes wrong, but the system depends on them every day. Automation moves the bags. People keep the system alive when reality becomes messy.",
+        "visual_direction": "Ground crew, baggage handlers, carts near aircraft, workers fixing conveyor flow."
+      },
+      {
+        "title": "8. The Final Reveal",
+        "narration": "At the destination, the process reverses. Bags are unloaded from the aircraft, moved through airport service areas, placed onto belts or carts, and sent toward the arrival carousel. For passengers, this is the moment the system becomes visible again. The suitcase appears, as if it simply traveled with them. But the real journey was hidden: a chain of data, machines, security checks, routing decisions, and human work. The carousel is not the whole story. It is only the final reveal.",
+        "visual_direction": "Arrival carousel, passengers waiting, bags appearing, final cinematic airport shots."
+      }
+    ],
+    "conclusion": {
+      "narration": "The next time you check a bag, remember that it does not simply go behind a wall. It enters one of the most compressed logistics systems in everyday life. It has to be identified, screened, routed, sorted, loaded, transferred, unloaded, and returned, all while aircraft schedules keep moving. When the system works, it feels invisible. That is exactly the point."
+    },
+    "call_to_action": {
+      "narration": "If you want more documentaries about the hidden systems that keep the world moving, subscribe to Hiddenova. And tell us in the comments what system you want us to uncover next."
+    }
+  }
+}

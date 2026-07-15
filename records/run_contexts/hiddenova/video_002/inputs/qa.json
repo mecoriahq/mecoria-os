@@ -1,0 +1,66 @@
+{
+  "agent": "qa",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "status": "approved",
+  "overall_score": 91,
+  "checks": {
+    "script_quality": {
+      "status": "pass",
+      "score": 88
+    },
+    "seo_alignment": {
+      "status": "pass",
+      "score": 95
+    },
+    "title_quality": {
+      "status": "pass",
+      "score": 93
+    },
+    "description_quality": {
+      "status": "pass",
+      "score": 92
+    },
+    "tags_quality": {
+      "status": "pass",
+      "score": 90
+    },
+    "thumbnail_text_quality": {
+      "status": "pass",
+      "score": 91
+    }
+  },
+  "issues": [
+    {
+      "field": "script",
+      "severity": "low",
+      "message": "The script is clear, well-structured, and aligned with the Hiddenova format, but it remains somewhat general and could benefit from more distinctive factual details or stronger retention beats in production."
+    },
+    {
+      "field": "chapters",
+      "severity": "low",
+      "message": "Chapter timestamps are plausible but should be verified against the final voiceover/edit duration before publishing."
+    }
+  ],
+  "recommendations": [
+    {
+      "field": "script",
+      "suggestion": "Proceed to the next production stage, but ensure visuals and edit pacing add specificity and momentum where the narration is broad."
+    },
+    {
+      "field": "seo",
+      "suggestion": "Keep the current SEO package; it is strongly aligned with the script topic, search intent, and documentary positioning."
+    },
+    {
+      "field": "chapters",
+      "suggestion": "Validate chapter timestamps after the final narration timing is locked."
+    }
+  ],
+  "metadata": {
+    "source_agents": [
+      "script",
+      "seo"
+    ],
+    "next_agent": "thumbnail"
+  }
+}

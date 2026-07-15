@@ -1,0 +1,99 @@
+{
+  "agent": "seo",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "platform": "youtube",
+  "source": {
+    "agent": "script",
+    "version": "2.1",
+    "script_title": "The Hidden System That Moves Your Luggage After Check-In"
+  },
+  "seo": {
+    "video_title": "What Happens to Your Luggage After Check-In? The Hidden Airport System",
+    "description": "You hand over your suitcase, watch it disappear behind the rubber curtain, and walk away. But from that moment, your bag enters a hidden airport logistics system most passengers never see.\n\nIn this Hiddenova documentary, we follow the invisible journey of checked luggage after check-in: luggage tags, conveyor belts, scanners, sorting machines, security screening, routing software, baggage handlers, aircraft loading deadlines, and the final arrival carousel.\n\nA suitcase may look simple, but inside the airport it becomes data: a destination, a flight number, a security status, a transfer connection, and a deadline. When everything works, the system feels invisible. When one small step fails, a trip can begin with a missing bag.\n\nSubscribe to Hiddenova for more documentaries about the hidden systems that keep everyday life moving.",
+    "tags": [
+      "airport baggage system",
+      "checked luggage",
+      "what happens to luggage after check in",
+      "airport luggage system",
+      "baggage handling system",
+      "airport documentary",
+      "behind the scenes airport",
+      "airport logistics",
+      "how airports work",
+      "luggage conveyor belt",
+      "airport security screening",
+      "baggage handlers",
+      "missing luggage",
+      "airport operations",
+      "Hiddenova",
+      "hidden systems",
+      "checked bag journey"
+    ],
+    "keywords": [
+      "what happens to luggage after check in",
+      "airport baggage system",
+      "checked luggage journey",
+      "baggage handling system",
+      "airport logistics",
+      "behind the scenes airport",
+      "airport conveyor system",
+      "luggage security screening",
+      "why bags go missing",
+      "airport operations",
+      "baggage handlers",
+      "airport documentary"
+    ],
+    "hashtags": [
+      "#Airport",
+      "#Luggage",
+      "#HiddenSystems",
+      "#Documentary",
+      "#Aviation"
+    ],
+    "thumbnail_text": "Where Bags Really Go",
+    "chapters": [
+      {
+        "time": "00:00",
+        "title": "The Hidden Journey Begins"
+      },
+      {
+        "time": "00:45",
+        "title": "The Bag Becomes Data"
+      },
+      {
+        "time": "01:45",
+        "title": "Behind the Curtain"
+      },
+      {
+        "time": "02:45",
+        "title": "The Conveyor Network"
+      },
+      {
+        "time": "03:45",
+        "title": "Security Screening Passengers Never See"
+      },
+      {
+        "time": "04:55",
+        "title": "The Software Deciding the Route"
+      },
+      {
+        "time": "06:05",
+        "title": "Why Bags Go Missing"
+      },
+      {
+        "time": "07:15",
+        "title": "The People Keeping It Moving"
+      },
+      {
+        "time": "08:20",
+        "title": "The Final Reveal"
+      },
+      {
+        "time": "09:15",
+        "title": "Why the System Feels Invisible"
+      }
+    ],
+    "seo_score": 92
+  }
+}

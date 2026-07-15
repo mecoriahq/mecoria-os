@@ -1,0 +1,95 @@
+{
+  "agent": "audio_assembly",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "status": "assembled",
+  "audio": {
+    "format": "mp3",
+    "section_count": 12,
+    "source_sections": [
+      {
+        "sequence": 1,
+        "title": "Hook",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_01.mp3"
+      },
+      {
+        "sequence": 2,
+        "title": "Introduction",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_02.mp3"
+      },
+      {
+        "sequence": 3,
+        "title": "1. The Bag Becomes Data",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_03.mp3"
+      },
+      {
+        "sequence": 4,
+        "title": "2. Behind the Curtain",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_04.mp3"
+      },
+      {
+        "sequence": 5,
+        "title": "3. The Conveyor Network",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_05.mp3"
+      },
+      {
+        "sequence": 6,
+        "title": "4. Security Screening Passengers Never See",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_06.mp3"
+      },
+      {
+        "sequence": 7,
+        "title": "5. The Software Deciding the Route",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_07.mp3"
+      },
+      {
+        "sequence": 8,
+        "title": "6. Why Bags Go Missing",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_08.mp3"
+      },
+      {
+        "sequence": 9,
+        "title": "7. The People Keeping It Moving",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_09.mp3"
+      },
+      {
+        "sequence": 10,
+        "title": "8. The Final Reveal",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_10.mp3"
+      },
+      {
+        "sequence": 11,
+        "title": "Conclusion",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_11.mp3"
+      },
+      {
+        "sequence": 12,
+        "title": "Call to Action",
+        "relative_path": "agents/voice_generation/output/hiddenova/audio/2026-07-15_17-44-52/section_12.mp3"
+      }
+    ],
+    "combined_audio": {
+      "filename": "narration_track.mp3",
+      "relative_path": "agents/audio_assembly/output/hiddenova/assembled/2026-07-15_17-46-02/narration_track.mp3",
+      "format": "mp3",
+      "size_bytes": 5677100
+    }
+  },
+  "readiness": {
+    "audio_qa_approved": true,
+    "sections_loaded": 12,
+    "combined_audio_ready": true,
+    "blocking_notes": []
+  },
+  "source": {
+    "source_agents": [
+      "voice_generation",
+      "audio_qa"
+    ],
+    "voice_generation_reference": "agents/voice_generation/output/hiddenova/latest.json",
+    "audio_qa_reference": "agents/audio_qa/output/hiddenova/latest.json"
+  },
+  "metadata": {
+    "next_agent": "video_assembly"
+  }
+}

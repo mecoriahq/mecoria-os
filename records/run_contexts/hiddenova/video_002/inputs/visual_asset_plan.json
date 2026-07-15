@@ -1,0 +1,1037 @@
+{
+  "agent": "visual_asset_plan",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "status": "asset_plan_ready",
+  "asset_plan": {
+    "plan_summary": "A 24-asset reusable MVP plan for a premium documentary about the hidden baggage network. The plan groups the 59 storyboard scenes into repeatable documentary b-roll packages, reusable motion-graphic systems, and clean explanatory diagrams. Real licensed airport, baggage handling, ramp, control-room, and passenger-area footage should carry the documentary credibility, while custom graphics explain routing, timing, risk, screening, and system flow without fake readable labels, fake UI, barcodes, private data, or logos.",
+    "production_strategy": {
+      "target_asset_count": 24,
+      "asset_reuse_strategy": "Build a small library of strong documentary motifs: check-in handoff, rubber curtain, baggage hall scale, conveyor details, scanner zones, operators, ramp loading, make-up sorting, arrival carousel, and system maps. Reuse these motifs across hook, body, conclusion, and CTA with different crops, speed ramps, sound design, color grades, and graphic overlays. Graphics should be modular: one network-map style, one diagram style, one exception-color system, and one route-line recap style.",
+      "recommended_first_build": "Prioritize A001, A005, A008, A012, A015, A021, A023, A002, A007, A016, and A006 first. These assets establish the visual credibility of the film and provide enough reusable coverage for the hook, the technical explanation, the failure sequence, and the conclusion.",
+      "quality_risks": [
+        "Licensed airport baggage system footage may be difficult to source; if unavailable, use industrial conveyor footage only for macro/mechanical inserts and avoid implying it is a real airport system.",
+        "Visible tags, screens, signs, departure boards, dashboards, airline logos, uniforms, and passenger data must be blurred, cropped, out of focus, or avoided.",
+        "Generated or custom visuals must not mimic operational security interfaces, airline software, readable barcodes, or real airport layouts unless sourced and cleared.",
+        "The edit may feel like a slideshow if maps and diagrams are overused; keep real b-roll as the dominant visual layer.",
+        "Security-screening visuals must remain high-level and non-instructional."
+      ]
+    },
+    "reusable_assets": [
+      {
+        "asset_id": "A001",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          1,
+          2,
+          9,
+          10,
+          57,
+          59
+        ],
+        "purpose": "Establish the core visual metaphor: the passenger gives up the bag, and it vanishes behind the curtain into the hidden system.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Cinematic close and low-tracking shots of a neutral suitcase being weighed, handled, tagged without readable details, placed on a check-in conveyor, and disappearing through black rubber curtains. Should feel calm, physical, and mysterious.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport check in baggage conveyor suitcase rubber curtain close up no logo luggage drop off scale",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use as the opening and closing motif. Crop tightly to avoid airline branding and screens. Add subtle mechanical hum as the bag moves away. Reuse the curtain disappearance for conclusion and CTA echo shots.",
+        "quality_constraints": [
+          "No readable luggage tags or barcodes.",
+          "No visible airline branding or check-in screen details.",
+          "Passenger and staff faces should be incidental, partial, or release-cleared.",
+          "Keep the bag visually neutral and continuity-friendly."
+        ]
+      },
+      {
+        "asset_id": "A002",
+        "asset_type": "motion_graphic",
+        "priority": "high",
+        "scenes_covered": [
+          3,
+          11,
+          55
+        ],
+        "purpose": "Show the transformation from physical suitcase to digital profile and later recap the complete journey.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Premium dark-background animation where one bag icon becomes a glowing data point. Thin blue route lines spread through a simplified airport-like network. Icons for destination, clock, aircraft, connection, and security status appear briefly around the bag, then collapse into a single route line.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": "Use a 16:9 dark graphite canvas. Animate one suitcase silhouette into a blue dot. Add thin route lines, small icon-only attributes, and thousands of faint particles in the background. For recap, draw one continuous line through check-in, data, conveyors, scanning, screening, storage, loading, flight, unloading, and carousel. Use blue for normal routing, amber for waiting, red for exceptions. No fake codes, no barcode visuals, no UI panels.",
+        "diagram_instructions": null,
+        "editing_notes": "Use smooth zoom-outs and line wipes. Keep on-screen text limited to the storyboard anchors. Avoid sci-fi clutter.",
+        "quality_constraints": [
+          "No fake alphanumeric identifiers.",
+          "No fake airline software look.",
+          "No readable labels beyond approved short text anchors.",
+          "Maintain consistent Hiddenova premium graphic style."
+        ]
+      },
+      {
+        "asset_id": "A003",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          4,
+          56
+        ],
+        "purpose": "Create energetic montage sequences that make the system feel like a hidden city rather than a static process.",
+        "production_method": "manual_edit",
+        "creative_brief": "Fast editorial montage built from the strongest licensed and created assets: belts, rollers, tunnels, scanners, handlers, carts, aircraft loading, control room, weather ramp, and arrival carousel.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Assemble after primary footage is acquired. Use rhythmic hard cuts, match cuts on belt motion, speed ramps, dark sound design, and occasional line overlays. Reuse in hook and conclusion with different pacing: aggressive in hook, more reflective in conclusion.",
+        "quality_constraints": [
+          "Do not include unlicensed footage.",
+          "Remove any shot with readable private data, logos, or fake labels.",
+          "Montage must feel documentary, not stock-footage random.",
+          "Prioritize continuity of one bag moving through a network."
+        ]
+      },
+      {
+        "asset_id": "A004",
+        "asset_type": "stock_video",
+        "priority": "high",
+        "scenes_covered": [
+          5,
+          35,
+          54
+        ],
+        "purpose": "Represent the visible passenger-facing airport: queues, gates, corridors, and baggage reclaim.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Premium terminal ambience: passengers waiting at gates, walking through queues, moving quickly during a connection, and waiting at an arrival carousel as bags emerge.",
+        "ai_image_prompt": null,
+        "stock_search_query": "cinematic airport terminal passengers walking waiting gate baggage claim carousel no logos unreadable departure board",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use shallow depth of field and slow lateral movement for calm scenes. For transfer-race scenes, use faster handheld or corridor follow shots. For reclaim, push toward the carousel curtain and end on a bag being lifted.",
+        "quality_constraints": [
+          "Departure boards and gate signage must be unreadable or blurred.",
+          "Avoid airline logos and identifiable private passenger data.",
+          "Use release-cleared footage where people are recognizable.",
+          "Keep the tone observational, not touristy."
+        ]
+      },
+      {
+        "asset_id": "A005",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          6,
+          13,
+          14
+        ],
+        "purpose": "Establish the hidden back-of-house baggage environment and its scale.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Wide and medium shots of real baggage halls: multiple conveyors crossing, overhead belts, metal frameworks, service walkways, warning lights, and high-visibility workers moving safely around the system.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport baggage handling system behind the scenes conveyor belts baggage hall workers high visibility wide shot",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use the first wide shot as the reveal of the second airport. Layer subtle animated blue route traces over selected shots when needed.",
+        "quality_constraints": [
+          "Avoid sensitive security procedures and restricted operational details.",
+          "Blur readable safety signs, screens, or airport identifiers.",
+          "No generated fake signage.",
+          "Footage must convey large-scale interconnected flow."
+        ]
+      },
+      {
+        "asset_id": "A006",
+        "asset_type": "diagram",
+        "priority": "high",
+        "scenes_covered": [
+          7,
+          12,
+          46
+        ],
+        "purpose": "Explain baggage data, early risks, and failure chains in a clean, non-technical way.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Reusable vector-diagram package with a suitcase icon at center and short, icon-based labels for passenger, flight, destination, timing, security status, loading area, and risk points.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": null,
+        "diagram_instructions": "Create three related diagrams in one visual language: 1) luggage becomes data, with attributes orbiting a suitcase icon; 2) small errors travel, with wrong data, damaged tag, and late acceptance branching toward misroute, manual handling, or missed cutoff; 3) failure is usually a chain, with late check-in, unreadable tag, jam, inspection delay, tight transfer, and wrong cart as short labels. Use dark background, thin white lines, blue normal paths, amber risk, red exception.",
+        "editing_notes": "Animate with sequential reveals tied to narration. Keep labels short and use large icons so the diagram works on mobile.",
+        "quality_constraints": [
+          "Do not imitate airline records, documents, dashboards, or barcodes.",
+          "No fake passenger names, flight codes, or destination codes.",
+          "Keep claims principle-based, not operationally exact.",
+          "Use minimal text only."
+        ]
+      },
+      {
+        "asset_id": "A007",
+        "asset_type": "map_animation",
+        "priority": "high",
+        "scenes_covered": [
+          8,
+          15
+        ],
+        "purpose": "Give viewers a mental model of the airport as visible terminal above and hidden baggage network below.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Simplified non-specific airport cross-section and route map: public terminal, check-in, hidden baggage network, sorting, storage, screening, loading zones, and aircraft stands.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": "Animate a dot from check-in toward aircraft. Then branch the same network into direct departure, early bag, transfer bag, oversized item, and exception handling. Use smooth top-down drift and route tracing. No real airport geometry unless sourced.",
+        "diagram_instructions": null,
+        "editing_notes": "Use this as the recurring mental map. Reuse the same geography later so the audience feels oriented.",
+        "quality_constraints": [
+          "No real airport layout claims unless verified.",
+          "No fake gate numbers or flight identifiers.",
+          "Routes must remain readable and uncluttered.",
+          "Use consistent color coding."
+        ]
+      },
+      {
+        "asset_id": "A008",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          16,
+          20,
+          43
+        ],
+        "purpose": "Show the physical reality of baggage systems: belts, rollers, motors, sensors, soft bags, hard cases, wheels, straps, and imperfect luggage shapes.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Macro mechanical shots from airport baggage systems or comparable industrial conveyors, plus close slow-motion shots of neutral luggage behaving unevenly on belts and rollers.",
+        "ai_image_prompt": null,
+        "stock_search_query": "close up airport baggage conveyor rollers motors sensors luggage wheels straps slow motion no logo",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use quick detail cuts for machinery sections and slower suspenseful macro for misread-risk scenes. Add clicks, hums, rollers, and distant warning sounds.",
+        "quality_constraints": [
+          "No readable luggage tags, barcodes, or manufacturer logos.",
+          "Industrial conveyor footage must not be presented as specific airport evidence unless context is clear.",
+          "Avoid fake mechanical warning labels.",
+          "Prioritize tactile realism over polished AI-looking imagery."
+        ]
+      },
+      {
+        "asset_id": "A009",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          17
+        ],
+        "purpose": "Create an immersive bag-POV feeling as the suitcase travels through curves, inclines, and junctions.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Low tracking or mounted-camera footage beside or above a moving suitcase on a conveyor, passing through curves, inclines, tunnels, and junctions.",
+        "ai_image_prompt": null,
+        "stock_search_query": "bag POV airport baggage conveyor moving through tunnel junction low angle tracking suitcase",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use as a kinetic transition between explanatory sections. Stabilize but keep minor mechanical vibration.",
+        "quality_constraints": [
+          "No visible sensitive restricted-area details.",
+          "No readable tags or signage.",
+          "Footage should feel real, not over-smoothed.",
+          "Match grade to dark steel documentary palette."
+        ]
+      },
+      {
+        "asset_id": "A010",
+        "asset_type": "diagram",
+        "priority": "medium",
+        "scenes_covered": [
+          18
+        ],
+        "purpose": "Provide a visual glossary of conveyor components.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Clean 2D component diagram showing straight belt, merge, spacing zone, scanner point, diverter, incline, and chute.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": null,
+        "diagram_instructions": "Use simple geometric belt segments from top-down view. Reveal one component at a time. Use short labels only: belt, merge, spacing, scan, divert, incline, chute. End with the phrase MOVE. SPACE. SCAN. DIVERT.",
+        "editing_notes": "Transition from the diverter arrow into real diverter footage in A011.",
+        "quality_constraints": [
+          "No operational settings or technical schematics.",
+          "No fake industrial labels.",
+          "Keep labels large and sparse.",
+          "Use same color system as other graphics."
+        ]
+      },
+      {
+        "asset_id": "A011",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          19
+        ],
+        "purpose": "Show real timing choreography: bags merging, spacing, and diverting.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Overhead or elevated shots of baggage or parcel sorting conveyors where bags or luggage-like items merge from two belts, maintain spacing, and one item diverts to a side route.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport baggage conveyor merge diverter sorting belts overhead luggage spacing",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Hold long enough for viewers to understand the motion. Add subtle animated arrows if needed, but do not obscure the real footage.",
+        "quality_constraints": [
+          "Avoid logos, readable labels, and barcodes.",
+          "Use airport footage where possible; industrial sorter footage is acceptable only for mechanical principle shots.",
+          "No fake UI overlays.",
+          "Timing and spacing must be visually clear."
+        ]
+      },
+      {
+        "asset_id": "A012",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          21,
+          24,
+          25
+        ],
+        "purpose": "Represent scanning/read zones and manual encoding without revealing sensitive procedures or private data.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Bags passing through scanner tunnels or under camera arrays, plus an operator at a workstation with blurred or abstract screens confirming routing. Include distant secure infrastructure footage where possible.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport baggage scanner tunnel luggage read station operator workstation blurred screen baggage handling",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use shallow depth of field and tight crops. Screens must be blurred or replaced with abstract non-readable glow. For security-adjacent visuals, stay exterior/distant and restrained.",
+        "quality_constraints": [
+          "No readable luggage tags, passenger data, or real operational screens.",
+          "No detailed security equipment settings or procedures.",
+          "No fake software screens.",
+          "Approved or generic footage only."
+        ]
+      },
+      {
+        "asset_id": "A013",
+        "asset_type": "motion_graphic",
+        "priority": "high",
+        "scenes_covered": [
+          22,
+          23
+        ],
+        "purpose": "Explain how a bag is read, matched, routed, or sent to manual check.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Abstract top-down bag icon moving through a reading zone. Camera-angle cones attempt identification; a route path lights up when matched. A branch shows unreadable bags going to manual check.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": "Animate READ → MATCH → ROUTE as three steps. Then show decision tree: successful read continues in blue to flight routing; unreadable bag diverts in amber to manual check. Use abstract cones, dots, and path lines only. No barcode graphics.",
+        "diagram_instructions": null,
+        "editing_notes": "Transition to A012 operator footage after the amber manual-check branch.",
+        "quality_constraints": [
+          "No barcode visuals.",
+          "No fake identifiers or tag text.",
+          "No fake UI panels.",
+          "Keep scanners abstract and non-operational."
+        ]
+      },
+      {
+        "asset_id": "A014",
+        "asset_type": "motion_graphic",
+        "priority": "medium",
+        "scenes_covered": [
+          26,
+          27
+        ],
+        "purpose": "Show baggage security screening at a high, non-instructional level.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Stylized suitcase passes through a generic screening tunnel. A neutral silhouette flashes briefly, then the path splits: most bags continue; one diverts to additional review.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": "Side-on conveyor animation. Use a generic tunnel shape, soft scan glow, and no internal technical detail. Branch into blue main flow and amber/red exception path with the text CLEAR OR DIVERT. Avoid realistic security interface design.",
+        "diagram_instructions": null,
+        "editing_notes": "Keep motion slow and restrained. Use sound design rather than visual complexity for tension.",
+        "quality_constraints": [
+          "No realistic security imagery or settings.",
+          "No instruction-like procedural detail.",
+          "No fake scan interface.",
+          "Do not imply exact thresholds or methods."
+        ]
+      },
+      {
+        "asset_id": "A015",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          28,
+          31,
+          48
+        ],
+        "purpose": "Show the human operational layer: control rooms, operators, radios, and coordination.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Operations/control room footage with staff watching large monitors, speaking by radio, and coordinating with maintenance or ground teams. Screens are unreadable, blurred, or abstract.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport operations control room staff radio monitors blurred screens logistics control center",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use slow push-ins across operators and screens. Cut back to this footage after routing disruption graphics to show human judgment alongside automation.",
+        "quality_constraints": [
+          "No readable dashboards, documents, private data, or flight information.",
+          "No fake software UI.",
+          "Avoid identifiable organizations unless licensed and cleared.",
+          "Tone should be calm and skilled, not chaotic."
+        ]
+      },
+      {
+        "asset_id": "A016",
+        "asset_type": "map_animation",
+        "priority": "high",
+        "scenes_covered": [
+          29,
+          30,
+          50
+        ],
+        "purpose": "Explain live routing, disruption, rerouting, and the ripple effect of jams.",
+        "production_method": "internal_graphic",
+        "creative_brief": "A simplified conveyor network with moving dots from check-in, transfer arrivals, storage, screening, and loading zones. One segment turns red; nearby paths reroute where possible. A red ripple expands from a jam and stabilizes after intervention.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": "Use top-down map drift. Blue dots flow normally, amber dots wait, red segment shows disruption. When disruption appears, zoom in, pause flow, then zoom out as conditional alternate routes appear. For ripple scene, red pulse expands through nodes, then fades back to blue after a human-intervention marker appears.",
+        "diagram_instructions": null,
+        "editing_notes": "Use as the software-nervous-system visual. Keep it explanatory, not like a fake live dashboard.",
+        "quality_constraints": [
+          "No fake airport control software.",
+          "No real airport layout unless sourced.",
+          "Do not overpromise automation; show rerouting as conditional.",
+          "No fake flight or bag IDs."
+        ]
+      },
+      {
+        "asset_id": "A017",
+        "asset_type": "b_roll",
+        "priority": "medium",
+        "scenes_covered": [
+          32
+        ],
+        "purpose": "Show that early bags may be staged or held rather than immediately loaded.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Organized baggage storage, staging, or make-up footage where bags are directed away from main flow into a holding area. Should feel orderly and managed.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport baggage storage early bag system luggage staging holding area conveyor organized",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use overhead angle if possible to show separation from the main belt flow. Avoid any sense of abandoned or lost luggage.",
+        "quality_constraints": [
+          "No readable bag tags or destination labels.",
+          "No airline branding.",
+          "Show order, not chaos.",
+          "Do not imply a specific airport process unless sourced."
+        ]
+      },
+      {
+        "asset_id": "A018",
+        "asset_type": "diagram",
+        "priority": "medium",
+        "scenes_covered": [
+          33,
+          34
+        ],
+        "purpose": "Explain storage, waiting, release, and timing as capacity management.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Clean holding-grid animation and three-panel timing comparison: too early, too late, correct timing.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": null,
+        "diagram_instructions": "Create a top-down grid where bag icons enter, wait as a simple clock advances, then selected bags release back into the blue main route. Then show three panels: too early creates amber congestion, too late creates red loading pressure, correct timing shows stable blue flow. Labels: STORE, WAIT, RELEASE and TIMING IS CAPACITY.",
+        "editing_notes": "Use clock-hand wipe to transition into transfer-race sequence.",
+        "quality_constraints": [
+          "No operational timing numbers unless sourced.",
+          "No fake bag IDs or flight codes.",
+          "Keep the message conceptual.",
+          "Use minimal text."
+        ]
+      },
+      {
+        "asset_id": "A019",
+        "asset_type": "stock_video",
+        "priority": "high",
+        "scenes_covered": [
+          35,
+          36
+        ],
+        "purpose": "Show the parallel urgency of passengers transferring and bags being unloaded from an arriving aircraft.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Intercut a passenger moving quickly through a terminal corridor with ramp footage of bags unloaded from aircraft holds to belt loaders, carts, or transfer handling routes.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport transfer passenger rushing corridor aircraft baggage unloading belt loader carts ramp no logo",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use brief split-screen for the two races. Keep ramp shots telephoto or medium-wide to avoid sensitive details.",
+        "quality_constraints": [
+          "No readable gate information or airline logos.",
+          "No unsafe ground-operation depiction.",
+          "Avoid identifiable passenger data.",
+          "Use licensed ramp footage only."
+        ]
+      },
+      {
+        "asset_id": "A020",
+        "asset_type": "map_animation",
+        "priority": "high",
+        "scenes_covered": [
+          37,
+          38
+        ],
+        "purpose": "Explain the transfer-bag race and compressed connection window.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Simplified airport map shows transfer bag crossing from one aircraft stand to another through service roads, conveyors, and sorting points. A shrinking time window increases urgency.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": "Trace a blue route between two generic aircraft icons. Add a circular timer or shrinking window without exact numbers. When inbound delay occurs, compress the available window and shift route accents toward amber. No gate numbers, flight numbers, or real airport geometry.",
+        "diagram_instructions": null,
+        "editing_notes": "Use suspenseful pacing but avoid exaggeration. Cut from timer to make-up sorting footage.",
+        "quality_constraints": [
+          "No fake gate numbers.",
+          "No fake flight identifiers.",
+          "No unsourced real airport layout.",
+          "Keep urgency visual but realistic."
+        ]
+      },
+      {
+        "asset_id": "A021",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          39,
+          40,
+          49
+        ],
+        "purpose": "Show the make-up area and the skilled physical labor of ground handlers.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Baggage make-up area with bags arriving on circular carousels or lateral belts. Handlers lift, scan without readable data, sort, secure, and load bags into carts or containers.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport baggage make up area ground handlers sorting loading luggage carts carousel no logos",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Mix wide establishing shots with close handheld shots of hands, straps, cart locks, and bag placement. Show skill and physical effort respectfully.",
+        "quality_constraints": [
+          "No readable tags, handheld scanner screens, documents, or flight labels.",
+          "Avoid airline identifiers on uniforms and equipment.",
+          "Show safe work practices.",
+          "Do not frame workers as the cause of failures."
+        ]
+      },
+      {
+        "asset_id": "A022",
+        "asset_type": "diagram",
+        "priority": "medium",
+        "scenes_covered": [
+          41,
+          53
+        ],
+        "purpose": "Explain aircraft loading types and arrival-routing outcomes.",
+        "production_method": "internal_graphic",
+        "creative_brief": "Two clean aircraft/logistics diagrams: loose-loaded narrowbody versus containerized widebody, and arrival split between local carousel, transfer return, and oversized delivery.",
+        "ai_image_prompt": null,
+        "stock_search_query": null,
+        "motion_graphic_instructions": null,
+        "diagram_instructions": "Use simple side-view aircraft icons with cargo hold shapes. Show loose bags entering a narrowbody hold on one side and a container entering a widebody hold on the other. For arrival split, show three paths from aircraft: local arrivals to carousel, transfer bags back into departure system, oversized items to separate delivery. No weight-and-balance numbers.",
+        "editing_notes": "Use side-by-side reveal for loading choices and three-way reveal for arrival outcomes. Transition container icon into real ground equipment footage.",
+        "quality_constraints": [
+          "No airline branding.",
+          "No complex operational numbers.",
+          "Keep customs references general and non-country-specific.",
+          "Use simple icons and short labels."
+        ]
+      },
+      {
+        "asset_id": "A023",
+        "asset_type": "b_roll",
+        "priority": "high",
+        "scenes_covered": [
+          42,
+          45,
+          51,
+          52
+        ],
+        "purpose": "Provide cinematic ramp, aircraft loading, bad-weather pressure, arrival unloading, and cart movement footage.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Dawn or dusk ramp footage: baggage carts crossing the ramp, belt loaders or container loaders at aircraft cargo doors, aircraft taxiing or arriving, unloading after landing, and wet-weather ramp operations.",
+        "ai_image_prompt": null,
+        "stock_search_query": "cinematic airport ramp baggage carts aircraft cargo loading unloading belt loader dusk rain ground crew no logo",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use golden-hour shots for the departure deadline and final-act arrival mood. Use wet-weather shots during the failure-pressure sequence. Crop or blur logos on aircraft and equipment.",
+        "quality_constraints": [
+          "Licensed ramp footage required.",
+          "No visible airline logos unless cleared.",
+          "No unsafe or sensitive close-ups of ramp procedures.",
+          "Weather should add pressure without disaster exaggeration."
+        ]
+      },
+      {
+        "asset_id": "A024",
+        "asset_type": "b_roll",
+        "priority": "medium",
+        "scenes_covered": [
+          44,
+          47,
+          58
+        ],
+        "purpose": "Show maintenance, stopped or slowed conveyors, and an empty conveyor background for the restrained CTA.",
+        "production_method": "licensed_stock",
+        "creative_brief": "Industrial or airport baggage-like conveyor footage showing a belt slowing or stopped, warning light flashing, maintenance worker inspecting rollers and sensors, and an empty belt moving in a darkened environment.",
+        "ai_image_prompt": null,
+        "stock_search_query": "airport baggage conveyor maintenance worker warning light stopped belt rollers empty conveyor dark cinematic",
+        "motion_graphic_instructions": null,
+        "diagram_instructions": null,
+        "editing_notes": "Use realistic restraint: no disaster framing. For CTA, darken the cleanest empty-conveyor shot and place minimal typography over it.",
+        "quality_constraints": [
+          "No fake alarm screens.",
+          "No readable safety labels or operational signage.",
+          "Industrial stand-in footage must be framed as mechanical principle footage if not airport-specific.",
+          "Maintenance should look skilled and professional."
+        ]
+      }
+    ],
+    "scene_asset_map": [
+      {
+        "section_sequence": 1,
+        "scene_number": 1,
+        "primary_asset_id": "A001",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 1,
+        "scene_number": 2,
+        "primary_asset_id": "A001",
+        "supporting_asset_ids": [
+          "A002"
+        ]
+      },
+      {
+        "section_sequence": 1,
+        "scene_number": 3,
+        "primary_asset_id": "A002",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 1,
+        "scene_number": 4,
+        "primary_asset_id": "A003",
+        "supporting_asset_ids": [
+          "A005",
+          "A008",
+          "A012",
+          "A021",
+          "A023",
+          "A004"
+        ]
+      },
+      {
+        "section_sequence": 2,
+        "scene_number": 1,
+        "primary_asset_id": "A004",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 2,
+        "scene_number": 2,
+        "primary_asset_id": "A005",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 2,
+        "scene_number": 3,
+        "primary_asset_id": "A006",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 2,
+        "scene_number": 4,
+        "primary_asset_id": "A007",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 3,
+        "scene_number": 1,
+        "primary_asset_id": "A001",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 3,
+        "scene_number": 2,
+        "primary_asset_id": "A001",
+        "supporting_asset_ids": [
+          "A008"
+        ]
+      },
+      {
+        "section_sequence": 3,
+        "scene_number": 3,
+        "primary_asset_id": "A002",
+        "supporting_asset_ids": [
+          "A001"
+        ]
+      },
+      {
+        "section_sequence": 3,
+        "scene_number": 4,
+        "primary_asset_id": "A006",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 4,
+        "scene_number": 1,
+        "primary_asset_id": "A005",
+        "supporting_asset_ids": [
+          "A001"
+        ]
+      },
+      {
+        "section_sequence": 4,
+        "scene_number": 2,
+        "primary_asset_id": "A005",
+        "supporting_asset_ids": [
+          "A007"
+        ]
+      },
+      {
+        "section_sequence": 4,
+        "scene_number": 3,
+        "primary_asset_id": "A007",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 4,
+        "scene_number": 4,
+        "primary_asset_id": "A008",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 5,
+        "scene_number": 1,
+        "primary_asset_id": "A009",
+        "supporting_asset_ids": [
+          "A008"
+        ]
+      },
+      {
+        "section_sequence": 5,
+        "scene_number": 2,
+        "primary_asset_id": "A010",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 5,
+        "scene_number": 3,
+        "primary_asset_id": "A011",
+        "supporting_asset_ids": [
+          "A010"
+        ]
+      },
+      {
+        "section_sequence": 5,
+        "scene_number": 4,
+        "primary_asset_id": "A008",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 6,
+        "scene_number": 1,
+        "primary_asset_id": "A012",
+        "supporting_asset_ids": [
+          "A013"
+        ]
+      },
+      {
+        "section_sequence": 6,
+        "scene_number": 2,
+        "primary_asset_id": "A013",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 6,
+        "scene_number": 3,
+        "primary_asset_id": "A013",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 6,
+        "scene_number": 4,
+        "primary_asset_id": "A012",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 7,
+        "scene_number": 1,
+        "primary_asset_id": "A012",
+        "supporting_asset_ids": [
+          "A014"
+        ]
+      },
+      {
+        "section_sequence": 7,
+        "scene_number": 2,
+        "primary_asset_id": "A014",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 7,
+        "scene_number": 3,
+        "primary_asset_id": "A014",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 8,
+        "scene_number": 1,
+        "primary_asset_id": "A015",
+        "supporting_asset_ids": [
+          "A016"
+        ]
+      },
+      {
+        "section_sequence": 8,
+        "scene_number": 2,
+        "primary_asset_id": "A016",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 8,
+        "scene_number": 3,
+        "primary_asset_id": "A016",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 8,
+        "scene_number": 4,
+        "primary_asset_id": "A015",
+        "supporting_asset_ids": [
+          "A024"
+        ]
+      },
+      {
+        "section_sequence": 9,
+        "scene_number": 1,
+        "primary_asset_id": "A017",
+        "supporting_asset_ids": [
+          "A018"
+        ]
+      },
+      {
+        "section_sequence": 9,
+        "scene_number": 2,
+        "primary_asset_id": "A018",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 9,
+        "scene_number": 3,
+        "primary_asset_id": "A018",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 10,
+        "scene_number": 1,
+        "primary_asset_id": "A019",
+        "supporting_asset_ids": [
+          "A004"
+        ]
+      },
+      {
+        "section_sequence": 10,
+        "scene_number": 2,
+        "primary_asset_id": "A019",
+        "supporting_asset_ids": [
+          "A023"
+        ]
+      },
+      {
+        "section_sequence": 10,
+        "scene_number": 3,
+        "primary_asset_id": "A020",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 10,
+        "scene_number": 4,
+        "primary_asset_id": "A020",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 11,
+        "scene_number": 1,
+        "primary_asset_id": "A021",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 11,
+        "scene_number": 2,
+        "primary_asset_id": "A021",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 11,
+        "scene_number": 3,
+        "primary_asset_id": "A022",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 11,
+        "scene_number": 4,
+        "primary_asset_id": "A023",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 12,
+        "scene_number": 1,
+        "primary_asset_id": "A008",
+        "supporting_asset_ids": [
+          "A013"
+        ]
+      },
+      {
+        "section_sequence": 12,
+        "scene_number": 2,
+        "primary_asset_id": "A024",
+        "supporting_asset_ids": [
+          "A016"
+        ]
+      },
+      {
+        "section_sequence": 12,
+        "scene_number": 3,
+        "primary_asset_id": "A023",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 12,
+        "scene_number": 4,
+        "primary_asset_id": "A006",
+        "supporting_asset_ids": [
+          "A016"
+        ]
+      },
+      {
+        "section_sequence": 13,
+        "scene_number": 1,
+        "primary_asset_id": "A024",
+        "supporting_asset_ids": [
+          "A008"
+        ]
+      },
+      {
+        "section_sequence": 13,
+        "scene_number": 2,
+        "primary_asset_id": "A015",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 13,
+        "scene_number": 3,
+        "primary_asset_id": "A021",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 13,
+        "scene_number": 4,
+        "primary_asset_id": "A016",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 14,
+        "scene_number": 1,
+        "primary_asset_id": "A023",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 14,
+        "scene_number": 2,
+        "primary_asset_id": "A023",
+        "supporting_asset_ids": [
+          "A007"
+        ]
+      },
+      {
+        "section_sequence": 14,
+        "scene_number": 3,
+        "primary_asset_id": "A022",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 14,
+        "scene_number": 4,
+        "primary_asset_id": "A004",
+        "supporting_asset_ids": [
+          "A001"
+        ]
+      },
+      {
+        "section_sequence": 15,
+        "scene_number": 1,
+        "primary_asset_id": "A002",
+        "supporting_asset_ids": [
+          "A007"
+        ]
+      },
+      {
+        "section_sequence": 15,
+        "scene_number": 2,
+        "primary_asset_id": "A003",
+        "supporting_asset_ids": [
+          "A005",
+          "A008",
+          "A012",
+          "A015",
+          "A021",
+          "A023",
+          "A004"
+        ]
+      },
+      {
+        "section_sequence": 15,
+        "scene_number": 3,
+        "primary_asset_id": "A001",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 16,
+        "scene_number": 1,
+        "primary_asset_id": "A024",
+        "supporting_asset_ids": []
+      },
+      {
+        "section_sequence": 16,
+        "scene_number": 2,
+        "primary_asset_id": "A001",
+        "supporting_asset_ids": []
+      }
+    ],
+    "next_steps": {
+      "next_agent": "visual_asset_production",
+      "first_assets_to_create": [
+        "A001",
+        "A005",
+        "A008",
+        "A002",
+        "A007",
+        "A016"
+      ],
+      "manual_assets_needed": [
+        "Licensed airport check-in and rubber-curtain footage",
+        "Licensed real baggage hall footage with wide conveyor network views",
+        "Licensed scanner/read-zone and blurred operator footage",
+        "Licensed ramp loading, unloading, baggage cart, and bad-weather footage",
+        "Licensed baggage make-up and ground-handler footage",
+        "Custom Hiddenova motion-graphics template for blue/amber/red routing",
+        "Custom diagram package for data, risk, timing, loading, and arrival split",
+        "Manual montage edit using only cleared documentary assets"
+      ]
+    }
+  },
+  "summary": {
+    "storyboard_scene_count": 59,
+    "reusable_asset_count": 24,
+    "mapped_scene_count": 59,
+    "high_priority_asset_count": 18,
+    "next_agent": "visual_asset_production"
+  },
+  "source": {
+    "source_agents": [
+      "video_storyboard"
+    ],
+    "storyboard_reference": "agents/video_storyboard/output/hiddenova/latest.json"
+  },
+  "metadata": {
+    "next_agent": "visual_asset_production"
+  }
+}

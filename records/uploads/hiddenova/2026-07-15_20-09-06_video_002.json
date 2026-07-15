@@ -1,0 +1,12 @@
+{
+  "record_type": "youtube_upload",
+  "channel": "hiddenova",
+  "video_id": "video_002",
+  "youtube_video_id": "L7fmWb8bOTI",
+  "youtube_url": "https://youtu.be/L7fmWb8bOTI",
+  "title": "The Hidden System That Moves Your Luggage After Check-In",
+  "uploaded_at": "2026-07-15T20:09:06.050666+03:00",
+  "status": "uploaded_for_founder_review",
+  "intro_outro_exception": true,
+  "run_context_reference": "records/run_contexts/hiddenova/video_002.json"
+}

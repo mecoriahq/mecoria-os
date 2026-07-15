@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_002",
+  "run_id": "hiddenova_video_002_v1",
+  "status": "uploaded_for_founder_review",
+  "topic_title": "The Hidden System That Moves Your Luggage After Check-In",
+  "sources": {
+    "script": "records/run_contexts/hiddenova/video_002/inputs/script.json",
+    "seo": "records/run_contexts/hiddenova/video_002/inputs/seo.json",
+    "qa": "records/run_contexts/hiddenova/video_002/inputs/qa.json",
+    "visual_asset_plan": "records/run_contexts/hiddenova/video_002/inputs/visual_asset_plan.json",
+    "thumbnail_strategy": "records/run_contexts/hiddenova/video_002/inputs/thumbnail_strategy.json",
+    "stock_manifest": "records/run_contexts/hiddenova/video_002/inputs/stock_manifest.json",
+    "audio_assembly": "records/run_contexts/hiddenova/video_002/inputs/audio_assembly.json"
+  },
+  "outputs": {
+    "visual_plan": "agents/video_visual_pipeline/output/hiddenova/video_002/visual_plan.json",
+    "ai_visual_generation": "agents/video_visual_pipeline/output/hiddenova/video_002/ai_visual_generation.json",
+    "ai_visual_qa": "agents/video_visual_pipeline/output/hiddenova/video_002/ai_visual_qa.json",
+    "thumbnail": "agents/video_visual_pipeline/output/hiddenova/video_002/thumbnail.jpg",
+    "publisher": "agents/video_publisher/output/hiddenova/video_002/publisher.json",
+    "youtube_video_id": "L7fmWb8bOTI",
+    "youtube_url": "https://youtu.be/L7fmWb8bOTI"
+  },
+  "quality_gates": {
+    "require_ai_visuals": true,
+    "minimum_ai_insert_count": 8,
+    "require_thumbnail": true,
+    "require_founder_review": true
+  },
+  "release": {
+    "uploaded_at": "2026-07-15T20:09:06.050666+03:00",
+    "visibility": "uploaded_visibility_not_verified",
+    "founder_video_review": "approved",
+    "intro_outro_exception": true,
+    "exception_note": "Video 2 approved for upload without standardized Hiddenova intro and outro. Mandatory from Video 3."
+  }
+}

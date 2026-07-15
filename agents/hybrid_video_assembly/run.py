@@ -75,11 +75,39 @@ def get_stock_manifest_path(channel: str, video_id: str | None = None) -> Path:
     return PROJECT_ROOT / "records" / "assets" / channel.lower() / "stock_footage_manifest.json"
 
 
-def get_ai_generation_latest_path(channel: str) -> Path:
+def get_ai_generation_latest_path(
+    channel: str,
+    video_id: str | None = None
+) -> Path:
+    if video_id:
+        return (
+            PROJECT_ROOT
+            / "agents"
+            / "video_visual_pipeline"
+            / "output"
+            / channel.lower()
+            / video_id
+            / "ai_visual_generation.json"
+        )
+
     return PROJECT_ROOT / "agents" / "ai_visual_generation" / "output" / channel.lower() / "latest.json"
 
 
-def get_ai_qa_latest_path(channel: str) -> Path:
+def get_ai_qa_latest_path(
+    channel: str,
+    video_id: str | None = None
+) -> Path:
+    if video_id:
+        return (
+            PROJECT_ROOT
+            / "agents"
+            / "video_visual_pipeline"
+            / "output"
+            / channel.lower()
+            / video_id
+            / "ai_visual_qa.json"
+        )
+
     return PROJECT_ROOT / "agents" / "ai_visual_qa" / "output" / channel.lower() / "latest.json"
 
 
@@ -169,19 +197,16 @@ def ai_image_filter(duration_seconds: float) -> str:
 
 def ensure_inputs_ready(
     audio_data: dict,
-    publisher_data: dict,
     ai_generation_data: dict,
     ai_qa_data: dict,
-    ai_inserts_enabled: bool
+    ai_inserts_enabled: bool,
+    video_id: str | None
 ) -> None:
     if audio_data.get("status") != "assembled":
         raise ValueError("Audio Assembly output is not assembled.")
 
     if not audio_data["readiness"].get("combined_audio_ready"):
         raise ValueError("Combined narration audio is not ready.")
-
-    if publisher_data.get("status") not in {"metadata_ready", "upload_ready"}:
-        raise ValueError("Publisher package is not metadata_ready or upload_ready.")
 
     if not ai_inserts_enabled:
         return
@@ -191,6 +216,26 @@ def ensure_inputs_ready(
 
     if ai_qa_data.get("status") != "approved":
         raise ValueError("AI Visual QA output is not approved.")
+
+    if video_id:
+        generation_video_id = ai_generation_data.get(
+            "source",
+            {}
+        ).get("video_id")
+        qa_video_id = ai_qa_data.get(
+            "source",
+            {}
+        ).get("video_id")
+
+        if generation_video_id != video_id:
+            raise ValueError(
+                "AI Visual Generation video_id does not match context."
+            )
+
+        if qa_video_id != video_id:
+            raise ValueError(
+                "AI Visual QA video_id does not match context."
+            )
 
 
 def get_audio_path(audio_data: dict) -> Path:
@@ -345,19 +390,23 @@ def load_ai_specs(ai_generation_data: dict, ai_qa_data: dict) -> list[dict]:
 
 
 def build_hybrid_cycle(stock_specs: list[dict], ai_specs: list[dict]) -> list[dict]:
+    if not ai_specs:
+        return list(stock_specs)
+
+    slots = {}
+
+    for ai_index, ai_spec in enumerate(ai_specs, start=1):
+        stock_position = round(
+            ai_index * len(stock_specs) / (len(ai_specs) + 1)
+        )
+        stock_position = max(1, min(stock_position, len(stock_specs)))
+        slots.setdefault(stock_position, []).append(ai_spec)
+
     cycle = []
-    ai_index = 0
 
     for index, stock_spec in enumerate(stock_specs, start=1):
         cycle.append(stock_spec)
-
-        if index % AI_INSERT_AFTER_STOCK_SEGMENTS == 0 and ai_index < len(ai_specs):
-            cycle.append(ai_specs[ai_index])
-            ai_index += 1
-
-    while ai_index < len(ai_specs):
-        cycle.append(ai_specs[ai_index])
-        ai_index += 1
+        cycle.extend(slots.get(index, []))
 
     return cycle
 
@@ -807,8 +856,14 @@ def main() -> None:
     audio_assembly_path = get_audio_assembly_latest_path(channel, video_id=video_id)
     publisher_path = get_publisher_latest_path(channel)
     stock_manifest_path = get_stock_manifest_path(channel, video_id=video_id)
-    ai_generation_path = get_ai_generation_latest_path(channel)
-    ai_qa_path = get_ai_qa_latest_path(channel)
+    ai_generation_path = get_ai_generation_latest_path(
+        channel,
+        video_id=video_id
+    )
+    ai_qa_path = get_ai_qa_latest_path(
+        channel,
+        video_id=video_id
+    )
 
     audio_data = load_json(audio_assembly_path)
     publisher_data = load_json(publisher_path)
@@ -816,17 +871,16 @@ def main() -> None:
     ai_generation_data = load_json(ai_generation_path)
     ai_qa_data = load_json(ai_qa_path)
 
-    ai_inserts_enabled = video_id is None
-
-    if video_id == "video_002":
-        ai_inserts_enabled = False
+    ai_inserts_enabled = video_id is not None or (
+        ai_generation_path.exists() and ai_qa_path.exists()
+    )
 
     ensure_inputs_ready(
         audio_data=audio_data,
-        publisher_data=publisher_data,
         ai_generation_data=ai_generation_data,
         ai_qa_data=ai_qa_data,
-        ai_inserts_enabled=ai_inserts_enabled
+        ai_inserts_enabled=ai_inserts_enabled,
+        video_id=video_id
     )
 
     audio_path = get_audio_path(audio_data)
