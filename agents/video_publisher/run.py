@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 from pathlib import Path
 
@@ -73,14 +73,24 @@ def main() -> None:
     thumbnail_record_path = visual_output_dir / "thumbnail.json"
     visual_qa_path = visual_output_dir / "ai_visual_qa.json"
 
-    video_qa_path = (
-        PROJECT_ROOT
-        / "agents"
-        / "video_qa"
-        / "output"
-        / channel
-        / "latest.json"
-    )
+    video_qa_reference = context.get(
+        "outputs",
+        {}
+    ).get("video_qa")
+
+    if not video_qa_reference:
+        raise ValueError(
+            "Run context has no video_qa output."
+        )
+
+    if video_qa_reference.replace("\\", "/").lower().endswith(
+        "/latest.json"
+    ):
+        raise ValueError(
+            "Production publisher cannot use video_qa latest.json."
+        )
+
+    video_qa_path = PROJECT_ROOT / video_qa_reference
 
     script_data = load_json(script_path)
     seo_data = load_json(seo_path)

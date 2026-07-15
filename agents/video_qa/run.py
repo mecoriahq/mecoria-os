@@ -1,7 +1,8 @@
-﻿import argparse
+import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import imageio_ffmpeg
@@ -13,6 +14,16 @@ from output import save_output
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.video_run_context import (
+    load_context,
+    register_output,
+    save_context,
+    set_status,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_SOURCE_AGENT = "hybrid_video_assembly"
@@ -36,8 +47,41 @@ def load_schema() -> dict:
     return load_json(BASE_DIR / "schema.json")
 
 
-def get_source_latest_path(channel: str, source_agent: str) -> Path:
-    return PROJECT_ROOT / "agents" / source_agent / "output" / channel.lower() / "latest.json"
+def get_source_path(
+    channel: str,
+    source_agent: str,
+    video_id: str | None = None
+) -> Path:
+    if video_id:
+        context = load_context(
+            channel=channel,
+            video_id=video_id
+        )
+
+        reference = context.get("outputs", {}).get(source_agent)
+
+        if not reference:
+            raise ValueError(
+                f"Run context has no {source_agent} output."
+            )
+
+        normalized = reference.replace("\\", "/").lower()
+
+        if normalized.endswith("/latest.json"):
+            raise ValueError(
+                "Production video QA source cannot use latest.json."
+            )
+
+        return PROJECT_ROOT / reference
+
+    return (
+        PROJECT_ROOT
+        / "agents"
+        / source_agent
+        / "output"
+        / channel.lower()
+        / "latest.json"
+    )
 
 
 def get_relative_path(path: Path) -> str:
@@ -222,6 +266,48 @@ def build_output(channel: str, source_agent: str, source_path: Path, source_data
     }
 
 
+
+def save_video_specific_qa(
+    context: dict,
+    data: dict
+) -> Path:
+    output_dir = (
+        BASE_DIR
+        / "output"
+        / context["channel"]
+        / context["video_id"]
+        / context["run_id"]
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = output_dir / "video_qa.json"
+    output_path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=True),
+        encoding="utf-8"
+    )
+
+    context = register_output(
+        context=context,
+        agent="video_qa",
+        reference=get_relative_path(output_path),
+        status=data["status"]
+    )
+
+    if context.get("status") not in {
+        "uploaded_for_founder_review",
+        "published",
+        "public"
+    }:
+        context = set_status(
+            context=context,
+            status="video_qa_ready",
+            next_agent="video_publisher"
+        )
+
+    save_context(context)
+    return output_path
+
+
 def print_summary(output: dict) -> None:
     print("Video QA Agent completed successfully.")
     print(f"Status: {output['status']}")
@@ -246,6 +332,12 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--video-id",
+        default=None,
+        help="Video context identifier, for example video_003."
+    )
+
+    parser.add_argument(
         "--source-agent",
         default=DEFAULT_SOURCE_AGENT,
         help="Source assembly agent. Default: hybrid_video_assembly"
@@ -258,12 +350,20 @@ def main() -> None:
     args = parse_args()
     channel = args.channel.lower()
     source_agent = args.source_agent
+    video_id = args.video_id.lower() if args.video_id else None
 
     load_dotenv(PROJECT_ROOT / ".env")
 
-    source_path = get_source_latest_path(
+    context = (
+        load_context(channel=channel, video_id=video_id)
+        if video_id
+        else None
+    )
+
+    source_path = get_source_path(
         channel=channel,
-        source_agent=source_agent
+        source_agent=source_agent,
+        video_id=video_id
     )
 
     source_data = load_json(source_path)
@@ -275,6 +375,9 @@ def main() -> None:
         source_data=source_data
     )
 
+    if context:
+        final_output["source"]["title"] = context["topic_title"]
+
     schema = load_schema()
     validate(instance=final_output, schema=schema)
 
@@ -283,8 +386,22 @@ def main() -> None:
         data=final_output
     )
 
+    video_specific_path = None
+
+    if context:
+        video_specific_path = save_video_specific_qa(
+            context=context,
+            data=final_output
+        )
+
     print_summary(final_output)
     print(f"Output saved to: {latest_path}")
+
+    if video_specific_path:
+        print(
+            "VIDEO_CONTEXT_OUTPUT: "
+            f"{get_relative_path(video_specific_path)}"
+        )
 
 
 if __name__ == "__main__":

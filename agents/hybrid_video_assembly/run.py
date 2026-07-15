@@ -4,6 +4,7 @@ import math
 import re
 import subprocess
 from datetime import datetime
+import sys
 from pathlib import Path
 
 import imageio_ffmpeg
@@ -15,6 +16,16 @@ from output import save_output
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.video_run_context import (
+    load_context,
+    register_output,
+    save_context,
+    set_status,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 OUTPUT_FILENAME = "hybrid_video_draft.mp4"
@@ -861,6 +872,54 @@ def dry_run(final_output: dict, stock_specs: list[dict], ai_specs: list[dict]) -
         )
 
 
+
+def save_video_specific_output(
+    channel: str,
+    video_id: str,
+    data: dict
+) -> Path:
+    context = load_context(
+        channel=channel,
+        video_id=video_id
+    )
+
+    output_dir = (
+        BASE_DIR
+        / "output"
+        / channel
+        / video_id
+        / context["run_id"]
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = output_dir / "hybrid_video_assembly.json"
+    output_path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=True),
+        encoding="utf-8"
+    )
+
+    context = register_output(
+        context=context,
+        agent="hybrid_video_assembly",
+        reference=get_relative_path(output_path),
+        status="draft_ready"
+    )
+
+    if context.get("status") not in {
+        "uploaded_for_founder_review",
+        "published",
+        "public"
+    }:
+        context = set_status(
+            context=context,
+            status="video_draft_ready",
+            next_agent="video_qa"
+        )
+
+    save_context(context)
+    return output_path
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Assemble a hybrid video from stock footage, AI visual inserts, and narration audio."
@@ -1025,9 +1084,24 @@ def main() -> None:
         data=final_output
     )
 
+    video_specific_path = None
+
+    if video_id:
+        video_specific_path = save_video_specific_output(
+            channel=channel,
+            video_id=video_id,
+            data=final_output
+        )
+
     print("Hybrid Video Assembly Agent completed successfully.")
     print(f"Video draft saved to: {video_path}")
     print(f"Output saved to: {latest_path}")
+
+    if video_specific_path:
+        print(
+            "VIDEO_CONTEXT_OUTPUT: "
+            f"{get_relative_path(video_specific_path)}"
+        )
 
 
 if __name__ == "__main__":

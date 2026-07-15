@@ -21,7 +21,9 @@
     "thumbnail": "agents/video_visual_pipeline/output/hiddenova/video_002/thumbnail.jpg",
     "publisher": "agents/video_publisher/output/hiddenova/video_002/publisher.json",
     "youtube_video_id": "L7fmWb8bOTI",
-    "youtube_url": "https://youtu.be/L7fmWb8bOTI"
+    "youtube_url": "https://youtu.be/L7fmWb8bOTI",
+    "hybrid_video_assembly": "agents/hybrid_video_assembly/output/hiddenova/video_002/hiddenova_video_002_v1/hybrid_video_assembly.json",
+    "video_qa": "agents/video_qa/output/hiddenova/video_002/hiddenova_video_002_v1/video_qa.json"
   },
   "quality_gates": {
     "require_ai_visuals": true,
@@ -35,5 +37,21 @@
     "founder_video_review": "approved",
     "intro_outro_exception": true,
     "exception_note": "Video 2 approved for upload without standardized Hiddenova intro and outro. Mandatory from Video 3."
-  }
+  },
+  "history": [
+    {
+      "agent": "hybrid_video_assembly",
+      "status": "draft_ready",
+      "output_reference": "agents/hybrid_video_assembly/output/hiddenova/video_002/hiddenova_video_002_v1/hybrid_video_assembly.json",
+      "recorded_at": "2026-07-15T18:09:15.167717+00:00"
+    },
+    {
+      "agent": "video_qa",
+      "status": "approved",
+      "output_reference": "agents/video_qa/output/hiddenova/video_002/hiddenova_video_002_v1/video_qa.json",
+      "recorded_at": "2026-07-15T18:09:15.350034+00:00"
+    }
+  ],
+  "updated_at": "2026-07-15T18:09:15.350044+00:00",
+  "created_at": "2026-07-15T18:09:15.167729+00:00"
 }

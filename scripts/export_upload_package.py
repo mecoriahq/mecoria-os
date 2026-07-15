@@ -1,7 +1,8 @@
-﻿import argparse
+import argparse
 import json
 import shutil
 from datetime import datetime
+import sys
 from pathlib import Path
 
 from PIL import Image
@@ -9,6 +10,16 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CHANNEL = "hiddenova"
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.video_run_context import (
+    load_context,
+    register_output,
+    save_context,
+    set_status,
+)
 
 YOUTUBE_THUMBNAIL_SIZE = (1280, 720)
 YOUTUBE_THUMBNAIL_RATIO = 16 / 9
@@ -44,19 +55,105 @@ def normalize_thumbnail(source_path: Path, target_path: Path) -> None:
     image.save(target_path, quality=95)
 
 
-def get_publisher_latest_path(channel: str) -> Path:
-    return PROJECT_ROOT / "agents" / "publisher" / "output" / channel.lower() / "latest.json"
+def get_publisher_path(
+    channel: str,
+    video_id: str | None = None
+) -> tuple[Path, dict | None]:
+    if video_id:
+        context = load_context(
+            channel=channel,
+            video_id=video_id
+        )
+
+        reference = context.get(
+            "outputs",
+            {}
+        ).get("publisher")
+
+        if not reference:
+            raise ValueError(
+                "Run context has no publisher output."
+            )
+
+        if reference.replace("\\", "/").lower().endswith(
+            "/latest.json"
+        ):
+            raise ValueError(
+                "Production export cannot use publisher latest.json."
+            )
+
+        return PROJECT_ROOT / reference, context
+
+    legacy_path = (
+        PROJECT_ROOT
+        / "agents"
+        / "publisher"
+        / "output"
+        / channel.lower()
+        / "latest.json"
+    )
+    return legacy_path, None
 
 
-def create_export_dir(channel: str) -> Path:
+def create_export_dir(
+    channel: str,
+    video_id: str | None = None,
+    run_id: str | None = None
+) -> Path:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    export_dir = PROJECT_ROOT / "exports" / "upload_packages" / channel.lower() / timestamp
+
+    export_dir = (
+        PROJECT_ROOT
+        / "exports"
+        / "upload_packages"
+        / channel.lower()
+    )
+
+    if video_id:
+        export_dir = export_dir / video_id
+
+    if run_id:
+        export_dir = export_dir / run_id
+
+    export_dir = export_dir / timestamp
     export_dir.mkdir(parents=True, exist_ok=True)
+    if context:
+        metadata_path = export_dir / "metadata.json"
+
+        context = register_output(
+            context=context,
+            agent="export_package",
+            reference=str(
+                metadata_path.relative_to(PROJECT_ROOT)
+            ).replace("\\", "/"),
+            status="export_ready"
+        )
+
+        if context.get("status") not in {
+            "uploaded_for_founder_review",
+            "published",
+            "public"
+        }:
+            context = set_status(
+                context=context,
+                status="export_ready",
+                next_agent="youtube_upload"
+            )
+
+        save_context(context)
+
     return export_dir
 
 
-def export_upload_package(channel: str) -> Path:
-    publisher_path = get_publisher_latest_path(channel)
+def export_upload_package(
+    channel: str,
+    video_id: str | None = None,
+    dry_run: bool = False
+) -> Path | None:
+    publisher_path, context = get_publisher_path(
+        channel=channel,
+        video_id=video_id
+    )
     publisher_data = load_json(publisher_path)
 
     if publisher_data.get("status") != "upload_ready":
@@ -75,7 +172,28 @@ def export_upload_package(channel: str) -> Path:
     if not thumbnail_source.exists():
         raise FileNotFoundError(f"Thumbnail file not found: {thumbnail_source}")
 
-    export_dir = create_export_dir(channel)
+    if dry_run:
+        print(f"CHANNEL: {channel}")
+        print(f"VIDEO_ID: {video_id}")
+        print(
+            "PUBLISHER_SOURCE: "
+            + str(
+                publisher_path.relative_to(PROJECT_ROOT)
+            ).replace("\\", "/")
+        )
+        print(f"VIDEO_SOURCE: {assets['video_file_path']}")
+        print(
+            "THUMBNAIL_SOURCE: "
+            f"{assets['thumbnail_image_path']}"
+        )
+        print("STATUS: export_dry_run_ready")
+        return None
+
+    export_dir = create_export_dir(
+        channel=channel,
+        video_id=video_id,
+        run_id=context["run_id"] if context else None
+    )
 
     video_target = export_dir / "video.mp4"
     thumbnail_target = export_dir / "thumbnail.png"
@@ -168,16 +286,37 @@ def parse_args() -> argparse.Namespace:
         help="Channel name. Default: hiddenova"
     )
 
+    parser.add_argument(
+        "--video-id",
+        default=None,
+        help="Video context identifier, for example video_003."
+    )
+
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate package sources without exporting files."
+    )
+
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
 
-    export_dir = export_upload_package(args.channel)
+    export_dir = export_upload_package(
+        channel=args.channel.lower(),
+        video_id=(
+            args.video_id.lower()
+            if args.video_id
+            else None
+        ),
+        dry_run=args.dry_run
+    )
 
-    print("Upload package exported successfully.")
-    print(f"Export directory: {export_dir}")
+    if export_dir:
+        print("Upload package exported successfully.")
+        print(f"Export directory: {export_dir}")
 
 
 if __name__ == "__main__":
