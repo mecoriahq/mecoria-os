@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-15T21:21:13.972022+00:00",
+  "updated_at": "2026-07-15T21:42:55.218911+00:00",
   "assets": {
     "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db": {
       "sha256": "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db",
@@ -946,22 +946,6 @@
         }
       ]
     },
-    "a6574ed72564da68a9382c1b0cb0ff2d42d9c4bfd07003370db06f09f74625af": {
-      "sha256": "a6574ed72564da68a9382c1b0cb0ff2d42d9c4bfd07003370db06f09f74625af",
-      "size_bytes": 171951,
-      "asset_type": "thumbnail",
-      "shared_brand_asset": false,
-      "first_registered_at": "2026-07-15T20:53:40.362312+00:00",
-      "usages": [
-        {
-          "channel": "hiddenova",
-          "video_id": "video_003",
-          "run_id": "hiddenova_video_003_v1",
-          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.jpg",
-          "registered_at": "2026-07-15T20:53:40.362315+00:00"
-        }
-      ]
-    },
     "80802db820d5a35b62e59a514e53479a5469ce604855886077d97d2842f41a11": {
       "sha256": "80802db820d5a35b62e59a514e53479a5469ce604855886077d97d2842f41a11",
       "size_bytes": 225085047,
@@ -1247,6 +1231,38 @@
           "run_id": "hiddenova_video_003_v1",
           "relative_path": "assets/stock/hiddenova/video_003_undersea_cable/approved/V003-A018-cable-landing-beach.mp4",
           "registered_at": "2026-07-15T21:21:13.971916+00:00"
+        }
+      ]
+    },
+    "fb131ee7571a16942ff398cdcf956dae1392a72ff7fb7c043034fd9bed99bf6e": {
+      "sha256": "fb131ee7571a16942ff398cdcf956dae1392a72ff7fb7c043034fd9bed99bf6e",
+      "size_bytes": 286721616,
+      "asset_type": "final_video",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:25:43.748241+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "agents/hybrid_video_assembly/output/hiddenova/video_003/hiddenova_video_003_v1/render/hybrid_video_draft.mp4",
+          "registered_at": "2026-07-15T21:25:43.748254+00:00"
+        }
+      ]
+    },
+    "fc80e9b08d5c4da5d9495c0c9cc332cfad0604f60d40d91ec8d6393d04554e9d": {
+      "sha256": "fc80e9b08d5c4da5d9495c0c9cc332cfad0604f60d40d91ec8d6393d04554e9d",
+      "size_bytes": 382658,
+      "asset_type": "thumbnail",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-15T21:42:55.218751+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_003",
+          "run_id": "hiddenova_video_003_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_003/hiddenova_video_003_v1/thumbnail.jpg",
+          "registered_at": "2026-07-15T21:42:55.218764+00:00"
         }
       ]
     }

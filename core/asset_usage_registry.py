@@ -1,4 +1,4 @@
-﻿import hashlib
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -281,6 +281,68 @@ def register_asset_batch(
         registry=registry,
         registry_path=registry_path
     )
+
+
+
+def remove_asset_usage_for_path(
+    path: Path,
+    channel: str,
+    video_id: str,
+    asset_type: str | None = None,
+    registry_path: Path = DEFAULT_REGISTRY_PATH,
+    project_root: Path = PROJECT_ROOT
+) -> int:
+    registry = load_registry(registry_path)
+
+    reference = normalize_reference(
+        path=path,
+        project_root=project_root
+    )
+
+    removed_count = 0
+
+    for asset_hash, asset in list(
+        registry.get("assets", {}).items()
+    ):
+        if (
+            asset_type is not None
+            and asset.get("asset_type")
+            != asset_type
+        ):
+            continue
+
+        retained_usages = []
+
+        for usage in asset.get("usages", []):
+            matches = (
+                usage.get("channel")
+                == channel.lower()
+                and usage.get("video_id")
+                == video_id.lower()
+                and usage.get("relative_path")
+                == reference
+            )
+
+            if matches:
+                removed_count += 1
+            else:
+                retained_usages.append(usage)
+
+        asset["usages"] = retained_usages
+
+        if not retained_usages:
+            registry["assets"].pop(
+                asset_hash,
+                None
+            )
+
+    if removed_count:
+        save_registry(
+            registry=registry,
+            registry_path=registry_path
+        )
+
+    return removed_count
 
 
 def assert_asset_registered(

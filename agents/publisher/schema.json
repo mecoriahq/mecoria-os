@@ -155,6 +155,8 @@
     "source": {
       "type": "object",
       "required": [
+        "run_id",
+        "video_id",
         "source_agents",
         "execution_context_status",
         "execution_context_next_agent",
@@ -188,6 +190,14 @@
             "string",
             "null"
           ]
+        },
+        "video_id": {
+          "type": "string",
+          "pattern": "^video_[0-9]{3,}$"
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "additionalProperties": false

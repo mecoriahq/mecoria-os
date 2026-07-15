@@ -31,7 +31,15 @@ from core.video_run_context import (
 from core.asset_usage_registry import (
     build_asset_record,
     register_asset_batch,
+    remove_asset_usage_for_path,
     validate_asset_batch,
+)
+
+from core.thumbnail_standard import (
+    assert_thumbnail_text,
+    build_thumbnail_background_prompt,
+    build_thumbnail_qa_checklist,
+    load_thumbnail_standard,
 )
 
 DEFAULT_CHANNEL = "hiddenova"
@@ -288,7 +296,7 @@ Return one JSON object with exactly this structure:
 
 {{
   "thumbnail": {{
-    "overlay_text": "1 to 4 English words in uppercase",
+    "overlay_text": "2 to 4 English words in uppercase",
     "text_position": "left or right",
     "background_prompt": "specific cinematic thumbnail background prompt with no text"
   }},
@@ -315,7 +323,7 @@ Rules:
 - No embedded text inside generated images.
 - Thumbnail must use one dominant subject.
 - Thumbnail must have strong contrast and clear text space.
-- Thumbnail text must contain 1 to 4 words.
+- Thumbnail text must contain 2 to 4 words.
 - Thumbnail text must not repeat the full video title.
 - Prefer the supplied thumbnail hint when valid.
 """
@@ -475,16 +483,38 @@ def create_thumbnail(
     output_path: Path,
     overlay_text: str,
     text_position: str
-) -> None:
-    words = re.findall(
-        r"[A-Za-z0-9]+",
-        overlay_text.upper()
+) -> dict:
+    standard = load_thumbnail_standard()
+
+    text_result = assert_thumbnail_text(
+        value=overlay_text,
+        standard=standard
     )
 
-    if not 1 <= len(words) <= 4:
-        raise ValueError(
-            "Thumbnail text must contain 1 to 4 words."
-        )
+    words = text_result[
+        "normalized_text"
+    ].split()
+
+    white = (255, 255, 255, 255)
+    yellow = (255, 214, 0, 255)
+
+    if len(words) == 2:
+        lines = [
+            (words[0], white),
+            (words[1], yellow)
+        ]
+    elif len(words) == 3:
+        lines = [
+            (words[0], white),
+            (words[1], white),
+            (words[2], yellow)
+        ]
+    else:
+        lines = [
+            (" ".join(words[:2]), white),
+            (words[2], white),
+            (words[3], yellow)
+        ]
 
     with Image.open(background_path) as source:
         image = ImageOps.fit(
@@ -495,114 +525,157 @@ def create_thumbnail(
 
     draw = ImageDraw.Draw(image, "RGBA")
 
-    if len(words) == 1:
-        split_at = max(1, len(words[0]) // 2)
-        line_groups = [
-            [
-                (words[0][:split_at], (255, 255, 255, 255)),
-                (words[0][split_at:], (255, 210, 0, 255))
+    target_width_min = int(
+        1280
+        * float(
+            standard["layout"][
+                "text_area_ratio_min"
             ]
-        ]
-    elif len(words) == 2:
-        line_groups = [
-            [(words[0], (255, 255, 255, 255))],
-            [(words[1], (255, 210, 0, 255))]
-        ]
-    elif len(words) == 3:
-        line_groups = [
-            [(words[0], (255, 255, 255, 255))],
-            [(" ".join(words[1:]), (255, 210, 0, 255))]
-        ]
-    else:
-        line_groups = [
-            [(" ".join(words[:2]), (255, 255, 255, 255))],
-            [(" ".join(words[2:]), (255, 210, 0, 255))]
-        ]
+        )
+    )
+    target_width_max = int(
+        1280
+        * float(
+            standard["layout"][
+                "text_area_ratio_max"
+            ]
+        )
+    )
 
-    font_size = 158
-    font = get_font(font_size)
+    target_height_max = int(720 * 0.78)
+    stroke_width = 12
+    shadow_offset = 8
+    font_size = 210
 
-    def line_width(group) -> int:
-        total = 0
+    def measure(
+        current_font: ImageFont.FreeTypeFont
+    ) -> tuple[list[int], list[int]]:
+        widths = []
+        heights = []
 
-        for segment, _ in group:
+        for line, _ in lines:
             box = draw.textbbox(
                 (0, 0),
-                segment,
-                font=font,
-                stroke_width=10
+                line,
+                font=current_font,
+                stroke_width=stroke_width
             )
-            total += box[2] - box[0]
 
-        return total
+            widths.append(box[2] - box[0])
+            heights.append(box[3] - box[1])
 
-    while font_size > 76:
-        widths = [
-            line_width(group)
-            for group in line_groups
-        ]
+        return widths, heights
 
-        if max(widths) <= 570:
+    while font_size > 96:
+        font = get_font(font_size)
+        widths, heights = measure(font)
+
+        line_gap = max(
+            4,
+            int(font_size * 0.03)
+        )
+
+        total_height = (
+            sum(heights)
+            + line_gap * (len(lines) - 1)
+        )
+
+        if (
+            max(widths) <= target_width_max
+            and total_height <= target_height_max
+        ):
             break
 
-        font_size -= 6
-        font = get_font(font_size)
+        font_size -= 4
 
-    line_height = font_size + 30
-    total_height = len(line_groups) * line_height
-    y = max(100, int((720 - total_height) / 2))
+    font = get_font(font_size)
+    widths, heights = measure(font)
 
-    for group in line_groups:
-        width = line_width(group)
+    line_gap = max(
+        4,
+        int(font_size * 0.03)
+    )
 
-        x = (
-            70
-            if text_position == "left"
-            else 1210 - width
+    total_height = (
+        sum(heights)
+        + line_gap * (len(lines) - 1)
+    )
+
+    y = int((720 - total_height) / 2)
+
+    for index, (line, color) in enumerate(lines):
+        width = widths[index]
+        height = heights[index]
+
+        if text_position == "right":
+            x = 1280 - width - 45
+        else:
+            x = 45
+
+        draw.text(
+            (
+                x + shadow_offset,
+                y + shadow_offset
+            ),
+            line,
+            font=font,
+            fill=(0, 0, 0, 220),
+            stroke_width=stroke_width + 3,
+            stroke_fill=(0, 0, 0, 255)
         )
 
-        background_box = (
-            x - 22,
-            y - 14,
-            x + width + 22,
-            y + font_size + 20
+        draw.text(
+            (x, y),
+            line,
+            font=font,
+            fill=color,
+            stroke_width=stroke_width,
+            stroke_fill=(0, 0, 0, 255)
         )
 
-        draw.rounded_rectangle(
-            background_box,
-            radius=18,
-            fill=(0, 0, 0, 155)
-        )
+        y += height + line_gap
 
-        cursor_x = x
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-        for segment, color in group:
-            draw.text(
-                (cursor_x, y),
-                segment,
-                font=font,
-                fill=color,
-                stroke_width=10,
-                stroke_fill=(0, 0, 0, 255)
-            )
-
-            box = draw.textbbox(
-                (0, 0),
-                segment,
-                font=font,
-                stroke_width=10
-            )
-            cursor_x += box[2] - box[0]
-
-        y += line_height
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(
         output_path,
         format="JPEG",
         quality=95,
         optimize=True
     )
+
+    max_line_width = max(widths)
+    text_width_ratio = round(
+        max_line_width / 1280,
+        4
+    )
+
+    return {
+        "font_size": font_size,
+        "line_count": len(lines),
+        "max_line_width": max_line_width,
+        "text_width_ratio": text_width_ratio,
+        "text_width_target_min": round(
+            target_width_min / 1280,
+            4
+        ),
+        "text_width_target_max": round(
+            target_width_max / 1280,
+            4
+        ),
+        "text_block_height_ratio": round(
+            total_height / 720,
+            4
+        ),
+        "stroke_width": stroke_width,
+        "shadow_offset": shadow_offset,
+        "standard_name": standard[
+            "standard_name"
+        ]
+    }
 
 
 def inspect_image(path: Path) -> dict:
@@ -693,6 +766,13 @@ def register_visual_asset_ownership(
     thumbnail_path = (
         PROJECT_ROOT
         / thumbnail_data["relative_path"]
+    )
+
+    remove_asset_usage_for_path(
+        path=thumbnail_path,
+        channel=context["channel"],
+        video_id=context["video_id"],
+        asset_type="thumbnail"
     )
 
     thumbnail_record = build_asset_record(
@@ -826,6 +906,12 @@ def generate_outputs(
         context["run_id"]
     )
     image_dir = output_dir / "images"
+    thumbnail_standard = load_thumbnail_standard()
+
+    thumbnail_text_result = assert_thumbnail_text(
+        value=plan["thumbnail"]["overlay_text"],
+        standard=thumbnail_standard
+    )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     image_dir.mkdir(parents=True, exist_ok=True)
@@ -904,14 +990,19 @@ def generate_outputs(
     )
 
     thumbnail_prompt = (
-        f"{plan['thumbnail']['background_prompt']}\n"
-        f"Exact documentary topic: {context['topic_title']}.\n"
-        "Create a premium cinematic YouTube documentary thumbnail "
-        "background with one dominant subject and strong visual tension. "
-        "Keep clear negative space for a large short text overlay on the "
-        f"{plan['thumbnail']['text_position']}. "
-        "Do not include any embedded text, logos, brand names, "
-        "barcodes, private data, or unrelated imagery."
+        build_thumbnail_background_prompt(
+            video_topic=context["topic_title"],
+            main_subject=plan["thumbnail"][
+                "background_prompt"
+            ],
+            thumbnail_text=thumbnail_text_result[
+                "normalized_text"
+            ],
+            text_position=plan["thumbnail"][
+                "text_position"
+            ],
+            standard=thumbnail_standard
+        )
     )
 
     reuse_thumbnail_background = (
@@ -944,6 +1035,8 @@ def generate_outputs(
 
     thumbnail_path = output_dir / "thumbnail.jpg"
 
+    thumbnail_layout = None
+
     reuse_thumbnail = (
         not force_regenerate
         and existing_image_is_valid(thumbnail_path)
@@ -955,11 +1048,15 @@ def generate_outputs(
             flush=True
         )
     else:
-        create_thumbnail(
+        thumbnail_layout = create_thumbnail(
             background_path=thumbnail_background_path,
             output_path=thumbnail_path,
-            overlay_text=plan["thumbnail"]["overlay_text"],
-            text_position=plan["thumbnail"]["text_position"]
+            overlay_text=thumbnail_text_result[
+                "normalized_text"
+            ],
+            text_position=plan["thumbnail"][
+                "text_position"
+            ]
         )
 
     generation_output = {
@@ -1056,30 +1153,72 @@ def generate_outputs(
         }
     }
 
+    thumbnail_qa = build_thumbnail_qa_checklist(
+        thumbnail_text=thumbnail_text_result[
+            "normalized_text"
+        ],
+        standard=thumbnail_standard
+    )
+
+    if thumbnail_layout:
+        automatic_checks = thumbnail_qa[
+            "automatic_checks"
+        ]
+
+        automatic_checks.update({
+            "text_is_very_large": (
+                thumbnail_layout["font_size"]
+                >= 130
+            ),
+            "mobile_readability_passed": (
+                thumbnail_layout["font_size"]
+                >= 130
+                and thumbnail_layout[
+                    "text_width_ratio"
+                ] >= 0.35
+            ),
+            "standard_layout_applied": True
+        })
+
     thumbnail_output = {
         "agent": "video_visual_pipeline",
-        "version": "1.0",
+        "version": "2.0",
         "channel": channel,
         "video_id": video_id,
         "run_id": context["run_id"],
         "status": "thumbnail_ready",
         "thumbnail": {
-            "overlay_text": plan["thumbnail"]["overlay_text"],
-            "text_position": plan["thumbnail"]["text_position"],
-            "relative_path": relative_path(thumbnail_path),
-            "size_bytes": thumbnail_path.stat().st_size,
+            "standard_name": thumbnail_standard[
+                "standard_name"
+            ],
+            "overlay_text": thumbnail_text_result[
+                "normalized_text"
+            ],
+            "text_position": plan["thumbnail"][
+                "text_position"
+            ],
+            "relative_path": relative_path(
+                thumbnail_path
+            ),
+            "size_bytes": (
+                thumbnail_path.stat().st_size
+            ),
             "width": 1280,
             "height": 720,
             "text_style": {
-                "size": "large",
+                "size": "very_large",
+                "weight": "bold",
                 "two_color": True,
                 "colors": [
                     "white",
                     "yellow"
                 ],
                 "stroke": "black",
+                "stroke_weight": "strong",
                 "mobile_readable": True
-            }
+            },
+            "layout_metrics": thumbnail_layout,
+            "qa": thumbnail_qa
         }
     }
 
@@ -1349,7 +1488,13 @@ def main() -> None:
     ).update({
         "allow_cross_video_asset_reuse": False,
         "require_visual_asset_registry_ownership": True,
-        "require_thumbnail_asset_registry_ownership": True
+        "require_thumbnail_asset_registry_ownership": True,
+        "require_hiddenova_thumbnail_standard": True,
+        "thumbnail_style": "hiddenova_cinematic_v1",
+        "thumbnail_text_min_words": 2,
+        "thumbnail_text_max_words": 4,
+        "thumbnail_text_size": "very_large",
+        "thumbnail_mobile_readability_priority": "maximum"
     })
 
 

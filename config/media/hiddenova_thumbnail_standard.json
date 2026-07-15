@@ -1,0 +1,79 @@
+﻿{
+  "standard_name": "hiddenova_cinematic_v1",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "purpose": "Create repeatable high-CTR cinematic documentary thumbnails.",
+  "text": {
+    "required": true,
+    "case": "uppercase",
+    "min_words": 2,
+    "max_words": 4,
+    "size": "very_large",
+    "weight": "bold",
+    "colors": [
+      "white",
+      "yellow"
+    ],
+    "stroke": "black",
+    "stroke_weight": "strong",
+    "mobile_readable": true
+  },
+  "layout": {
+    "subject_count": 1,
+    "clutter_level": "low",
+    "negative_space_required": true,
+    "text_position": "auto_optimize",
+    "composition_priority": "clarity_first",
+    "text_area_ratio_min": 0.35,
+    "text_area_ratio_max": 0.55
+  },
+  "visual_tone": {
+    "cinematic": true,
+    "documentary": true,
+    "high_contrast": true,
+    "mystery": true,
+    "tension": true,
+    "premium": true,
+    "hidden_system_feeling": true
+  },
+  "subject_rules": {
+    "dominant_subject_required": true,
+    "topic_connection_required": true,
+    "fast_recognition_required": true,
+    "emotional_tension_required": true
+  },
+  "forbidden_elements": [
+    "small_text",
+    "long_text",
+    "multi_subject_clutter",
+    "logos",
+    "watermarks",
+    "embedded_ui_clutter",
+    "low_contrast",
+    "generic_stock_layout",
+    "unrelated_objects",
+    "paragraph_text"
+  ],
+  "quality_priority": [
+    "readability",
+    "curiosity",
+    "strong_subject",
+    "clean_composition",
+    "brand_consistency",
+    "aesthetic_polish"
+  ],
+  "qa_gates": {
+    "text_word_count_valid": true,
+    "text_is_uppercase": true,
+    "text_is_very_large": true,
+    "mobile_readability_passed": true,
+    "high_contrast_passed": true,
+    "single_dominant_subject_passed": true,
+    "clean_composition_passed": true,
+    "hiddenova_brand_fit_passed": true,
+    "mystery_tension_passed": true,
+    "no_clutter_passed": true,
+    "no_logo_or_watermark_passed": true,
+    "ctr_strength_passed": true
+  }
+}
