@@ -48,20 +48,30 @@ def load_schema() -> dict:
     return load_json(BASE_DIR / "schema.json")
 
 
-def get_audio_assembly_latest_path(channel: str) -> Path:
+def get_audio_assembly_latest_path(channel: str, video_id: str | None = None) -> Path:
+    audio_assembly_path = PROJECT_ROOT / "agents" / "audio_assembly" / "output" / channel.lower() / "latest.json"
     extended_audio_path = PROJECT_ROOT / "agents" / "intro_outro_audio_assembly" / "output" / channel.lower() / "latest.json"
+
+    if video_id:
+        return audio_assembly_path
 
     if extended_audio_path.exists():
         return extended_audio_path
 
-    return PROJECT_ROOT / "agents" / "audio_assembly" / "output" / channel.lower() / "latest.json"
+    return audio_assembly_path
 
 
 def get_publisher_latest_path(channel: str) -> Path:
     return PROJECT_ROOT / "agents" / "publisher" / "output" / channel.lower() / "latest.json"
 
 
-def get_stock_manifest_path(channel: str) -> Path:
+def get_stock_manifest_path(channel: str, video_id: str | None = None) -> Path:
+    if video_id == "video_002":
+        video_specific_manifest = PROJECT_ROOT / "records" / "assets" / channel.lower() / "video_002_stock_footage_manifest.json"
+
+        if video_specific_manifest.exists():
+            return video_specific_manifest
+
     return PROJECT_ROOT / "records" / "assets" / channel.lower() / "stock_footage_manifest.json"
 
 
@@ -157,7 +167,13 @@ def ai_image_filter(duration_seconds: float) -> str:
     )
 
 
-def ensure_inputs_ready(audio_data: dict, publisher_data: dict, ai_generation_data: dict, ai_qa_data: dict) -> None:
+def ensure_inputs_ready(
+    audio_data: dict,
+    publisher_data: dict,
+    ai_generation_data: dict,
+    ai_qa_data: dict,
+    ai_inserts_enabled: bool
+) -> None:
     if audio_data.get("status") != "assembled":
         raise ValueError("Audio Assembly output is not assembled.")
 
@@ -166,6 +182,9 @@ def ensure_inputs_ready(audio_data: dict, publisher_data: dict, ai_generation_da
 
     if publisher_data.get("status") not in {"metadata_ready", "upload_ready"}:
         raise ValueError("Publisher package is not metadata_ready or upload_ready.")
+
+    if not ai_inserts_enabled:
+        return
 
     if ai_generation_data.get("status") != "images_ready":
         raise ValueError("AI Visual Generation output is not images_ready.")
@@ -200,18 +219,23 @@ def preferred_stock_sort_key(item: dict) -> tuple[int, int, str]:
 
 def load_stock_clips(stock_manifest_data: dict) -> list[dict]:
     clips = []
+    video_specific_manifest = stock_manifest_data.get("record_type") == "video_specific_stock_footage_manifest"
 
-    for item in stock_manifest_data.get("items", []):
+    for index, item in enumerate(stock_manifest_data.get("items", []), start=1):
         status = item.get("status", "")
 
         if status.startswith("rejected"):
             continue
 
-        if item.get("asset_id") not in {"A001", "A010", "A012"}:
-            continue
+        if video_specific_manifest:
+            if status != "approved_for_video_002":
+                continue
+        else:
+            if item.get("asset_id") not in {"A001", "A010", "A012"}:
+                continue
 
-        if status != "downloaded_pending_visual_qa":
-            continue
+            if status != "downloaded_pending_visual_qa":
+                continue
 
         relative_path = item.get("relative_path")
         if not relative_path:
@@ -226,6 +250,18 @@ def load_stock_clips(stock_manifest_data: dict) -> list[dict]:
             raise FileNotFoundError(f"Stock footage file not found: {path}")
 
         clip = dict(item)
+        asset_id = str(clip.get("asset_id") or f"A{index:03d}")
+        candidate_id = (
+            clip.get("candidate_id")
+            or clip.get("clip_id")
+            or f"{asset_id}-C{index:03d}"
+        )
+
+        clip["asset_id"] = asset_id
+        clip["candidate_id"] = str(candidate_id)
+        clip["role"] = clip.get("role", "stock_footage")
+        clip["risk_level"] = clip.get("risk_level", "low")
+        clip["usage_priority"] = int(clip.get("usage_priority", index))
         clip["path"] = path
         clip["duration_seconds"] = get_media_duration_seconds(path)
 
@@ -235,7 +271,6 @@ def load_stock_clips(stock_manifest_data: dict) -> list[dict]:
         raise ValueError("No usable stock clips found.")
 
     return sorted(clips, key=preferred_stock_sort_key)
-
 
 def build_stock_segment_specs(stock_clips: list[dict]) -> list[dict]:
     specs = []
@@ -745,6 +780,12 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--video-id",
+        default=None,
+        help="Optional video context id, for example video_002"
+    )
+
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate timeline without rendering video."
@@ -756,12 +797,16 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     channel = args.channel.lower()
+    video_id = args.video_id
 
     load_dotenv(PROJECT_ROOT / ".env")
 
-    audio_assembly_path = get_audio_assembly_latest_path(channel)
+    if video_id:
+        print(f"VIDEO_CONTEXT_ID: {video_id}")
+
+    audio_assembly_path = get_audio_assembly_latest_path(channel, video_id=video_id)
     publisher_path = get_publisher_latest_path(channel)
-    stock_manifest_path = get_stock_manifest_path(channel)
+    stock_manifest_path = get_stock_manifest_path(channel, video_id=video_id)
     ai_generation_path = get_ai_generation_latest_path(channel)
     ai_qa_path = get_ai_qa_latest_path(channel)
 
@@ -771,21 +816,36 @@ def main() -> None:
     ai_generation_data = load_json(ai_generation_path)
     ai_qa_data = load_json(ai_qa_path)
 
+    ai_inserts_enabled = video_id is None
+
+    if video_id == "video_002":
+        ai_inserts_enabled = False
+
     ensure_inputs_ready(
         audio_data=audio_data,
         publisher_data=publisher_data,
         ai_generation_data=ai_generation_data,
-        ai_qa_data=ai_qa_data
+        ai_qa_data=ai_qa_data,
+        ai_inserts_enabled=ai_inserts_enabled
     )
 
     audio_path = get_audio_path(audio_data)
 
+    print(f"SELECTED_AUDIO_ASSEMBLY_PATH: {get_relative_path(audio_assembly_path)}")
+    print(f"SELECTED_AUDIO_FILE_PATH: {get_relative_path(audio_path)}")
+    print(f"SELECTED_STOCK_MANIFEST_PATH: {get_relative_path(stock_manifest_path)}")
+    print(f"AI_INSERTS_ENABLED: {ai_inserts_enabled}")
+
     stock_clips = load_stock_clips(stock_manifest_data)
     stock_specs = build_stock_segment_specs(stock_clips)
-    ai_specs = load_ai_specs(
-        ai_generation_data=ai_generation_data,
-        ai_qa_data=ai_qa_data
-    )
+    if ai_inserts_enabled:
+        ai_specs = load_ai_specs(
+            ai_generation_data=ai_generation_data,
+            ai_qa_data=ai_qa_data
+        )
+    else:
+        ai_specs = []
+        print("AI_INSERTS_DISABLED_FOR_VIDEO_CONTEXT: true")
 
     audio_duration = get_media_duration_seconds(audio_path)
     cycle = build_hybrid_cycle(
