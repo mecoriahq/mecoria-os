@@ -1,0 +1,23 @@
+{
+  "record_type": "video_qa_publisher_checkpoint",
+  "version": "1.0",
+  "created_at": "2026-07-15T16:54:02",
+  "channel": "hiddenova",
+  "video_number": 2,
+  "status": "ready_for_unlisted_upload",
+  "video_qa_status": "approved",
+  "technical_result": "passed",
+  "duration_seconds": 998.5,
+  "resolution": "1920x1080",
+  "fps": 30.0,
+  "issue_count": 0,
+  "warning_count": 2,
+  "unlisted_upload_ready": true,
+  "public_upload_ready": false,
+  "publisher_status": "upload_ready",
+  "title": "What Really Happens to Your Luggage After Check-In?",
+  "video_file_path": "agents/hybrid_video_assembly/output/hiddenova/drafts/2026-07-15_16-22-19/hybrid_video_draft.mp4",
+  "seo_reference": "agents/seo/output/hiddenova/latest.json",
+  "script_reference": "agents/script/output/hiddenova/latest.json",
+  "next_step": "unlisted_youtube_upload"
+}
