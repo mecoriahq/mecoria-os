@@ -100,7 +100,9 @@ def create_export_dir(
     video_id: str | None = None,
     run_id: str | None = None
 ) -> Path:
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = datetime.now().strftime(
+        "%Y-%m-%d_%H-%M-%S"
+    )
 
     export_dir = (
         PROJECT_ROOT
@@ -116,33 +118,13 @@ def create_export_dir(
         export_dir = export_dir / run_id
 
     export_dir = export_dir / timestamp
-    export_dir.mkdir(parents=True, exist_ok=True)
-    if context:
-        metadata_path = export_dir / "metadata.json"
-
-        context = register_output(
-            context=context,
-            agent="export_package",
-            reference=str(
-                metadata_path.relative_to(PROJECT_ROOT)
-            ).replace("\\", "/"),
-            status="export_ready"
-        )
-
-        if context.get("status") not in {
-            "uploaded_for_founder_review",
-            "published",
-            "public"
-        }:
-            context = set_status(
-                context=context,
-                status="export_ready",
-                next_agent="youtube_upload"
-            )
-
-        save_context(context)
+    export_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     return export_dir
+
 
 
 def export_upload_package(
@@ -251,8 +233,14 @@ def export_upload_package(
         }
     }
 
-    (export_dir / "metadata.json").write_text(
-        json.dumps(export_metadata, indent=2, ensure_ascii=False),
+    metadata_path = export_dir / "metadata.json"
+
+    metadata_path.write_text(
+        json.dumps(
+            export_metadata,
+            indent=2,
+            ensure_ascii=False
+        ),
         encoding="utf-8"
     )
 
@@ -271,6 +259,34 @@ def export_upload_package(
 - Do not publish publicly until final review.
 """
     )
+
+    if context:
+        context = register_output(
+            context=context,
+            agent="export_package",
+            reference=str(
+                metadata_path.relative_to(
+                    PROJECT_ROOT
+                )
+            ).replace("\\", "/"),
+            status="export_ready"
+        )
+
+        protected_statuses = {
+            "founder_review_required",
+            "uploaded_for_founder_review",
+            "published",
+            "public",
+        }
+
+        if context.get("status") not in protected_statuses:
+            context = set_status(
+                context=context,
+                status="export_ready",
+                next_agent="youtube_upload"
+            )
+
+        save_context(context)
 
     return export_dir
 
