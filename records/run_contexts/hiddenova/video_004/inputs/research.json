@@ -1,0 +1,93 @@
+{
+  "agent": "research",
+  "version": "2.0",
+  "channel": "hiddenova",
+  "video_id": "video_004",
+  "run_id": "hiddenova_video_004_v1",
+  "status": "research_ready",
+  "ideas": [
+    {
+      "id": 1,
+      "title": "The Invisible System That Gets Lost Airline Bags Back to You",
+      "summary": "A documentary-style look at the tracking, sorting, routing, and recovery networks that move delayed luggage across airports and airlines.",
+      "target_audience": "Travelers, aviation enthusiasts, logistics fans, and viewers curious about airport operations.",
+      "potential": "Air travel is globally relatable, lost luggage creates instant curiosity, and the topic reveals a hidden logistics system most passengers never see.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 2,
+      "title": "How Supermarkets Know What to Restock Before You Notice It Is Gone",
+      "summary": "An exploration of the data systems, suppliers, warehouses, and shelf-level decisions that keep grocery stores continuously stocked.",
+      "target_audience": "General viewers, retail workers, business students, supply chain enthusiasts, and everyday shoppers.",
+      "potential": "Grocery shopping is universal, and the behind-the-scenes mix of data, logistics, and consumer behavior has strong evergreen appeal.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 3,
+      "title": "Inside the Secret Life of Shipping Containers After They Leave the Port",
+      "summary": "A deep dive into how shipping containers are tracked, routed, reused, repaired, stored, and repositioned across global trade networks.",
+      "target_audience": "Logistics enthusiasts, business audiences, global trade viewers, and documentary fans.",
+      "potential": "Containers are iconic but poorly understood, and their hidden movement connects global commerce, ports, railways, trucking, and warehouses.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 4,
+      "title": "The Hidden Network That Keeps Traffic Lights in Sync",
+      "summary": "A look at the sensors, control rooms, algorithms, and maintenance systems that coordinate traffic signals in modern cities.",
+      "target_audience": "Urbanism fans, drivers, city planning audiences, technology viewers, and infrastructure enthusiasts.",
+      "potential": "Traffic affects almost everyone, and revealing the systems behind signal timing turns a familiar frustration into a fascinating infrastructure story.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 5,
+      "title": "How Hospitals Move Patients, Medicine, and Equipment Without Chaos",
+      "summary": "An investigation into the hidden logistics that coordinate beds, pharmacies, labs, sterile supplies, medical devices, and patient flow inside hospitals.",
+      "target_audience": "Healthcare workers, operations enthusiasts, medical students, and viewers interested in complex systems.",
+      "potential": "Hospitals are high-stakes environments where invisible coordination matters, creating strong emotional and educational value.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 6,
+      "title": "The Quiet Technology Behind Every Card Payment Approval",
+      "summary": "A step-by-step documentary on the payment networks, fraud checks, authorization systems, and settlement processes behind a simple card tap.",
+      "target_audience": "Consumers, fintech audiences, business viewers, tech enthusiasts, and finance students.",
+      "potential": "Card payments are daily habits for millions, and the hidden chain behind a two-second approval is both surprising and highly relevant.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 7,
+      "title": "How Streaming Platforms Deliver a Movie to Millions Without Breaking",
+      "summary": "An explanation of content delivery networks, caching, encoding, data centers, and traffic management that make large-scale streaming possible.",
+      "target_audience": "Streaming users, tech viewers, software learners, media industry followers, and documentary audiences.",
+      "potential": "Streaming is a massive everyday behavior, and the infrastructure behind instant playback offers strong visual and technical storytelling opportunities.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 8,
+      "title": "The Hidden Cold Chain That Keeps Vaccines, Food, and Medicine Safe",
+      "summary": "A documentary on refrigerated logistics, temperature monitoring, specialized packaging, and distribution networks that protect sensitive goods.",
+      "target_audience": "Science viewers, logistics fans, healthcare audiences, food industry professionals, and general documentary fans.",
+      "potential": "Cold chains connect health, food, and global supply systems, making the topic both important and broadly understandable.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 9,
+      "title": "What Happens to Your Online Order in the First 60 Minutes",
+      "summary": "A behind-the-scenes look at order routing, inventory allocation, warehouse picking, packing, labeling, and carrier handoff immediately after checkout.",
+      "target_audience": "Online shoppers, ecommerce entrepreneurs, logistics viewers, warehouse workers, and business audiences.",
+      "potential": "Ecommerce is universally familiar, and focusing on the first hour creates a clear, clickable frame for explaining a complex fulfillment system.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 10,
+      "title": "The Unseen Maintenance Systems That Stop Cities from Falling Apart",
+      "summary": "An exploration of inspection schedules, repair crews, asset management software, emergency response teams, and preventive maintenance behind urban infrastructure.",
+      "target_audience": "Urbanism audiences, infrastructure fans, city residents, engineering viewers, and public policy followers.",
+      "potential": "The topic reframes everyday city life around the invisible work that prevents breakdowns, making it evergreen, scalable, and highly documentary-friendly.",
+      "difficulty": "Hard"
+    }
+  ],
+  "metadata": {
+    "next_agent": "content_idea_selector"
+  }
+}

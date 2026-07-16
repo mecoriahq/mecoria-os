@@ -1,0 +1,282 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_004",
+  "run_id": "hiddenova_video_004_v1",
+  "status": "visual_assets_ready",
+  "topic_title": "The Quiet Technology Behind Every Card Payment Approval",
+  "sources": {
+    "research": "records/run_contexts/hiddenova/video_004/inputs/research.json",
+    "idea_selection": "records/run_contexts/hiddenova/video_004/inputs/idea_selection.json"
+  },
+  "outputs": {
+    "script": "agents/script/output/hiddenova/video_004/hiddenova_video_004_v1/script.json",
+    "seo": "agents/seo/output/hiddenova/video_004/hiddenova_video_004_v1/seo.json",
+    "qa": "agents/qa/output/hiddenova/video_004/hiddenova_video_004_v1/qa.json",
+    "voice": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/voice.json",
+    "voice_generation": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/voice_generation.json",
+    "audio_qa": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/audio_qa.json",
+    "audio_assembly": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/audio_assembly.json",
+    "narration_audio": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/assembled/narration_track.mp3",
+    "visual_plan": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/visual_plan.json",
+    "ai_visual_generation": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/ai_visual_generation.json",
+    "ai_visual_qa": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/ai_visual_qa.json",
+    "thumbnail": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/thumbnail.jpg",
+    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/thumbnail.json"
+  },
+  "quality_gates": {
+    "no_latest_json_sources": true,
+    "minimum_content_qa_score": 85,
+    "target_script_word_count_min": 1250,
+    "target_script_word_count_max": 1650,
+    "require_hiddenova_brand_intro": true,
+    "require_standard_cta": true,
+    "require_end_screen_area": true,
+    "require_ai_visuals": true,
+    "minimum_ai_insert_count": 8,
+    "require_thumbnail": true,
+    "thumbnail_text_min_words": 2,
+    "thumbnail_text_max_words": 4,
+    "thumbnail_two_color_text": true,
+    "require_founder_review": true,
+    "require_topic_approval": true,
+    "require_topic_novelty": true,
+    "allow_topic_reuse": false,
+    "target_audio_duration_min_seconds": 480,
+    "target_audio_duration_max_seconds": 720,
+    "target_video_duration_min_seconds": 480,
+    "target_video_duration_max_seconds": 720,
+    "require_actual_chapters": true,
+    "chapter_timing_source": "actual_audio_sections",
+    "max_audio_duration_revision_attempts": 2,
+    "require_content_fingerprint": true,
+    "allow_cross_video_content_reuse": false,
+    "minimum_editorial_overall_score": 85,
+    "minimum_hook_strength_score": 85,
+    "minimum_hook_intro_distinctness_score": 80,
+    "minimum_narrative_spine_score": 85,
+    "minimum_specificity_score": 80,
+    "minimum_repetition_risk_score": 80,
+    "minimum_title_thumbnail_synergy_score": 85,
+    "max_editorial_revision_attempts": 2,
+    "editorial_revision_count": 3,
+    "editorial_quality_gate_passed": true,
+    "editorial_standard_version": "hiddenova_editorial_v2",
+    "editorial_standard_revision_count": 1,
+    "allow_cross_video_asset_reuse": false,
+    "require_audio_asset_registry_ownership": true,
+    "require_visual_asset_registry_ownership": true,
+    "require_thumbnail_asset_registry_ownership": true,
+    "require_hiddenova_thumbnail_standard": true,
+    "thumbnail_style": "hiddenova_cinematic_v1",
+    "thumbnail_text_size": "very_large",
+    "thumbnail_mobile_readability_priority": "maximum"
+  },
+  "next_agent": "hybrid_video_assembly",
+  "release": {
+    "topic_approved": true,
+    "public_release_approved": false,
+    "topic_approved_at": "2026-07-16T19:55:30.773668+00:00",
+    "topic_approved_by": "founder"
+  },
+  "history": [
+    {
+      "agent": "content_idea_selector",
+      "status": "selected",
+      "output_reference": "records/run_contexts/hiddenova/video_004/inputs/idea_selection.json"
+    },
+    {
+      "agent": "founder_topic_approval",
+      "status": "approved",
+      "recorded_at": "2026-07-16T19:55:30.773674+00:00"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_004/hiddenova_video_004_v1/script.json",
+      "recorded_at": "2026-07-16T19:56:31.115493+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_004/hiddenova_video_004_v1/seo.json",
+      "recorded_at": "2026-07-16T19:56:53.897111+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "approved",
+      "output_reference": "agents/qa/output/hiddenova/video_004/hiddenova_video_004_v1/qa.json",
+      "recorded_at": "2026-07-16T19:57:14.355407+00:00"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-16T19:57:17.043250+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "revision_required",
+      "recorded_at": "2026-07-16T20:19:59.351530+00:00",
+      "output_reference": "records/run_contexts/hiddenova/video_004/inputs/editorial_revision_01.json"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_004/hiddenova_video_004_v1/script.json",
+      "recorded_at": "2026-07-16T20:21:11.624319+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_004/hiddenova_video_004_v1/seo.json",
+      "recorded_at": "2026-07-16T20:21:33.637136+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "rejected",
+      "output_reference": "agents/qa/output/hiddenova/video_004/hiddenova_video_004_v1/qa.json",
+      "recorded_at": "2026-07-16T20:22:12.897599+00:00"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "revision_required",
+      "recorded_at": "2026-07-16T20:22:12.991987+00:00",
+      "output_reference": "records/run_contexts/hiddenova/video_004/inputs/editorial_revision_02.json"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_004/hiddenova_video_004_v1/script.json",
+      "recorded_at": "2026-07-16T20:23:25.830249+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_004/hiddenova_video_004_v1/seo.json",
+      "recorded_at": "2026-07-16T20:24:02.287133+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "approved",
+      "output_reference": "agents/qa/output/hiddenova/video_004/hiddenova_video_004_v1/qa.json",
+      "recorded_at": "2026-07-16T20:24:40.903742+00:00"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-16T20:24:43.673735+00:00",
+      "output_reference": "overall_score=86"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-16T20:24:43.673769+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "editorial_standard_migration",
+      "status": "revision_budget_reset",
+      "recorded_at": "2026-07-16T20:42:06.107208+00:00",
+      "output_reference": "from=legacy;to=hiddenova_editorial_v2;preserved_total_revisions=2"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "revision_required",
+      "recorded_at": "2026-07-16T20:42:06.130085+00:00",
+      "output_reference": "records/run_contexts/hiddenova/video_004/inputs/editorial_revision_03.json"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_004/hiddenova_video_004_v1/script.json",
+      "recorded_at": "2026-07-16T20:43:14.759891+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_004/hiddenova_video_004_v1/seo.json",
+      "recorded_at": "2026-07-16T20:43:37.048548+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "approved",
+      "output_reference": "agents/qa/output/hiddenova/video_004/hiddenova_video_004_v1/qa.json",
+      "recorded_at": "2026-07-16T20:44:02.399537+00:00"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-16T20:44:05.665716+00:00",
+      "output_reference": "overall_score=87"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-16T20:44:05.665758+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "voice",
+      "status": "narration_ready",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/voice.json",
+      "recorded_at": "2026-07-16T20:47:25.482658+00:00"
+    },
+    {
+      "agent": "voice_generation",
+      "status": "audio_ready",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/voice_generation.json",
+      "recorded_at": "2026-07-16T20:47:25.482689+00:00"
+    },
+    {
+      "agent": "audio_qa",
+      "status": "approved",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/audio_qa.json",
+      "recorded_at": "2026-07-16T20:47:25.482712+00:00"
+    },
+    {
+      "agent": "audio_assembly",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/audio_assembly.json",
+      "recorded_at": "2026-07-16T20:47:25.482734+00:00"
+    },
+    {
+      "agent": "narration_audio",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/assembled/narration_track.mp3",
+      "recorded_at": "2026-07-16T20:47:25.482757+00:00"
+    },
+    {
+      "agent": "visual_plan",
+      "status": "plan_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/visual_plan.json",
+      "recorded_at": "2026-07-16T20:53:28.330631+00:00"
+    },
+    {
+      "agent": "ai_visual_generation",
+      "status": "images_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/ai_visual_generation.json",
+      "recorded_at": "2026-07-16T20:53:28.330672+00:00"
+    },
+    {
+      "agent": "ai_visual_qa",
+      "status": "approved",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/ai_visual_qa.json",
+      "recorded_at": "2026-07-16T20:53:28.330702+00:00"
+    },
+    {
+      "agent": "thumbnail",
+      "status": "thumbnail_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/thumbnail.jpg",
+      "recorded_at": "2026-07-16T20:53:28.330709+00:00"
+    },
+    {
+      "agent": "thumbnail_record",
+      "status": "thumbnail_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/thumbnail.json",
+      "recorded_at": "2026-07-16T20:53:28.330738+00:00"
+    }
+  ],
+  "created_at": "2026-07-16T19:17:08.795904+00:00",
+  "updated_at": "2026-07-16T20:53:28.330745+00:00"
+}

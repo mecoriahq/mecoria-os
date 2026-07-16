@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_004",
+  "run_id": "hiddenova_video_004_v1",
+  "attempt": 3,
+  "standard_version": "hiddenova_editorial_v2",
+  "standard_attempt": 1,
+  "topic_title": "The Quiet Technology Behind Every Card Payment Approval",
+  "status": "editorial_revision_required",
+  "failed_checks": [
+    {
+      "check": "hiddenova_brand_intro",
+      "reason": "missing",
+      "actual": null,
+      "minimum": 100
+    },
+    {
+      "check": "standard_cta",
+      "reason": "missing",
+      "actual": null,
+      "minimum": 100
+    }
+  ],
+  "qa_checks": {
+    "script_quality": {
+      "status": "pass",
+      "score": 86
+    },
+    "hook_strength": {
+      "score": 88,
+      "status": "pass"
+    },
+    "hook_intro_distinctness": {
+      "score": 84,
+      "status": "pass"
+    },
+    "narrative_spine": {
+      "score": 88,
+      "status": "pass"
+    },
+    "specificity": {
+      "status": "pass",
+      "score": 86
+    },
+    "repetition_risk": {
+      "score": 82,
+      "status": "pass"
+    },
+    "seo_alignment": {
+      "status": "pass",
+      "score": 90
+    },
+    "title_quality": {
+      "status": "pass",
+      "score": 87
+    },
+    "title_thumbnail_synergy": {
+      "status": "pass",
+      "score": 89
+    },
+    "description_quality": {
+      "status": "pass",
+      "score": 88
+    },
+    "tags_quality": {
+      "status": "pass",
+      "score": 86
+    },
+    "thumbnail_text_quality": {
+      "status": "pass",
+      "score": 87
+    }
+  },
+  "issues": [
+    {
+      "field": "script.introduction",
+      "severity": "low",
+      "message": "The introduction advances the hook by setting up the transaction journey, but it still partially restates the same approval-versus-payment premise from the hook."
+    },
+    {
+      "field": "script.main_sections",
+      "severity": "low",
+      "message": "The explanation is coherent and specific, but some sections retain a procedural, list-like documentary feel rather than escalating tension around consequences or failure points."
+    },
+    {
+      "field": "script.repetition",
+      "severity": "low",
+      "message": "The script repeats the central idea that approval is not final payment several times. The repetition is thematically useful but could become noticeable in narration."
+    }
+  ],
+  "recommendations": [
+    {
+      "field": "script.introduction",
+      "suggestion": "If regenerating, make the introduction move faster from the hook into the first operational conflict rather than summarizing the full payment chain upfront."
+    },
+    {
+      "field": "script.main_sections",
+      "suggestion": "If regenerating, strengthen each section by emphasizing the specific failure or decision that must be resolved before the transaction can move to the next institution."
+    },
+    {
+      "field": "script.repetition",
+      "suggestion": "If regenerating, reduce repeated formulations of 'approval is not final payment' and reserve the clearest version for the hook, the pending-transaction section, and the conclusion."
+    }
+  ],
+  "mandatory_instructions": [
+    "Strengthen the first 120 words with a concrete tension, paradox, or consequence.",
+    "Make the introduction advance the story instead of restating the hook.",
+    "Use one cause-and-effect narrative spine rather than list-like exposition.",
+    "Replace abstract documentary filler with concrete mechanisms and consequences supported by research.",
+    "Create a direct title and an ALL-CAPS 2-4 word thumbnail phrase that add different information.",
+    "Begin the introduction with a very short brand/context line containing the exact word Hiddenova within its first 25 words.",
+    "End with a concise CTA that explicitly asks viewers to comment, like, and subscribe.",
+    "Return no estimated chapter timestamps."
+  ],
+  "created_at": "2026-07-16T20:42:06.118220+00:00"
+}

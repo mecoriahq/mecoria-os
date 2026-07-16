@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_004",
+  "run_id": "hiddenova_video_004_v1",
+  "attempt": 2,
+  "topic_title": "The Quiet Technology Behind Every Card Payment Approval",
+  "status": "editorial_revision_required",
+  "failed_checks": [
+    {
+      "check": "repetition_risk",
+      "reason": "below_threshold",
+      "actual": 77,
+      "minimum": 80,
+      "status": "warning"
+    },
+    {
+      "check": "overall_score",
+      "reason": "below_threshold",
+      "actual": 83,
+      "minimum": 85
+    },
+    {
+      "check": "qa_status",
+      "reason": "not_approved",
+      "actual": "rejected",
+      "minimum": "approved"
+    }
+  ],
+  "qa_checks": {
+    "script_quality": {
+      "status": "warning",
+      "score": 84
+    },
+    "hook_strength": {
+      "score": 87,
+      "status": "pass"
+    },
+    "hook_intro_distinctness": {
+      "score": 82,
+      "status": "pass"
+    },
+    "narrative_spine": {
+      "score": 85,
+      "status": "pass"
+    },
+    "specificity": {
+      "status": "pass",
+      "score": 83
+    },
+    "repetition_risk": {
+      "score": 77,
+      "status": "warning"
+    },
+    "seo_alignment": {
+      "status": "pass",
+      "score": 90
+    },
+    "title_quality": {
+      "status": "pass",
+      "score": 86
+    },
+    "title_thumbnail_synergy": {
+      "status": "pass",
+      "score": 86
+    },
+    "description_quality": {
+      "status": "pass",
+      "score": 88
+    },
+    "tags_quality": {
+      "status": "pass",
+      "score": 88
+    },
+    "thumbnail_text_quality": {
+      "status": "pass",
+      "score": 85
+    }
+  },
+  "issues": [
+    {
+      "field": "overall_score",
+      "severity": "high",
+      "message": "Overall score is below the mandatory approval threshold of 85. The script is clear and plausible, but not distinctive enough in tension, scene-level specificity, or retention packaging to qualify as strongly publishable."
+    },
+    {
+      "field": "script.repetition_risk",
+      "severity": "high",
+      "message": "Repetition risk is below the mandatory threshold of 80. The script repeatedly circles the same ideas: approval is not final payment, the transaction is a relay, the system moves through merchant/acquirer/network/issuer, and settlement comes later. These are valid concepts, but they recur as summaries rather than escalating revelations."
+    },
+    {
+      "field": "script.main_sections",
+      "severity": "medium",
+      "message": "Several sections follow a similar explanatory pattern: define the actor, describe its role, state that the next party must decide. This creates a clean but somewhat list-like documentary rhythm instead of a stronger investigative progression."
+    },
+    {
+      "field": "script.specificity",
+      "severity": "medium",
+      "message": "Specificity is adequate but mostly institutional and abstract. The script explains the chain correctly at a high level, but it lacks enough concrete transaction-level examples, visible failure points, or decision consequences to make the mechanism feel sharply observable."
+    },
+    {
+      "field": "editorial.repetition_risk",
+      "severity": "high",
+      "message": "repetition_risk did not meet the production threshold. Actual: 77. Required: 80."
+    }
+  ],
+  "recommendations": [
+    {
+      "field": "script.main_sections",
+      "suggestion": "Regenerate with fewer repeated summaries of the full payment chain. Each section should reveal a new operational problem that was not already stated: terminal trust, merchant identity, routing, issuer risk, authorization hold, and delayed settlement should each have a distinct consequence."
+    },
+    {
+      "field": "script.repetition_risk",
+      "suggestion": "Reduce repeated phrases and concepts such as 'approval is not the end,' 'relay,' 'message,' 'question,' and 'the next handoff.' Keep the central paradox, but avoid restating it at the end of multiple sections."
+    },
+    {
+      "field": "script.specificity",
+      "suggestion": "Add concrete, non-invented mechanisms that make the journey more tangible, such as what an authorization request is checking, why a hold differs from a posted transaction, how a decline can result from funds, card status, merchant rules, or fraud risk, and why settlement often happens after checkout rather than during it."
+    },
+    {
+      "field": "script.narrative_spine",
+      "suggestion": "Strengthen escalation by making each handoff solve one problem while creating the next. The regenerated script should feel less like a sequence of definitions and more like a single transaction under time pressure moving toward a temporary yes and a delayed financial ending."
+    },
+    {
+      "field": "script.hook_intro_distinctness",
+      "suggestion": "Preserve the hook's paradox, but make the introduction introduce the investigative route more sharply rather than repeating that approval is separate from payment. The intro should add a new reason the viewer needs to keep watching."
+    },
+    {
+      "field": "repetition_risk",
+      "suggestion": "Regenerate the script or metadata to resolve this editorial weakness before audio production."
+    }
+  ],
+  "mandatory_instructions": [
+    "Strengthen the first 120 words with a concrete tension, paradox, or consequence.",
+    "Make the introduction advance the story instead of restating the hook.",
+    "Use one cause-and-effect narrative spine rather than list-like exposition.",
+    "Replace abstract documentary filler with concrete mechanisms and consequences supported by research.",
+    "Create a direct title and an ALL-CAPS 2-4 word thumbnail phrase that add different information.",
+    "Return no estimated chapter timestamps."
+  ],
+  "created_at": "2026-07-16T20:22:12.985433+00:00"
+}
