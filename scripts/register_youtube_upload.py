@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import sys
 from pathlib import Path
 
@@ -84,7 +84,23 @@ def main() -> None:
     )
     print("STATUS:", context["status"])
     print("NEXT_AGENT:", context["next_agent"])
-    print("PUBLIC_RELEASE: blocked_pending_founder")
+    public_release_status = (
+        "approved_and_public"
+        if (
+            context.get("status") == "public"
+            and context.get(
+                "release",
+                {}
+            ).get("public_release_approved")
+            is True
+        )
+        else "blocked_pending_founder"
+    )
+
+    print(
+        "PUBLIC_RELEASE:",
+        public_release_status
+    )
 
 
 if __name__ == "__main__":

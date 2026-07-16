@@ -56,6 +56,52 @@ def extract_youtube_video_id(url: str) -> str:
     return video_id
 
 
+def approve_public_release(context: dict) -> dict:
+    outputs = context.get("outputs", {})
+    release = context.setdefault("release", {})
+
+    if not outputs.get("youtube_video_id"):
+        raise ValueError(
+            "YouTube upload must be registered before "
+            "public release approval."
+        )
+
+    if release.get("public_release_approved") is True:
+        return context
+
+    allowed_statuses = {
+        "founder_review_required",
+        "uploaded_for_founder_review"
+    }
+
+    if context.get("status") not in allowed_statuses:
+        raise ValueError(
+            "Video is not waiting for founder review."
+        )
+
+    now = utc_now()
+
+    release.update({
+        "founder_video_review_approved": True,
+        "founder_video_review_approved_at": now,
+        "public_release_approved": True,
+        "public_release_approved_at": now,
+        "public_release_approved_by": "founder"
+    })
+
+    context.setdefault("history", []).append({
+        "agent": "founder_public_release",
+        "status": "approved",
+        "output_reference": outputs["youtube_url"],
+        "recorded_at": now
+    })
+
+    context["status"] = "public_release_approved"
+    context["next_agent"] = "youtube_visibility_public"
+
+    return context
+
+
 def register_youtube_upload(
     context: dict,
     youtube_url: str,
@@ -94,12 +140,11 @@ def register_youtube_upload(
             "registered for this context."
         )
 
+    release = context.setdefault("release", {})
+
     if (
         visibility == "public"
-        and context.get(
-            "release",
-            {}
-        ).get("public_release_approved")
+        and release.get("public_release_approved")
         is not True
     ):
         raise ValueError(
@@ -112,26 +157,47 @@ def register_youtube_upload(
         "youtube_video_id": youtube_video_id
     })
 
-    context.setdefault("release", {}).update({
+    now = utc_now()
+
+    release.update({
         "youtube_visibility": visibility,
-        "uploaded_at": utc_now(),
-        "uploaded_by": "founder",
-        "founder_video_review_approved": False,
-        "public_release_approved": False
+        "uploaded_at": (
+            release.get("uploaded_at")
+            or now
+        ),
+        "uploaded_by": "founder"
     })
+
+    if visibility == "public":
+        release.update({
+            "founder_video_review_approved": True,
+            "public_release_approved": True,
+            "published_at": now
+        })
+
+        context["status"] = "public"
+        context["next_agent"] = "analytics_48h"
+        history_status = "visibility_public_registered"
+
+    else:
+        release.update({
+            "founder_video_review_approved": False,
+            "public_release_approved": False
+        })
+
+        context["status"] = (
+            "uploaded_for_founder_review"
+        )
+        context["next_agent"] = (
+            "founder_video_review"
+        )
+        history_status = f"uploaded_{visibility}"
 
     context.setdefault("history", []).append({
         "agent": "youtube_upload",
-        "status": f"uploaded_{visibility}",
+        "status": history_status,
         "output_reference": canonical_url,
-        "recorded_at": utc_now()
+        "recorded_at": now
     })
-
-    context["status"] = (
-        "uploaded_for_founder_review"
-    )
-    context["next_agent"] = (
-        "founder_video_review"
-    )
 
     return context
