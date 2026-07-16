@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import re
 import subprocess
 import sys
@@ -29,6 +30,12 @@ from core.asset_usage_registry import (
     build_asset_record,
     register_asset_batch,
     validate_asset_batch,
+)
+
+from core.content_quality import (
+    DEFAULT_MEDIA_DURATION_MAX_SECONDS,
+    DEFAULT_MEDIA_DURATION_MIN_SECONDS,
+    evaluate_duration_seconds,
 )
 
 
@@ -64,6 +71,218 @@ def relative_path(path: Path) -> str:
 
 def count_words(text: str) -> int:
     return len(re.findall(r"\b[\w'-]+\b", text))
+
+
+def get_media_duration_seconds(media_path: Path) -> float:
+    ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+
+    result = subprocess.run(
+        [
+            ffmpeg_path,
+            "-hide_banner",
+            "-i",
+            str(media_path)
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True
+    )
+
+    text = result.stderr + result.stdout
+    match = re.search(
+        r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)",
+        text
+    )
+
+    if not match:
+        raise ValueError(
+            f"Could not read media duration: {media_path}"
+        )
+
+    hours = int(match.group(1))
+    minutes = int(match.group(2))
+    seconds = float(match.group(3))
+
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def add_actual_section_timing(
+    sections: list[dict]
+) -> list[dict]:
+    cursor = 0.0
+    timed_sections = []
+
+    for section in sorted(
+        sections,
+        key=lambda item: item["sequence"]
+    ):
+        path = PROJECT_ROOT / section["relative_path"]
+        duration = get_media_duration_seconds(path)
+
+        if duration <= 0:
+            raise ValueError(
+                f"Audio section has invalid duration: {path}"
+            )
+
+        timed = dict(section)
+        timed["start_seconds"] = round(cursor, 2)
+        timed["duration_seconds"] = round(duration, 2)
+        cursor += duration
+        timed["end_seconds"] = round(cursor, 2)
+        timed_sections.append(timed)
+
+    return timed_sections
+
+
+def format_chapter_time(seconds: float) -> str:
+    total = max(0, int(math.floor(seconds)))
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+
+    if hours:
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+
+    return f"{minutes}:{secs:02d}"
+
+
+def build_actual_chapters(
+    sections: list[dict],
+    total_duration_seconds: float
+) -> list[dict]:
+    candidates = []
+
+    # The public 0:00 chapter covers the hook and introduction.
+    candidates.append({
+        "start_seconds": 0.0,
+        "title": "Introduction"
+    })
+
+    for section in sections:
+        if section["section_type"] not in {
+            "main_section",
+            "conclusion"
+        }:
+            continue
+
+        candidates.append({
+            "start_seconds": float(section["start_seconds"]),
+            "title": str(section["title"]).strip()
+        })
+
+    chapters = []
+    last_start = None
+
+    for candidate in candidates:
+        start = float(candidate["start_seconds"])
+
+        if last_start is not None and start - last_start < 10:
+            continue
+
+        if total_duration_seconds - start < 10:
+            continue
+
+        title = candidate["title"] or "Section"
+        chapters.append({
+            "time": format_chapter_time(start),
+            "title": title,
+            "start_seconds": round(start, 2)
+        })
+        last_start = start
+
+    if len(chapters) < 3:
+        raise ValueError(
+            "Actual chapter generation produced fewer than "
+            "three valid chapters."
+        )
+
+    return chapters
+
+
+def get_duration_bounds(context: dict) -> tuple[int, int]:
+    gates = context.get("quality_gates", {})
+    minimum = int(
+        gates.get(
+            "target_audio_duration_min_seconds",
+            DEFAULT_MEDIA_DURATION_MIN_SECONDS
+        )
+    )
+    maximum = int(
+        gates.get(
+            "target_audio_duration_max_seconds",
+            DEFAULT_MEDIA_DURATION_MAX_SECONDS
+        )
+    )
+    return minimum, maximum
+
+
+def calculate_adjusted_word_targets(
+    word_count: int,
+    actual_seconds: float,
+    minimum_seconds: int,
+    maximum_seconds: int
+) -> tuple[int, int]:
+    target_seconds = (minimum_seconds + maximum_seconds) / 2
+    estimated_center = max(
+        1,
+        round(word_count * target_seconds / actual_seconds)
+    )
+
+    target_min = max(1100, round(estimated_center * 0.90))
+    target_max = min(2100, round(estimated_center * 1.10))
+
+    if target_max - target_min < 150:
+        target_max = min(2100, target_min + 150)
+
+    if target_max <= target_min:
+        target_min = max(900, target_max - 150)
+
+    return target_min, target_max
+
+
+def set_duration_revision_required(
+    context: dict,
+    duration_gate: dict,
+    word_count: int
+) -> dict:
+    gates = context.setdefault("quality_gates", {})
+    revision_count = int(
+        gates.get("audio_duration_revision_count", 0)
+    ) + 1
+
+    target_min, target_max = calculate_adjusted_word_targets(
+        word_count=word_count,
+        actual_seconds=duration_gate["actual_seconds"],
+        minimum_seconds=duration_gate["minimum_seconds"],
+        maximum_seconds=duration_gate["maximum_seconds"]
+    )
+
+    gates.update({
+        "audio_duration_revision_count": revision_count,
+        "last_actual_audio_duration_seconds": (
+            duration_gate["actual_seconds"]
+        ),
+        "last_audio_duration_gate_reason": duration_gate["reason"],
+        "target_script_word_count_min": target_min,
+        "target_script_word_count_max": target_max,
+    })
+
+    context.setdefault("history", []).append({
+        "agent": "audio_duration_gate",
+        "status": "revision_required",
+        "output_reference": (
+            f"actual={duration_gate['actual_seconds']}s;"
+            f"reason={duration_gate['reason']};"
+            f"next_word_range={target_min}-{target_max}"
+        )
+    })
+
+    context = set_status(
+        context=context,
+        status="audio_duration_revision_required",
+        next_agent="script"
+    )
+    save_context(context)
+    return context
 
 
 def create_section(
@@ -261,6 +480,11 @@ def build_generation_output(
     model: str,
     voice: str
 ) -> dict:
+    total_duration = sum(
+        float(item.get("duration_seconds", 0))
+        for item in sections
+    )
+
     return {
         "agent": "voice_generation",
         "version": "2.0",
@@ -274,6 +498,10 @@ def build_generation_output(
         "audio": {
             "format": "mp3",
             "sections": sections,
+            "actual_section_duration_seconds": round(
+                total_duration,
+                2
+            ),
             "combined_audio_file_path": None
         },
         "readiness": {
@@ -314,6 +542,7 @@ def inspect_audio_sections(sections: list[dict]) -> list[dict]:
             and path.suffix.lower() == ".mp3"
             and size_bytes is not None
             and size_bytes >= MIN_AUDIO_BYTES
+            and float(section.get("duration_seconds", 0)) > 0
         )
 
         checks.append({
@@ -323,6 +552,9 @@ def inspect_audio_sections(sections: list[dict]) -> list[dict]:
             "file_exists": exists,
             "file_readable": readable,
             "size_bytes": size_bytes,
+            "start_seconds": section.get("start_seconds"),
+            "duration_seconds": section.get("duration_seconds"),
+            "end_seconds": section.get("end_seconds"),
             "approved": valid
         })
 
@@ -341,6 +573,10 @@ def build_qa_output(
         1 for item in checks if item["approved"]
     )
     approved = bool(checks) and approved_count == len(checks)
+    total_duration = sum(
+        float(item.get("duration_seconds") or 0)
+        for item in checks
+    )
 
     return {
         "agent": "audio_qa",
@@ -355,7 +591,11 @@ def build_qa_output(
         "summary": {
             "expected_sections": len(checks),
             "valid_sections": approved_count,
-            "failed_sections": len(checks) - approved_count
+            "failed_sections": len(checks) - approved_count,
+            "actual_section_duration_seconds": round(
+                total_duration,
+                2
+            )
         },
         "section_checks": checks,
         "source": {
@@ -439,7 +679,10 @@ def build_assembly_output(
     qa_path: Path,
     generation_data: dict,
     qa_data: dict,
-    audio_path: Path
+    audio_path: Path,
+    actual_duration_seconds: float,
+    duration_gate: dict,
+    chapters: list[dict]
 ) -> dict:
     sections = generation_data["audio"]["sections"]
 
@@ -449,11 +692,20 @@ def build_assembly_output(
         "channel": context["channel"],
         "video_id": context["video_id"],
         "run_id": context["run_id"],
-        "status": "assembled",
+        "status": (
+            "assembled"
+            if duration_gate["approved"]
+            else "duration_revision_required"
+        ),
         "audio": {
             "format": "mp3",
             "section_count": len(sections),
             "source_sections": sections,
+            "actual_duration_seconds": round(
+                actual_duration_seconds,
+                2
+            ),
+            "chapters": chapters,
             "combined_audio": {
                 "filename": audio_path.name,
                 "relative_path": relative_path(audio_path),
@@ -465,8 +717,17 @@ def build_assembly_output(
             "audio_qa_approved": qa_data["status"] == "approved",
             "sections_loaded": len(sections),
             "combined_audio_ready": True,
-            "blocking_notes": []
+            "duration_gate_approved": duration_gate["approved"],
+            "blocking_notes": (
+                []
+                if duration_gate["approved"]
+                else [
+                    "Narration duration must be between "
+                    "480 and 720 seconds."
+                ]
+            )
         },
+        "duration_gate": duration_gate,
         "source": {
             "parent_agents": [
                 "voice_generation",
@@ -478,7 +739,11 @@ def build_assembly_output(
             "audio_qa_reference": relative_path(qa_path)
         },
         "metadata": {
-            "next_agent": "hybrid_video_assembly"
+            "next_agent": (
+                "hybrid_video_assembly"
+                if duration_gate["approved"]
+                else "script"
+            )
         }
     }
 
@@ -667,6 +932,9 @@ def main() -> None:
         model=args.model,
         voice=args.voice
     )
+    generated_sections = add_actual_section_timing(
+        generated_sections
+    )
 
     generation_data = build_generation_output(
         context=context,
@@ -694,14 +962,65 @@ def main() -> None:
         output_dir=output_dir
     )
 
+    actual_duration_seconds = get_media_duration_seconds(
+        assembled_audio_path
+    )
+    duration_min, duration_max = get_duration_bounds(context)
+    duration_gate = evaluate_duration_seconds(
+        actual_seconds=actual_duration_seconds,
+        minimum=duration_min,
+        maximum=duration_max
+    )
+    chapters = (
+        build_actual_chapters(
+            sections=generated_sections,
+            total_duration_seconds=actual_duration_seconds
+        )
+        if duration_gate["approved"]
+        else []
+    )
+
     assembly_data = build_assembly_output(
         context=context,
         generation_path=generation_path,
         qa_path=qa_path,
         generation_data=generation_data,
         qa_data=qa_data,
-        audio_path=assembled_audio_path
+        audio_path=assembled_audio_path,
+        actual_duration_seconds=actual_duration_seconds,
+        duration_gate=duration_gate,
+        chapters=chapters
     )
+
+    assembly_path = output_dir / "audio_assembly.json"
+    save_json(assembly_path, assembly_data)
+
+    print(
+        "ACTUAL_AUDIO_DURATION_SECONDS: "
+        f"{duration_gate['actual_seconds']}"
+    )
+    print(
+        "AUDIO_DURATION_GATE: "
+        f"{duration_gate['status']}"
+    )
+    print(
+        "ACTUAL_CHAPTER_COUNT: "
+        f"{len(chapters)}"
+    )
+
+    if not duration_gate["approved"]:
+        set_duration_revision_required(
+            context=context,
+            duration_gate=duration_gate,
+            word_count=sum(
+                item["word_count"]
+                for item in sections
+            )
+        )
+        raise ValueError(
+            "Narration duration is outside the approved "
+            "8-12 minute range. Script revision is required."
+        )
 
     registry_path = register_audio_asset_ownership(
         context=context,
@@ -713,7 +1032,6 @@ def main() -> None:
     save_json(generation_path, generation_data)
     save_json(qa_path, qa_data)
 
-    assembly_path = output_dir / "audio_assembly.json"
     save_json(assembly_path, assembly_data)
 
     print(

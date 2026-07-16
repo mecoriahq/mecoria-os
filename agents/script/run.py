@@ -28,6 +28,8 @@ from core.video_run_context import (
 
 
 from core.content_quality import (
+    DEFAULT_SCRIPT_WORD_MAX,
+    DEFAULT_SCRIPT_WORD_MIN,
     assert_script_word_count,
 )
 
@@ -153,11 +155,7 @@ def normalize_script(script_data: dict) -> dict:
     return {
         "title": to_text(script.get("title", "Untitled Script")),
         "format": to_text(script.get("format", "Long-form YouTube documentary")),
-        "estimated_duration": to_text(
-            script.get("estimated_duration")
-            or script.get("estimated_runtime")
-            or "12-16 minutes"
-        ),
+        "estimated_duration": "8-12 minutes",
         "hook": get_narration(script.get("hook")),
         "introduction": get_narration(script.get("introduction") or script.get("intro")),
         "main_sections": normalize_sections(script),
@@ -311,6 +309,39 @@ def resolve_script_inputs(
     )
 
 
+def load_revision_feedback(
+    context: dict | None
+) -> tuple[dict | None, Path | None]:
+    if not context:
+        return None, None
+
+    reference = context.get(
+        "sources",
+        {}
+    ).get("editorial_revision_brief")
+
+    if not reference:
+        return None, None
+
+    path = resolve_source(
+        context=context,
+        key="editorial_revision_brief"
+    )
+    data = load_json(path)
+
+    if data.get("video_id") != context["video_id"]:
+        raise ValueError(
+            "Editorial revision brief video_id mismatch."
+        )
+
+    if data.get("run_id") != context["run_id"]:
+        raise ValueError(
+            "Editorial revision brief run_id mismatch."
+        )
+
+    return data, path
+
+
 def main() -> None:
     args = parse_args()
     channel = args.channel.lower()
@@ -356,9 +387,9 @@ def main() -> None:
             {}
         ).get(
             "target_script_word_count_min",
-            800
+            DEFAULT_SCRIPT_WORD_MIN
         )
-    ) if context else 800
+    ) if context else DEFAULT_SCRIPT_WORD_MIN
 
     target_word_max = int(
         context.get(
@@ -366,15 +397,31 @@ def main() -> None:
             {}
         ).get(
             "target_script_word_count_max",
-            1300
+            DEFAULT_SCRIPT_WORD_MAX
         )
-    ) if context else 1300
+    ) if context else DEFAULT_SCRIPT_WORD_MAX
+
+    (
+        revision_feedback,
+        revision_feedback_path
+    ) = load_revision_feedback(context)
+
+    if revision_feedback_path:
+        print(
+            "EDITORIAL_REVISION_SOURCE: "
+            f"{get_relative_path(revision_feedback_path)}"
+        )
+        print(
+            "EDITORIAL_REVISION_ATTEMPT: "
+            f"{revision_feedback.get('attempt')}"
+        )
 
     prompt = build_prompt(
         research_data=research_data,
         selected_idea=selected_idea,
         target_word_count_min=target_word_min,
-        target_word_count_max=target_word_max
+        target_word_count_max=target_word_max,
+        revision_feedback=revision_feedback
     )
 
     raw_script_data = generate_script(prompt)

@@ -3,5 +3,5 @@ platform: youtube
 language: en
 model: gpt-5.5
 temperature: 0.2
-version: "1.0"
-approval_threshold: 80
+version: "3.0"
+approval_threshold: 85

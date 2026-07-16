@@ -1,4 +1,5 @@
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -13,6 +14,20 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from core.content_quality import (
+    DEFAULT_EDITORIAL_OVERALL_MIN,
+    DEFAULT_HIDDENOVA_BRAND_INTRO_MIN,
+    DEFAULT_HOOK_INTRO_DISTINCTNESS_MIN,
+    DEFAULT_HOOK_STRENGTH_MIN,
+    DEFAULT_MEDIA_DURATION_MAX_SECONDS,
+    DEFAULT_MEDIA_DURATION_MIN_SECONDS,
+    DEFAULT_NARRATIVE_SPINE_MIN,
+    DEFAULT_REPETITION_RISK_MIN,
+    DEFAULT_SCRIPT_WORD_MAX,
+    DEFAULT_SCRIPT_WORD_MIN,
+    DEFAULT_SPECIFICITY_MIN,
+    DEFAULT_STANDARD_CTA_MIN,
+    DEFAULT_TITLE_THUMBNAIL_SYNERGY_MIN,
+    evaluate_qa_editorial_gate,
     evaluate_script_word_count,
 )
 from core.content_usage_registry import (
@@ -71,6 +86,9 @@ PRODUCTION_OUTPUTS = {
         "publisher",
     ],
 }
+
+
+EDITORIAL_STANDARD_VERSION = "hiddenova_editorial_v2"
 
 
 def utc_now() -> str:
@@ -239,6 +257,162 @@ def append_history(
     ).append(record)
 
 
+def apply_production_quality_standard(
+    context: dict
+) -> dict:
+    gates = context.setdefault("quality_gates", {})
+
+    previous_standard_version = gates.get(
+        "editorial_standard_version"
+    )
+    total_revision_count = int(
+        gates.get("editorial_revision_count", 0)
+    )
+
+    if previous_standard_version != EDITORIAL_STANDARD_VERSION:
+        gates["editorial_standard_version"] = (
+            EDITORIAL_STANDARD_VERSION
+        )
+        gates["editorial_standard_revision_count"] = 0
+        gates["editorial_quality_gate_passed"] = False
+
+        if previous_standard_version or total_revision_count > 0:
+            previous_label = (
+                str(previous_standard_version)
+                if previous_standard_version
+                else "legacy"
+            )
+            append_history(
+                context=context,
+                agent="editorial_standard_migration",
+                status="revision_budget_reset",
+                reference=(
+                    f"from={previous_label};"
+                    f"to={EDITORIAL_STANDARD_VERSION};"
+                    "preserved_total_revisions="
+                    f"{total_revision_count}"
+                )
+            )
+            print(
+                "EDITORIAL_STANDARD_MIGRATION: "
+                f"{previous_label} -> "
+                f"{EDITORIAL_STANDARD_VERSION}",
+                flush=True
+            )
+            print(
+                "EDITORIAL_STANDARD_REVISION_BUDGET: reset",
+                flush=True
+            )
+
+    duration_revision_count = int(
+        gates.get("audio_duration_revision_count", 0)
+    )
+
+    if duration_revision_count == 0:
+        gates.update({
+            "target_script_word_count_min": (
+                DEFAULT_SCRIPT_WORD_MIN
+            ),
+            "target_script_word_count_max": (
+                DEFAULT_SCRIPT_WORD_MAX
+            ),
+        })
+
+    gates.update({
+        "target_audio_duration_min_seconds": (
+            DEFAULT_MEDIA_DURATION_MIN_SECONDS
+        ),
+        "target_audio_duration_max_seconds": (
+            DEFAULT_MEDIA_DURATION_MAX_SECONDS
+        ),
+        "target_video_duration_min_seconds": (
+            DEFAULT_MEDIA_DURATION_MIN_SECONDS
+        ),
+        "target_video_duration_max_seconds": (
+            DEFAULT_MEDIA_DURATION_MAX_SECONDS
+        ),
+        "require_actual_chapters": True,
+        "chapter_timing_source": "actual_audio_sections",
+        "max_audio_duration_revision_attempts": int(
+            gates.get(
+                "max_audio_duration_revision_attempts",
+                2
+            )
+        ),
+        "minimum_editorial_overall_score": int(
+            gates.get(
+                "minimum_editorial_overall_score",
+                DEFAULT_EDITORIAL_OVERALL_MIN
+            )
+        ),
+        "minimum_hook_strength_score": int(
+            gates.get(
+                "minimum_hook_strength_score",
+                DEFAULT_HOOK_STRENGTH_MIN
+            )
+        ),
+        "minimum_hook_intro_distinctness_score": int(
+            gates.get(
+                (
+                    "minimum_hook_intro_"
+                    "distinctness_score"
+                ),
+                DEFAULT_HOOK_INTRO_DISTINCTNESS_MIN
+            )
+        ),
+        "minimum_narrative_spine_score": int(
+            gates.get(
+                "minimum_narrative_spine_score",
+                DEFAULT_NARRATIVE_SPINE_MIN
+            )
+        ),
+        "minimum_specificity_score": int(
+            gates.get(
+                "minimum_specificity_score",
+                DEFAULT_SPECIFICITY_MIN
+            )
+        ),
+        "minimum_repetition_risk_score": int(
+            gates.get(
+                "minimum_repetition_risk_score",
+                DEFAULT_REPETITION_RISK_MIN
+            )
+        ),
+        "minimum_title_thumbnail_synergy_score": int(
+            gates.get(
+                (
+                    "minimum_title_thumbnail_"
+                    "synergy_score"
+                ),
+                DEFAULT_TITLE_THUMBNAIL_SYNERGY_MIN
+            )
+        ),
+        "max_editorial_revision_attempts": int(
+            gates.get(
+                "max_editorial_revision_attempts",
+                2
+            )
+        ),
+        "editorial_revision_count": int(
+            gates.get(
+                "editorial_revision_count",
+                0
+            )
+        ),
+        "editorial_standard_version": (
+            EDITORIAL_STANDARD_VERSION
+        ),
+        "editorial_standard_revision_count": int(
+            gates.get(
+                "editorial_standard_revision_count",
+                0
+            )
+        ),
+    })
+
+    return context
+
+
 def topic_is_approved(
     context: dict
 ) -> bool:
@@ -287,6 +461,8 @@ def approve_topic(
             "A terminal video cannot receive "
             "a new topic approval."
         )
+
+    context = apply_production_quality_standard(context)
 
     context.setdefault(
         "release",
@@ -459,6 +635,11 @@ def run_agent_if_missing(
 def invalidate_bad_content_outputs(
     context: dict
 ) -> dict:
+    duration_revision_required = (
+        context.get("status")
+        == "audio_duration_revision_required"
+    )
+
     script_ready = reference_exists(
         context,
         "script"
@@ -482,23 +663,44 @@ def invalidate_bad_content_outputs(
         minimum=int(
             gates.get(
                 "target_script_word_count_min",
-                800
+                DEFAULT_SCRIPT_WORD_MIN
             )
         ),
         maximum=int(
             gates.get(
                 "target_script_word_count_max",
-                1300
+                DEFAULT_SCRIPT_WORD_MAX
             )
         )
     )
 
-    if word_gate["approved"]:
+    if (
+        word_gate["approved"]
+        and not duration_revision_required
+    ):
         return context
 
     removed_outputs = []
 
-    for key in ("script", "seo", "qa"):
+    for key in (
+        "script",
+        "seo",
+        "qa",
+        "voice",
+        "voice_generation",
+        "audio_qa",
+        "audio_assembly",
+        "narration_audio",
+        "visual_plan",
+        "ai_visual_generation",
+        "ai_visual_qa",
+        "thumbnail",
+        "thumbnail_record",
+        "hybrid_video_assembly",
+        "final_video",
+        "video_qa",
+        "publisher",
+    ):
         if key in context.get("outputs", {}):
             context["outputs"].pop(key)
             removed_outputs.append(key)
@@ -516,11 +718,17 @@ def invalidate_bad_content_outputs(
 
     append_history(
         context=context,
-        agent="content_word_count_gate",
+        agent=(
+            "audio_duration_gate"
+            if duration_revision_required
+            else "content_word_count_gate"
+        ),
         status="invalidated",
         reference=(
             "word_count="
             f"{word_gate['word_count']};"
+            "reason="
+            f"{'audio_duration' if duration_revision_required else 'word_count'};"
             "removed_outputs="
             f"{','.join(removed_outputs)};"
             "removed_registry_records="
@@ -545,8 +753,299 @@ def invalidate_bad_content_outputs(
         f"{removed_registry_records}"
     )
     print(
-        "INVALID_SCRIPT_WORD_COUNT: "
-        f"{word_gate['word_count']}"
+        "CONTENT_INVALIDATION_REASON: "
+        f"{'audio_duration' if duration_revision_required else 'word_count'}"
+    )
+
+    return context
+
+
+def get_editorial_thresholds(
+    context: dict
+) -> dict:
+    gates = context.get(
+        "quality_gates",
+        {}
+    )
+
+    thresholds = {
+        "hook_strength": int(
+            gates.get(
+                "minimum_hook_strength_score",
+                DEFAULT_HOOK_STRENGTH_MIN
+            )
+        ),
+        "hook_intro_distinctness": int(
+            gates.get(
+                (
+                    "minimum_hook_intro_"
+                    "distinctness_score"
+                ),
+                DEFAULT_HOOK_INTRO_DISTINCTNESS_MIN
+            )
+        ),
+        "narrative_spine": int(
+            gates.get(
+                "minimum_narrative_spine_score",
+                DEFAULT_NARRATIVE_SPINE_MIN
+            )
+        ),
+        "specificity": int(
+            gates.get(
+                "minimum_specificity_score",
+                DEFAULT_SPECIFICITY_MIN
+            )
+        ),
+        "repetition_risk": int(
+            gates.get(
+                "minimum_repetition_risk_score",
+                DEFAULT_REPETITION_RISK_MIN
+            )
+        ),
+        "title_thumbnail_synergy": int(
+            gates.get(
+                (
+                    "minimum_title_thumbnail_"
+                    "synergy_score"
+                ),
+                DEFAULT_TITLE_THUMBNAIL_SYNERGY_MIN
+            )
+        ),
+    }
+
+    if gates.get(
+        "require_hiddenova_brand_intro",
+        False
+    ):
+        thresholds["hiddenova_brand_intro"] = int(
+            DEFAULT_HIDDENOVA_BRAND_INTRO_MIN
+        )
+
+    if gates.get(
+        "require_standard_cta",
+        False
+    ):
+        thresholds["standard_cta"] = int(
+            DEFAULT_STANDARD_CTA_MIN
+        )
+
+    return thresholds
+
+
+def write_editorial_revision_brief(
+    context: dict,
+    qa_data: dict,
+    gate_result: dict
+) -> dict:
+    gates = context.setdefault(
+        "quality_gates",
+        {}
+    )
+    revision_count = int(
+        gates.get(
+            "editorial_revision_count",
+            0
+        )
+    ) + 1
+    standard_revision_count = int(
+        gates.get(
+            "editorial_standard_revision_count",
+            0
+        )
+    ) + 1
+
+    brief_dir = (
+        PROJECT_ROOT
+        / "records"
+        / "run_contexts"
+        / context["channel"]
+        / context["video_id"]
+        / "inputs"
+    )
+    brief_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    brief_path = (
+        brief_dir
+        / (
+            "editorial_revision_"
+            f"{revision_count:02d}.json"
+        )
+    )
+    brief = {
+        "schema_version": "1.0",
+        "channel": context["channel"],
+        "video_id": context["video_id"],
+        "run_id": context["run_id"],
+        "attempt": revision_count,
+        "standard_version": EDITORIAL_STANDARD_VERSION,
+        "standard_attempt": standard_revision_count,
+        "topic_title": context["topic_title"],
+        "status": "editorial_revision_required",
+        "failed_checks": gate_result.get(
+            "failures",
+            []
+        ),
+        "qa_checks": qa_data.get(
+            "checks",
+            {}
+        ),
+        "issues": qa_data.get(
+            "issues",
+            []
+        ),
+        "recommendations": qa_data.get(
+            "recommendations",
+            []
+        ),
+        "mandatory_instructions": [
+            (
+                "Strengthen the first 120 words with "
+                "a concrete tension, paradox, or "
+                "consequence."
+            ),
+            (
+                "Make the introduction advance the "
+                "story instead of restating the hook."
+            ),
+            (
+                "Use one cause-and-effect narrative "
+                "spine rather than list-like exposition."
+            ),
+            (
+                "Replace abstract documentary filler "
+                "with concrete mechanisms and "
+                "consequences supported by research."
+            ),
+            (
+                "Create a direct title and an ALL-CAPS "
+                "2-4 word thumbnail phrase that add "
+                "different information."
+            ),
+            (
+                "Begin the introduction with a very short "
+                "brand/context line containing the exact "
+                "word Hiddenova within its first 25 words."
+            ),
+            (
+                "End with a concise CTA that explicitly "
+                "asks viewers to comment, like, and "
+                "subscribe."
+            ),
+            (
+                "Return no estimated chapter "
+                "timestamps."
+            ),
+        ],
+        "created_at": utc_now(),
+    }
+    brief_path.write_text(
+        json.dumps(
+            brief,
+            indent=2,
+            ensure_ascii=True
+        ),
+        encoding="utf-8"
+    )
+
+    reference = str(
+        brief_path.relative_to(
+            PROJECT_ROOT
+        )
+    ).replace("\\", "/")
+
+    context.setdefault(
+        "sources",
+        {}
+    )["editorial_revision_brief"] = (
+        reference
+    )
+    gates["editorial_revision_count"] = (
+        revision_count
+    )
+    gates["editorial_standard_revision_count"] = (
+        standard_revision_count
+    )
+
+    removed_outputs = []
+
+    for key in (
+        "script",
+        "seo",
+        "qa",
+        "voice",
+        "voice_generation",
+        "audio_qa",
+        "audio_assembly",
+        "narration_audio",
+        "visual_plan",
+        "ai_visual_generation",
+        "ai_visual_qa",
+        "thumbnail",
+        "thumbnail_record",
+        "hybrid_video_assembly",
+        "final_video",
+        "video_qa",
+        "publisher",
+    ):
+        if key in context.get(
+            "outputs",
+            {}
+        ):
+            context["outputs"].pop(key)
+            removed_outputs.append(key)
+
+    removed_registry_records = (
+        remove_video_content_records(
+            channel=context["channel"],
+            video_id=context["video_id"],
+            record_types=[
+                "script",
+                "seo",
+            ]
+        )
+    )
+
+    append_history(
+        context=context,
+        agent="editorial_quality_gate",
+        status="revision_required",
+        reference=reference
+    )
+
+    context = set_status(
+        context=context,
+        status="topic_approved",
+        next_agent="script"
+    )
+    save_context(context)
+
+    print(
+        "EDITORIAL_REVISION_REQUIRED: "
+        f"attempt_{revision_count}",
+        flush=True
+    )
+    print(
+        "EDITORIAL_STANDARD_ATTEMPT: "
+        f"{standard_revision_count}",
+        flush=True
+    )
+    print(
+        "EDITORIAL_REVISION_BRIEF: "
+        f"{reference}",
+        flush=True
+    )
+    print(
+        "INVALIDATED_CONTENT_OUTPUTS: "
+        f"{removed_outputs}",
+        flush=True
+    )
+    print(
+        "REMOVED_CONTENT_REGISTRY_RECORDS: "
+        f"{removed_registry_records}",
+        flush=True
     )
 
     return context
@@ -560,73 +1059,161 @@ def run_content_phase(
     context = invalidate_bad_content_outputs(
         context
     )
+    context = apply_production_quality_standard(
+        context
+    )
+    save_context(context)
 
-    steps = [
-        (
-            "script",
-            "agents/script/run.py",
-            CONTENT_OUTPUTS["script"]
-        ),
-        (
-            "seo",
-            "agents/seo/run.py",
-            CONTENT_OUTPUTS["seo"]
-        ),
-        (
-            "qa",
-            "agents/qa/run.py",
-            CONTENT_OUTPUTS["qa"]
-        ),
-    ]
+    while True:
+        steps = [
+            (
+                "script",
+                "agents/script/run.py",
+                CONTENT_OUTPUTS["script"]
+            ),
+            (
+                "seo",
+                "agents/seo/run.py",
+                CONTENT_OUTPUTS["seo"]
+            ),
+            (
+                "qa",
+                "agents/qa/run.py",
+                CONTENT_OUTPUTS["qa"]
+            ),
+        ]
 
-    for name, path, outputs in steps:
-        context = run_agent_if_missing(
+        for name, path, outputs in steps:
+            context = run_agent_if_missing(
+                context=context,
+                agent_name=name,
+                agent_path=path,
+                required_outputs=outputs
+            )
+
+        script_data = load_context_record(
             context=context,
-            agent_name=name,
-            agent_path=path,
-            required_outputs=outputs
+            key="script"
         )
-
-    script_data = load_context_record(
-        context=context,
-        key="script"
-    )
-
-    gates = context.get(
-        "quality_gates",
-        {}
-    )
-
-    final_word_gate = evaluate_script_word_count(
-        script_data=script_data,
-        minimum=int(
-            gates.get(
-                "target_script_word_count_min",
-                800
+        gates = context.get(
+            "quality_gates",
+            {}
+        )
+        final_word_gate = (
+            evaluate_script_word_count(
+                script_data=script_data,
+                minimum=int(
+                    gates.get(
+                        (
+                            "target_script_"
+                            "word_count_min"
+                        ),
+                        DEFAULT_SCRIPT_WORD_MIN
+                    )
+                ),
+                maximum=int(
+                    gates.get(
+                        (
+                            "target_script_"
+                            "word_count_max"
+                        ),
+                        DEFAULT_SCRIPT_WORD_MAX
+                    )
+                )
             )
-        ),
-        maximum=int(
-            gates.get(
-                "target_script_word_count_max",
-                1300
+        )
+
+        if not final_word_gate["approved"]:
+            raise ValueError(
+                "Content phase produced an invalid "
+                "script narration word count."
+            )
+
+        qa_data = load_context_record(
+            context=context,
+            key="qa"
+        )
+        gate_result = evaluate_qa_editorial_gate(
+            qa_data=qa_data,
+            minimum_overall=int(
+                gates.get(
+                    (
+                        "minimum_editorial_"
+                        "overall_score"
+                    ),
+                    DEFAULT_EDITORIAL_OVERALL_MIN
+                )
+            ),
+            critical_thresholds=(
+                get_editorial_thresholds(
+                    context
+                )
             )
         )
-    )
 
-    if not final_word_gate["approved"]:
-        raise ValueError(
-            "Content phase produced an invalid "
-            "script narration word count."
+        print(
+            "EDITORIAL_QUALITY_GATE: "
+            f"{gate_result['status']}",
+            flush=True
         )
 
-    qa_data = load_context_record(
-        context=context,
-        key="qa"
-    )
+        for check_name, threshold in (
+            gate_result[
+                "critical_thresholds"
+            ].items()
+        ):
+            score = (
+                qa_data.get(
+                    "checks",
+                    {}
+                ).get(
+                    check_name,
+                    {}
+                ).get(
+                    "score"
+                )
+            )
+            print(
+                "EDITORIAL_CHECK_"
+                f"{check_name.upper()}: "
+                f"{score} / {threshold}",
+                flush=True
+            )
 
-    if qa_data.get("status") != "approved":
-        raise ValueError(
-            "Content QA is not approved."
+        if gate_result["approved"]:
+            break
+
+        revision_count = int(
+            gates.get(
+                "editorial_standard_revision_count",
+                0
+            )
+        )
+        max_revisions = int(
+            gates.get(
+                "max_editorial_revision_attempts",
+                2
+            )
+        )
+
+        if revision_count >= max_revisions:
+            failed = ", ".join(
+                item["check"]
+                for item in gate_result[
+                    "failures"
+                ]
+            )
+            raise RuntimeError(
+                "Editorial quality remained below "
+                "the current production standard after "
+                "the maximum automatic revision attempts. "
+                f"Failed checks: {failed}."
+            )
+
+        context = write_editorial_revision_brief(
+            context=context,
+            qa_data=qa_data,
+            gate_result=gate_result
         )
 
     content_result = register_context_content(
@@ -639,8 +1226,26 @@ def run_content_phase(
     ).update({
         "require_content_fingerprint": True,
         "allow_cross_video_content_reuse": False,
+        "editorial_quality_gate_passed": True,
     })
 
+    context.get(
+        "sources",
+        {}
+    ).pop(
+        "editorial_revision_brief",
+        None
+    )
+
+    append_history(
+        context=context,
+        agent="editorial_quality_gate",
+        status="approved",
+        reference=(
+            "overall_score="
+            f"{qa_data.get('overall_score')}"
+        )
+    )
     append_history(
         context=context,
         agent="content_fingerprint_gate",
@@ -686,16 +1291,59 @@ def load_context_record(
 def run_audio_and_visual_phase(
     context: dict
 ) -> dict:
-    context = run_agent_if_missing(
-        context=context,
-        agent_name="video_audio_pipeline",
-        agent_path=(
-            "agents/video_audio_pipeline/run.py"
-        ),
-        required_outputs=PRODUCTION_OUTPUTS[
-            "video_audio_pipeline"
-        ]
+    max_revisions = int(
+        context.get("quality_gates", {}).get(
+            "max_audio_duration_revision_attempts",
+            2
+        )
     )
+
+    while True:
+        try:
+            context = run_agent_if_missing(
+                context=context,
+                agent_name="video_audio_pipeline",
+                agent_path=(
+                    "agents/video_audio_pipeline/run.py"
+                ),
+                required_outputs=PRODUCTION_OUTPUTS[
+                    "video_audio_pipeline"
+                ]
+            )
+            break
+        except RuntimeError:
+            context = load_context(
+                channel=context["channel"],
+                video_id=context["video_id"]
+            )
+
+            if (
+                context.get("status")
+                != "audio_duration_revision_required"
+            ):
+                raise
+
+            revision_count = int(
+                context.get("quality_gates", {}).get(
+                    "audio_duration_revision_count",
+                    0
+                )
+            )
+
+            if revision_count > max_revisions:
+                raise RuntimeError(
+                    "Audio duration remained outside the "
+                    "8-12 minute range after the maximum "
+                    "automatic revision attempts."
+                )
+
+            print(
+                "AUTO_SCRIPT_DURATION_REVISION: "
+                f"attempt_{revision_count}",
+                flush=True
+            )
+
+            context = run_content_phase(context)
 
     context = run_agent_if_missing(
         context=context,
@@ -915,7 +1563,9 @@ def print_dry_run(
         )
         print(
             "PRODUCTION_AFTER_APPROVAL: "
-            "script -> seo -> qa -> content_fingerprint "
+            "script -> seo -> strict_editorial_qa "
+            "-> automatic_revision_if_needed "
+            "-> content_fingerprint "
             "-> video_audio_pipeline "
             "-> video_visual_pipeline "
             "-> stock_source_gate "
@@ -1055,6 +1705,10 @@ def main() -> None:
 
         print_topic_gate(context)
         return
+
+    if context.get("status") not in TERMINAL_STATES:
+        context = apply_production_quality_standard(context)
+        save_context(context)
 
     if context.get("status") in TERMINAL_STATES:
         result = validate_media_context(

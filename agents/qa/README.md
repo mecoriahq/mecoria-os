@@ -1,41 +1,22 @@
-# QA Agent
+# Mecoria Strict Editorial QA Agent
 
-## Purpose
+This agent is the final content gate before audio and visual production.
 
-QA Agent acts as the quality gate for Mecoria Media.
+It combines:
+- LLM editorial evaluation
+- deterministic structure checks
+- title-thumbnail validation
+- estimated chapter rejection
+- automatic revision feedback for the Script Agent
 
-It reviews Script Agent and SEO Agent outputs before the pipeline continues to Thumbnail Agent.
+Critical editorial checks:
+- hook_strength
+- hook_intro_distinctness
+- narrative_spine
+- specificity
+- repetition_risk
+- title_thumbnail_synergy
 
-## Input
+The Media Video Orchestrator may regenerate Script, SEO, and QA up to two times when this gate rejects the content.
 
-agents/script/output/<channel>/latest.json
-
-agents/seo/output/<channel>/latest.json
-
-## Output
-
-agents/qa/output/<channel>/latest.json
-
-agents/qa/output/<channel>/archive/
-
-## Responsibilities
-
-- Evaluate script quality
-- Evaluate SEO alignment
-- Detect weak titles
-- Detect poor descriptions
-- Detect weak tags or keywords
-- Detect weak thumbnail text
-- Approve or reject pipeline continuation
-- Provide structured issues and recommendations
-
-## Not Responsible For
-
-- Writing scripts
-- Creating SEO metadata
-- Creating thumbnail prompts
-- Publishing videos
-
-## Status
-
-Architecture contract ready.
+Actual chapter timestamps are generated only after narration audio assembly.

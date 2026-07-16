@@ -38,8 +38,16 @@
       "type": "object",
       "required": [
         "script_quality",
+        "hook_strength",
+        "hook_intro_distinctness",
+        "narrative_spine",
+        "specificity",
+        "repetition_risk",
         "seo_alignment",
         "title_quality",
+        "title_thumbnail_synergy",
+        "hiddenova_brand_intro",
+        "standard_cta",
         "description_quality",
         "tags_quality",
         "thumbnail_text_quality"
@@ -48,10 +56,28 @@
         "script_quality": {
           "$ref": "#/$defs/check_result"
         },
+        "hook_strength": {
+          "$ref": "#/$defs/check_result"
+        },
+        "hook_intro_distinctness": {
+          "$ref": "#/$defs/check_result"
+        },
+        "narrative_spine": {
+          "$ref": "#/$defs/check_result"
+        },
+        "specificity": {
+          "$ref": "#/$defs/check_result"
+        },
+        "repetition_risk": {
+          "$ref": "#/$defs/check_result"
+        },
         "seo_alignment": {
           "$ref": "#/$defs/check_result"
         },
         "title_quality": {
+          "$ref": "#/$defs/check_result"
+        },
+        "title_thumbnail_synergy": {
           "$ref": "#/$defs/check_result"
         },
         "description_quality": {
@@ -61,6 +87,12 @@
           "$ref": "#/$defs/check_result"
         },
         "thumbnail_text_quality": {
+          "$ref": "#/$defs/check_result"
+        },
+        "hiddenova_brand_intro": {
+          "$ref": "#/$defs/check_result"
+        },
+        "standard_cta": {
           "$ref": "#/$defs/check_result"
         }
       },

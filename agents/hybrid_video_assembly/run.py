@@ -34,6 +34,12 @@ from core.asset_usage_registry import (
     register_asset_batch,
 )
 
+from core.content_quality import (
+    DEFAULT_MEDIA_DURATION_MAX_SECONDS,
+    DEFAULT_MEDIA_DURATION_MIN_SECONDS,
+    evaluate_duration_seconds,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 OUTPUT_FILENAME = "hybrid_video_draft.mp4"
 VIDEO_WIDTH = 1920
@@ -314,6 +320,67 @@ def get_media_duration_seconds(media_path: Path) -> float:
     seconds = float(match.group(3))
 
     return hours * 3600 + minutes * 60 + seconds
+
+
+def validate_production_duration(
+    context: dict | None,
+    actual_seconds: float
+) -> dict:
+    gates = context.get("quality_gates", {}) if context else {}
+    minimum = int(
+        gates.get(
+            "target_audio_duration_min_seconds",
+            DEFAULT_MEDIA_DURATION_MIN_SECONDS
+        )
+    )
+    maximum = int(
+        gates.get(
+            "target_audio_duration_max_seconds",
+            DEFAULT_MEDIA_DURATION_MAX_SECONDS
+        )
+    )
+
+    result = evaluate_duration_seconds(
+        actual_seconds=actual_seconds,
+        minimum=minimum,
+        maximum=maximum
+    )
+
+    if not result["approved"]:
+        raise ValueError(
+            "Render blocked: narration duration must be "
+            "between 480 and 720 seconds."
+        )
+
+    return result
+
+
+def validate_ai_insert_requirement(
+    context: dict | None,
+    ai_specs: list[dict]
+) -> dict:
+    gates = context.get("quality_gates", {}) if context else {}
+    required = bool(gates.get("require_ai_visuals", False))
+    minimum = int(gates.get("minimum_ai_insert_count", 0))
+    actual = len(ai_specs)
+
+    approved = (
+        not required
+        or actual >= max(1, minimum)
+    )
+
+    if not approved:
+        raise ValueError(
+            "Render blocked: AI visual insert count is below "
+            f"the required minimum. actual={actual} minimum={minimum}."
+        )
+
+    return {
+        "required": required,
+        "minimum": minimum,
+        "actual": actual,
+        "approved": approved,
+    }
 
 
 def stock_video_filter() -> str:
@@ -1595,6 +1662,14 @@ def main() -> None:
         print("AI_INSERTS_DISABLED_FOR_VIDEO_CONTEXT: true")
 
     audio_duration = get_media_duration_seconds(audio_path)
+    duration_gate = validate_production_duration(
+        context=context,
+        actual_seconds=audio_duration
+    )
+    ai_insert_gate = validate_ai_insert_requirement(
+        context=context,
+        ai_specs=ai_specs
+    )
     cycle = build_hybrid_cycle(
         stock_specs=stock_specs,
         ai_specs=ai_specs
@@ -1623,6 +1698,14 @@ def main() -> None:
     print(
         "STOCK_REPETITION_RISK: "
         f"{stock_report['stock_repetition_risk']}"
+    )
+    print(
+        "AUDIO_DURATION_GATE: "
+        f"{duration_gate['status']}"
+    )
+    print(
+        "AI_INSERT_GATE: "
+        f"{'pass' if ai_insert_gate['approved'] else 'fail'}"
     )
 
     timeline_entries = build_timeline_sequence(

@@ -30,10 +30,16 @@ from core.asset_usage_registry import (
     assert_asset_registered,
 )
 
+from core.content_quality import (
+    DEFAULT_MEDIA_DURATION_MAX_SECONDS,
+    DEFAULT_MEDIA_DURATION_MIN_SECONDS,
+    evaluate_duration_seconds,
+)
+
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_SOURCE_AGENT = "hybrid_video_assembly"
 
-MIN_DURATION_SECONDS = 60
+LEGACY_MIN_DURATION_SECONDS = 60
 MIN_FILE_SIZE_BYTES = 10_000_000
 TARGET_WIDTH = 1920
 TARGET_HEIGHT = 1080
@@ -224,10 +230,43 @@ def build_output(
 
     duration_seconds = media_info["duration_seconds"]
 
+    if context:
+        duration_gates = context.get("quality_gates", {})
+        minimum_duration = int(
+            duration_gates.get(
+                "target_video_duration_min_seconds",
+                DEFAULT_MEDIA_DURATION_MIN_SECONDS
+            )
+        )
+        maximum_duration = int(
+            duration_gates.get(
+                "target_video_duration_max_seconds",
+                DEFAULT_MEDIA_DURATION_MAX_SECONDS
+            )
+        )
+    else:
+        minimum_duration = LEGACY_MIN_DURATION_SECONDS
+        maximum_duration = 86_400
+
+    duration_gate = None
+
     if duration_seconds is None:
         issues.append("Could not detect video duration.")
-    elif duration_seconds < MIN_DURATION_SECONDS:
-        issues.append("Video duration is too short.")
+    else:
+        duration_gate = evaluate_duration_seconds(
+            actual_seconds=duration_seconds,
+            minimum=minimum_duration,
+            maximum=maximum_duration
+        )
+
+        if duration_seconds < minimum_duration:
+            issues.append(
+                "Video duration is below the approved minimum."
+            )
+        elif duration_seconds > maximum_duration:
+            issues.append(
+                "Video duration is above the approved maximum."
+            )
 
     if media_info["width"] != TARGET_WIDTH or media_info["height"] != TARGET_HEIGHT:
         issues.append(
@@ -283,7 +322,10 @@ def build_output(
             "file_size_ok": size_bytes >= MIN_FILE_SIZE_BYTES,
             "has_video_stream": media_info["has_video_stream"],
             "has_audio_stream": media_info["has_audio_stream"],
-            "duration_ok": bool(duration_seconds and duration_seconds >= MIN_DURATION_SECONDS),
+            "duration_ok": bool(
+                duration_gate
+                and duration_gate["approved"]
+            ),
             "resolution_ok": media_info["width"] == TARGET_WIDTH and media_info["height"] == TARGET_HEIGHT,
             "fps_ok": bool(media_info["fps"] and MIN_FPS <= media_info["fps"] <= MAX_FPS),
             "asset_registry_ownership": (

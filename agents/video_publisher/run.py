@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -52,6 +53,80 @@ def save_json(path: Path, data: dict) -> None:
 
 def relative_path(path: Path) -> str:
     return str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+
+
+CHAPTER_LINE_PATTERN = re.compile(
+    r"^\s*(?:\d{1,2}:)?\d{1,2}:\d{2}\s+\S+"
+)
+CHAPTER_HEADER_PATTERN = re.compile(
+    r"^\s*(chapters?|timestamps?)\s*:?\s*$",
+    re.IGNORECASE
+)
+
+
+def strip_estimated_chapters(description: str) -> str:
+    lines = str(description).splitlines()
+    cleaned = []
+
+    for line in lines:
+        if CHAPTER_LINE_PATTERN.match(line):
+            continue
+
+        if CHAPTER_HEADER_PATTERN.match(line):
+            continue
+
+        cleaned.append(line.rstrip())
+
+    while cleaned and not cleaned[-1].strip():
+        cleaned.pop()
+
+    return "\n".join(cleaned).strip()
+
+
+def normalize_actual_chapters(
+    chapters: list[dict]
+) -> list[dict]:
+    normalized = []
+
+    for item in chapters:
+        time_text = str(item.get("time", "")).strip()
+        title = str(item.get("title", "")).strip()
+
+        if not time_text or not title:
+            continue
+
+        normalized.append({
+            "time": time_text,
+            "title": title
+        })
+
+    if len(normalized) < 3:
+        raise ValueError(
+            "Publisher requires at least three actual chapters."
+        )
+
+    if normalized[0]["time"] not in {"0:00", "00:00"}:
+        raise ValueError(
+            "The first actual chapter must start at 0:00."
+        )
+
+    return normalized
+
+
+def build_final_description(
+    base_description: str,
+    chapters: list[dict]
+) -> str:
+    cleaned = strip_estimated_chapters(base_description)
+    chapter_lines = [
+        f"{item['time']} {item['title']}"
+        for item in chapters
+    ]
+
+    return (
+        f"{cleaned}\n\nChapters:\n"
+        + "\n".join(chapter_lines)
+    ).strip()
 
 
 def resolve_context_asset(
@@ -129,6 +204,10 @@ def main() -> None:
         context,
         "seo"
     )
+    audio_assembly_path = resolve_context_asset(
+        context,
+        "audio_assembly"
+    )
     visual_qa_path = resolve_context_asset(
         context,
         "ai_visual_qa"
@@ -176,6 +255,7 @@ def main() -> None:
 
     script_data = load_json(script_path)
     seo_data = load_json(seo_path)
+    audio_assembly_data = load_json(audio_assembly_path)
     visual_qa_data = load_json(visual_qa_path)
     video_qa_data = load_json(video_qa_path)
 
@@ -184,7 +264,8 @@ def main() -> None:
 
     for name, data in (
         ("script", script_data),
-        ("seo", seo_data)
+        ("seo", seo_data),
+        ("audio_assembly", audio_assembly_data)
     ):
         source_video_id = data.get("video_id")
         source_run_id = data.get("run_id")
@@ -211,6 +292,19 @@ def main() -> None:
     if visual_qa_data.get("status") != "approved":
         raise ValueError("AI Visual QA is not approved.")
 
+    if audio_assembly_data.get("status") != "assembled":
+        raise ValueError(
+            "Audio assembly is not approved for publishing."
+        )
+
+    if not audio_assembly_data.get(
+        "duration_gate",
+        {}
+    ).get("approved"):
+        raise ValueError(
+            "Audio duration gate is not approved."
+        )
+
     visual_video_id = (
         visual_qa_data.get("video_id")
         or visual_qa_data.get("source", {}).get("video_id")
@@ -231,7 +325,18 @@ def main() -> None:
 
     seo = seo_data.get("seo", {})
     title = str(seo.get("video_title", "")).strip()
-    description = str(seo.get("description", "")).strip()
+    chapters = normalize_actual_chapters(
+        audio_assembly_data.get("audio", {}).get(
+            "chapters",
+            []
+        )
+    )
+    description = build_final_description(
+        base_description=str(
+            seo.get("description", "")
+        ).strip(),
+        chapters=chapters
+    )
     tags = seo.get("tags", [])
 
     if not title or not description or not tags:
@@ -329,7 +434,7 @@ def main() -> None:
                 "description": description,
                 "tags": tags,
                 "hashtags": seo.get("hashtags", []),
-                "chapters": seo.get("chapters", [])
+                "chapters": chapters
             },
             "assets": {
                 "script_reference": relative_path(script_path),
@@ -353,6 +458,7 @@ def main() -> None:
             "source_agents": [
                 "script",
                 "seo",
+                "audio_assembly",
                 "video_visual_pipeline",
                 "ai_visual_qa",
                 "video_qa"
@@ -386,6 +492,8 @@ def main() -> None:
         "DURATION: "
         f"{video_qa_data['summary']['duration_seconds']}s"
     )
+    print("CHAPTER_SOURCE: actual_audio_sections")
+    print(f"CHAPTER_COUNT: {len(chapters)}")
     print("STATUS: upload_ready")
 
     if args.dry_run:
