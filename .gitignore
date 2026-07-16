@@ -82,3 +82,9 @@ assets/audio/
 
 # Agent runtime outputs - do not commit
 agents/*/output/
+# Google / YouTube OAuth
+client_secret*.json
+token.json
+youtube_token.json
+youtube_analytics_token.json
+*.oauth.json
