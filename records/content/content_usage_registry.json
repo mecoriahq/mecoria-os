@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-16T20:44:05.664657+00:00",
+  "updated_at": "2026-07-17T17:35:57.970836+00:00",
   "records": {
     "script": [
       {
@@ -130,6 +130,18 @@
         "word_count": 568,
         "similarity_threshold": 0.88,
         "registered_at": "2026-07-15T21:42:56.365365+00:00"
+      },
+      {
+        "record_type": "visual_plan",
+        "channel": "hiddenova",
+        "video_id": "video_004",
+        "run_id": "hiddenova_video_004_v1",
+        "source_reference": "agents/video_visual_pipeline/output/hiddenova/video_004/hiddenova_video_004_v1/visual_plan.json",
+        "exact_sha256": "bdcd33730e994ec3af485432dc25a9bf6900917af28629a9b9c7e13e89fca202",
+        "normalized_text": "16 9 premium documentary still of a customer tapping a blank contactless card at a small cafe counter coffee cup waiting beside the terminal cashier slightly out of focus in the background green glow from the terminal screen without readable text cinematic low key lighting realistic human hands no logos no readable labels no barcodes hook show the ordinary tap hiding a larger promise 16 9 macro documentary still of a blank contactless card hovering millimeters above a generic payment terminal faint translucent geometric signal particles forming between card and reader security like light patterns with no letters or numbers brushed metal and glass textures dramatic shallow depth of field no logos no readable text no operational interface tap creates a question visualize the terminal creating a secure payment message 16 9 cinematic documentary still of a small independent shop counter at night generic payment terminal connected by a subtle glowing fiber like line toward an anonymous back office server cabinet in the distance merchant silhouette reviewing receipts with all paper blank and unreadable warm shop light contrasted with cool network light no logos no readable labels no barcodes merchant to acquirer explain the merchant doorway into the payment system 16 9 realistic cinematic still of abstract payment rails represented by glowing light paths crossing a dark city map made of unlabelled streets and buildings a small luminous packet moving from one node to another premium documentary look high contrast blue and amber lighting no country names no labels no logos no readable text network finds issuer show routing through the card network without brand marks 16 9 premium documentary still inside a modern anonymous bank server room cool blue server racks a small transaction light suspended in the foreground surrounded by abstract risk indicators made of colored dots and lines with no words or numbers analyst silhouettes behind frosted glass tense cinematic lighting no logos no readable screens no operational dashboard issuer risk decision show the issuing bank judging account and fraud risk 16 9 cinematic documentary still at a pharmacy or convenience counter customer and cashier waiting in quiet tension while a generic payment terminal glows amber red with no readable text essential items on the counter background softly blurred realistic expressions muted color palette with strong contrast no logos no readable labels no private data no barcodes failure tension capture the pressure of a decision before the customer leaves 16 9 premium documentary still using a split depth composition foreground generic terminal emitting a soft green glow after a successful tap background customer phone screen deliberately blurred and unreadable a faint transparent lock like visual metaphor over the card and counter suggesting a temporary hold realistic lighting no logos no readable text no banking interface details approval becomes hold show approval as a pending hold rather than final money movement 16 9 cinematic documentary still of night time financial infrastructure anonymous bank buildings and a merchant storefront connected by flowing streams of light blank receipt slips and ledger like cards moving as a batch through the scene with no writing subtle gold light arriving at the merchant side premium realistic style no logos no readable labels no operational screens clearing and settlement conclude with approvals becoming records and then money movement cinematic close up of a generic contactless payment terminal on a dark counter an anonymous hand holding a blank bank card just above it subtle green approval glow reflecting on the card edge premium documentary lighting shallow depth of field deep black negative space on the left for overlay text one dominant subject no logos no readable text no barcodes no brand marks two second verdict left the quiet technology behind every card payment approval",
+        "word_count": 619,
+        "similarity_threshold": 0.88,
+        "registered_at": "2026-07-17T17:35:57.970713+00:00"
       }
     ]
   }

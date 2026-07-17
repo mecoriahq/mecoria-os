@@ -1,0 +1,71 @@
+{
+  "agent": "video_stock_pipeline",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_004",
+  "run_id": "hiddenova_video_004_v1",
+  "status": "approved",
+  "summary": {
+    "approved_clip_count": 24,
+    "unique_clip_count": 24,
+    "distinct_role_count": 7,
+    "review_required_count": 0,
+    "minimum_required_clip_count": 16,
+    "minimum_required_role_count": 5,
+    "total_duration_seconds": 386.66,
+    "largest_clip_share": 0.08,
+    "license_confirmation_required_count": 24,
+    "reused_clip_count": 0,
+    "registry_record_count": 24
+  },
+  "checks": {
+    "minimum_clip_count": true,
+    "minimum_total_duration": true,
+    "minimum_distinct_roles": true,
+    "unique_paths": true,
+    "unique_storyblocks_ids": true,
+    "no_manual_review_items": true,
+    "maximum_single_clip_share": true,
+    "cross_video_asset_reuse": true
+  },
+  "issues": [],
+  "warnings": [
+    {
+      "field": "stock_license",
+      "severity": "medium",
+      "message": "Public usage license confirmation is required for some stock clips.",
+      "candidate_ids": [
+        "VIDEO_004-C001",
+        "VIDEO_004-C002",
+        "VIDEO_004-C003",
+        "VIDEO_004-C004",
+        "VIDEO_004-C005",
+        "VIDEO_004-C006",
+        "VIDEO_004-C007",
+        "VIDEO_004-C008",
+        "VIDEO_004-C009",
+        "VIDEO_004-C010",
+        "VIDEO_004-C011",
+        "VIDEO_004-C012",
+        "VIDEO_004-C013",
+        "VIDEO_004-C014",
+        "VIDEO_004-C015",
+        "VIDEO_004-C016",
+        "VIDEO_004-C017",
+        "VIDEO_004-C018",
+        "VIDEO_004-C019",
+        "VIDEO_004-C020",
+        "VIDEO_004-C021",
+        "VIDEO_004-C022",
+        "VIDEO_004-C023",
+        "VIDEO_004-C024"
+      ]
+    }
+  ],
+  "metadata": {
+    "next_agent": "hybrid_video_assembly"
+  },
+  "source": {
+    "asset_registry_reference": "records/assets/asset_usage_registry.json"
+  }
+}

@@ -1,430 +1,1163 @@
 import argparse
 import json
 import re
-import shutil
+import sys
 from pathlib import Path
-
-from dotenv import load_dotenv
-from jsonschema import validate
-
-from output import save_output
 
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
-
-DEFAULT_CHANNEL = "hiddenova"
-DEFAULT_SOURCE = Path("assets") / "stock" / "hiddenova" / "inbox"
-
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
 
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-def load_json(file_path: Path) -> dict:
-    if not file_path.exists():
-        raise FileNotFoundError(f"Required file not found: {file_path}")
+from core.asset_usage_registry import (
+    calculate_sha256,
+    load_registry,
+)
+from core.video_run_context import (
+    load_context,
+    resolve_output,
+    save_context,
+    utc_now,
+)
 
-    return json.loads(file_path.read_text(encoding="utf-8-sig"))
+
+GENERIC_STOPWORDS = {
+    "and",
+    "about",
+    "after",
+    "again",
+    "against",
+    "along",
+    "also",
+    "among",
+    "another",
+    "because",
+    "before",
+    "being",
+    "between",
+    "card",
+    "cards",
+    "customer",
+    "customers",
+    "during",
+    "each",
+    "every",
+    "from",
+    "into",
+    "more",
+    "most",
+    "other",
+    "over",
+    "payment",
+    "payments",
+    "purchase",
+    "purchases",
+    "same",
+    "than",
+    "that",
+    "their",
+    "them",
+    "then",
+    "there",
+    "these",
+    "they",
+    "this",
+    "through",
+    "under",
+    "when",
+    "where",
+    "which",
+    "while",
+    "with",
+    "without",
+    "would",
+}
+
+CANONICAL_ROLE_RULES = [
+    (
+        "clearing_settlement",
+        {
+            "clearing",
+            "settlement",
+            "settles",
+            "settled",
+            "ledger",
+            "ledgers",
+            "batch",
+            "batches",
+        },
+    ),
+    (
+        "authorization_hold",
+        {
+            "hold",
+            "pending",
+            "reserved",
+            "reserve",
+            "authorization",
+            "authorisation",
+        },
+    ),
+    (
+        "payment_network",
+        {
+            "network",
+            "routing",
+            "route",
+            "switch",
+            "switchboard",
+            "infrastructure",
+            "server",
+            "servers",
+            "datacenter",
+            "data-center",
+            "datacentre",
+        },
+    ),
+    (
+        "issuer_risk_decision",
+        {
+            "fraud",
+            "risk",
+            "issuer",
+            "issuing",
+            "decision",
+            "decline",
+            "declined",
+            "approve",
+            "approved",
+        },
+    ),
+    (
+        "merchant_acquirer",
+        {
+            "merchant",
+            "acquirer",
+            "acquiring",
+            "processor",
+            "gateway",
+            "store",
+            "shop",
+            "retail",
+            "cashier",
+            "checkout",
+        },
+    ),
+    (
+        "payment_terminal",
+        {
+            "terminal",
+            "tap",
+            "contactless",
+            "reader",
+            "chip",
+            "swipe",
+            "pin",
+            "pos",
+        },
+    ),
+]
+
+ROLE_ALIASES = {
+    "payment_context": {
+        "banking",
+        "buying",
+        "cash",
+        "checkout",
+        "credit",
+        "debit",
+        "mobile",
+        "online",
+        "phone",
+        "retail",
+        "shopping",
+        "store",
+        "transaction",
+        "wallet",
+    },
+    "payment_terminal": {
+        "card-machine",
+        "card-reader",
+        "cashier",
+        "checkout",
+        "chip",
+        "contactless",
+        "finger",
+        "hand",
+        "machine",
+        "pin",
+        "pos",
+        "reader",
+        "screen",
+        "tap",
+        "terminal",
+    },
+    "merchant_acquirer": {
+        "buying",
+        "cash-desk",
+        "cashier",
+        "checkout",
+        "department-store",
+        "gateway",
+        "merchant",
+        "processor",
+        "retail",
+        "shop",
+        "store",
+    },
+    "payment_network": {
+        "code",
+        "data",
+        "data-center",
+        "datacenter",
+        "datacentre",
+        "infrastructure",
+        "network",
+        "rack",
+        "racks",
+        "routing",
+        "server",
+        "servers",
+        "switch",
+    },
+    "issuer_risk_decision": {
+        "analyst",
+        "bank",
+        "code",
+        "computer",
+        "dashboard",
+        "data",
+        "decline",
+        "fraud",
+        "monitor",
+        "monitoring",
+        "risk",
+        "screen",
+    },
+    "authorization_hold": {
+        "app",
+        "banking",
+        "credit",
+        "debit",
+        "hold",
+        "mobile",
+        "pending",
+        "phone",
+        "transaction",
+    },
+    "clearing_settlement": {
+        "bank",
+        "batch",
+        "clearing",
+        "financial",
+        "ledger",
+        "money",
+        "settlement",
+        "transfer",
+    },
+}
 
 
-def write_json(file_path: Path, data: dict) -> None:
-    file_path.write_text(
-        json.dumps(data, indent=2, ensure_ascii=False),
-        encoding="utf-8"
+def load_json(path: Path) -> dict:
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Required file not found: {path}"
+        )
+
+    return json.loads(
+        path.read_text(encoding="utf-8-sig")
     )
 
 
-def load_schema() -> dict:
-    return load_json(BASE_DIR / "schema.json")
+def save_json(path: Path, data: dict) -> None:
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+    path.write_text(
+        json.dumps(
+            data,
+            indent=2,
+            ensure_ascii=True,
+        ),
+        encoding="utf-8",
+    )
 
 
-def get_manifest_path(channel: str) -> Path:
-    return PROJECT_ROOT / "records" / "assets" / channel.lower() / "stock_footage_manifest.json"
+def relative_path(path: Path) -> str:
+    resolved_path = path.resolve()
+    resolved_root = PROJECT_ROOT.resolve()
+
+    try:
+        relative = resolved_path.relative_to(
+            resolved_root
+        )
+    except ValueError as exc:
+        raise ValueError(
+            "Stock source must be inside the repository."
+        ) from exc
+
+    return str(relative).replace("\\", "/")
 
 
-def get_relative_path(path: Path) -> str:
-    return str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+def validate_video_id(video_id: str) -> str:
+    normalized = video_id.lower()
+
+    if not re.fullmatch(
+        r"video_\d{3,}",
+        normalized,
+    ):
+        raise ValueError(
+            "video_id must use format video_004."
+        )
+
+    return normalized
 
 
-def get_storyblocks_id(filename: str) -> str | None:
-    match = re.search(r"SBV-\d+", filename, flags=re.IGNORECASE)
+def get_storyblocks_id(
+    filename: str,
+) -> str | None:
+    match = re.search(
+        r"SBV-\d+",
+        filename,
+        flags=re.IGNORECASE,
+    )
+
     if not match:
         return None
 
     return match.group(0).upper()
 
 
-def slugify(value: str) -> str:
+def normalize_text(value: str) -> str:
     value = value.lower()
-    value = re.sub(r"sbv-\d+", "", value)
-    value = re.sub(r"[^a-z0-9]+", "_", value)
-    value = re.sub(r"_+", "_", value)
-    value = value.strip("_")
+    value = value.replace("&", " and ")
+    value = re.sub(
+        r"[^a-z0-9]+",
+        "-",
+        value,
+    )
+    value = re.sub(
+        r"-+",
+        "-",
+        value,
+    )
+    return value.strip("-")
 
-    return value[:60] or "stock_clip"
+
+def tokenize(value: str) -> set[str]:
+    normalized = normalize_text(value)
+
+    tokens = {
+        token
+        for token in normalized.split("-")
+        if len(token) >= 3
+        and token not in GENERIC_STOPWORDS
+        and not token.isdigit()
+    }
+
+    return tokens
 
 
-def classify_file(filename: str) -> dict:
-    name = filename.lower()
+def slugify(value: str) -> str:
+    normalized = normalize_text(value)
+    return normalized.replace("-", "_")[:60] or "stock_role"
 
-    rejected_keywords = [
-        "tv-broadcast",
-        "broadcast-truck",
-        "mobile-broadcast",
-        "tv-station"
-    ]
 
-    home_keywords = [
-        "home",
-        "household",
-        "relocation",
-        "packing",
-        "removal-box",
-        "customer",
-        "online-shopping",
-        "cardboard-box-at-home"
-    ]
+def canonical_role_id(text: str) -> str:
+    tokens = tokenize(text)
 
-    inspection_keywords = [
-        "scan",
-        "barcode",
-        "checking",
-        "inspection",
-        "quality-control",
-        "worker-checking",
-        "registering",
-        "repackaging",
-        "packing-order"
-    ]
-
-    logistics_keywords = [
-        "warehouse",
-        "logistics",
-        "conveyor",
-        "distribution",
-        "parcel",
-        "package",
-        "packages",
-        "boxes",
-        "truck-loading",
-        "pallet",
-        "racks",
-        "supply-chain",
-        "sorting"
-    ]
-
-    if any(keyword in name for keyword in rejected_keywords):
-        return {
-            "asset_id": "REJECTED",
-            "role": "rejected_unrelated",
-            "usage_priority": 99,
-            "status": "rejected_do_not_use",
-            "risk_level": "not_applicable",
-            "notes": "Auto-rejected by filename because it appears unrelated to ecommerce returns/logistics."
+    for role_id, keywords in CANONICAL_ROLE_RULES:
+        normalized_keywords = {
+            normalize_text(keyword)
+            for keyword in keywords
         }
 
-    non_logistics_industrial_keywords = [
-        "corn",
-        "seed",
-        "food",
-        "dairy",
-        "harvested",
-        "agricultural",
-        "cnc",
-        "window-fac",
-        "production-line",
-        "programmable",
-        "machine-in-window"
+        if tokens.intersection(
+            normalized_keywords
+        ):
+            return role_id
+
+    return slugify(text)
+
+
+def role_priority(
+    role_id: str,
+) -> int:
+    order = [
+        "payment_context",
+        "payment_terminal",
+        "merchant_acquirer",
+        "payment_network",
+        "issuer_risk_decision",
+        "authorization_hold",
+        "clearing_settlement",
     ]
 
-    if any(keyword in name for keyword in non_logistics_industrial_keywords):
+    try:
+        return order.index(role_id) + 1
+    except ValueError:
+        return len(order) + 1
+
+
+def merge_role(
+    catalog: dict[str, dict],
+    role_id: str,
+    title: str,
+    text: str,
+) -> None:
+    role = catalog.setdefault(
+        role_id,
+        {
+            "role_id": role_id,
+            "title": title,
+            "keywords": set(),
+            "priority_keywords": set(
+                ROLE_ALIASES.get(
+                    role_id,
+                    set(),
+                )
+            ),
+            "usage_priority": role_priority(
+                role_id
+            ),
+        },
+    )
+
+    role["keywords"].update(
+        tokenize(text)
+    )
+
+
+def build_role_catalog(
+    script_data: dict,
+    visual_plan_data: dict | None = None,
+) -> list[dict]:
+    script = script_data.get(
+        "script",
+        script_data,
+    )
+
+    catalog: dict[str, dict] = {}
+
+    intro_text = " ".join([
+        str(
+            script.get(
+                "hook",
+                {},
+            ).get(
+                "narration",
+                "",
+            )
+        ),
+        str(
+            script.get(
+                "introduction",
+                {},
+            ).get(
+                "narration",
+                "",
+            )
+        ),
+    ])
+
+    merge_role(
+        catalog=catalog,
+        role_id="payment_context",
+        title="Payment Context",
+        text=intro_text,
+    )
+
+    for section in script.get(
+        "main_sections",
+        [],
+    ):
+        title = str(
+            section.get(
+                "title",
+                "Topic Support",
+            )
+        ).strip()
+
+        text = " ".join([
+            title,
+            str(
+                section.get(
+                    "visual_direction",
+                    "",
+                )
+            ),
+            str(
+                section.get(
+                    "narration",
+                    "",
+                )
+            ),
+        ])
+
+        role_id = canonical_role_id(title)
+
+        if role_id == slugify(title):
+            role_id = canonical_role_id(text)
+
+        merge_role(
+            catalog=catalog,
+            role_id=role_id,
+            title=title,
+            text=text,
+        )
+
+    if visual_plan_data:
+        plan = visual_plan_data.get(
+            "ai_visual_insert_plan",
+            visual_plan_data,
+        )
+
+        for item in plan.get(
+            "items",
+            [],
+        ):
+            text = " ".join([
+                str(
+                    item.get(
+                        "section_hint",
+                        "",
+                    )
+                ),
+                str(
+                    item.get(
+                        "visual_role",
+                        "",
+                    )
+                ),
+                str(
+                    item.get(
+                        "prompt",
+                        "",
+                    )
+                ),
+            ])
+
+            section_hint = str(
+                item.get(
+                    "section_hint",
+                    "",
+                )
+            )
+            role_id = canonical_role_id(
+                section_hint
+            )
+
+            if role_id == slugify(
+                section_hint
+            ):
+                role_id = canonical_role_id(
+                    text
+                )
+
+            merge_role(
+                catalog=catalog,
+                role_id=role_id,
+                title=(
+                    section_hint
+                    or role_id
+                ),
+                text=text,
+            )
+
+    output = []
+
+    for role in sorted(
+        catalog.values(),
+        key=lambda item: (
+            item["usage_priority"],
+            item["role_id"],
+        ),
+    ):
+        output.append({
+            "role_id": role["role_id"],
+            "title": role["title"],
+            "keywords": sorted(
+                role["keywords"]
+            ),
+            "priority_keywords": sorted(
+                role["priority_keywords"]
+            ),
+            "usage_priority": role[
+                "usage_priority"
+            ],
+        })
+
+    return output
+
+
+def score_role(
+    filename: str,
+    role: dict,
+) -> dict:
+    normalized_filename = normalize_text(
+        Path(filename).stem
+    )
+    filename_tokens = tokenize(
+        normalized_filename
+    )
+
+    priority_keywords = set()
+
+    for keyword in role.get(
+        "priority_keywords",
+        [],
+    ):
+        priority_keywords.update(
+            tokenize(keyword)
+        )
+
+    context_keywords = set()
+
+    for keyword in role.get(
+        "keywords",
+        [],
+    ):
+        context_keywords.update(
+            tokenize(keyword)
+        )
+
+    matched_priority = sorted(
+        filename_tokens.intersection(
+            priority_keywords
+        )
+    )
+    matched_context = sorted(
+        filename_tokens.intersection(
+            context_keywords
+        )
+    )
+
+    score = (
+        len(matched_priority) * 4
+        + len(matched_context)
+    )
+
+    role_phrase = normalize_text(
+        role.get(
+            "title",
+            "",
+        )
+    )
+
+    if (
+        role_phrase
+        and role_phrase in normalized_filename
+    ):
+        score += 5
+
+    return {
+        "role_id": role["role_id"],
+        "role_title": role["title"],
+        "usage_priority": role[
+            "usage_priority"
+        ],
+        "score": score,
+        "matched_keywords": sorted(
+            set(
+                matched_priority
+                + matched_context
+            )
+        ),
+    }
+
+
+def classify_file(
+    filename: str,
+    role_catalog: list[dict],
+) -> dict:
+    if not role_catalog:
+        raise ValueError(
+            "Role catalog cannot be empty."
+        )
+
+    ranked = sorted(
+        (
+            score_role(
+                filename=filename,
+                role=role,
+            )
+            for role in role_catalog
+        ),
+        key=lambda item: (
+            -item["score"],
+            item["usage_priority"],
+            item["role_id"],
+        ),
+    )
+
+    best = ranked[0]
+    score = best["score"]
+
+    if score >= 12:
+        confidence = "high"
+    elif score >= 4:
+        confidence = "medium"
+    else:
+        confidence = "low"
+
+    if confidence == "low":
         return {
-            "asset_id": "REVIEW",
             "role": "needs_manual_review",
-            "usage_priority": 50,
-            "status": "needs_review",
+            "role_title": "Needs Manual Review",
+            "usage_priority": 99,
+            "classification_score": score,
+            "classification_confidence": confidence,
+            "matched_keywords": best[
+                "matched_keywords"
+            ],
+            "status": "review_required",
             "risk_level": "medium",
-            "notes": "Auto-flagged for manual review because filename suggests non-logistics industrial, food, agriculture, or factory footage."
+            "notes": (
+                "The filename did not match the "
+                "video-specific role catalog strongly enough."
+            ),
         }
 
-    if any(keyword in name for keyword in home_keywords):
-        return {
-            "asset_id": "A001",
-            "role": "home_return_sequence",
-            "usage_priority": 1,
-            "status": "downloaded_pending_visual_qa",
-            "risk_level": "medium",
-            "notes": "Auto-classified as home/customer return b-roll. Needs visual QA for logos, labels, and private information."
-        }
-
-    if any(keyword in name for keyword in inspection_keywords):
-        return {
-            "asset_id": "A012",
-            "role": "inspection_scanning_support",
-            "usage_priority": 2,
-            "status": "downloaded_pending_visual_qa",
-            "risk_level": "medium_high",
-            "notes": "Auto-classified as inspection/scanning b-roll. Needs careful QA for barcodes, readable labels, fake UI, and logos."
-        }
-
-    if any(keyword in name for keyword in logistics_keywords):
-        return {
-            "asset_id": "A010",
-            "role": "logistics_warehouse_support",
-            "usage_priority": 2,
-            "status": "downloaded_pending_visual_qa",
-            "risk_level": "medium",
-            "notes": "Auto-classified as logistics/warehouse b-roll. Needs visual QA before public use."
-        }
+    risk_level = (
+        "medium"
+        if any(
+            keyword
+            in normalize_text(filename)
+            for keyword in {
+                "screen",
+                "computer",
+                "phone",
+                "app",
+                "banking",
+                "card",
+            }
+        )
+        else "low"
+    )
 
     return {
-        "asset_id": "REVIEW",
-        "role": "needs_manual_review",
-        "usage_priority": 50,
-        "status": "needs_review",
-        "risk_level": "unknown",
-        "notes": "Could not confidently auto-classify from filename."
+        "role": best["role_id"],
+        "role_title": best["role_title"],
+        "usage_priority": best[
+            "usage_priority"
+        ],
+        "classification_score": score,
+        "classification_confidence": confidence,
+        "matched_keywords": best[
+            "matched_keywords"
+        ],
+        "status": "approved_pending_stock_qa",
+        "risk_level": risk_level,
+        "notes": (
+            "Auto-classified against the locked "
+            "video script and visual plan."
+        ),
     }
 
 
-def get_next_candidate_number(manifest_data: dict, asset_id: str) -> int:
-    max_number = 0
-
-    for item in manifest_data.get("items", []):
-        candidate_id = item.get("candidate_id", "")
-        match = re.match(rf"{asset_id}-C(\d+)", candidate_id)
-
-        if match:
-            max_number = max(max_number, int(match.group(1)))
-
-    return max_number + 1
-
-
-def existing_storyblocks_ids(manifest_data: dict) -> set[str]:
-    ids = set()
-
-    for item in manifest_data.get("items", []):
-        filename = item.get("filename", "")
-        source = item.get("source_filename", "")
-
-        for value in [filename, source]:
-            storyblocks_id = get_storyblocks_id(value)
-            if storyblocks_id:
-                ids.add(storyblocks_id)
-
-    return ids
-
-
-def existing_filenames(manifest_data: dict) -> set[str]:
-    return {
-        item.get("filename", "")
-        for item in manifest_data.get("items", [])
-        if item.get("filename")
-    }
-
-
-def existing_file_sizes(manifest_data: dict) -> set[int]:
-    sizes = set()
-
-    for item in manifest_data.get("items", []):
-        relative_path = item.get("relative_path")
-
-        if not relative_path:
-            continue
-
-        path = PROJECT_ROOT / relative_path
-
-        if path.exists() and path.is_file():
-            sizes.add(path.stat().st_size)
-
-    return sizes
-
-
-def find_source_videos(source_dir: Path) -> list[Path]:
+def find_source_videos(
+    source_dir: Path,
+) -> list[Path]:
     if not source_dir.exists():
-        raise FileNotFoundError(f"Source folder not found: {source_dir}")
+        raise FileNotFoundError(
+            f"Source folder not found: {source_dir}"
+        )
 
     files = [
-        path for path in source_dir.rglob("*")
-        if path.is_file() and path.suffix.lower() in VIDEO_EXTENSIONS
+        path
+        for path in source_dir.rglob("*")
+        if path.is_file()
+        and path.suffix.lower()
+        in VIDEO_EXTENSIONS
     ]
 
-    return sorted(files, key=lambda path: path.name.lower())
+    return sorted(
+        files,
+        key=lambda path: path.name.lower(),
+    )
 
 
-def build_target_filename(asset_id: str, candidate_id: str, source_path: Path) -> str:
-    storyblocks_id = get_storyblocks_id(source_path.name)
-    slug = slugify(source_path.stem)
+def load_optional_visual_plan(
+    context: dict,
+) -> dict | None:
+    if "visual_plan" not in context.get(
+        "outputs",
+        {},
+    ):
+        return None
 
-    if storyblocks_id:
-        return f"{candidate_id}_{slug}_{storyblocks_id}.mp4"
+    return load_json(
+        resolve_output(
+            context=context,
+            key="visual_plan",
+        )
+    )
 
-    return f"{candidate_id}_{slug}.mp4"
+
+def registered_hash_owners() -> dict[str, set[tuple[str, str]]]:
+    registry = load_registry()
+    owners: dict[
+        str,
+        set[tuple[str, str]],
+    ] = {}
+
+    for asset_hash, asset in registry.get(
+        "assets",
+        {},
+    ).items():
+        for usage in asset.get(
+            "usages",
+            [],
+        ):
+            owners.setdefault(
+                asset_hash,
+                set(),
+            ).add((
+                str(
+                    usage.get(
+                        "channel",
+                        "",
+                    )
+                ).lower(),
+                str(
+                    usage.get(
+                        "video_id",
+                        "",
+                    )
+                ).lower(),
+            ))
+
+    return owners
 
 
-def ingest_videos(channel: str, source_dir: Path, dry_run: bool) -> dict:
-    manifest_path = get_manifest_path(channel)
-    manifest_data = load_json(manifest_path)
+def build_manifest(
+    context: dict,
+    source_dir: Path,
+    role_catalog: list[dict],
+    source_name: str,
+    license_status: str,
+) -> dict:
+    source_files = find_source_videos(
+        source_dir
+    )
 
-    source_files = find_source_videos(source_dir)
-    known_sbv_ids = existing_storyblocks_ids(manifest_data)
-    known_filenames = existing_filenames(manifest_data)
-    known_file_sizes = existing_file_sizes(manifest_data)
+    if not source_files:
+        raise ValueError(
+            "Stock source folder contains no video files."
+        )
 
-    ingested_items = []
+    owners = registered_hash_owners()
+    seen_hashes: set[str] = set()
+    seen_storyblocks_ids: set[str] = set()
+
+    items = []
     skipped_items = []
 
-    next_numbers = {
-        "A001": get_next_candidate_number(manifest_data, "A001"),
-        "A010": get_next_candidate_number(manifest_data, "A010"),
-        "A012": get_next_candidate_number(manifest_data, "A012")
-    }
-
-    review_number = 1
-    rejected_number = 1
-
-    for source_path in source_files:
-        storyblocks_id = get_storyblocks_id(source_path.name)
-
-        if storyblocks_id and storyblocks_id in known_sbv_ids:
-            skipped_items.append({
-                "source_filename": source_path.name,
-                "reason": "already_in_manifest_by_storyblocks_id",
-                "storyblocks_id": storyblocks_id
-            })
-            continue
-
-        if source_path.name in known_filenames:
-            skipped_items.append({
-                "source_filename": source_path.name,
-                "reason": "already_in_manifest_by_filename",
-                "storyblocks_id": storyblocks_id
-            })
-            continue
-
-        source_size = source_path.stat().st_size
-
-        if source_size in known_file_sizes:
-            skipped_items.append({
-                "source_filename": source_path.name,
-                "reason": "already_in_manifest_by_file_size",
-                "storyblocks_id": storyblocks_id,
-                "size_bytes": source_size
-            })
-            continue
-
-        classification = classify_file(source_path.name)
-        asset_id = classification["asset_id"]
-
-        if asset_id in {"A001", "A010", "A012"}:
-            candidate_id = f"{asset_id}-C{next_numbers[asset_id]:03d}"
-            next_numbers[asset_id] += 1
-            target_dir = PROJECT_ROOT / "assets" / "stock" / channel / asset_id
-        elif asset_id == "REJECTED":
-            candidate_id = f"R{rejected_number:03d}"
-            rejected_number += 1
-            target_dir = PROJECT_ROOT / "assets" / "stock" / channel / "rejected"
-        else:
-            candidate_id = f"REVIEW-C{review_number:03d}"
-            review_number += 1
-            target_dir = PROJECT_ROOT / "assets" / "stock" / channel / "review"
-
-        target_filename = build_target_filename(
-            asset_id=asset_id if asset_id in {"A001", "A010", "A012"} else candidate_id,
-            candidate_id=candidate_id,
-            source_path=source_path
+    for index, source_path in enumerate(
+        source_files,
+        start=1,
+    ):
+        reference = relative_path(
+            source_path
+        )
+        storyblocks_id = get_storyblocks_id(
+            source_path.name
+        )
+        sha256 = calculate_sha256(
+            source_path
         )
 
-        target_path = target_dir / target_filename
+        if sha256 in seen_hashes:
+            skipped_items.append({
+                "source_filename": source_path.name,
+                "relative_path": reference,
+                "reason": "duplicate_hash_inside_source_folder",
+            })
+            continue
 
-        manifest_item = {
-            "asset_id": asset_id,
+        if (
+            storyblocks_id
+            and storyblocks_id
+            in seen_storyblocks_ids
+        ):
+            skipped_items.append({
+                "source_filename": source_path.name,
+                "relative_path": reference,
+                "storyblocks_id": storyblocks_id,
+                "reason": (
+                    "duplicate_storyblocks_id_inside_source_folder"
+                ),
+            })
+            continue
+
+        foreign_owners = {
+            owner
+            for owner in owners.get(
+                sha256,
+                set(),
+            )
+            if owner != (
+                context["channel"],
+                context["video_id"],
+            )
+        }
+
+        if foreign_owners:
+            skipped_items.append({
+                "source_filename": source_path.name,
+                "relative_path": reference,
+                "sha256": sha256,
+                "reason": "cross_video_asset_reuse_blocked",
+                "existing_owners": [
+                    f"{channel}/{video_id}"
+                    for channel, video_id
+                    in sorted(
+                        foreign_owners
+                    )
+                ],
+            })
+            continue
+
+        classification = classify_file(
+            filename=source_path.name,
+            role_catalog=role_catalog,
+        )
+
+        candidate_id = (
+            f"{context['video_id'].upper()}"
+            f"-C{len(items) + 1:03d}"
+        )
+
+        items.append({
+            "asset_id": (
+                f"STOCK-{len(items) + 1:03d}"
+            ),
             "candidate_id": candidate_id,
-            "filename": target_filename,
+            "channel": context["channel"],
+            "video_id": context["video_id"],
+            "run_id": context["run_id"],
+            "filename": source_path.name,
             "source_filename": source_path.name,
             "storyblocks_id": storyblocks_id,
-            "relative_path": get_relative_path(target_path),
-            "role": classification["role"],
-            "usage_priority": classification["usage_priority"],
-            "status": classification["status"],
-            "risk_level": classification["risk_level"],
-            "notes": classification["notes"]
-        }
+            "relative_path": reference,
+            "sha256": sha256,
+            "size_bytes": source_path.stat().st_size,
+            "source": source_name,
+            "license_status": license_status,
+            **classification,
+        })
 
-        ingested_items.append(manifest_item)
-        known_file_sizes.add(source_path.stat().st_size)
+        seen_hashes.add(
+            sha256
+        )
 
-        if not dry_run:
-            target_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source_path, target_path)
-            manifest_data["items"].append(manifest_item)
+        if storyblocks_id:
+            seen_storyblocks_ids.add(
+                storyblocks_id
+            )
 
-    if not dry_run:
-        manifest_data["next_step"] = "run_stock_visual_qa_then_hybrid_video_assembly"
-        write_json(manifest_path, manifest_data)
+    if not items:
+        raise ValueError(
+            "No usable stock files remain after duplicate checks."
+        )
+
+    approved_count = sum(
+        1
+        for item in items
+        if str(
+            item.get(
+                "status",
+                "",
+            )
+        ).startswith("approved")
+    )
+    review_count = len(items) - approved_count
+    role_count = len({
+        item["role"]
+        for item in items
+        if str(
+            item.get(
+                "status",
+                "",
+            )
+        ).startswith("approved")
+    })
 
     return {
-        "agent": "stock_asset_ingest",
-        "version": "1.0",
-        "channel": channel,
-        "status": "dry_run_ready" if dry_run else "ingest_ready",
+        "record_type": "video_stock_source_manifest",
+        "version": "2.0",
+        "channel": context["channel"],
+        "video_id": context["video_id"],
+        "run_id": context["run_id"],
+        "video_number": int(
+            context["video_id"].split(
+                "_"
+            )[-1]
+        ),
+        "status": "approved_source_ready",
+        "topic": context["topic_title"],
+        "source": source_name,
+        "license_status": license_status,
+        "source_folder": relative_path(
+            source_dir
+        ),
+        "role_catalog": role_catalog,
         "summary": {
-            "source_folder": str(source_dir),
-            "source_video_count": len(source_files),
-            "new_ingested_count": len(ingested_items),
-            "skipped_count": len(skipped_items),
-            "dry_run": dry_run,
-            "manifest_path": get_relative_path(manifest_path),
-            "next_agent": "stock_visual_qa"
+            "source_video_count": len(
+                source_files
+            ),
+            "manifest_item_count": len(items),
+            "approved_item_count": approved_count,
+            "review_required_count": review_count,
+            "skipped_count": len(
+                skipped_items
+            ),
+            "distinct_role_count": role_count,
         },
-        "ingested_items": ingested_items,
+        "items": items,
         "skipped_items": skipped_items,
-        "source": {
-            "source_folder": str(source_dir),
-            "manifest_reference": get_relative_path(manifest_path)
-        },
-        "metadata": {
-            "next_agent": "stock_visual_qa"
-        }
+        "created_at": utc_now(),
     }
 
 
-def print_summary(output: dict) -> None:
-    print("Stock Asset Ingest Agent completed.")
-    print(f"Status: {output['status']}")
-    print(f"Source videos: {output['summary']['source_video_count']}")
-    print(f"New ingested: {output['summary']['new_ingested_count']}")
-    print(f"Skipped: {output['summary']['skipped_count']}")
+def attach_manifest_to_context(
+    context: dict,
+    manifest_path: Path,
+) -> dict:
+    reference = relative_path(
+        manifest_path
+    )
 
-    print("New items:")
+    context.setdefault(
+        "sources",
+        {},
+    )["stock_manifest"] = reference
 
-    for item in output["ingested_items"]:
+    context.setdefault(
+        "history",
+        [],
+    ).append({
+        "agent": "stock_asset_ingest",
+        "status": "stock_manifest_attached",
+        "output_reference": reference,
+        "recorded_at": utc_now(),
+    })
+
+    context["next_agent"] = "video_stock_pipeline"
+
+    return context
+
+
+def print_summary(
+    manifest: dict,
+    dry_run: bool,
+) -> None:
+    summary = manifest["summary"]
+
+    print(
+        f"VIDEO_CONTEXT_ID: "
+        f"{manifest['video_id']}"
+    )
+    print(
+        f"RUN_ID: {manifest['run_id']}"
+    )
+    print(
+        "CLASSIFICATION_MODE: "
+        "video_context"
+    )
+    print(
+        f"SOURCE_VIDEOS: "
+        f"{summary['source_video_count']}"
+    )
+    print(
+        f"APPROVED_ITEMS: "
+        f"{summary['approved_item_count']}"
+    )
+    print(
+        f"REVIEW_REQUIRED: "
+        f"{summary['review_required_count']}"
+    )
+    print(
+        f"SKIPPED_ITEMS: "
+        f"{summary['skipped_count']}"
+    )
+    print(
+        f"DISTINCT_ROLES: "
+        f"{summary['distinct_role_count']}"
+    )
+
+    print("CLASSIFIED_ITEMS:")
+
+    for item in manifest["items"]:
         print(
-            f"- {item['candidate_id']} | {item['asset_id']} | "
-            f"{item['role']} | {item['source_filename']}"
+            f"- {item['candidate_id']} | "
+            f"{item['role']} | "
+            f"{item['classification_confidence']} | "
+            f"{item['source_filename']}"
         )
+
+    if manifest["skipped_items"]:
+        print("SKIPPED_ITEMS_DETAIL:")
+
+        for item in manifest[
+            "skipped_items"
+        ]:
+            print(
+                f"- {item['source_filename']} | "
+                f"{item['reason']}"
+            )
+
+    print(
+        "STATUS: "
+        + (
+            "video_stock_ingest_dry_run_ready"
+            if dry_run
+            else "video_stock_manifest_attached"
+        )
+    )
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Ingest Storyblocks stock footage into Mecoria asset folders and manifest."
+        description=(
+            "Create and attach a video-specific "
+            "stock footage source manifest."
+        )
     )
 
     parser.add_argument(
         "--channel",
-        default=DEFAULT_CHANNEL,
-        help="Channel name. Default: hiddenova"
+        default="hiddenova",
     )
-
+    parser.add_argument(
+        "--video-id",
+        required=True,
+    )
     parser.add_argument(
         "--source",
-        default=str(DEFAULT_SOURCE),
-        help="Source folder containing downloaded Storyblocks videos."
+        required=True,
+        help=(
+            "Repo-relative folder containing "
+            "stock video files."
+        ),
     )
-
+    parser.add_argument(
+        "--source-name",
+        default="storyblocks",
+    )
+    parser.add_argument(
+        "--license-status",
+        default=(
+            "public_use_confirmation_required"
+        ),
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Preview ingest without copying files or updating manifest."
     )
 
     return parser.parse_args()
@@ -433,28 +1166,121 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     channel = args.channel.lower()
-    source_dir = Path(args.source)
-
-    load_dotenv(PROJECT_ROOT / ".env")
-
-    output = ingest_videos(
-        channel=channel,
-        source_dir=source_dir,
-        dry_run=args.dry_run
+    video_id = validate_video_id(
+        args.video_id
     )
 
-    schema = load_schema()
-    validate(instance=output, schema=schema)
+    source_dir = Path(
+        args.source
+    )
 
-    print_summary(output)
-
-    if not args.dry_run:
-        latest_path = save_output(
-            channel=output["channel"],
-            data=output
+    if not source_dir.is_absolute():
+        source_dir = (
+            PROJECT_ROOT
+            / source_dir
         )
 
-        print(f"Output saved to: {latest_path}")
+    source_dir = source_dir.resolve()
+    relative_path(
+        source_dir
+    )
+
+    context = load_context(
+        channel=channel,
+        video_id=video_id,
+    )
+
+    script_data = load_json(
+        resolve_output(
+            context=context,
+            key="script",
+        )
+    )
+    visual_plan_data = (
+        load_optional_visual_plan(
+            context
+        )
+    )
+
+    role_catalog = build_role_catalog(
+        script_data=script_data,
+        visual_plan_data=visual_plan_data,
+    )
+
+    manifest = build_manifest(
+        context=context,
+        source_dir=source_dir,
+        role_catalog=role_catalog,
+        source_name=args.source_name,
+        license_status=args.license_status,
+    )
+
+    print_summary(
+        manifest=manifest,
+        dry_run=args.dry_run,
+    )
+
+    if args.dry_run:
+        return
+
+    output_dir = (
+        PROJECT_ROOT
+        / "records"
+        / "run_contexts"
+        / channel
+        / video_id
+        / "inputs"
+    )
+
+    manifest_path = (
+        output_dir
+        / "stock_source_manifest.json"
+    )
+    ingest_path = (
+        output_dir
+        / "stock_ingest.json"
+    )
+
+    save_json(
+        manifest_path,
+        manifest,
+    )
+    save_json(
+        ingest_path,
+        {
+            "agent": "stock_asset_ingest",
+            "version": "2.0",
+            "channel": channel,
+            "video_id": video_id,
+            "run_id": context["run_id"],
+            "status": (
+                "stock_manifest_attached"
+            ),
+            "manifest_reference": relative_path(
+                manifest_path
+            ),
+            "summary": manifest[
+                "summary"
+            ],
+            "created_at": utc_now(),
+        },
+    )
+
+    context = attach_manifest_to_context(
+        context=context,
+        manifest_path=manifest_path,
+    )
+    save_context(
+        context
+    )
+
+    print(
+        "STOCK_SOURCE_MANIFEST: "
+        f"{relative_path(manifest_path)}"
+    )
+    print(
+        "CONTEXT_SOURCE_ATTACHED: true"
+    )
 
 
 if __name__ == "__main__":

@@ -111,11 +111,14 @@ def resolve_manifest_source(
 
         return path
 
-    if "stock_manifest" in context.get("outputs", {}):
-        return resolve_output(context, "stock_manifest")
-
+    # A newly attached source manifest is the authoritative input
+    # for rebuilding stock outputs. Existing outputs are only a
+    # fallback when no source manifest is attached.
     if "stock_manifest" in context.get("sources", {}):
         return resolve_source(context, "stock_manifest")
+
+    if "stock_manifest" in context.get("outputs", {}):
+        return resolve_output(context, "stock_manifest")
 
     raise KeyError(
         "Run context has no stock_manifest reference."
@@ -136,18 +139,12 @@ def validate_manifest_identity(
 
     manifest_video_id = manifest.get("video_id")
 
-    if (
-        manifest_video_id
-        and manifest_video_id != context["video_id"]
-    ):
+    if manifest_video_id != context["video_id"]:
         raise ValueError("Stock manifest video_id mismatch.")
 
     manifest_run_id = manifest.get("run_id")
 
-    if (
-        manifest_run_id
-        and manifest_run_id != context["run_id"]
-    ):
+    if manifest_run_id != context["run_id"]:
         raise ValueError("Stock manifest run_id mismatch.")
 
     video_number = manifest.get("video_number")
@@ -257,6 +254,23 @@ def normalize_manifest(
             ),
             "usage_priority": int(
                 item.get("usage_priority", index)
+            ),
+            "source_filename": str(
+                item.get("source_filename")
+                or path.name
+            ),
+            "storyblocks_id": item.get("storyblocks_id"),
+            "classification_confidence": str(
+                item.get(
+                    "classification_confidence",
+                    "unknown"
+                )
+            ),
+            "matched_keywords": list(
+                item.get("matched_keywords", [])
+            ),
+            "risk_level": str(
+                item.get("risk_level", "unknown")
             )
         })
 
@@ -325,13 +339,16 @@ def build_stock_qa(
     gates = context.get("quality_gates", {})
 
     minimum_clips = int(
-        gates.get("minimum_stock_clip_count", 10)
+        gates.get("minimum_stock_clip_count", 16)
     )
     minimum_duration = float(
         gates.get("minimum_stock_duration_seconds", 180)
     )
     maximum_share = float(
         gates.get("maximum_single_stock_clip_share", 0.25)
+    )
+    minimum_roles = int(
+        gates.get("minimum_distinct_stock_roles", 5)
     )
 
     items = manifest["items"]
@@ -352,6 +369,21 @@ def build_stock_qa(
         item["relative_path"]
         for item in items
     }
+    distinct_roles = {
+        item["role"]
+        for item in items
+    }
+    storyblocks_ids = [
+        item["storyblocks_id"]
+        for item in items
+        if item.get("storyblocks_id")
+    ]
+    review_required = [
+        item["candidate_id"]
+        for item in items
+        if item.get("role") == "needs_manual_review"
+        or item.get("classification_confidence") == "low"
+    ]
 
     checks = {
         "minimum_clip_count": (
@@ -360,8 +392,18 @@ def build_stock_qa(
         "minimum_total_duration": (
             total_duration >= minimum_duration
         ),
+        "minimum_distinct_roles": (
+            len(distinct_roles) >= minimum_roles
+        ),
         "unique_paths": (
             len(unique_paths) == len(items)
+        ),
+        "unique_storyblocks_ids": (
+            len(storyblocks_ids)
+            == len(set(storyblocks_ids))
+        ),
+        "no_manual_review_items": (
+            len(review_required) == 0
         ),
         "maximum_single_clip_share": (
             largest_share <= maximum_share
@@ -401,6 +443,10 @@ def build_stock_qa(
         "summary": {
             "approved_clip_count": len(items),
             "unique_clip_count": len(unique_paths),
+            "distinct_role_count": len(distinct_roles),
+            "review_required_count": len(review_required),
+            "minimum_required_clip_count": minimum_clips,
+            "minimum_required_role_count": minimum_roles,
             "total_duration_seconds": total_duration,
             "largest_clip_share": round(
                 largest_share,
@@ -517,6 +563,14 @@ def main() -> None:
         f"{qa_output['summary']['approved_clip_count']}"
     )
     print(
+        "DISTINCT_STOCK_ROLES: "
+        f"{qa_output['summary']['distinct_role_count']}"
+    )
+    print(
+        "REVIEW_REQUIRED_COUNT: "
+        f"{qa_output['summary']['review_required_count']}"
+    )
+    print(
         "TOTAL_STOCK_DURATION: "
         f"{qa_output['summary']['total_duration_seconds']}s"
     )
@@ -570,17 +624,17 @@ def main() -> None:
     save_json(manifest_path, normalized_manifest)
     save_json(qa_path, qa_output)
 
-    context.setdefault("quality_gates", {}).update({
-        "minimum_stock_clip_count": 10,
-        "minimum_stock_duration_seconds": 180,
-        "maximum_single_stock_clip_share": 0.25,
-        "maximum_stock_segments_per_clip": 5,
-        "minimum_timeline_cycle_coverage": 0.70,
-        "maximum_timeline_cycles": 2,
-        "require_stock_qa_approval": True,
-        "allow_cross_video_asset_reuse": False,
-        "require_asset_registry_ownership": True
-    })
+    gates = context.setdefault("quality_gates", {})
+    gates.setdefault("minimum_stock_clip_count", 16)
+    gates.setdefault("minimum_stock_duration_seconds", 180)
+    gates.setdefault("minimum_distinct_stock_roles", 5)
+    gates.setdefault("maximum_single_stock_clip_share", 0.25)
+    gates.setdefault("maximum_stock_segments_per_clip", 5)
+    gates.setdefault("minimum_timeline_cycle_coverage", 0.70)
+    gates.setdefault("maximum_timeline_cycles", 2)
+    gates.setdefault("require_stock_qa_approval", True)
+    gates.setdefault("allow_cross_video_asset_reuse", False)
+    gates.setdefault("require_asset_registry_ownership", True)
 
     context = register_output(
         context=context,
