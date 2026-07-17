@@ -1,59 +1,69 @@
-﻿{
+{
   "channel": "hiddenova",
-  "version": "1.0",
+  "version": "2.0",
   "status": "active",
-  "decision": "thumbnail_text_overlay_standard_enabled",
+  "decision": "hiddenova_cinematic_v2_gold_reference_locked",
   "thumbnail_standard": {
     "platform": "youtube",
     "size": "1280x720",
     "aspect_ratio": "16:9",
-    "text_overlay_required": true,
-    "text_language": "english",
-    "primary_goal": "increase click-through rate with short, clear, high-contrast thumbnail text",
+    "gold_reference": "config/media/reference_assets/hiddenova_cinematic_v2_gold.png",
+    "layout_signature": "oversized_headline_left__dominant_subject_right",
+    "primary_goal": "Create an instantly recognizable Hiddenova series thumbnail with premium cinematic impact and mobile-first readability.",
     "text_rules": {
-      "min_words": 1,
+      "min_words": 2,
       "max_words": 4,
-      "preferred_word_count": 2,
-      "style": "short_punchy_curiosity_driven",
-      "case_preference": "all_caps_or_strong_title_case",
-      "font_weight": "bold",
-      "readability": "high",
-      "mobile_readability_required": true,
-      "contrast_required": true
+      "preferred_word_count": 3,
+      "case": "ALL_CAPS",
+      "font_style": "Impact-style bold condensed sans",
+      "placement": "left",
+      "stacking": "2_or_3_lines",
+      "primary_color": "white",
+      "highlight_color": "yellow",
+      "highlight_rule": "strongest final line",
+      "stroke": "thick black",
+      "shadow": "deep black",
+      "mobile_readability_required": true
     },
     "visual_rules": {
-      "keep_main_subject_clear": true,
-      "do_not_cover_key_subject": true,
-      "prefer_negative_space_for_text": true,
-      "thumbnail_should_work_even_without_text": true,
-      "text_should_support_not_replace_visual": true
-    },
-    "content_rules": {
-      "must_create_curiosity": true,
-      "must_match_video_topic": true,
-      "must_not_repeat_full_video_title": true,
-      "must_not_be_generic": true
+      "single_dominant_subject": true,
+      "subject_position": "right_or_center_right",
+      "dark_cinematic_background": true,
+      "high_contrast": true,
+      "bright_focal_glow": true,
+      "clean_negative_space_left": true,
+      "series_style_must_match_gold_reference": true,
+      "subject_must_change_by_topic": true
     },
     "approved_patterns": [
-      "WHERE RETURNS GO",
-      "HIDDEN SYSTEM",
-      "INSIDE RETURNS",
-      "THE RETURN LOOP",
-      "BEHIND RETURNS"
+      "TWO SECOND VERDICT",
+      "WHEN CABLES SNAP",
+      "WHO REALLY DECIDES",
+      "THE HIDDEN NETWORK",
+      "SECONDS FROM FAILURE"
     ],
     "forbidden_patterns": [
-      "long sentences",
-      "tiny text",
-      "low contrast text",
-      "too many words",
-      "text covering the core object",
-      "full title copy on thumbnail"
+      "one-word headline",
+      "more than four words",
+      "small headline",
+      "headline on the right",
+      "centered headline",
+      "all-white text",
+      "weak subject",
+      "multiple competing subjects",
+      "flat lighting",
+      "generic stock poster",
+      "full video title copy"
     ],
-    "notes": [
-      "Hiddenova thumbnails should include short, effective text for better YouTube CTR.",
-      "Text should be visually strong but minimal.",
-      "Default rule: every thumbnail concept should propose at least 3 short text options.",
-      "Final selected thumbnail should keep clean cinematic style."
+    "non_negotiables": [
+      "oversized uppercase headline",
+      "white and yellow two-color text",
+      "headline on the left",
+      "dominant subject on the right",
+      "thick black outline and shadow",
+      "dark high-contrast cinematic background",
+      "one clear idea",
+      "premium documentary look"
     ]
   }
 }

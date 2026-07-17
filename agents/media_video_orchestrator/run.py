@@ -408,6 +408,14 @@ def apply_production_quality_standard(
                 0
             )
         ),
+        "thumbnail_standard_name": "hiddenova_cinematic_v2",
+        "thumbnail_layout_signature": (
+            "oversized_headline_left__dominant_subject_right"
+        ),
+        "thumbnail_gold_reference_required": True,
+        "thumbnail_text_position": "left",
+        "thumbnail_subject_position": "right",
+        "thumbnail_two_color_required": True,
     })
 
     return context

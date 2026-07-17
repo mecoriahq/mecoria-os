@@ -38,6 +38,8 @@ from core.asset_usage_registry import (
 from core.thumbnail_standard import (
     assert_thumbnail_text,
     build_thumbnail_background_prompt,
+    build_thumbnail_lines,
+    build_thumbnail_overlay_spec,
     build_thumbnail_qa_checklist,
     load_thumbnail_standard,
 )
@@ -321,9 +323,13 @@ Rules:
 - No logos, readable labels, barcodes, private data,
   fake dashboards, or operational interfaces.
 - No embedded text inside generated images.
-- Thumbnail must use one dominant subject.
-- Thumbnail must have strong contrast and clear text space.
-- Thumbnail text must contain 2 to 4 words.
+- Thumbnail must follow hiddenova_cinematic_v2.
+- Match the approved TWO SECOND VERDICT series structure.
+- Use one dominant subject on the right or center-right.
+- Lock the oversized stacked headline zone to the left.
+- Thumbnail must have strong contrast and dark clean text space.
+- Thumbnail text must contain 2 to 4 words in uppercase.
+- The final emphasis line will be rendered bright yellow.
 - Thumbnail text must not repeat the full video title.
 - Prefer the supplied thumbnail hint when valid.
 """
@@ -390,11 +396,7 @@ Rules:
         "video_title": context["topic_title"],
         "thumbnail": {
             "overlay_text": overlay_text,
-            "text_position": (
-                thumbnail.get("text_position")
-                if thumbnail.get("text_position") in {"left", "right"}
-                else "left"
-            ),
+            "text_position": "left",
             "background_prompt": str(
                 thumbnail.get("background_prompt", "")
             ).strip()
@@ -467,8 +469,9 @@ def generate_image_bytes(
 
 def get_font(size: int):
     font_paths = [
-        Path("C:/Windows/Fonts/arialbd.ttf"),
-        Path("C:/Windows/Fonts/impact.ttf")
+        Path("C:/Windows/Fonts/impact.ttf"),
+        Path("C:/Windows/Fonts/ariblk.ttf"),
+        Path("C:/Windows/Fonts/arialbd.ttf")
     ]
 
     for font_path in font_paths:
@@ -478,6 +481,37 @@ def get_font(size: int):
     return ImageFont.load_default()
 
 
+def apply_thumbnail_text_gradient(
+    image: Image.Image,
+    standard: dict
+) -> Image.Image:
+    overlay_spec = build_thumbnail_overlay_spec(standard)
+
+    if not overlay_spec.get("text_side_gradient", True):
+        return image
+
+    width, height = image.size
+    end_x = max(1, int(
+        width * float(overlay_spec["gradient_end_ratio"])
+    ))
+    max_alpha = int(overlay_spec["gradient_max_alpha"])
+    gradient = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    gradient_draw = ImageDraw.Draw(gradient, "RGBA")
+
+    for x in range(end_x):
+        progress = x / max(1, end_x - 1)
+        alpha = int(max_alpha * ((1.0 - progress) ** 1.7))
+        gradient_draw.line(
+            [(x, 0), (x, height)],
+            fill=(0, 0, 0, alpha)
+        )
+
+    return Image.alpha_composite(
+        image.convert("RGBA"),
+        gradient
+    ).convert("RGB")
+
+
 def create_thumbnail(
     background_path: Path,
     output_path: Path,
@@ -485,71 +519,56 @@ def create_thumbnail(
     text_position: str
 ) -> dict:
     standard = load_thumbnail_standard()
-
     text_result = assert_thumbnail_text(
         value=overlay_text,
         standard=standard
     )
+    overlay_spec = build_thumbnail_overlay_spec(standard)
+    line_specs = build_thumbnail_lines(
+        text_result["normalized_text"],
+        standard
+    )
 
-    words = text_result[
-        "normalized_text"
-    ].split()
+    colors = {
+        "primary_white": (255, 255, 255, 255),
+        "highlight_yellow": (255, 214, 0, 255),
+    }
+    lines = [
+        (item["text"], colors[item["color_role"]])
+        for item in line_specs
+    ]
 
-    white = (255, 255, 255, 255)
-    yellow = (255, 214, 0, 255)
-
-    if len(words) == 2:
-        lines = [
-            (words[0], white),
-            (words[1], yellow)
-        ]
-    elif len(words) == 3:
-        lines = [
-            (words[0], white),
-            (words[1], white),
-            (words[2], yellow)
-        ]
-    else:
-        lines = [
-            (" ".join(words[:2]), white),
-            (words[2], white),
-            (words[3], yellow)
-        ]
+    canvas_width = int(overlay_spec["canvas_width"])
+    canvas_height = int(overlay_spec["canvas_height"])
 
     with Image.open(background_path) as source:
         image = ImageOps.fit(
             source.convert("RGB"),
-            (1280, 720),
+            (canvas_width, canvas_height),
             method=Image.Resampling.LANCZOS
         )
 
+    image = apply_thumbnail_text_gradient(image, standard)
     draw = ImageDraw.Draw(image, "RGBA")
-
     target_width_min = int(
-        1280
-        * float(
-            standard["layout"][
-                "text_area_ratio_min"
-            ]
-        )
+        canvas_width
+        * float(standard["layout"]["text_area_ratio_min"])
     )
     target_width_max = int(
-        1280
-        * float(
-            standard["layout"][
-                "text_area_ratio_max"
-            ]
-        )
+        canvas_width
+        * float(standard["layout"]["text_area_ratio_max"])
     )
+    target_height_max = int(
+        canvas_height
+        * float(overlay_spec["max_text_height_ratio"])
+    )
+    stroke_width = int(overlay_spec["stroke_width_px"])
+    shadow_offset = int(overlay_spec["shadow_offset_px"])
+    font_size = int(overlay_spec["font_size_start_px"])
+    font_size_min = int(overlay_spec["font_size_min_px"])
+    font_step = int(overlay_spec["font_step_px"])
 
-    target_height_max = int(720 * 0.78)
-    stroke_width = 12
-    shadow_offset = 8
-    font_size = 210
-
-    def measure(
-        current_font: ImageFont.FreeTypeFont
-    ) -> tuple[list[int], list[int]]:
+    def measure(current_font):
         widths = []
         heights = []
 
@@ -560,21 +579,17 @@ def create_thumbnail(
                 font=current_font,
                 stroke_width=stroke_width
             )
-
             widths.append(box[2] - box[0])
             heights.append(box[3] - box[1])
 
         return widths, heights
 
-    while font_size > 96:
+    while font_size > font_size_min:
         font = get_font(font_size)
         widths, heights = measure(font)
-
-        line_gap = max(
-            4,
-            int(font_size * 0.03)
-        )
-
+        line_gap = max(2, int(
+            font_size * float(overlay_spec["line_gap_ratio"])
+        ))
         total_height = (
             sum(heights)
             + line_gap * (len(lines) - 1)
@@ -586,44 +601,30 @@ def create_thumbnail(
         ):
             break
 
-        font_size -= 4
+        font_size -= font_step
 
     font = get_font(font_size)
     widths, heights = measure(font)
-
-    line_gap = max(
-        4,
-        int(font_size * 0.03)
-    )
-
+    line_gap = max(2, int(
+        font_size * float(overlay_spec["line_gap_ratio"])
+    ))
     total_height = (
         sum(heights)
         + line_gap * (len(lines) - 1)
     )
-
-    y = int((720 - total_height) / 2)
+    y = int((canvas_height - total_height) / 2)
+    x = int(overlay_spec["left_margin_px"])
 
     for index, (line, color) in enumerate(lines):
-        width = widths[index]
         height = heights[index]
-
-        if text_position == "right":
-            x = 1280 - width - 45
-        else:
-            x = 45
-
         draw.text(
-            (
-                x + shadow_offset,
-                y + shadow_offset
-            ),
+            (x + shadow_offset, y + shadow_offset),
             line,
             font=font,
-            fill=(0, 0, 0, 220),
-            stroke_width=stroke_width + 3,
+            fill=(0, 0, 0, 230),
+            stroke_width=stroke_width + 4,
             stroke_fill=(0, 0, 0, 255)
         )
-
         draw.text(
             (x, y),
             line,
@@ -632,14 +633,9 @@ def create_thumbnail(
             stroke_width=stroke_width,
             stroke_fill=(0, 0, 0, 255)
         )
-
         y += height + line_gap
 
-    output_path.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(
         output_path,
         format="JPEG",
@@ -648,33 +644,35 @@ def create_thumbnail(
     )
 
     max_line_width = max(widths)
-    text_width_ratio = round(
-        max_line_width / 1280,
-        4
-    )
+    text_width_ratio = round(max_line_width / canvas_width, 4)
 
     return {
         "font_size": font_size,
         "line_count": len(lines),
+        "line_texts": [item["text"] for item in line_specs],
+        "highlight_line": line_specs[-1]["text"],
         "max_line_width": max_line_width,
         "text_width_ratio": text_width_ratio,
         "text_width_target_min": round(
-            target_width_min / 1280,
+            target_width_min / canvas_width,
             4
         ),
         "text_width_target_max": round(
-            target_width_max / 1280,
+            target_width_max / canvas_width,
             4
         ),
         "text_block_height_ratio": round(
-            total_height / 720,
+            total_height / canvas_height,
             4
         ),
         "stroke_width": stroke_width,
         "shadow_offset": shadow_offset,
-        "standard_name": standard[
-            "standard_name"
-        ]
+        "text_position": "left",
+        "subject_position": standard["layout"]["subject_position"],
+        "layout_signature": standard["layout"]["layout_signature"],
+        "gold_reference_path": standard["gold_reference"]["asset_path"],
+        "gold_reference_sha256": standard["gold_reference"]["sha256"],
+        "standard_name": standard["standard_name"],
     }
 
 
@@ -1165,20 +1163,49 @@ def generate_outputs(
             "automatic_checks"
         ]
 
+        minimum_font_size = int(
+            thumbnail_standard["overlay"]["font_size_min_px"]
+        )
         automatic_checks.update({
-            "text_is_very_large": (
+            "text_is_oversized": (
                 thumbnail_layout["font_size"]
-                >= 130
+                >= minimum_font_size
+            ),
+            "last_line_is_yellow": (
+                bool(thumbnail_layout["highlight_line"])
             ),
             "mobile_readability_passed": (
                 thumbnail_layout["font_size"]
-                >= 130
-                and thumbnail_layout[
-                    "text_width_ratio"
-                ] >= 0.35
+                >= minimum_font_size
+                and thumbnail_layout["text_width_ratio"] >= 0.30
             ),
-            "standard_layout_applied": True
+            "standard_layout_applied": (
+                thumbnail_layout["layout_signature"]
+                == thumbnail_standard["layout"]["layout_signature"]
+            ),
+            "text_position_locked_left": (
+                thumbnail_layout["text_position"] == "left"
+            ),
+            "subject_position_locked_right": (
+                thumbnail_layout["subject_position"] == "right"
+            ),
+            "gold_reference_traceable": (
+                thumbnail_layout["gold_reference_sha256"]
+                == thumbnail_standard["gold_reference"]["sha256"]
+            )
         })
+
+        failed_automatic = [
+            key
+            for key, value in automatic_checks.items()
+            if value is not True
+        ]
+
+        if failed_automatic:
+            raise ValueError(
+                "Thumbnail automatic QA failed: "
+                + ", ".join(failed_automatic)
+            )
 
     thumbnail_output = {
         "agent": "video_visual_pipeline",
@@ -1194,9 +1221,7 @@ def generate_outputs(
             "overlay_text": thumbnail_text_result[
                 "normalized_text"
             ],
-            "text_position": plan["thumbnail"][
-                "text_position"
-            ],
+            "text_position": "left",
             "relative_path": relative_path(
                 thumbnail_path
             ),
@@ -1205,9 +1230,13 @@ def generate_outputs(
             ),
             "width": 1280,
             "height": 720,
+            "gold_reference": thumbnail_standard["gold_reference"],
+            "layout_signature": thumbnail_standard["layout"][
+                "layout_signature"
+            ],
             "text_style": {
-                "size": "very_large",
-                "weight": "bold",
+                "size": "oversized",
+                "weight": "extra_bold_condensed",
                 "two_color": True,
                 "colors": [
                     "white",
@@ -1574,6 +1603,14 @@ def main() -> None:
     print(
         "THUMBNAIL_PATH: "
         f"{outputs['thumbnail']['thumbnail']['relative_path']}"
+    )
+    print(
+        "THUMBNAIL_STANDARD: "
+        f"{outputs['thumbnail']['thumbnail']['standard_name']}"
+    )
+    print(
+        "THUMBNAIL_LAYOUT_SIGNATURE: "
+        f"{outputs['thumbnail']['thumbnail']['layout_signature']}"
     )
 
 
