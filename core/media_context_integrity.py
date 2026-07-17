@@ -34,6 +34,9 @@ STRICT_JSON_KEYS = {
     "visual_plan",
     "ai_visual_generation",
     "ai_visual_qa",
+    "ai_video_insert_plan",
+    "ai_video_generation",
+    "ai_video_qa",
     "thumbnail_record",
     "hybrid_video_assembly",
     "video_qa",
@@ -304,6 +307,71 @@ def validate_media_context(
 
             used_hashes.add(asset_hash)
 
+            validate_asset(
+                reference=item["relative_path"],
+                expected_sha256=asset_hash,
+                label=item["insert_id"]
+            )
+
+    ai_video_generation_reference = get_production_reference(
+        context,
+        "ai_video_generation"
+    )
+    ai_video_qa_reference = get_production_reference(
+        context,
+        "ai_video_qa"
+    )
+
+    if ai_video_generation_reference and ai_video_qa_reference:
+        ai_video_generation = load_json(
+            resolve_reference(
+                ai_video_generation_reference,
+                project_root
+            )
+        )
+        ai_video_qa = load_json(
+            resolve_reference(
+                ai_video_qa_reference,
+                project_root
+            )
+        )
+
+        if ai_video_generation.get("generation_mode") != "live":
+            raise ValueError(
+                "Non-live AI video generation cannot enter "
+                "production context validation."
+            )
+
+        if ai_video_qa.get("status") != "approved":
+            raise ValueError("AI video QA is not approved.")
+
+        approved_ids = {
+            item["insert_id"]
+            for item in ai_video_qa.get("video_checks", [])
+            if item.get("approved") is True
+        }
+        used_hashes = set()
+
+        for item in ai_video_generation.get(
+            "generated_videos",
+            []
+        ):
+            if item.get("insert_id") not in approved_ids:
+                continue
+
+            asset_hash = item.get("sha256")
+
+            if not asset_hash:
+                raise ValueError(
+                    "Approved AI video has no SHA-256."
+                )
+
+            if asset_hash in used_hashes:
+                raise ValueError(
+                    "Duplicate AI video hash detected."
+                )
+
+            used_hashes.add(asset_hash)
             validate_asset(
                 reference=item["relative_path"],
                 expected_sha256=asset_hash,

@@ -37,6 +37,10 @@ from core.content_usage_registry import (
 from core.media_context_integrity import (
     validate_media_context,
 )
+from core.ai_video_integration import (
+    apply_visual_diversity_gates,
+    load_ai_video_production_config,
+)
 from core.video_run_context import (
     assert_topic_approved,
     load_context,
@@ -70,6 +74,11 @@ PRODUCTION_OUTPUTS = {
         "thumbnail",
         "thumbnail_record",
         "visual_plan",
+    ],
+    "ai_video_pipeline": [
+        "ai_video_insert_plan",
+        "ai_video_generation",
+        "ai_video_qa",
     ],
     "video_stock_pipeline": [
         "stock_manifest",
@@ -418,6 +427,11 @@ def apply_production_quality_standard(
         "thumbnail_two_color_required": True,
     })
 
+    context = apply_visual_diversity_gates(
+        context=context,
+        config=load_ai_video_production_config()
+    )
+
     return context
 
 
@@ -704,6 +718,9 @@ def invalidate_bad_content_outputs(
         "ai_visual_qa",
         "thumbnail",
         "thumbnail_record",
+        "ai_video_insert_plan",
+        "ai_video_generation",
+        "ai_video_qa",
         "hybrid_video_assembly",
         "final_video",
         "video_qa",
@@ -1382,6 +1399,95 @@ def run_audio_and_visual_phase(
     return context
 
 
+def invalidate_downstream_render_outputs(
+    context: dict
+) -> dict:
+    removed = []
+
+    for key in (
+        "hybrid_video_assembly",
+        "final_video",
+        "video_qa",
+        "publisher",
+    ):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key)
+            removed.append(key)
+
+    if removed:
+        append_history(
+            context=context,
+            agent="ai_video_downstream_invalidation",
+            status="completed",
+            reference=",".join(removed)
+        )
+
+    return context
+
+
+def run_ai_video_phase(
+    context: dict
+) -> dict:
+    config = load_ai_video_production_config()
+
+    if not config.get("orchestrator_enabled", False):
+        print("AI_VIDEO_ORCHESTRATOR_ENABLED: false")
+        print("AI_VIDEO_LIVE_API_CALLED: false")
+        return context
+
+    if not config.get("live_generation_enabled", False):
+        raise RuntimeError(
+            "AI video orchestrator is enabled but live "
+            "generation is disabled in config."
+        )
+
+    was_ready = outputs_ready(
+        context,
+        PRODUCTION_OUTPUTS["ai_video_pipeline"]
+    )
+
+    if not was_ready:
+        run_step(
+            "ai_video_pipeline",
+            build_agent_command(
+                agent_path="agents/ai_video_pipeline/run.py",
+                channel=context["channel"],
+                video_id=context["video_id"]
+            ) + [
+                "--mode",
+                "live",
+                "--confirm-live-cost",
+            ]
+        )
+
+        context = load_context(
+            channel=context["channel"],
+            video_id=context["video_id"]
+        )
+
+        if not outputs_ready(
+            context,
+            PRODUCTION_OUTPUTS["ai_video_pipeline"]
+        ):
+            raise RuntimeError(
+                "AI video pipeline completed without all "
+                "required production outputs."
+            )
+
+        context = invalidate_downstream_render_outputs(
+            context
+        )
+        save_context(context)
+    else:
+        print(
+            "SKIPPING_AGENT: ai_video_pipeline "
+            "outputs_already_ready"
+        )
+
+    print("AI_VIDEO_ORCHESTRATOR_ENABLED: true")
+    return context
+
+
 def stock_source_available(
     context: dict
 ) -> bool:
@@ -1791,6 +1897,7 @@ def main() -> None:
     context = run_audio_and_visual_phase(
         context
     )
+    context = run_ai_video_phase(context)
 
     if not stock_source_available(context):
         context = set_stock_source_required(

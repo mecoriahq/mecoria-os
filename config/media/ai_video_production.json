@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "orchestrator_enabled": false,
+  "live_generation_enabled": false,
+  "provider": "gemini_omni_flash",
+  "model": "gemini-omni-flash-preview",
+  "insert_count": 4,
+  "require_environment_confirmation": true,
+  "environment_confirmation_key": "MECORIA_AI_VIDEO_LIVE_ENABLED",
+  "environment_confirmation_value": "true",
+  "quality_gates": {
+    "minimum_ai_insert_count": 12,
+    "minimum_ai_video_insert_count": 4,
+    "maximum_ai_video_insert_count": 6,
+    "minimum_stock_clip_count": 30,
+    "maximum_single_stock_clip_share": 0.08,
+    "minimum_timeline_cycle_coverage": 1.0,
+    "maximum_timeline_cycles": 1,
+    "maximum_stock_segments_per_clip": 3
+  }
+}

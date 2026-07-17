@@ -23,6 +23,10 @@ from core.ai_video_standard import (
     load_json,
     validate_plan_identity,
 )
+from core.ai_video_integration import (
+    assert_live_generation_allowed,
+    load_ai_video_production_config,
+)
 from core.video_run_context import (
     load_context,
     register_output,
@@ -250,6 +254,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Attach live production output to the video context."
     )
+    parser.add_argument(
+        "--confirm-live-cost",
+        action="store_true",
+        help=(
+            "Required for live generation in addition to "
+            "the config and environment safety switches."
+        )
+    )
     return parser.parse_args()
 
 
@@ -264,6 +276,12 @@ def main() -> None:
         )
 
     load_dotenv(PROJECT_ROOT / ".env")
+
+    if args.mode == "live":
+        assert_live_generation_allowed(
+            config=load_ai_video_production_config(),
+            confirmed=args.confirm_live_cost
+        )
 
     context = load_context(
         channel=channel,

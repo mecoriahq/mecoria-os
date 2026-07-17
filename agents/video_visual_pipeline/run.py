@@ -1301,7 +1301,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--image-count",
         type=int,
-        default=DEFAULT_IMAGE_COUNT
+        default=None,
+        help=(
+            "Optional AI image count. When omitted, use the "
+            "video context minimum_ai_insert_count gate."
+        )
     )
     parser.add_argument(
         "--text-model",
@@ -1410,12 +1414,19 @@ def main() -> None:
             "Content QA score is below the required gate."
         )
 
-    minimum_ai_count = context.get(
-        "quality_gates",
-        {}
-    ).get("minimum_ai_insert_count", DEFAULT_IMAGE_COUNT)
+    minimum_ai_count = int(
+        context.get(
+            "quality_gates",
+            {}
+        ).get("minimum_ai_insert_count", DEFAULT_IMAGE_COUNT)
+    )
+    effective_image_count = (
+        int(args.image_count)
+        if args.image_count is not None
+        else minimum_ai_count
+    )
 
-    if args.image_count < minimum_ai_count:
+    if effective_image_count < minimum_ai_count:
         raise ValueError(
             f"AI insert count must be at least {minimum_ai_count}."
         )
@@ -1445,7 +1456,7 @@ def main() -> None:
 
     if args.dry_run:
         print("STATUS: visual_pipeline_dry_run_ready")
-        print(f"PLANNED_AI_INSERT_COUNT: {args.image_count}")
+        print(f"PLANNED_AI_INSERT_COUNT: {effective_image_count}")
         print(
             "THUMBNAIL_TEXT_HINT: "
             f"{get_thumbnail_hint(thumbnail_strategy_data)}"
@@ -1482,12 +1493,22 @@ def main() -> None:
             {}
         ).get("items", [])
 
-        if len(planned_items) != args.image_count:
-            raise ValueError(
-                "Existing visual plan insert count mismatch."
+        if len(planned_items) != effective_image_count:
+            plan = build_dynamic_plan(
+                context=context,
+                script_data=script_data,
+                seo_data=seo_data,
+                visual_asset_plan_data=visual_asset_plan_data,
+                thumbnail_strategy_data=thumbnail_strategy_data,
+                text_model=args.text_model,
+                image_count=effective_image_count
             )
-
-        print("VISUAL_PLAN_MODE: reused_existing")
+            save_json(plan_path, plan)
+            print(
+                "VISUAL_PLAN_MODE: regenerated_for_count_upgrade"
+            )
+        else:
+            print("VISUAL_PLAN_MODE: reused_existing")
     else:
         plan = build_dynamic_plan(
             context=context,
@@ -1496,7 +1517,7 @@ def main() -> None:
             visual_asset_plan_data=visual_asset_plan_data,
             thumbnail_strategy_data=thumbnail_strategy_data,
             text_model=args.text_model,
-            image_count=args.image_count
+            image_count=effective_image_count
         )
 
         save_json(plan_path, plan)

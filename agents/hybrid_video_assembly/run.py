@@ -39,6 +39,10 @@ from core.content_quality import (
     DEFAULT_MEDIA_DURATION_MIN_SECONDS,
     evaluate_duration_seconds,
 )
+from core.ai_video_integration import (
+    ai_video_context_enabled,
+    interleave_ai_specs,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 OUTPUT_FILENAME = "hybrid_video_draft.mp4"
@@ -236,6 +240,28 @@ def get_ai_qa_latest_path(
     )
 
 
+def get_ai_video_generation_path(
+    channel: str,
+    video_id: str
+) -> Path:
+    return get_video_context_reference_path(
+        channel=channel,
+        video_id=video_id,
+        key="ai_video_generation"
+    )
+
+
+def get_ai_video_qa_path(
+    channel: str,
+    video_id: str
+) -> Path:
+    return get_video_context_reference_path(
+        channel=channel,
+        video_id=video_id,
+        key="ai_video_qa"
+    )
+
+
 def get_relative_path(path: Path) -> str:
     return str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
 
@@ -378,6 +404,42 @@ def validate_ai_insert_requirement(
     return {
         "required": required,
         "minimum": minimum,
+        "actual": actual,
+        "approved": approved,
+    }
+
+
+def validate_ai_video_insert_requirement(
+    context: dict | None,
+    ai_video_specs: list[dict]
+) -> dict:
+    gates = context.get("quality_gates", {}) if context else {}
+    required = bool(
+        gates.get("require_ai_video_inserts", False)
+    )
+    minimum = int(
+        gates.get("minimum_ai_video_insert_count", 0)
+    )
+    maximum = int(
+        gates.get("maximum_ai_video_insert_count", 6)
+    )
+    actual = len(ai_video_specs)
+    approved = (
+        not required
+        or minimum <= actual <= maximum
+    )
+
+    if not approved:
+        raise ValueError(
+            "Render blocked: AI video insert count is outside "
+            "the required range. "
+            f"actual={actual} minimum={minimum} maximum={maximum}."
+        )
+
+    return {
+        "required": required,
+        "minimum": minimum,
+        "maximum": maximum,
         "actual": actual,
         "approved": approved,
     }
@@ -1002,6 +1064,121 @@ def load_ai_specs(
 
 
 
+def load_ai_video_specs(
+    generation_data: dict,
+    qa_data: dict,
+    context: dict
+) -> list[dict]:
+    for key in ("channel", "video_id", "run_id"):
+        if generation_data.get(key) != context.get(key):
+            raise ValueError(
+                f"AI video generation {key} mismatch."
+            )
+
+        if qa_data.get(key) != context.get(key):
+            raise ValueError(
+                f"AI video QA {key} mismatch."
+            )
+
+    if generation_data.get("status") != "videos_ready":
+        raise ValueError("AI video generation is not videos_ready.")
+
+    if generation_data.get("generation_mode") != "live":
+        raise ValueError(
+            "Only live AI video generation can enter assembly."
+        )
+
+    if qa_data.get("status") != "approved":
+        raise ValueError("AI video QA is not approved.")
+
+    if qa_data.get("generation_mode") != "live":
+        raise ValueError("AI video QA is not for live outputs.")
+
+    qa_checks = qa_data.get("checks", {})
+
+    for required_check in (
+        "technical_video_quality",
+        "silent_video_required",
+        "asset_registry_ownership",
+        "cross_video_asset_reuse",
+    ):
+        if qa_checks.get(required_check) is not True:
+            raise ValueError(
+                "AI video QA gate is missing: "
+                f"{required_check}."
+            )
+
+    approved_checks = {
+        item["insert_id"]: item
+        for item in qa_data.get("video_checks", [])
+        if item.get("approved") is True
+    }
+    approved_ids = set(approved_checks)
+    specs = []
+    used_hashes = set()
+
+    for item in generation_data.get("generated_videos", []):
+        insert_id = item["insert_id"]
+
+        if insert_id not in approved_ids:
+            continue
+
+        path = PROJECT_ROOT / item["relative_path"]
+
+        if not path.exists():
+            raise FileNotFoundError(
+                f"AI video insert not found: {path}"
+            )
+
+        expected_sha256 = item.get("sha256")
+
+        if not expected_sha256:
+            raise ValueError(
+                "AI video insert has no SHA-256 fingerprint."
+            )
+
+        if expected_sha256 in used_hashes:
+            raise ValueError(
+                "Duplicate AI video hash detected inside "
+                "the current video."
+            )
+
+        assert_asset_registered(
+            path=path,
+            channel=context["channel"],
+            video_id=context["video_id"],
+            expected_sha256=expected_sha256
+        )
+        used_hashes.add(expected_sha256)
+
+        specs.append({
+            "type": "ai_video",
+            "segment_id": insert_id,
+            "insert_id": insert_id,
+            "section_hint": item["section_hint"],
+            "visual_role": item["visual_role"],
+            "source_path": path,
+            "source_relative_path": get_relative_path(path),
+            "sha256": expected_sha256,
+            "duration_seconds": float(
+                approved_checks[insert_id].get(
+                    "duration_seconds"
+                )
+                or item.get("target_duration_seconds", 6)
+            )
+        })
+
+    validate_ai_video_insert_requirement(
+        context=context,
+        ai_video_specs=specs
+    )
+
+    return sorted(
+        specs,
+        key=lambda item: item["insert_id"]
+    )
+
+
 def build_hybrid_cycle(stock_specs: list[dict], ai_specs: list[dict]) -> list[dict]:
     if not ai_specs:
         return list(stock_specs)
@@ -1112,6 +1289,36 @@ def render_ai_segment(spec: dict, segment_path: Path) -> None:
     run_ffmpeg(command, "ffmpeg AI image segment render")
 
 
+def render_ai_video_segment(
+    spec: dict,
+    segment_path: Path
+) -> None:
+    ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+    command = [
+        ffmpeg_path,
+        "-y",
+        "-i",
+        str(spec["source_path"]),
+        "-t",
+        f"{spec['duration_seconds']:.2f}",
+        "-map",
+        "0:v:0",
+        "-vf",
+        stock_video_filter(),
+        "-an",
+        "-r",
+        str(FPS),
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-pix_fmt",
+        "yuv420p",
+        str(segment_path)
+    ]
+    run_ffmpeg(command, "ffmpeg AI video segment render")
+
+
 def render_unique_segments(unique_specs: list[dict], segment_library_dir: Path) -> dict[str, Path]:
     segment_library_dir.mkdir(parents=True, exist_ok=True)
     rendered = {}
@@ -1126,6 +1333,8 @@ def render_unique_segments(unique_specs: list[dict], segment_library_dir: Path) 
             render_stock_segment(spec, segment_path)
         elif spec["type"] == "ai_insert":
             render_ai_segment(spec, segment_path)
+        elif spec["type"] == "ai_video":
+            render_ai_video_segment(spec, segment_path)
         else:
             raise ValueError(f"Unknown segment type: {spec['type']}")
 
@@ -1603,6 +1812,23 @@ def main() -> None:
     ai_generation_data = load_json(ai_generation_path)
     ai_qa_data = load_json(ai_qa_path)
 
+    ai_video_enabled = ai_video_context_enabled(context)
+    ai_video_generation_data = None
+    ai_video_qa_data = None
+
+    if ai_video_enabled:
+        if not video_id or not context:
+            raise ValueError(
+                "AI video inserts require a video-specific context."
+            )
+
+        ai_video_generation_data = load_json(
+            get_ai_video_generation_path(channel, video_id)
+        )
+        ai_video_qa_data = load_json(
+            get_ai_video_qa_path(channel, video_id)
+        )
+
     ai_inserts_enabled = video_id is not None or (
         ai_generation_path.exists() and ai_qa_path.exists()
     )
@@ -1651,15 +1877,29 @@ def main() -> None:
         max_segments_per_clip=maximum_segments
     )
     if ai_inserts_enabled:
-        ai_specs = load_ai_specs(
+        ai_image_specs = load_ai_specs(
             ai_generation_data=ai_generation_data,
             ai_qa_data=ai_qa_data,
             channel=channel,
             video_id=video_id
         )
     else:
-        ai_specs = []
+        ai_image_specs = []
         print("AI_INSERTS_DISABLED_FOR_VIDEO_CONTEXT: true")
+
+    if ai_video_enabled:
+        ai_video_specs = load_ai_video_specs(
+            generation_data=ai_video_generation_data,
+            qa_data=ai_video_qa_data,
+            context=context
+        )
+    else:
+        ai_video_specs = []
+
+    ai_specs = interleave_ai_specs(
+        image_specs=ai_image_specs,
+        video_specs=ai_video_specs
+    )
 
     audio_duration = get_media_duration_seconds(audio_path)
     duration_gate = validate_production_duration(
@@ -1668,7 +1908,11 @@ def main() -> None:
     )
     ai_insert_gate = validate_ai_insert_requirement(
         context=context,
-        ai_specs=ai_specs
+        ai_specs=ai_image_specs
+    )
+    ai_video_insert_gate = validate_ai_video_insert_requirement(
+        context=context,
+        ai_video_specs=ai_video_specs
     )
     cycle = build_hybrid_cycle(
         stock_specs=stock_specs,
@@ -1706,6 +1950,12 @@ def main() -> None:
     print(
         "AI_INSERT_GATE: "
         f"{'pass' if ai_insert_gate['approved'] else 'fail'}"
+    )
+    print(f"AI_IMAGE_INSERT_COUNT: {len(ai_image_specs)}")
+    print(f"AI_VIDEO_INSERT_COUNT: {len(ai_video_specs)}")
+    print(
+        "AI_VIDEO_INSERT_GATE: "
+        f"{'pass' if ai_video_insert_gate['approved'] else 'fail'}"
     )
 
     timeline_entries = build_timeline_sequence(

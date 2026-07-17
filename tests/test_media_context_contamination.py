@@ -1,4 +1,4 @@
-﻿import tempfile
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -42,6 +42,9 @@ class MediaContextContaminationTests(
             "visual_plan",
             "ai_visual_generation",
             "ai_visual_qa",
+            "ai_video_insert_plan",
+            "ai_video_generation",
+            "ai_video_qa",
             "thumbnail_record",
             "hybrid_video_assembly",
             "video_qa",
@@ -107,6 +110,7 @@ class MediaContextContaminationTests(
         asset_types = [
             "stock",
             "ai_visual",
+            "ai_video",
             "thumbnail",
             "narration_section",
             "narration_audio",
