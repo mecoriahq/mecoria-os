@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "default_provider": "gemini_omni_flash",
+  "providers": {
+    "gemini_omni_flash": {
+      "model": "gemini-omni-flash-preview",
+      "api_mode": "interactions",
+      "task": "image_to_video",
+      "aspect_ratio": "16:9",
+      "preview": true,
+      "credential_env_keys": [
+        "GEMINI_API_KEY",
+        "GOOGLE_API_KEY"
+      ]
+    },
+    "google_veo_3_1": {
+      "model": "veo-3.1-generate-preview",
+      "api_mode": "generate_videos",
+      "task": "image_to_video",
+      "aspect_ratio": "16:9",
+      "preview": true,
+      "credential_env_keys": [
+        "GEMINI_API_KEY",
+        "GOOGLE_API_KEY"
+      ],
+      "status": "fallback_not_implemented_in_foundation"
+    }
+  },
+  "quality_gates": {
+    "minimum_live_ai_video_insert_count": 4,
+    "maximum_live_ai_video_insert_count": 6,
+    "minimum_duration_seconds": 3,
+    "maximum_duration_seconds": 10,
+    "minimum_resolution": "1280x720",
+    "minimum_fps": 23,
+    "generated_audio_allowed": false,
+    "cross_video_reuse_allowed": false
+  },
+  "rollout": {
+    "phase": "foundation",
+    "production_orchestrator_enabled": false,
+    "live_connection_test_completed": false,
+    "hybrid_assembly_integration_enabled": false
+  }
+}

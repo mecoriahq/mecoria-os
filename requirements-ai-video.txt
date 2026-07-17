@@ -1,0 +1,2 @@
+# Install only before the approved live provider connection test.
+google-genai

@@ -1519,7 +1519,7 @@ def main() -> None:
         "require_visual_asset_registry_ownership": True,
         "require_thumbnail_asset_registry_ownership": True,
         "require_hiddenova_thumbnail_standard": True,
-        "thumbnail_style": "hiddenova_cinematic_v1",
+        "thumbnail_style": "hiddenova_cinematic_v2",
         "thumbnail_text_min_words": 2,
         "thumbnail_text_max_words": 4,
         "thumbnail_text_size": "very_large",
