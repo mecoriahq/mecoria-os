@@ -3,7 +3,7 @@
   "channel": "rise_dossier",
   "display_name": "Rise Dossier",
   "status": "active",
-  "production_enabled": false,
+  "production_enabled": true,
   "language": "en",
   "timezone": "Europe/Istanbul",
   "platforms": [
@@ -60,7 +60,7 @@
       168,
       672
     ],
-    "next_action": "notion_sync_and_production_enablement_review"
+    "next_action": "first_topic_selection"
   },
   "safety": {
     "allow_cross_channel_asset_reuse": false,

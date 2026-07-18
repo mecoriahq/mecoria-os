@@ -9,7 +9,7 @@
 - Workspace account: `hello@risedossier.com`
 - Language: English
 - Channel status: active
-- Production status: disabled
+- Production status: enabled
 - First full dry-run: passed
 - YouTube setup: complete
 - Logo: complete
@@ -42,8 +42,9 @@ and mysteries of companies and famous people.
 ## Production State
 
 - No technical dry-run blockers remain
-- Production enablement requires founder approval
+- Production enablement approved by founder
 - Automatic next-video creation remains disabled
+- Public release remains founder gated
 
 ## Safety
 
@@ -51,4 +52,4 @@ Rise Dossier must remain isolated from Hiddenova assets, scripts,
 topics, thumbnails, run contexts, and analytics records.
 
 Public release remains founder gated. `production_enabled` remains
-`false` until the founder explicitly enables production after the Notion sync review.
+`true`; however, automatic next-video creation and automatic public release remain disabled.

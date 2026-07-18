@@ -67,5 +67,12 @@ write to Notion, or enable production.
 - Full regression suite: 185 tests passed
 - Live OpenAI call during certification: no
 - Video created during certification: no
-- Production enabled: no
-- Next action: Notion sync and founder production review
+- Production enabled: yes
+- Next action: first topic selection
+## Production Enablement
+
+- Founder approval: complete
+- Production enabled: yes
+- Automatic next-video creation: no
+- Automatic public release: no
+- First production action: manual topic selection

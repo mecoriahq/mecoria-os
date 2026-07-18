@@ -28,14 +28,17 @@ class ChannelRegistryTests(unittest.TestCase):
             config["pipeline"]["automatic_public_release"]
         )
 
-    def test_rise_dossier_is_ready_but_production_disabled(self):
+    def test_rise_dossier_is_production_ready_but_manual_start_only(self):
         config = channel_registry.load_channel("rise_dossier")
 
         self.assertEqual(config["display_name"], "Rise Dossier")
         self.assertEqual(config["status"], "active")
-        self.assertFalse(config["production_enabled"])
+        self.assertTrue(config["production_enabled"])
         self.assertFalse(
             config["pipeline"]["auto_create_next_video"]
+        )
+        self.assertFalse(
+            config["pipeline"]["automatic_public_release"]
         )
         self.assertEqual(
             config["brand"]["domain"],
