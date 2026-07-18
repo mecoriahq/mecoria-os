@@ -74,6 +74,20 @@ GENERIC_STOPWORDS = {
     "with",
     "without",
     "would",
+    "the",
+    "are",
+    "has",
+    "have",
+    "its",
+    "not",
+    "only",
+    "one",
+    "how",
+    "can",
+    "will",
+    "video",
+    "cinematic",
+    "documentary",
 }
 
 CANONICAL_ROLE_RULES = [
@@ -261,6 +275,45 @@ ROLE_ALIASES = {
 }
 
 
+PAYMENT_PROFILE_TOKENS = {
+    "card",
+    "cards",
+    "payment",
+    "payments",
+    "terminal",
+    "merchant",
+    "acquirer",
+    "issuer",
+    "authorization",
+    "settlement",
+    "clearing",
+}
+
+
+def detect_role_profile(script_data: dict) -> str:
+    script = script_data.get("script", script_data)
+    text_parts = []
+
+    for key in ("hook", "introduction", "conclusion"):
+        value = script.get(key, {})
+        if isinstance(value, dict):
+            text_parts.append(str(value.get("narration", "")))
+
+    for section in script.get("main_sections", []):
+        text_parts.extend([
+            str(section.get("title", "")),
+            str(section.get("narration", "")),
+            str(section.get("visual_direction", "")),
+        ])
+
+    tokens = set(
+        normalize_text(" ".join(text_parts)).split("-")
+    )
+    payment_matches = tokens.intersection(PAYMENT_PROFILE_TOKENS)
+
+    return "payment" if len(payment_matches) >= 3 else "generic"
+
+
 def load_json(path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(
@@ -423,6 +476,7 @@ def merge_role(
     role_id: str,
     title: str,
     text: str,
+    usage_priority: int | None = None,
 ) -> None:
     role = catalog.setdefault(
         role_id,
@@ -436,8 +490,10 @@ def merge_role(
                     set(),
                 )
             ),
-            "usage_priority": role_priority(
-                role_id
+            "usage_priority": (
+                int(usage_priority)
+                if usage_priority is not None
+                else role_priority(role_id)
             ),
         },
     )
@@ -455,7 +511,7 @@ def build_role_catalog(
         "script",
         script_data,
     )
-
+    profile = detect_role_profile(script_data)
     catalog: dict[str, dict] = {}
 
     intro_text = " ".join([
@@ -479,16 +535,28 @@ def build_role_catalog(
         ),
     ])
 
-    merge_role(
-        catalog=catalog,
-        role_id="payment_context",
-        title="Payment Context",
-        text=intro_text,
+    intro_role_id = (
+        "payment_context"
+        if profile == "payment"
+        else "topic_context"
+    )
+    intro_title = (
+        "Payment Context"
+        if profile == "payment"
+        else "Topic Context"
     )
 
-    for section in script.get(
-        "main_sections",
-        [],
+    merge_role(
+        catalog=catalog,
+        role_id=intro_role_id,
+        title=intro_title,
+        text=intro_text,
+        usage_priority=1,
+    )
+
+    for index, section in enumerate(
+        script.get("main_sections", []),
+        start=2,
     ):
         title = str(
             section.get(
@@ -513,16 +581,19 @@ def build_role_catalog(
             ),
         ])
 
-        role_id = canonical_role_id(title)
-
-        if role_id == slugify(title):
-            role_id = canonical_role_id(text)
+        if profile == "payment":
+            role_id = canonical_role_id(title)
+            if role_id == slugify(title):
+                role_id = canonical_role_id(text)
+        else:
+            role_id = slugify(title)
 
         merge_role(
             catalog=catalog,
             role_id=role_id,
             title=title,
             text=text,
+            usage_priority=index,
         )
 
     if visual_plan_data:
@@ -561,25 +632,22 @@ def build_role_catalog(
                     "section_hint",
                     "",
                 )
-            )
-            role_id = canonical_role_id(
-                section_hint
-            )
+            ).strip()
 
-            if role_id == slugify(
-                section_hint
-            ):
-                role_id = canonical_role_id(
-                    text
-                )
+            if not section_hint:
+                continue
+
+            if profile == "payment":
+                role_id = canonical_role_id(section_hint)
+                if role_id == slugify(section_hint):
+                    role_id = canonical_role_id(text)
+            else:
+                role_id = slugify(section_hint)
 
             merge_role(
                 catalog=catalog,
                 role_id=role_id,
-                title=(
-                    section_hint
-                    or role_id
-                ),
+                title=section_hint,
                 text=text,
             )
 
@@ -604,6 +672,7 @@ def build_role_catalog(
             "usage_priority": role[
                 "usage_priority"
             ],
+            "profile": profile,
         })
 
     return output
@@ -685,6 +754,15 @@ def score_role(
     }
 
 
+def strip_bridge_role_prefix(filename: str) -> str:
+    match = re.match(
+        r"^mecoria-role-[a-z0-9_]+__\d+__(.+)$",
+        filename,
+        flags=re.IGNORECASE,
+    )
+    return match.group(1) if match else filename
+
+
 def classify_file(
     filename: str,
     role_catalog: list[dict],
@@ -710,36 +788,67 @@ def classify_file(
             None,
         )
 
-        role_id = (
-            matching_role["role_id"]
-            if matching_role
-            else explicit_role
+        if matching_role is None:
+            return {
+                "role": "needs_manual_review",
+                "role_title": "Needs Manual Review",
+                "usage_priority": 99,
+                "classification_score": 0,
+                "classification_confidence": "low",
+                "matched_keywords": [],
+                "status": "review_required",
+                "risk_level": "medium",
+                "notes": (
+                    "Storyblocks Bridge role prefix does not "
+                    "match the video-specific role catalog."
+                ),
+            }
+
+        original_filename = strip_bridge_role_prefix(
+            filename
         )
-        role_title = (
-            matching_role["title"]
-            if matching_role
-            else explicit_role.replace("_", " ").title()
+        evidence = score_role(
+            filename=original_filename,
+            role=matching_role,
         )
-        usage_priority = (
-            matching_role["usage_priority"]
-            if matching_role
-            else 50
-        )
+        score = int(evidence["score"])
+
+        if score <= 0:
+            return {
+                "role": "needs_manual_review",
+                "role_title": "Needs Manual Review",
+                "usage_priority": 99,
+                "classification_score": score,
+                "classification_confidence": "low",
+                "matched_keywords": [],
+                "status": "review_required",
+                "risk_level": "medium",
+                "notes": (
+                    "The role prefix is routing metadata only; "
+                    "the original filename contains no evidence "
+                    "for the assigned visual role."
+                ),
+            }
+
+        confidence = "high" if score >= 4 else "medium"
 
         return {
-            "role": role_id,
-            "role_title": role_title,
-            "usage_priority": usage_priority,
-            "classification_score": 100,
-            "classification_confidence": "high",
-            "matched_keywords": [
-                "mecoria_explicit_role_hint"
-            ],
+            "role": matching_role["role_id"],
+            "role_title": matching_role["title"],
+            "usage_priority": matching_role["usage_priority"],
+            "classification_score": score,
+            "classification_confidence": confidence,
+            "matched_keywords": sorted(
+                set(
+                    evidence["matched_keywords"]
+                    + ["mecoria_explicit_role_hint"]
+                )
+            ),
             "status": "approved_pending_stock_qa",
             "risk_level": "low",
             "notes": (
-                "Classified by the Storyblocks Bridge "
-                "role prefix."
+                "Role prefix matched the locked catalog and "
+                "the original filename supplied relevance evidence."
             ),
         }
 

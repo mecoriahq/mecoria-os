@@ -10,7 +10,11 @@ from agents.stock_asset_ingest.run import (
 from agents.storyblocks_bridge.run import (
     allocate_clip_counts,
     build_search_groups,
+    audit_group_imports,
+    evaluate_download_relevance,
     import_group_downloads,
+    import_existing_downloads,
+    missing_groups,
     new_downloads,
     normalize_slug,
     storyblocks_search_url,
@@ -129,6 +133,26 @@ class StoryblocksBridgeTests(unittest.TestCase):
             6,
         )
 
+    def test_groups_keep_generic_catalog_role_ids(self):
+        script = sample_script()
+        catalog = build_role_catalog(script)
+        groups = build_search_groups(
+            script_data=script,
+            role_catalog=catalog,
+        )
+
+        self.assertEqual(
+            groups[0]["catalog_role_id"],
+            "route_planning",
+        )
+        self.assertEqual(
+            groups[1]["catalog_role_id"],
+            "truck_compaction",
+        )
+        self.assertFalse(
+            groups[0]["catalog_role_id"].startswith("payment_")
+        )
+
     def test_queries_are_derived_from_visual_direction(self):
         script = sample_script()
         catalog = build_role_catalog(script)
@@ -146,14 +170,19 @@ class StoryblocksBridgeTests(unittest.TestCase):
             groups[1]["query"],
         )
 
-    def test_explicit_bridge_role_hint_is_high_confidence(self):
+    def test_explicit_bridge_role_hint_needs_filename_evidence(self):
         catalog = build_role_catalog(
             sample_script()
         )
-        target_role = catalog[0]["role_id"]
+        target_role = next(
+            item["role_id"]
+            for item in catalog
+            if item["role_id"] == "truck_compaction"
+        )
         filename = (
             f"mecoria-role-{target_role}__001__"
-            "storyblocks-clip-SBV-123456789.mp4"
+            "garbage-truck-hydraulic-bin-compactor-"
+            "SBV-123456789.mp4"
         )
 
         result = classify_file(
@@ -165,13 +194,13 @@ class StoryblocksBridgeTests(unittest.TestCase):
             result["role"],
             target_role,
         )
-        self.assertEqual(
+        self.assertIn(
             result["classification_confidence"],
-            "high",
+            {"medium", "high"},
         )
-        self.assertEqual(
+        self.assertGreater(
             result["classification_score"],
-            100,
+            0,
         )
 
     def test_new_downloads_only_returns_changed_video_files(self):
@@ -214,7 +243,13 @@ class StoryblocksBridgeTests(unittest.TestCase):
             }
             group = {
                 "group_index": 1,
-                "role_id": "truck_compaction",
+                "role_id": "sb_01_truck_compaction",
+                "catalog_role_id": "truck_compaction",
+                "role_title": "Truck Compaction",
+                "query": "garbage truck hydraulic bin compactor",
+                "visual_direction": (
+                    "Garbage truck lifting bins and compacting waste."
+                ),
             }
 
             with patch(
@@ -235,6 +270,73 @@ class StoryblocksBridgeTests(unittest.TestCase):
             )
             self.assertTrue(imported[0].exists())
 
+    def test_relevance_rejects_unrelated_crane_clip(self):
+        group = {
+            "role_title": "Inside the Truck, Space Becomes Time",
+            "query": "hydraulic arms lifting bins compacting plates truck",
+            "visual_direction": (
+                "Garbage truck compactor lifting bins and compressing waste."
+            ),
+        }
+        result = evaluate_download_relevance(
+            "precast-concrete-slabs-lowered-by-crane.mp4",
+            group,
+        )
+        self.assertFalse(result["approved"])
+
+    def test_relevance_accepts_topic_specific_clip(self):
+        group = {
+            "role_title": "Inside the Truck, Space Becomes Time",
+            "query": "hydraulic arms lifting bins compacting plates truck",
+            "visual_direction": (
+                "Garbage truck compactor lifting bins and compressing waste."
+            ),
+        }
+        result = evaluate_download_relevance(
+            "garbage-truck-hydraulic-bin-compactor.mp4",
+            group,
+        )
+        self.assertTrue(result["approved"])
+
+    def test_audit_quarantines_irrelevant_existing_clip(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            context = {
+                "channel": "hiddenova",
+                "video_id": "video_005",
+                "run_id": "hiddenova_video_005_v1",
+            }
+            group = {
+                "group_index": 2,
+                "role_id": "sb_02_inside_the_truck",
+                "catalog_role_id": "truck_compaction",
+                "role_title": "Truck Compaction",
+                "query": "garbage truck hydraulic bin compactor",
+                "visual_direction": (
+                    "Garbage truck lifting bins and compacting waste."
+                ),
+            }
+
+            with patch(
+                "agents.storyblocks_bridge.run.PROJECT_ROOT",
+                root,
+            ):
+                active = (
+                    root / "assets" / "stock" / "hiddenova"
+                    / "video_005" / "storyblocks"
+                    / "02_sb_02_inside_the_truck"
+                )
+                active.mkdir(parents=True)
+                bad = active / (
+                    "mecoria-role-sb_02_inside_the_truck__001__"
+                    "precast-concrete-crane.mp4"
+                )
+                bad.write_bytes(b"bad")
+                result = audit_group_imports(context, group)
+
+            self.assertEqual(len(result["rejected"]), 1)
+            self.assertFalse(bad.exists())
+
     def test_slug_normalization_is_stable(self):
         self.assertEqual(
             normalize_slug(
@@ -242,6 +344,44 @@ class StoryblocksBridgeTests(unittest.TestCase):
             ),
             "waste-and-transfer-station",
         )
+
+
+class ExistingDownloadsImportTests(unittest.TestCase):
+    def test_existing_downloads_import_unique_relevant_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            context = {
+                "channel": "hiddenova",
+                "video_id": "video_005",
+                "run_id": "hiddenova_video_005_v1",
+            }
+            groups = build_search_groups(
+                script_data=sample_script(),
+                role_catalog=build_role_catalog(
+                    script_data=sample_script(),
+                    visual_plan_data=None,
+                ),
+                target_clip_count=6,
+                minimum_roles=6,
+            )
+            downloads = root / "Downloads"
+            downloads.mkdir()
+            clip = downloads / "garbage-truck-city-street-waste-collection.mp4"
+            clip.write_bytes(b"unique-video")
+
+            with patch(
+                "agents.storyblocks_bridge.run.PROJECT_ROOT",
+                root,
+            ):
+                report = import_existing_downloads(
+                    context=context,
+                    groups=groups,
+                    downloads_dir=downloads,
+                    max_age_hours=24,
+                )
+                self.assertEqual(len(report["imported"]), 1)
+                self.assertEqual(len(report["duplicate"]), 0)
+                self.assertEqual(len(missing_groups(context, groups)), 5)
 
 
 if __name__ == "__main__":

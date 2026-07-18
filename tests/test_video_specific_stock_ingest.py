@@ -114,6 +114,67 @@ def sample_script() -> dict:
     }
 
 
+def waste_script() -> dict:
+    return {
+        "script": {
+            "hook": {
+                "narration": (
+                    "Before sunrise, city waste routes are already moving."
+                )
+            },
+            "introduction": {
+                "narration": (
+                    "Follow garbage collection from curb to landfill."
+                )
+            },
+            "main_sections": [
+                {
+                    "title": "The Route Is the First Filter",
+                    "narration": "Crews collect bags and bins along city streets.",
+                    "visual_direction": (
+                        "Garbage bags, curbside bins, sanitation trucks."
+                    ),
+                },
+                {
+                    "title": "Inside the Truck, Space Becomes Time",
+                    "narration": "Compactors compress waste inside the truck.",
+                    "visual_direction": (
+                        "Garbage truck hydraulic arms lifting bins and compactor plates."
+                    ),
+                },
+                {
+                    "title": "The Transfer Station Prevents Long Detours",
+                    "narration": "Waste is tipped at a transfer station.",
+                    "visual_direction": (
+                        "Transfer station tipping floor and waste trucks."
+                    ),
+                },
+                {
+                    "title": "Sorting Turns Value Into a Risk",
+                    "narration": "Recycling lines sort glass, plastic and metal.",
+                    "visual_direction": (
+                        "Recycling conveyor and material sorting facility."
+                    ),
+                },
+                {
+                    "title": "Disposal Is Engineered, Not Dumped",
+                    "narration": "Landfills use scales, roads and compactors.",
+                    "visual_direction": (
+                        "Engineered landfill, garbage trucks and active cells."
+                    ),
+                },
+                {
+                    "title": "When One Link Slows, the City Notices",
+                    "narration": "Overflowing bins reveal collection delays.",
+                    "visual_direction": (
+                        "Overflowing trash bins and delayed garbage collection."
+                    ),
+                },
+            ],
+        }
+    }
+
+
 class VideoSpecificStockClassificationTests(
     unittest.TestCase
 ):
@@ -208,6 +269,56 @@ class VideoSpecificStockClassificationTests(
         self.assertEqual(
             result["role"],
             "payment_terminal",
+        )
+
+
+class GenericStockClassificationTests(unittest.TestCase):
+    def setUp(self):
+        self.catalog = build_role_catalog(waste_script())
+
+    def test_non_payment_script_uses_generic_roles(self):
+        role_ids = {item["role_id"] for item in self.catalog}
+        self.assertIn("the_route_is_the_first_filter", role_ids)
+        self.assertIn("inside_the_truck_space_becomes_time", role_ids)
+        self.assertIn("disposal_is_engineered_not_dumped", role_ids)
+        self.assertNotIn("payment_context", role_ids)
+        self.assertNotIn("payment_network", role_ids)
+
+    def test_bridge_prefix_requires_catalog_match(self):
+        result = classify_file(
+            filename=(
+                "mecoria-role-sb_02_inside_the_truck__001__"
+                "garbage-truck-compactor.mp4"
+            ),
+            role_catalog=self.catalog,
+        )
+        self.assertEqual(result["status"], "review_required")
+        self.assertEqual(result["classification_confidence"], "low")
+
+    def test_bridge_prefix_requires_filename_evidence(self):
+        result = classify_file(
+            filename=(
+                "mecoria-role-inside_the_truck_space_becomes_time__001__"
+                "precast-concrete-slabs-by-crane.mp4"
+            ),
+            role_catalog=self.catalog,
+        )
+        self.assertEqual(result["status"], "review_required")
+        self.assertEqual(result["classification_confidence"], "low")
+
+    def test_valid_bridge_prefix_and_filename_are_approved(self):
+        result = classify_file(
+            filename=(
+                "mecoria-role-inside_the_truck_space_becomes_time__001__"
+                "garbage-truck-hydraulic-bin-compactor.mp4"
+            ),
+            role_catalog=self.catalog,
+        )
+        self.assertEqual(result["role"], "inside_the_truck_space_becomes_time")
+        self.assertNotEqual(result["status"], "review_required")
+        self.assertIn(
+            result["classification_confidence"],
+            {"medium", "high"},
         )
 
 

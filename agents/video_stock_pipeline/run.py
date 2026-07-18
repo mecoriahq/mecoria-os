@@ -332,20 +332,84 @@ def build_stock_registry_records(
     return records
 
 
+
+def resolve_stock_qa_thresholds(context: dict) -> dict:
+    gates = context.get("quality_gates", {})
+
+    configured_minimum_clips = int(
+        gates.get("minimum_stock_clip_count", 16)
+    )
+    configured_maximum_share = float(
+        gates.get("maximum_single_stock_clip_share", 0.25)
+    )
+    require_ai_visuals = bool(
+        gates.get("require_ai_visuals", False)
+    )
+    minimum_ai_insert_count = int(
+        gates.get("minimum_ai_insert_count", 0)
+    )
+
+    if require_ai_visuals and minimum_ai_insert_count > 0:
+        minimum_stock_clips = int(
+            gates.get(
+                "minimum_hybrid_stock_clip_count",
+                max(
+                    16,
+                    configured_minimum_clips
+                    - minimum_ai_insert_count,
+                ),
+            )
+        )
+        maximum_source_share = float(
+            gates.get(
+                "maximum_stock_source_clip_share",
+                max(configured_maximum_share, 0.15),
+            )
+        )
+        minimum_combined_visuals = int(
+            gates.get(
+                "minimum_combined_visual_asset_count",
+                configured_minimum_clips,
+            )
+        )
+        mode = "hybrid_visual_diversity"
+    else:
+        minimum_stock_clips = configured_minimum_clips
+        maximum_source_share = configured_maximum_share
+        minimum_combined_visuals = configured_minimum_clips
+        mode = "stock_only_diversity"
+
+    return {
+        "mode": mode,
+        "configured_minimum_stock_clip_count": (
+            configured_minimum_clips
+        ),
+        "minimum_stock_clip_count": minimum_stock_clips,
+        "minimum_ai_insert_count": minimum_ai_insert_count,
+        "minimum_combined_visual_asset_count": (
+            minimum_combined_visuals
+        ),
+        "maximum_stock_source_clip_share": (
+            maximum_source_share
+        ),
+        "require_ai_visuals": require_ai_visuals,
+    }
+
 def build_stock_qa(
     manifest: dict,
     context: dict
 ) -> dict:
     gates = context.get("quality_gates", {})
 
+    thresholds = resolve_stock_qa_thresholds(context)
     minimum_clips = int(
-        gates.get("minimum_stock_clip_count", 16)
+        thresholds["minimum_stock_clip_count"]
     )
     minimum_duration = float(
         gates.get("minimum_stock_duration_seconds", 180)
     )
     maximum_share = float(
-        gates.get("maximum_single_stock_clip_share", 0.25)
+        thresholds["maximum_stock_source_clip_share"]
     )
     minimum_roles = int(
         gates.get("minimum_distinct_stock_roles", 5)
@@ -385,9 +449,22 @@ def build_stock_qa(
         or item.get("classification_confidence") == "low"
     ]
 
+    expected_combined_visual_count = (
+        len(items)
+        + int(thresholds["minimum_ai_insert_count"])
+    )
+
     checks = {
         "minimum_clip_count": (
             len(items) >= minimum_clips
+        ),
+        "minimum_combined_visual_asset_count": (
+            expected_combined_visual_count
+            >= int(
+                thresholds[
+                    "minimum_combined_visual_asset_count"
+                ]
+            )
         ),
         "minimum_total_duration": (
             total_duration >= minimum_duration
@@ -445,7 +522,24 @@ def build_stock_qa(
             "unique_clip_count": len(unique_paths),
             "distinct_role_count": len(distinct_roles),
             "review_required_count": len(review_required),
+            "diversity_mode": thresholds["mode"],
+            "configured_minimum_stock_clip_count": int(
+                thresholds[
+                    "configured_minimum_stock_clip_count"
+                ]
+            ),
             "minimum_required_clip_count": minimum_clips,
+            "minimum_ai_insert_count": int(
+                thresholds["minimum_ai_insert_count"]
+            ),
+            "minimum_combined_visual_asset_count": int(
+                thresholds[
+                    "minimum_combined_visual_asset_count"
+                ]
+            ),
+            "expected_combined_visual_count": (
+                expected_combined_visual_count
+            ),
             "minimum_required_role_count": minimum_roles,
             "total_duration_seconds": total_duration,
             "largest_clip_share": round(

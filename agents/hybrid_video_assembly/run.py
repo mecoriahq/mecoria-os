@@ -51,6 +51,8 @@ VIDEO_HEIGHT = 1080
 FPS = 30
 
 STOCK_SEGMENT_SECONDS = 6
+MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS = 8
+TIMELINE_TAIL_PADDING_SECONDS = 3.0
 AI_INSERT_AFTER_STOCK_SEGMENTS = 2
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
 
@@ -455,19 +457,35 @@ def stock_video_filter() -> str:
     )
 
 
-def ai_image_filter(duration_seconds: float) -> str:
+def ai_image_filter(
+    duration_seconds: float,
+    motion_variant: int = 1
+) -> str:
     frames = max(1, int(duration_seconds * FPS))
+
+    if motion_variant % 2 == 0:
+        zoompan = (
+            "zoompan="
+            "z='1.04':"
+            f"x='(iw-iw/zoom)*on/{max(1, frames - 1)}':"
+            "y='ih/2-(ih/zoom/2)':"
+            f"d={frames}:s={VIDEO_WIDTH}x{VIDEO_HEIGHT}:fps={FPS},"
+        )
+    else:
+        zoompan = (
+            "zoompan="
+            "z='min(1.0+on*0.00045,1.045)':"
+            "x='iw/2-(iw/zoom/2)':"
+            "y='ih/2-(ih/zoom/2)':"
+            f"d={frames}:s={VIDEO_WIDTH}x{VIDEO_HEIGHT}:fps={FPS},"
+        )
 
     return (
         f"scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
         f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},"
-        "zoompan="
-        "z='min(1.0+on*0.00045,1.045)':"
-        "x='iw/2-(iw/zoom/2)':"
-        "y='ih/2-(ih/zoom/2)':"
-        f"d={frames}:s={VIDEO_WIDTH}x{VIDEO_HEIGHT}:fps={FPS},"
-        "setsar=1,"
-        "format=yuv420p"
+        + zoompan
+        + "setsar=1,"
+        + "format=yuv420p"
     )
 
 
@@ -711,9 +729,144 @@ def load_stock_clips(
     )
 
 
+def expand_stock_specs_for_target(
+    stock_clips: list[dict],
+    stock_specs: list[dict],
+    target_total_duration: float,
+    maximum_segment_seconds: float = (
+        MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS
+    ),
+) -> list[dict]:
+    current_duration = sum(
+        float(item["duration_seconds"])
+        for item in stock_specs
+    )
+    required_extra = max(
+        0.0,
+        float(target_total_duration) - current_duration,
+    )
+
+    if required_extra <= 0.01:
+        return stock_specs
+
+    clip_duration_by_id = {
+        str(item["candidate_id"]): float(
+            item["duration_seconds"]
+        )
+        for item in stock_clips
+    }
+    grouped: dict[str, list[dict]] = {}
+
+    for spec in stock_specs:
+        grouped.setdefault(
+            str(spec["candidate_id"]),
+            [],
+        ).append(spec)
+
+    capacities = []
+
+    for candidate_id, specs in grouped.items():
+        specs.sort(
+            key=lambda item: float(
+                item["start_seconds"]
+            )
+        )
+        clip_duration = clip_duration_by_id[
+            candidate_id
+        ]
+
+        for index, spec in enumerate(specs):
+            start_seconds = float(
+                spec["start_seconds"]
+            )
+            current_segment_duration = float(
+                spec["duration_seconds"]
+            )
+            next_start = (
+                float(
+                    specs[index + 1]["start_seconds"]
+                )
+                if index + 1 < len(specs)
+                else clip_duration
+            )
+            non_overlapping_limit = max(
+                0.0,
+                next_start - start_seconds,
+            )
+            maximum_duration = min(
+                float(maximum_segment_seconds),
+                non_overlapping_limit,
+            )
+            capacity = max(
+                0.0,
+                maximum_duration
+                - current_segment_duration,
+            )
+
+            if capacity > 0.01:
+                capacities.append({
+                    "spec": spec,
+                    "remaining": capacity,
+                })
+
+    while required_extra > 0.01 and capacities:
+        progressed = False
+
+        for item in capacities:
+            if required_extra <= 0.01:
+                break
+
+            available = float(item["remaining"])
+            if available <= 0.01:
+                continue
+
+            increment = min(
+                0.5,
+                available,
+                required_extra,
+            )
+            spec = item["spec"]
+            spec["duration_seconds"] = round(
+                float(spec["duration_seconds"])
+                + increment,
+                2,
+            )
+            item["remaining"] = round(
+                available - increment,
+                2,
+            )
+            required_extra = round(
+                required_extra - increment,
+                2,
+            )
+            progressed = True
+
+        capacities = [
+            item
+            for item in capacities
+            if float(item["remaining"]) > 0.01
+        ]
+
+        if not progressed:
+            break
+
+    if required_extra > 0.01:
+        raise ValueError(
+            "Stock source duration cannot satisfy one-cycle "
+            "timeline coverage without overlapping or reusing "
+            "segments."
+        )
+
+    return stock_specs
+
+
 def build_stock_segment_specs(
     stock_clips: list[dict],
-    max_segments_per_clip: int = 5
+    max_segments_per_clip: int = 5,
+    target_total_duration: float | None = None,
+    maximum_segment_seconds: float = (
+        MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS
+    ),
 ) -> list[dict]:
     clip_buckets = []
 
@@ -794,8 +947,165 @@ def build_stock_segment_specs(
             if segment_index < len(bucket):
                 specs.append(bucket[segment_index])
 
+    if target_total_duration is not None:
+        specs = expand_stock_specs_for_target(
+            stock_clips=stock_clips,
+            stock_specs=specs,
+            target_total_duration=target_total_duration,
+            maximum_segment_seconds=maximum_segment_seconds,
+        )
+
     return specs
 
+
+
+def maximum_stock_spec_duration(
+    stock_clips: list[dict],
+    stock_specs: list[dict],
+    maximum_segment_seconds: float = (
+        MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS
+    ),
+) -> float:
+    clip_duration_by_id = {
+        str(item["candidate_id"]): float(
+            item["duration_seconds"]
+        )
+        for item in stock_clips
+    }
+    grouped: dict[str, list[dict]] = {}
+
+    for spec in stock_specs:
+        grouped.setdefault(
+            str(spec["candidate_id"]),
+            [],
+        ).append(spec)
+
+    total = 0.0
+
+    for candidate_id, specs in grouped.items():
+        specs.sort(
+            key=lambda item: float(
+                item["start_seconds"]
+            )
+        )
+        clip_duration = clip_duration_by_id[
+            candidate_id
+        ]
+
+        for index, spec in enumerate(specs):
+            start_seconds = float(
+                spec["start_seconds"]
+            )
+            next_start = (
+                float(
+                    specs[index + 1]["start_seconds"]
+                )
+                if index + 1 < len(specs)
+                else clip_duration
+            )
+            non_overlapping_limit = max(
+                0.0,
+                next_start - start_seconds,
+            )
+            total += min(
+                float(maximum_segment_seconds),
+                non_overlapping_limit,
+            )
+
+    return round(total, 2)
+
+
+def expand_ai_image_specs_for_target(
+    ai_specs: list[dict],
+    target_total_duration: float,
+    maximum_uses_per_image: int = 2,
+    maximum_segment_seconds: float = 12.0,
+) -> list[dict]:
+    if not ai_specs:
+        raise ValueError(
+            "AI image specs are required for hybrid coverage."
+        )
+
+    expanded = []
+
+    for item in ai_specs:
+        spec = dict(item)
+        spec["motion_variant"] = int(
+            spec.get("motion_variant", 1)
+        )
+        expanded.append(spec)
+
+    current_duration = sum(
+        float(item["duration_seconds"])
+        for item in expanded
+    )
+    target = max(
+        current_duration,
+        float(target_total_duration),
+    )
+
+    if target - current_duration > 0.01:
+        originals = list(expanded)
+
+        for use_index in range(2, maximum_uses_per_image + 1):
+            for original in originals:
+                duplicate = dict(original)
+                duplicate["segment_id"] = (
+                    f"{original['segment_id']}_M{use_index:02d}"
+                )
+                duplicate["motion_variant"] = use_index
+                expanded.append(duplicate)
+
+    remaining = round(
+        target
+        - sum(
+            float(item["duration_seconds"])
+            for item in expanded
+        ),
+        2,
+    )
+
+    while remaining > 0.01:
+        progressed = False
+
+        for item in expanded:
+            if remaining <= 0.01:
+                break
+
+            current = float(item["duration_seconds"])
+            capacity = max(
+                0.0,
+                float(maximum_segment_seconds) - current,
+            )
+
+            if capacity <= 0.01:
+                continue
+
+            increment = min(
+                0.5,
+                capacity,
+                remaining,
+            )
+            item["duration_seconds"] = round(
+                current + increment,
+                2,
+            )
+            remaining = round(
+                remaining - increment,
+                2,
+            )
+            progressed = True
+
+        if not progressed:
+            break
+
+    if remaining > 0.01:
+        raise ValueError(
+            "Combined stock and AI image capacity cannot satisfy "
+            "one-cycle timeline coverage."
+        )
+
+    return expanded
 
 def validate_stock_repetition(
     context: dict | None,
@@ -810,15 +1120,57 @@ def validate_stock_repetition(
         else {}
     )
 
-    minimum_clips = int(
+    configured_minimum_clips = int(
         gates.get("minimum_stock_clip_count", 10)
     )
-    maximum_share = float(
+    configured_maximum_share = float(
         gates.get(
             "maximum_single_stock_clip_share",
             0.25
         )
     )
+    require_ai_visuals = bool(
+        gates.get("require_ai_visuals", False)
+    )
+    minimum_ai_insert_count = int(
+        gates.get("minimum_ai_insert_count", 0)
+    )
+
+    hybrid_mode = (
+        require_ai_visuals
+        and minimum_ai_insert_count > 0
+    )
+
+    if hybrid_mode:
+        minimum_clips = int(
+            gates.get(
+                "minimum_hybrid_stock_clip_count",
+                max(
+                    16,
+                    configured_minimum_clips
+                    - minimum_ai_insert_count
+                )
+            )
+        )
+        maximum_share = float(
+            gates.get(
+                "maximum_stock_source_clip_share",
+                max(
+                    configured_maximum_share,
+                    0.15
+                )
+            )
+        )
+        minimum_combined_visuals = int(
+            gates.get(
+                "minimum_combined_visual_asset_count",
+                configured_minimum_clips
+            )
+        )
+    else:
+        minimum_clips = configured_minimum_clips
+        maximum_share = configured_maximum_share
+        minimum_combined_visuals = configured_minimum_clips
     minimum_coverage = float(
         gates.get(
             "minimum_timeline_cycle_coverage",
@@ -833,6 +1185,20 @@ def validate_stock_repetition(
         item["candidate_id"]
         for item in stock_clips
     })
+
+    unique_ai_source_count = len({
+        (
+            item.get("source_relative_path")
+            or str(item.get("source_path", ""))
+            or item.get("segment_id")
+        )
+        for item in ai_specs
+    })
+
+    combined_visual_count = (
+        unique_clip_count
+        + unique_ai_source_count
+    )
 
     total_stock_duration = sum(
         item["duration_seconds"]
@@ -856,14 +1222,19 @@ def validate_stock_repetition(
         for item in ai_specs
     )
 
+    target_timeline_duration = (
+        audio_duration + TIMELINE_TAIL_PADDING_SECONDS
+    )
     coverage_ratio = (
-        cycle_duration / audio_duration
-        if audio_duration > 0
+        cycle_duration / target_timeline_duration
+        if target_timeline_duration > 0
         else 0.0
     )
 
     timeline_cycles = (
-        math.ceil(audio_duration / cycle_duration)
+        math.ceil(
+            target_timeline_duration / cycle_duration
+        )
         if cycle_duration > 0
         else 999
     )
@@ -878,6 +1249,16 @@ def validate_stock_repetition(
     if largest_clip_share > maximum_share:
         issues.append(
             "One stock clip dominates the package."
+        )
+
+    if (
+        hybrid_mode
+        and combined_visual_count
+        < minimum_combined_visuals
+    ):
+        issues.append(
+            "Combined stock and AI visual count is below "
+            "the diversity gate."
         )
 
     if coverage_ratio < minimum_coverage:
@@ -898,6 +1279,15 @@ def validate_stock_repetition(
 
     return {
         "stock_unique_clip_count": unique_clip_count,
+        "ai_unique_visual_count": unique_ai_source_count,
+        "combined_unique_visual_count": combined_visual_count,
+        "diversity_mode": (
+            "hybrid_visual_diversity"
+            if hybrid_mode
+            else "stock_only_diversity"
+        ),
+        "effective_minimum_stock_clip_count": minimum_clips,
+        "effective_maximum_stock_source_share": maximum_share,
         "stock_total_source_duration_seconds": round(
             total_stock_duration,
             2
@@ -909,6 +1299,10 @@ def validate_stock_repetition(
         "stock_cycle_coverage_ratio": round(
             coverage_ratio,
             4
+        ),
+        "timeline_target_duration_seconds": round(
+            target_timeline_duration,
+            2
         ),
         "stock_timeline_cycles": timeline_cycles,
         "stock_repetition_risk": "acceptable",
@@ -1271,7 +1665,12 @@ def render_ai_segment(spec: dict, segment_path: Path) -> None:
         "-i",
         str(spec["source_path"]),
         "-vf",
-        ai_image_filter(spec["duration_seconds"]),
+        ai_image_filter(
+            spec["duration_seconds"],
+            motion_variant=int(
+                spec.get("motion_variant", 1)
+            ),
+        ),
         "-frames:v",
         str(frames),
         "-an",
@@ -1872,19 +2271,15 @@ def main() -> None:
         )
     ) if context else 5
 
-    stock_specs = build_stock_segment_specs(
-        stock_clips=stock_clips,
-        max_segments_per_clip=maximum_segments
-    )
     if ai_inserts_enabled:
-        ai_image_specs = load_ai_specs(
+        unique_ai_image_specs = load_ai_specs(
             ai_generation_data=ai_generation_data,
             ai_qa_data=ai_qa_data,
             channel=channel,
             video_id=video_id
         )
     else:
-        ai_image_specs = []
+        unique_ai_image_specs = []
         print("AI_INSERTS_DISABLED_FOR_VIDEO_CONTEXT: true")
 
     if ai_video_enabled:
@@ -1896,19 +2291,59 @@ def main() -> None:
     else:
         ai_video_specs = []
 
+    audio_duration = get_media_duration_seconds(audio_path)
+    target_timeline_duration = (
+        audio_duration + TIMELINE_TAIL_PADDING_SECONDS
+    )
+
+    base_stock_specs = build_stock_segment_specs(
+        stock_clips=stock_clips,
+        max_segments_per_clip=maximum_segments,
+        target_total_duration=None,
+    )
+    maximum_stock_duration = maximum_stock_spec_duration(
+        stock_clips=stock_clips,
+        stock_specs=base_stock_specs,
+    )
+
+    minimum_ai_timeline_duration = max(
+        sum(
+            float(item["duration_seconds"])
+            for item in unique_ai_image_specs
+        ),
+        target_timeline_duration - maximum_stock_duration,
+    )
+    ai_image_specs = expand_ai_image_specs_for_target(
+        ai_specs=unique_ai_image_specs,
+        target_total_duration=minimum_ai_timeline_duration,
+    ) if unique_ai_image_specs else []
+
     ai_specs = interleave_ai_specs(
         image_specs=ai_image_specs,
         video_specs=ai_video_specs
     )
 
-    audio_duration = get_media_duration_seconds(audio_path)
+    ai_total_duration = sum(
+        float(item["duration_seconds"])
+        for item in ai_specs
+    )
+    required_stock_duration = max(
+        0.0,
+        target_timeline_duration - ai_total_duration,
+    )
+    stock_specs = expand_stock_specs_for_target(
+        stock_clips=stock_clips,
+        stock_specs=base_stock_specs,
+        target_total_duration=required_stock_duration,
+    )
+
     duration_gate = validate_production_duration(
         context=context,
         actual_seconds=audio_duration
     )
     ai_insert_gate = validate_ai_insert_requirement(
         context=context,
-        ai_specs=ai_image_specs
+        ai_specs=unique_ai_image_specs
     )
     ai_video_insert_gate = validate_ai_video_insert_requirement(
         context=context,
@@ -1951,7 +2386,14 @@ def main() -> None:
         "AI_INSERT_GATE: "
         f"{'pass' if ai_insert_gate['approved'] else 'fail'}"
     )
-    print(f"AI_IMAGE_INSERT_COUNT: {len(ai_image_specs)}")
+    print(
+        "AI_IMAGE_INSERT_COUNT: "
+        f"{len(unique_ai_image_specs)}"
+    )
+    print(
+        "AI_IMAGE_TIMELINE_SEGMENT_COUNT: "
+        f"{len(ai_image_specs)}"
+    )
     print(f"AI_VIDEO_INSERT_COUNT: {len(ai_video_specs)}")
     print(
         "AI_VIDEO_INSERT_GATE: "

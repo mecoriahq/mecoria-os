@@ -17,13 +17,14 @@ from urllib.parse import quote
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
-BRIDGE_VERSION = "1.0"
+BRIDGE_VERSION = "1.2"
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from agents.stock_asset_ingest.run import (
     build_role_catalog,
+    get_storyblocks_id,
 )
 from core.video_run_context import (
     load_context,
@@ -127,6 +128,207 @@ def role_title_tokens(value: str) -> set[str]:
             "this",
             "becomes",
         }
+    }
+
+
+GENERIC_STOCK_TOKENS = {
+    "action", "aerial", "area", "building", "camera",
+    "city", "close", "day", "equipment", "exterior",
+    "factory", "facility", "heavy", "industrial", "inside",
+    "interior", "large", "line", "machine", "moving",
+    "night", "people", "plant", "road", "scene", "site",
+    "street", "truck", "vehicle", "vehicles", "view",
+    "warehouse", "wide", "worker", "workers", "work",
+    "driving", "lifting", "lift", "arm", "arms", "plate",
+    "plates", "loading", "unloading", "hydraulic", "station",
+    "conveyor", "belt", "unload", "dump", "metal",
+}
+
+
+def canonical_relevance_token(value: str) -> str:
+    token = normalize_slug(value).replace("-", "")
+
+    for prefix in (
+        "recycl",
+        "compact",
+        "collect",
+        "sort",
+        "overflow",
+        "transfer",
+        "landfill",
+        "garbage",
+        "trash",
+        "waste",
+    ):
+        if token.startswith(prefix):
+            return prefix
+
+    if token.endswith("ies") and len(token) > 5:
+        token = token[:-3] + "y"
+    elif token.endswith("ing") and len(token) > 6:
+        token = token[:-3]
+    elif token.endswith("ed") and len(token) > 5:
+        token = token[:-2]
+    elif token.endswith("es") and len(token) > 5:
+        token = token[:-2]
+    elif token.endswith("s") and len(token) > 4:
+        token = token[:-1]
+
+    return token
+
+
+def relevance_tokens(value: str) -> set[str]:
+    return {
+        canonical_relevance_token(token)
+        for token in re.findall(r"[A-Za-z0-9]+", value.lower())
+        if len(token) >= 3
+    }
+
+
+def strip_import_prefix(filename: str) -> str:
+    match = re.match(
+        r"^mecoria-role-[a-z0-9_]+__\d+__(.+)$",
+        filename,
+        flags=re.IGNORECASE,
+    )
+    return match.group(1) if match else filename
+
+
+def evaluate_download_relevance(
+    filename: str,
+    group: dict,
+) -> dict:
+    original_filename = strip_import_prefix(filename)
+    filename_tokens = relevance_tokens(
+        Path(original_filename).stem
+    )
+    expected_tokens = relevance_tokens(
+        " ".join([
+            str(group.get("query", "")),
+            str(group.get("visual_direction", "")),
+        ])
+    )
+    matched_tokens = sorted(
+        filename_tokens.intersection(expected_tokens)
+    )
+    strong_expected = {
+        token
+        for token in expected_tokens
+        if token not in GENERIC_STOCK_TOKENS
+        and len(token) >= 4
+    }
+    strong_matches = sorted(
+        filename_tokens.intersection(strong_expected)
+    )
+    approved = len(strong_matches) >= 1
+
+    return {
+        "approved": approved,
+        "original_filename": original_filename,
+        "matched_tokens": matched_tokens,
+        "strong_matches": strong_matches,
+        "reason": (
+            "relevance_evidence_found"
+            if approved
+            else "insufficient_filename_relevance"
+        ),
+    }
+
+
+def rejected_dir(
+    context: dict,
+    group: dict,
+) -> Path:
+    return (
+        source_dir(context).parent
+        / "storyblocks_rejected"
+        / f"{group['group_index']:02d}_{normalize_slug(group['role_id'])}"
+    )
+
+
+def expected_role_prefix(group: dict) -> str:
+    role_id = str(
+        group.get("catalog_role_id")
+        or group["role_id"]
+    )
+    return (
+        "mecoria-role-"
+        + normalize_slug(role_id).replace("-", "_")
+    )
+
+
+def audit_group_imports(
+    context: dict,
+    group: dict,
+) -> dict:
+    active_dir = group_dir(
+        context=context,
+        group=group,
+    )
+    quarantine = rejected_dir(
+        context=context,
+        group=group,
+    )
+    approved = []
+    rejected = []
+    renamed = []
+
+    for path in video_files(active_dir):
+        result = evaluate_download_relevance(
+            filename=path.name,
+            group=group,
+        )
+
+        if not result["approved"]:
+            quarantine.mkdir(parents=True, exist_ok=True)
+            target = quarantine / path.name
+            counter = 1
+            while target.exists():
+                target = quarantine / (
+                    f"{path.stem}__{counter:02d}{path.suffix}"
+                )
+                counter += 1
+            shutil.move(str(path), str(target))
+            rejected.append({
+                "source": path,
+                "target": target,
+                **result,
+            })
+            continue
+
+        desired_prefix = expected_role_prefix(group)
+        prefix_match = re.match(
+            r"^mecoria-role-[a-z0-9_]+__(\d+)__(.+)$",
+            path.name,
+            flags=re.IGNORECASE,
+        )
+
+        if prefix_match:
+            sequence = prefix_match.group(1)
+            original = prefix_match.group(2)
+            desired_name = (
+                f"{desired_prefix}__{sequence}__{original}"
+            )
+
+            if path.name != desired_name:
+                target = path.with_name(desired_name)
+                counter = 1
+                while target.exists() and target != path:
+                    target = path.with_name(
+                        f"{Path(desired_name).stem}__repair_{counter:02d}"
+                        f"{path.suffix}"
+                    )
+                    counter += 1
+                path.rename(target)
+                renamed.append((path, target))
+                path = target
+
+        approved.append(path)
+
+    return {
+        "approved": approved,
+        "rejected": rejected,
+        "renamed": renamed,
     }
 
 
@@ -461,13 +663,19 @@ def import_group_downloads(
         if digest in known_hashes:
             continue
 
-        role_prefix = (
-            "mecoria-role-"
-            + normalize_slug(group["role_id"]).replace(
-                "-",
-                "_",
-            )
+        relevance = evaluate_download_relevance(
+            filename=path.name,
+            group=group,
         )
+
+        if not relevance["approved"]:
+            print(
+                "STORYBLOCKS_DOWNLOAD_REJECTED: "
+                f"{path.name} | {relevance['reason']}"
+            )
+            continue
+
+        role_prefix = expected_role_prefix(group)
         sequence = len(
             video_files(destination)
         ) + len(imported) + 1
@@ -481,6 +689,191 @@ def import_group_downloads(
         known_hashes.add(digest)
 
     return imported
+
+
+def import_existing_downloads(
+    context: dict,
+    groups: list[dict],
+    downloads_dir: Path,
+    max_age_hours: float = 24.0,
+) -> dict:
+    cutoff = time.time() - max(0.0, max_age_hours) * 3600.0
+    candidates = [
+        path
+        for path in video_files(downloads_dir)
+        if path.stat().st_mtime >= cutoff
+    ]
+    candidates.sort(
+        key=lambda path: (
+            -path.stat().st_mtime_ns,
+            path.name.lower(),
+        )
+    )
+
+    source_paths = video_files(source_dir(context))
+    known_storyblocks_ids = {
+        storyblocks_id
+        for storyblocks_id in (
+            get_storyblocks_id(path.name)
+            for path in source_paths
+        )
+        if storyblocks_id
+    }
+    known_fallback_hashes = {
+        file_sha256(path)
+        for path in source_paths
+        if not get_storyblocks_id(path.name)
+    }
+    imported = []
+    duplicate = []
+    irrelevant = []
+
+    for path in candidates:
+        storyblocks_id = get_storyblocks_id(path.name)
+
+        if (
+            storyblocks_id
+            and storyblocks_id in known_storyblocks_ids
+        ):
+            duplicate.append(path)
+            continue
+
+        digest = None
+        if not storyblocks_id:
+            digest = file_sha256(path)
+            if digest in known_fallback_hashes:
+                duplicate.append(path)
+                continue
+
+        ranked = []
+
+        for group in groups:
+            target = int(group["target_clip_count"])
+            current = group_progress(
+                context=context,
+                group=group,
+            )
+
+            if current >= target:
+                continue
+
+            relevance = evaluate_download_relevance(
+                filename=path.name,
+                group=group,
+            )
+
+            if not relevance["approved"]:
+                continue
+
+            ranked.append((
+                -len(relevance["strong_matches"]),
+                -len(relevance["matched_tokens"]),
+                int(group["group_index"]),
+                group,
+            ))
+
+        if not ranked:
+            irrelevant.append(path)
+            continue
+
+        ranked.sort(key=lambda item: item[:3])
+        selected_group = ranked[0][3]
+        destination = group_dir(
+            context=context,
+            group=selected_group,
+        )
+        destination.mkdir(parents=True, exist_ok=True)
+        sequence = len(video_files(destination)) + 1
+        target = destination / (
+            f"{expected_role_prefix(selected_group)}__"
+            f"{sequence:03d}__{safe_filename(path.name)}"
+        )
+        shutil.copy2(path, target)
+        imported.append(target)
+
+        if storyblocks_id:
+            known_storyblocks_ids.add(storyblocks_id)
+        elif digest:
+            known_fallback_hashes.add(digest)
+
+    return {
+        "scanned_count": len(candidates),
+        "imported": imported,
+        "duplicate": duplicate,
+        "irrelevant": irrelevant,
+    }
+
+def missing_groups(
+    context: dict,
+    groups: list[dict],
+) -> list[dict]:
+    result = []
+
+    for group in groups:
+        current = group_progress(
+            context=context,
+            group=group,
+        )
+        target = int(group["target_clip_count"])
+
+        if current < target:
+            result.append({
+                "group": group,
+                "current": current,
+                "target": target,
+                "remaining": target - current,
+            })
+
+    return result
+
+
+def print_existing_import_report(report: dict) -> None:
+    print(
+        "EXISTING_DOWNLOADS_SCANNED: "
+        f"{report['scanned_count']}"
+    )
+    print(
+        "EXISTING_DOWNLOADS_IMPORTED: "
+        f"{len(report['imported'])}"
+    )
+    print(
+        "DUPLICATE_DOWNLOADS_SKIPPED: "
+        f"{len(report['duplicate'])}"
+    )
+    print(
+        "IRRELEVANT_DOWNLOADS_SKIPPED: "
+        f"{len(report['irrelevant'])}"
+    )
+
+def print_missing_group_report(
+    context: dict,
+    groups: list[dict],
+    open_browser: bool,
+) -> list[dict]:
+    missing = missing_groups(
+        context=context,
+        groups=groups,
+    )
+
+    print(
+        "STORYBLOCKS_MISSING_GROUP_COUNT: "
+        f"{len(missing)}"
+    )
+
+    for item in missing:
+        group = item["group"]
+        print(
+            "- MISSING_GROUP: "
+            f"{group['group_index']}/{len(groups)} | "
+            f"{group['role_title']} | "
+            f"{item['remaining']} clips | "
+            f"{group['search_url']}"
+        )
+
+        if open_browser:
+            webbrowser.open(group["search_url"])
+
+    return missing
 
 
 def group_progress(
@@ -637,6 +1030,34 @@ def run_stock_ingest(
         )
 
 
+def run_stock_pipeline(context: dict) -> None:
+    command = [
+        sys.executable,
+        str(
+            PROJECT_ROOT
+            / "agents"
+            / "video_stock_pipeline"
+            / "run.py"
+        ),
+        "--channel",
+        context["channel"],
+        "--video-id",
+        context["video_id"],
+    ]
+
+    result = subprocess.run(
+        command,
+        cwd=PROJECT_ROOT,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            "Video stock pipeline failed with exit code "
+            f"{result.returncode}."
+        )
+
+
 def interactive_collect(
     context: dict,
     groups: list[dict],
@@ -654,6 +1075,29 @@ def interactive_collect(
         )
 
         while True:
+            audit = audit_group_imports(
+                context=context,
+                group=group,
+            )
+
+            if audit["rejected"]:
+                print(
+                    "STORYBLOCKS_GROUP_REJECTED_EXISTING: "
+                    f"{len(audit['rejected'])}"
+                )
+                for item in audit["rejected"]:
+                    print(
+                        "- "
+                        f"{item['original_filename']} | "
+                        f"{item['reason']}"
+                    )
+
+            if audit["renamed"]:
+                print(
+                    "STORYBLOCKS_GROUP_ROLE_PREFIX_REPAIRED: "
+                    f"{len(audit['renamed'])}"
+                )
+
             current = group_progress(
                 context=context,
                 group=group,
@@ -814,6 +1258,33 @@ def parse_args() -> argparse.Namespace:
         "--non-interactive",
         action="store_true",
     )
+    parser.add_argument(
+        "--repair",
+        action="store_true",
+        help=(
+            "Re-audit an existing Storyblocks package, "
+            "quarantine irrelevant clips, recollect gaps, "
+            "and rebuild stock outputs."
+        ),
+    )
+    parser.add_argument(
+        "--import-existing",
+        action="store_true",
+        help=(
+            "Scan recent completed video files already in "
+            "Downloads, import only unique relevant clips, "
+            "and report exact remaining groups."
+        ),
+    )
+    parser.add_argument(
+        "--existing-hours",
+        type=float,
+        default=24.0,
+        help=(
+            "Maximum age in hours for --import-existing "
+            "download scanning. Default: 24."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -826,10 +1297,18 @@ def main() -> None:
         video_id=video_id,
     )
 
-    if context.get("status") != "stock_source_required":
+    allowed_statuses = {"stock_source_required"}
+    if args.repair:
+        allowed_statuses.update({
+            "stock_ready",
+            "render_failed",
+            "video_ready",
+        })
+
+    if context.get("status") not in allowed_statuses:
         raise ValueError(
-            "Storyblocks Bridge requires "
-            "stock_source_required status."
+            "Storyblocks Bridge status is not eligible for "
+            "collection or repair."
         )
 
     script_data = load_json(
@@ -892,14 +1371,38 @@ def main() -> None:
         dashboard_path=dashboard_path,
     )
 
-    if args.non_interactive:
-        ready = all(
-            group_progress(
+    if args.import_existing:
+        for group in groups:
+            audit_group_imports(
                 context=context,
                 group=group,
-            ) >= int(group["target_clip_count"])
-            for group in groups
+            )
+
+        report = import_existing_downloads(
+            context=context,
+            groups=groups,
+            downloads_dir=downloads_dir,
+            max_age_hours=args.existing_hours,
         )
+        print_existing_import_report(report)
+
+    if args.non_interactive:
+        for group in groups:
+            audit_group_imports(
+                context=context,
+                group=group,
+            )
+        ready = not missing_groups(
+            context=context,
+            groups=groups,
+        )
+
+        if not ready:
+            print_missing_group_report(
+                context=context,
+                groups=groups,
+                open_browser=not args.no_open,
+            )
     else:
         ready = interactive_collect(
             context=context,
@@ -924,6 +1427,14 @@ def main() -> None:
         return
 
     run_stock_ingest(context)
+
+    if args.repair:
+        refreshed_context = load_context(
+            channel=channel,
+            video_id=video_id,
+        )
+        run_stock_pipeline(refreshed_context)
+        print("STORYBLOCKS_REPAIR_STOCK_PIPELINE: completed")
 
     print("STOCK_MANIFEST_ATTACHED: true")
     print("STATUS: storyblocks_manifest_ready")
