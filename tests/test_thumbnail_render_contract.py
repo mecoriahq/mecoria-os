@@ -84,7 +84,7 @@ def load_create_thumbnail():
 
 
 class ThumbnailRenderContractTests(unittest.TestCase):
-    def test_render_uses_v2_gold_layout(self):
+    def test_render_uses_v3_gold_layout(self):
         create_thumbnail = load_create_thumbnail()
 
         with tempfile.TemporaryDirectory() as directory:
@@ -111,7 +111,7 @@ class ThumbnailRenderContractTests(unittest.TestCase):
 
             self.assertEqual(
                 metrics["standard_name"],
-                "hiddenova_cinematic_v2",
+                "hiddenova_cinematic_v3",
             )
             self.assertEqual(metrics["text_position"], "left")
             self.assertEqual(metrics["subject_position"], "right")

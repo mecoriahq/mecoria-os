@@ -14,11 +14,11 @@ from core.thumbnail_standard import (
 
 
 class ThumbnailStandardTests(unittest.TestCase):
-    def test_standard_loads_v2(self):
+    def test_standard_loads_v3(self):
         standard = load_thumbnail_standard()
         self.assertEqual(
             standard["standard_name"],
-            "hiddenova_cinematic_v2"
+            "hiddenova_cinematic_v3"
         )
         self.assertEqual(
             standard["layout"]["text_position"],
@@ -27,6 +27,17 @@ class ThumbnailStandardTests(unittest.TestCase):
         self.assertEqual(
             standard["layout"]["subject_position"],
             "right"
+        )
+        self.assertEqual(
+            standard["concept_system"]["candidate_count"],
+            3
+        )
+        self.assertEqual(
+            standard["concept_system"]["finalist_count"],
+            2
+        )
+        self.assertTrue(
+            standard["concept_system"]["vision_qa_required"]
         )
 
     def test_gold_reference_exists(self):
@@ -100,7 +111,7 @@ class ThumbnailStandardTests(unittest.TestCase):
             thumbnail_text="TWO SECOND VERDICT",
             text_position="left"
         )
-        self.assertIn("hiddenova_cinematic_v2", prompt)
+        self.assertIn("hiddenova_cinematic_v3", prompt)
         self.assertIn("TWO SECOND VERDICT", prompt)
         self.assertIn("oversized stacked ALL CAPS", prompt)
         self.assertIn("subject on the right", prompt)

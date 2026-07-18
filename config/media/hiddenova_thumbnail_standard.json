@@ -1,8 +1,8 @@
 {
-  "standard_name": "hiddenova_cinematic_v2",
-  "version": "2.0",
+  "standard_name": "hiddenova_cinematic_v3",
+  "version": "3.0",
   "channel": "hiddenova",
-  "purpose": "Lock every Hiddenova thumbnail to the approved premium cinematic series template while changing the subject by topic.",
+  "purpose": "Generate three genuinely different Hiddenova thumbnail concepts, score the actual rendered candidates, reject weak work, and select the strongest finalist while preserving the approved cinematic layout.",
   "gold_reference": {
     "asset_path": "config/media/reference_assets/hiddenova_cinematic_v2_gold.png",
     "sha256": "c60f1b99c6b58b7c6dde5a7e22323c90a29cc40b2f633da35d09cd0d7f05fd8d",
@@ -114,7 +114,6 @@
   "qa_gates": {
     "text_word_count_valid": true,
     "text_is_uppercase": true,
-    "standard_is_hiddenova_cinematic_v2": true,
     "gold_reference_traceable": true,
     "text_position_locked_left": true,
     "subject_position_locked_right": true,
@@ -128,6 +127,33 @@
     "gold_reference_style_match_passed": true,
     "no_clutter_passed": true,
     "no_logo_or_watermark_passed": true,
-    "ctr_strength_passed": true
+    "ctr_strength_passed": true,
+    "three_distinct_concepts_generated": true,
+    "concept_diversity_passed": true,
+    "vision_qa_passed": true,
+    "minimum_final_score_passed": true,
+    "finalist_selection_recorded": true,
+    "standard_is_hiddenova_cinematic_v3": true
+  },
+  "concept_system": {
+    "candidate_count": 3,
+    "finalist_count": 2,
+    "required_concept_types": [
+      "scale_and_consequence",
+      "failure_or_risk",
+      "hidden_mechanism"
+    ],
+    "minimum_preflight_score": 85,
+    "minimum_vision_score": 82,
+    "minimum_critical_dimension_score": 75,
+    "minimum_final_score": 85,
+    "score_weights": {
+      "preflight": 0.3,
+      "vision": 0.7
+    },
+    "vision_qa_required": true,
+    "concept_diversity_required": true,
+    "unique_headline_required": true,
+    "unique_dominant_subject_required": true
   }
 }

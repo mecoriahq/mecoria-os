@@ -1,15 +1,15 @@
 {
   "channel": "hiddenova",
-  "version": "2.0",
+  "version": "3.0",
   "status": "active",
-  "decision": "hiddenova_cinematic_v2_gold_reference_locked",
+  "decision": "hiddenova_thumbnail_system_v3_active",
   "thumbnail_standard": {
     "platform": "youtube",
     "size": "1280x720",
     "aspect_ratio": "16:9",
     "gold_reference": "config/media/reference_assets/hiddenova_cinematic_v2_gold.png",
     "layout_signature": "oversized_headline_left__dominant_subject_right",
-    "primary_goal": "Create an instantly recognizable Hiddenova series thumbnail with premium cinematic impact and mobile-first readability.",
+    "primary_goal": "Generate three meaningfully different concepts, reject average work, and select the strongest mobile-first cinematic thumbnail.",
     "text_rules": {
       "min_words": 2,
       "max_words": 4,
@@ -63,7 +63,24 @@
       "thick black outline and shadow",
       "dark high-contrast cinematic background",
       "one clear idea",
-      "premium documentary look"
-    ]
+      "premium documentary look",
+      "three distinct concepts per video",
+      "actual rendered-image vision QA",
+      "automatic weak-candidate rejection",
+      "two finalist paths recorded",
+      "highest approved score selected"
+    ],
+    "concept_system": {
+      "candidate_count": 3,
+      "finalist_count": 2,
+      "concept_types": [
+        "scale_and_consequence",
+        "failure_or_risk",
+        "hidden_mechanism"
+      ],
+      "vision_qa_required": true,
+      "minimum_final_score": 85,
+      "selection_policy": "highest_scoring_approved_candidate"
+    }
   }
 }

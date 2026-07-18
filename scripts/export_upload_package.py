@@ -95,6 +95,84 @@ def get_publisher_path(
     return legacy_path, None
 
 
+
+def export_thumbnail_finalists(
+    context: dict | None,
+    export_dir: Path
+) -> list[dict]:
+    if not context:
+        return []
+
+    reference = context.get(
+        "outputs",
+        {}
+    ).get("thumbnail_record")
+
+    if not reference:
+        return []
+
+    record_path = PROJECT_ROOT / reference
+
+    if not record_path.exists():
+        return []
+
+    record = load_json(record_path)
+    thumbnail = record.get("thumbnail", {})
+    finalists = thumbnail.get("finalists", [])
+
+    if not isinstance(finalists, list):
+        return []
+
+    finalist_dir = (
+        export_dir / "thumbnail_finalists"
+    )
+    exported = []
+
+    for index, item in enumerate(
+        finalists,
+        start=1
+    ):
+        source_reference = item.get(
+            "relative_path"
+        )
+
+        if not source_reference:
+            continue
+
+        source_path = (
+            PROJECT_ROOT / source_reference
+        )
+
+        if not source_path.exists():
+            continue
+
+        target_name = (
+            f"finalist_{index:02d}_"
+            f"{item.get('concept_id', 'concept').lower()}.png"
+        )
+        target_path = finalist_dir / target_name
+        finalist_dir.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+        normalize_thumbnail(
+            source_path,
+            target_path
+        )
+        exported.append({
+            "concept_id": item.get("concept_id"),
+            "concept_type": item.get("concept_type"),
+            "overlay_text": item.get("overlay_text"),
+            "final_score": item.get("final_score"),
+            "file": (
+                "thumbnail_finalists/"
+                + target_name
+            ),
+        })
+
+    return exported
+
+
 def create_export_dir(
     channel: str,
     video_id: str | None = None,
@@ -182,6 +260,10 @@ def export_upload_package(
 
     shutil.copy2(video_source, video_target)
     normalize_thumbnail(thumbnail_source, thumbnail_target)
+    thumbnail_finalists = export_thumbnail_finalists(
+        context=context,
+        export_dir=export_dir
+    )
 
     write_text(export_dir / "title.txt", metadata["title"])
     write_text(export_dir / "description.txt", metadata["description"])
@@ -222,14 +304,25 @@ def export_upload_package(
             "description_youtube_ready": "description_youtube_ready.txt",
             "tags": "tags.txt",
             "hashtags": "hashtags.txt",
-            "chapters": "chapters.txt"
+            "chapters": "chapters.txt",
+            "thumbnail_finalists": (
+                "thumbnail_finalists/"
+                if thumbnail_finalists
+                else None
+            )
         },
         "readiness": package["readiness"],
         "thumbnail_standard": {
             "size": "1280x720",
             "aspect_ratio": "16:9",
             "normalization": "center_crop_resize",
-            "purpose": "YouTube-compatible thumbnail export without black bars."
+            "purpose": "YouTube-compatible thumbnail export without black bars.",
+            "finalists": thumbnail_finalists,
+            "founder_review_scope": (
+                "finalists_only"
+                if thumbnail_finalists
+                else "selected_thumbnail_only"
+            )
         }
     }
 
@@ -253,6 +346,7 @@ def export_upload_package(
 - Set visibility to Unlisted for first test.
 - Copy title from title.txt.
 - Copy description from description_youtube_ready.txt.
+- Review thumbnail_finalists/ when present.
 - Upload thumbnail.png.
 - Add tags from tags.txt.
 - Confirm chapters appear correctly.

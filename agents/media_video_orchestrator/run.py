@@ -51,6 +51,12 @@ from core.video_run_context import (
 )
 
 
+LEGACY_THUMBNAIL_V2_COMPATIBILITY = {
+    "thumbnail_style": "hiddenova_cinematic_v2",
+    "thumbnail_standard_name": "hiddenova_cinematic_v2",
+}
+
+
 TERMINAL_STATES = {
     "uploaded_for_founder_review",
     "published",
@@ -417,7 +423,8 @@ def apply_production_quality_standard(
                 0
             )
         ),
-        "thumbnail_standard_name": "hiddenova_cinematic_v2",
+        "thumbnail_standard_name": "hiddenova_cinematic_v3",
+        "thumbnail_previous_standard_name": "hiddenova_cinematic_v2",
         "thumbnail_layout_signature": (
             "oversized_headline_left__dominant_subject_right"
         ),
@@ -425,6 +432,10 @@ def apply_production_quality_standard(
         "thumbnail_text_position": "left",
         "thumbnail_subject_position": "right",
         "thumbnail_two_color_required": True,
+        "thumbnail_candidate_count": 3,
+        "thumbnail_finalist_count": 2,
+        "thumbnail_vision_qa_required": True,
+        "thumbnail_minimum_final_score": 85,
     })
 
     context = apply_visual_diversity_gates(

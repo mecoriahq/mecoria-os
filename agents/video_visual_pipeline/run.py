@@ -3,6 +3,7 @@ import base64
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -41,13 +42,21 @@ from core.thumbnail_standard import (
     build_thumbnail_lines,
     build_thumbnail_overlay_spec,
     build_thumbnail_qa_checklist,
+    combine_thumbnail_scores,
     load_thumbnail_standard,
+    normalize_thumbnail_vision_qa,
+    validate_thumbnail_concepts,
 )
 
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IMAGE_MODEL = "gpt-image-1"
 DEFAULT_TEXT_MODEL = "gpt-5.5"
 DEFAULT_IMAGE_COUNT = 8
+LEGACY_THUMBNAIL_STANDARD_NAME = "hiddenova_cinematic_v2"
+LEGACY_THUMBNAIL_V2_COMPATIBILITY = {
+    "thumbnail_style": "hiddenova_cinematic_v2",
+    "thumbnail_standard_name": "hiddenova_cinematic_v2",
+}
 
 
 def load_json(path: Path) -> dict:
@@ -251,6 +260,125 @@ def call_text_model(prompt: str, model: str) -> dict:
     )
 
 
+
+def call_thumbnail_vision_qa(
+    image_path: Path,
+    concept: dict,
+    video_topic: str,
+    model: str,
+    standard: dict
+) -> dict:
+    client = OpenAI()
+    image_b64 = base64.b64encode(
+        image_path.read_bytes()
+    ).decode("ascii")
+    prompt = f"""
+You are the strict thumbnail QA judge for Hiddenova.
+
+Evaluate the actual rendered YouTube thumbnail image.
+
+VIDEO_TOPIC:
+{video_topic}
+
+CONCEPT_TYPE:
+{concept["concept_type"]}
+
+EXPECTED_HEADLINE:
+{concept["overlay_text"]}
+
+EXPECTED_DOMINANT_SUBJECT:
+{concept["dominant_subject"]}
+
+EXPECTED_CONFLICT:
+{concept["conflict"]}
+
+Reject average, generic, low-tension, cluttered, or weak thumbnails.
+
+Return exactly one JSON object:
+{{
+  "scores": {{
+    "topic_match": 0,
+    "dominant_subject": 0,
+    "visual_tension": 0,
+    "mobile_readability": 0,
+    "clean_composition": 0,
+    "cinematic_quality": 0,
+    "ctr_strength": 0
+  }},
+  "verdict": "approved or rejected",
+  "issues": ["short issue"],
+  "summary": "one sentence"
+}}
+
+Scoring rules:
+- 90-100 means exceptional and immediately clickable.
+- 82-89 means production-ready.
+- Below 82 is not approved.
+- Headline must be instantly readable on mobile.
+- One dominant topic-specific subject must control the right side.
+- The concept must communicate one clear tension or consequence.
+- Generic stock-poster appearance must be rejected.
+- Do not approve merely because the image is technically valid.
+""".strip()
+
+    last_error = None
+
+    for attempt in range(1, 4):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": (
+                                        "data:image/jpeg;base64,"
+                                        + image_b64
+                                    )
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_completion_tokens=1400,
+                response_format={
+                    "type": "json_object"
+                }
+            )
+
+            content = response.choices[0].message.content
+
+            if not content:
+                raise ValueError(
+                    "Thumbnail vision QA returned an empty response."
+                )
+
+            raw_result = extract_json(content)
+
+            return normalize_thumbnail_vision_qa(
+                raw_result=raw_result,
+                standard=standard
+            )
+
+        except Exception as exc:
+            last_error = exc
+
+            if attempt < 3:
+                time.sleep(attempt * 2)
+
+    raise RuntimeError(
+        "Thumbnail vision QA failed after retries: "
+        f"{last_error}"
+    )
+
+
 def build_dynamic_plan(
     context: dict,
     script_data: dict,
@@ -262,10 +390,18 @@ def build_dynamic_plan(
 ) -> dict:
     script_payload = script_data.get("script", {})
     seo_payload = seo_data.get("seo", {})
-
     asset_payload = visual_asset_plan_data.get(
         "asset_plan",
         visual_asset_plan_data
+    )
+    thumbnail_standard = load_thumbnail_standard()
+    concept_types = thumbnail_standard[
+        "concept_system"
+    ]["required_concept_types"]
+    candidate_count = int(
+        thumbnail_standard[
+            "concept_system"
+        ]["candidate_count"]
     )
 
     thumbnail_hint = (
@@ -297,11 +433,22 @@ OPTIONAL_VISUAL_ASSET_PLAN:
 Return one JSON object with exactly this structure:
 
 {{
-  "thumbnail": {{
-    "overlay_text": "2 to 4 English words in uppercase",
-    "text_position": "left or right",
-    "background_prompt": "specific cinematic thumbnail background prompt with no text"
-  }},
+  "thumbnail_concepts": [
+    {{
+      "concept_id": "THUMB-01",
+      "concept_type": "{concept_types[0]}",
+      "overlay_text": "2 to 4 English words in uppercase",
+      "dominant_subject": "one precise topic-specific subject",
+      "conflict": "clear visual tension or consequence",
+      "emotional_trigger": "curiosity, urgency, shock, or risk",
+      "visual_hook": "one instantly understandable visual idea",
+      "differentiation": "why this concept is unlike the other two",
+      "topic_keywords": [
+        "three topic-specific keywords"
+      ],
+      "background_prompt": "detailed cinematic background prompt with no text"
+    }}
+  ],
   "inserts": [
     {{
       "section_hint": "short section name",
@@ -312,7 +459,28 @@ Return one JSON object with exactly this structure:
   ]
 }}
 
-Rules:
+THUMBNAIL CONCEPT CONTRACT:
+- Return exactly {candidate_count} thumbnail concepts.
+- Use each concept_type exactly once:
+  {json.dumps(concept_types, ensure_ascii=True)}
+- Concept 1 must emphasize scale and consequence.
+- Concept 2 must emphasize failure, risk, or a breaking point.
+- Concept 3 must reveal the hidden mechanism or decision layer.
+- The three concepts must use different headlines.
+- The three concepts must use different dominant subjects.
+- The supplied thumbnail hint may be used for only one concept.
+- Each concept must contain one clear visual story, not a collage.
+- Each background prompt must explicitly require:
+  subject on the right or center-right,
+  clean dark negative space on the left,
+  one dominant subject,
+  realistic premium cinematic lighting,
+  high contrast, depth, visual tension, and no text.
+- Avoid generic phrases such as HIDDEN SYSTEM unless the visual idea
+  is exceptionally topic-specific.
+- Do not output small variations of the same scene.
+
+AI INSERT CONTRACT:
 - Return exactly {image_count} inserts.
 - Every insert must directly match this exact video topic.
 - Cover the hook, key explanations, human/system layer,
@@ -323,15 +491,15 @@ Rules:
 - No logos, readable labels, barcodes, private data,
   fake dashboards, or operational interfaces.
 - No embedded text inside generated images.
-- Thumbnail must follow hiddenova_cinematic_v2.
-- Match the approved TWO SECOND VERDICT series structure.
-- Use one dominant subject on the right or center-right.
-- Lock the oversized stacked headline zone to the left.
-- Thumbnail must have strong contrast and dark clean text space.
-- Thumbnail text must contain 2 to 4 words in uppercase.
-- The final emphasis line will be rendered bright yellow.
-- Thumbnail text must not repeat the full video title.
-- Prefer the supplied thumbnail hint when valid.
+
+HIDDENOVA HOUSE STYLE:
+- hiddenova_cinematic_v3
+- oversized stacked headline on the left
+- dominant topic-specific subject on the right
+- white headline lines with final emphasis line in yellow
+- dark cinematic high-contrast background
+- mobile-first readability
+- premium investigative documentary tone
 """
 
     raw_plan = call_text_model(
@@ -339,25 +507,26 @@ Rules:
         model=text_model
     )
 
-    thumbnail = raw_plan.get("thumbnail", {})
+    raw_concepts = raw_plan.get(
+        "thumbnail_concepts",
+        []
+    )
+    concepts = validate_thumbnail_concepts(
+        concepts=raw_concepts,
+        video_topic=context["topic_title"],
+        standard=thumbnail_standard
+    )
+    concepts = sorted(
+        concepts,
+        key=lambda item: item["preflight_score"],
+        reverse=True
+    )
     raw_items = raw_plan.get("inserts", [])
 
     if len(raw_items) != image_count:
         raise ValueError(
             f"Expected {image_count} AI inserts, "
             f"received {len(raw_items)}."
-        )
-
-    overlay_text = normalize_overlay_text(
-        thumbnail.get("overlay_text")
-    )
-
-    if not overlay_text:
-        overlay_text = thumbnail_hint
-
-    if not overlay_text:
-        raise ValueError(
-            "Thumbnail overlay text is missing or invalid."
         )
 
     items = []
@@ -389,17 +558,26 @@ Rules:
             "status": "planned"
         })
 
+    strongest_preflight = concepts[0]
+
     return {
         "channel": context["channel"],
         "video_id": context["video_id"],
         "run_id": context["run_id"],
         "video_title": context["topic_title"],
+        "thumbnail_system_version": "3.0",
+        "thumbnail_candidates": concepts,
         "thumbnail": {
-            "overlay_text": overlay_text,
+            "overlay_text": strongest_preflight[
+                "overlay_text"
+            ],
             "text_position": "left",
-            "background_prompt": str(
-                thumbnail.get("background_prompt", "")
-            ).strip()
+            "background_prompt": strongest_preflight[
+                "background_prompt"
+            ],
+            "preflight_selected_concept_id": (
+                strongest_preflight["concept_id"]
+            )
         },
         "ai_visual_insert_plan": {
             "style_rules": [
@@ -894,6 +1072,7 @@ def generate_outputs(
     image_model: str,
     image_size: str,
     image_quality: str,
+    thumbnail_qa_model: str,
     force_regenerate: bool = False
 ) -> dict:
     channel = context["channel"]
@@ -904,15 +1083,20 @@ def generate_outputs(
         context["run_id"]
     )
     image_dir = output_dir / "images"
+    candidate_dir = output_dir / "thumbnail_candidates"
     thumbnail_standard = load_thumbnail_standard()
+    concept_system = thumbnail_standard["concept_system"]
+    candidates = plan.get("thumbnail_candidates", [])
 
-    thumbnail_text_result = assert_thumbnail_text(
-        value=plan["thumbnail"]["overlay_text"],
+    candidates = validate_thumbnail_concepts(
+        concepts=candidates,
+        video_topic=context["topic_title"],
         standard=thumbnail_standard
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     image_dir.mkdir(parents=True, exist_ok=True)
+    candidate_dir.mkdir(parents=True, exist_ok=True)
 
     client = None
     generated_images = []
@@ -982,80 +1166,6 @@ def generate_outputs(
             "relative_path": relative_path(image_path),
             "status": "generated_pending_qa"
         })
-
-    thumbnail_background_path = (
-        image_dir / "thumbnail_background.png"
-    )
-
-    thumbnail_prompt = (
-        build_thumbnail_background_prompt(
-            video_topic=context["topic_title"],
-            main_subject=plan["thumbnail"][
-                "background_prompt"
-            ],
-            thumbnail_text=thumbnail_text_result[
-                "normalized_text"
-            ],
-            text_position=plan["thumbnail"][
-                "text_position"
-            ],
-            standard=thumbnail_standard
-        )
-    )
-
-    reuse_thumbnail_background = (
-        not force_regenerate
-        and existing_image_is_valid(
-            thumbnail_background_path
-        )
-    )
-
-    if reuse_thumbnail_background:
-        print(
-            "Reusing existing thumbnail background.",
-            flush=True
-        )
-    else:
-        print(
-            "Generating thumbnail background.",
-            flush=True
-        )
-
-        thumbnail_background_path.write_bytes(
-            generate_image_bytes(
-                client=get_image_client(),
-                model=image_model,
-                prompt=thumbnail_prompt,
-                size=image_size,
-                quality=image_quality
-            )
-        )
-
-    thumbnail_path = output_dir / "thumbnail.jpg"
-
-    thumbnail_layout = None
-
-    reuse_thumbnail = (
-        not force_regenerate
-        and existing_image_is_valid(thumbnail_path)
-    )
-
-    if reuse_thumbnail:
-        print(
-            "Reusing existing final thumbnail.",
-            flush=True
-        )
-    else:
-        thumbnail_layout = create_thumbnail(
-            background_path=thumbnail_background_path,
-            output_path=thumbnail_path,
-            overlay_text=thumbnail_text_result[
-                "normalized_text"
-            ],
-            text_position=plan["thumbnail"][
-                "text_position"
-            ]
-        )
 
     generation_output = {
         "agent": "ai_visual_generation",
@@ -1151,65 +1261,322 @@ def generate_outputs(
         }
     }
 
-    thumbnail_qa = build_thumbnail_qa_checklist(
-        thumbnail_text=thumbnail_text_result[
-            "normalized_text"
-        ],
-        standard=thumbnail_standard
-    )
+    candidate_results = []
 
-    if thumbnail_layout:
-        automatic_checks = thumbnail_qa[
+    for sequence, concept in enumerate(candidates, start=1):
+        concept_id = concept["concept_id"]
+        safe_id = concept_id.lower().replace("_", "-")
+        background_path = (
+            candidate_dir
+            / f"{safe_id}_background.png"
+        )
+        candidate_path = (
+            candidate_dir
+            / f"{safe_id}.jpg"
+        )
+        thumbnail_prompt = (
+            build_thumbnail_background_prompt(
+                video_topic=context["topic_title"],
+                main_subject=concept["dominant_subject"],
+                thumbnail_text=concept["overlay_text"],
+                text_position="left",
+                standard=thumbnail_standard,
+                concept_type=concept["concept_type"],
+                conflict=concept["conflict"],
+                emotional_trigger=concept[
+                    "emotional_trigger"
+                ],
+                visual_hook=concept["visual_hook"]
+            )
+        )
+
+        reuse_background = (
+            not force_regenerate
+            and existing_image_is_valid(background_path)
+        )
+        reuse_candidate = (
+            not force_regenerate
+            and existing_image_is_valid(candidate_path)
+        )
+
+        if reuse_background:
+            print(
+                f"Reusing thumbnail background {concept_id}.",
+                flush=True
+            )
+        else:
+            print(
+                f"Generating thumbnail background {concept_id}.",
+                flush=True
+            )
+            background_path.write_bytes(
+                generate_image_bytes(
+                    client=get_image_client(),
+                    model=image_model,
+                    prompt=thumbnail_prompt,
+                    size=image_size,
+                    quality=image_quality
+                )
+            )
+
+        if reuse_candidate:
+            print(
+                f"Reusing thumbnail candidate {concept_id}.",
+                flush=True
+            )
+            layout_metrics = None
+        else:
+            layout_metrics = create_thumbnail(
+                background_path=background_path,
+                output_path=candidate_path,
+                overlay_text=concept["overlay_text"],
+                text_position="left"
+            )
+
+        if layout_metrics is None:
+            layout_metrics = create_thumbnail(
+                background_path=background_path,
+                output_path=candidate_path,
+                overlay_text=concept["overlay_text"],
+                text_position="left"
+            )
+
+        technical_inspection = inspect_image(
+            candidate_path
+        )
+        qa_checklist = build_thumbnail_qa_checklist(
+            thumbnail_text=concept["overlay_text"],
+            standard=thumbnail_standard
+        )
+        automatic_checks = qa_checklist[
             "automatic_checks"
         ]
-
         minimum_font_size = int(
-            thumbnail_standard["overlay"]["font_size_min_px"]
+            thumbnail_standard["overlay"][
+                "font_size_min_px"
+            ]
         )
         automatic_checks.update({
             "text_is_oversized": (
-                thumbnail_layout["font_size"]
+                layout_metrics["font_size"]
                 >= minimum_font_size
             ),
             "last_line_is_yellow": (
-                bool(thumbnail_layout["highlight_line"])
+                bool(layout_metrics["highlight_line"])
             ),
             "mobile_readability_passed": (
-                thumbnail_layout["font_size"]
+                layout_metrics["font_size"]
                 >= minimum_font_size
-                and thumbnail_layout["text_width_ratio"] >= 0.30
+                and layout_metrics[
+                    "text_width_ratio"
+                ] >= 0.30
             ),
             "standard_layout_applied": (
-                thumbnail_layout["layout_signature"]
-                == thumbnail_standard["layout"]["layout_signature"]
+                layout_metrics["layout_signature"]
+                == thumbnail_standard["layout"][
+                    "layout_signature"
+                ]
             ),
             "text_position_locked_left": (
-                thumbnail_layout["text_position"] == "left"
+                layout_metrics["text_position"] == "left"
             ),
             "subject_position_locked_right": (
-                thumbnail_layout["subject_position"] == "right"
+                layout_metrics["subject_position"] == "right"
             ),
             "gold_reference_traceable": (
-                thumbnail_layout["gold_reference_sha256"]
-                == thumbnail_standard["gold_reference"]["sha256"]
-            )
+                layout_metrics["gold_reference_sha256"]
+                == thumbnail_standard["gold_reference"][
+                    "sha256"
+                ]
+            ),
+            "technical_image_valid": (
+                technical_inspection["approved"]
+            ),
+        })
+        automatic_passed = all(
+            value is True
+            for value in automatic_checks.values()
+        )
+
+        vision_qa = call_thumbnail_vision_qa(
+            image_path=candidate_path,
+            concept=concept,
+            video_topic=context["topic_title"],
+            model=thumbnail_qa_model,
+            standard=thumbnail_standard
+        )
+        combined_score = combine_thumbnail_scores(
+            preflight_score=concept[
+                "preflight_score"
+            ],
+            vision_score=vision_qa[
+                "average_score"
+            ],
+            standard=thumbnail_standard
+        )
+        approved = (
+            automatic_passed
+            and vision_qa["approved"]
+            and combined_score["approved"]
+        )
+
+        candidate_results.append({
+            "sequence": sequence,
+            "concept_id": concept_id,
+            "concept_type": concept["concept_type"],
+            "overlay_text": concept["overlay_text"],
+            "dominant_subject": concept[
+                "dominant_subject"
+            ],
+            "conflict": concept["conflict"],
+            "emotional_trigger": concept[
+                "emotional_trigger"
+            ],
+            "visual_hook": concept["visual_hook"],
+            "differentiation": concept[
+                "differentiation"
+            ],
+            "background_prompt": concept[
+                "background_prompt"
+            ],
+            "background_relative_path": relative_path(
+                background_path
+            ),
+            "relative_path": relative_path(
+                candidate_path
+            ),
+            "preflight_score": concept[
+                "preflight_score"
+            ],
+            "vision_qa": vision_qa,
+            "final_score": combined_score[
+                "final_score"
+            ],
+            "minimum_final_score": combined_score[
+                "minimum_score"
+            ],
+            "layout_metrics": layout_metrics,
+            "automatic_checks": automatic_checks,
+            "automatic_checks_passed": automatic_passed,
+            "approved": approved,
         })
 
-        failed_automatic = [
-            key
-            for key, value in automatic_checks.items()
-            if value is not True
-        ]
+    approved_candidates = sorted(
+        [
+            item
+            for item in candidate_results
+            if item["approved"]
+        ],
+        key=lambda item: item["final_score"],
+        reverse=True
+    )
 
-        if failed_automatic:
-            raise ValueError(
-                "Thumbnail automatic QA failed: "
-                + ", ".join(failed_automatic)
+    if not approved_candidates:
+        score_summary = ", ".join(
+            (
+                f"{item['concept_id']}="
+                f"{item['final_score']}"
             )
+            for item in candidate_results
+        )
+        raise ValueError(
+            "All thumbnail candidates failed v3 QA: "
+            + score_summary
+        )
+
+    selected = approved_candidates[0]
+    finalist_count = int(
+        concept_system["finalist_count"]
+    )
+    finalists = approved_candidates[
+        :finalist_count
+    ]
+
+    if len(finalists) < finalist_count:
+        raise ValueError(
+            "Thumbnail v3 did not produce enough approved finalists."
+        )
+
+    thumbnail_path = output_dir / "thumbnail.jpg"
+    thumbnail_background_path = (
+        image_dir / "thumbnail_background.png"
+    )
+    shutil.copy2(
+        PROJECT_ROOT / selected["relative_path"],
+        thumbnail_path
+    )
+    shutil.copy2(
+        PROJECT_ROOT
+        / selected["background_relative_path"],
+        thumbnail_background_path
+    )
+
+    candidate_record = {
+        "agent": "thumbnail_candidate_selector",
+        "version": "3.0",
+        "channel": channel,
+        "video_id": video_id,
+        "run_id": context["run_id"],
+        "status": "winner_selected",
+        "candidate_count": len(candidate_results),
+        "approved_candidate_count": len(
+            approved_candidates
+        ),
+        "rejected_candidate_count": (
+            len(candidate_results)
+            - len(approved_candidates)
+        ),
+        "selected_concept_id": selected[
+            "concept_id"
+        ],
+        "selected_final_score": selected[
+            "final_score"
+        ],
+        "finalists": [
+            {
+                "concept_id": item["concept_id"],
+                "concept_type": item["concept_type"],
+                "overlay_text": item["overlay_text"],
+                "relative_path": item["relative_path"],
+                "final_score": item["final_score"],
+            }
+            for item in finalists
+        ],
+        "candidates": candidate_results,
+        "selection_policy": (
+            "highest_scoring_approved_candidate"
+        ),
+        "founder_review_scope": "finalists_only",
+    }
+    candidate_record_path = (
+        output_dir / "thumbnail_candidates.json"
+    )
+    save_json(
+        candidate_record_path,
+        candidate_record
+    )
+
+    selected_qa = build_thumbnail_qa_checklist(
+        thumbnail_text=selected["overlay_text"],
+        standard=thumbnail_standard
+    )
+    selected_qa["automatic_checks"].update(
+        selected["automatic_checks"]
+    )
+    selected_qa["vision_qa"] = selected[
+        "vision_qa"
+    ]
+    selected_qa["final_score"] = selected[
+        "final_score"
+    ]
+    selected_qa["automatic_text_checks_passed"] = (
+        selected["automatic_checks_passed"]
+        and selected["vision_qa"]["approved"]
+    )
 
     thumbnail_output = {
         "agent": "video_visual_pipeline",
-        "version": "2.0",
+        "version": "3.0",
         "channel": channel,
         "video_id": video_id,
         "run_id": context["run_id"],
@@ -1218,10 +1585,23 @@ def generate_outputs(
             "standard_name": thumbnail_standard[
                 "standard_name"
             ],
-            "overlay_text": thumbnail_text_result[
-                "normalized_text"
+            "previous_standard_name": (
+                LEGACY_THUMBNAIL_STANDARD_NAME
+            ),
+            "system_version": "3.0",
+            "overlay_text": selected[
+                "overlay_text"
             ],
             "text_position": "left",
+            "selected_concept_id": selected[
+                "concept_id"
+            ],
+            "selected_concept_type": selected[
+                "concept_type"
+            ],
+            "selected_final_score": selected[
+                "final_score"
+            ],
             "relative_path": relative_path(
                 thumbnail_path
             ),
@@ -1230,10 +1610,12 @@ def generate_outputs(
             ),
             "width": 1280,
             "height": 720,
-            "gold_reference": thumbnail_standard["gold_reference"],
-            "layout_signature": thumbnail_standard["layout"][
-                "layout_signature"
+            "gold_reference": thumbnail_standard[
+                "gold_reference"
             ],
+            "layout_signature": thumbnail_standard[
+                "layout"
+            ]["layout_signature"],
             "text_style": {
                 "size": "oversized",
                 "weight": "extra_bold_condensed",
@@ -1246,8 +1628,16 @@ def generate_outputs(
                 "stroke_weight": "strong",
                 "mobile_readable": True
             },
-            "layout_metrics": thumbnail_layout,
-            "qa": thumbnail_qa
+            "layout_metrics": selected[
+                "layout_metrics"
+            ],
+            "qa": selected_qa,
+            "candidate_record": relative_path(
+                candidate_record_path
+            ),
+            "finalists": candidate_record[
+                "finalists"
+            ],
         }
     }
 
@@ -1279,7 +1669,8 @@ def generate_outputs(
     return {
         "generation": generation_output,
         "qa": qa_output,
-        "thumbnail": thumbnail_output
+        "thumbnail": thumbnail_output,
+        "thumbnail_candidates": candidate_record
     }
 
 
@@ -1312,6 +1703,20 @@ def parse_args() -> argparse.Namespace:
         default=os.getenv(
             "OPENAI_TEXT_MODEL",
             DEFAULT_TEXT_MODEL
+        )
+    )
+    parser.add_argument(
+        "--thumbnail-qa-model",
+        default=os.getenv(
+            "OPENAI_THUMBNAIL_QA_MODEL",
+            os.getenv(
+                "OPENAI_TEXT_MODEL",
+                DEFAULT_TEXT_MODEL
+            )
+        ),
+        help=(
+            "Multimodal model used to score actual rendered "
+            "thumbnail candidates."
         )
     )
     parser.add_argument(
@@ -1452,11 +1857,21 @@ def main() -> None:
         f"{relative_path(thumbnail_strategy_path) if thumbnail_strategy_path else 'seo'}"
     )
     print("LATEST_JSON_INPUTS: blocked")
-    print("THUMBNAIL_STYLE: large_two_color")
+    print("THUMBNAIL_STYLE: hiddenova_cinematic_v3")
 
     if args.dry_run:
+        thumbnail_standard = load_thumbnail_standard()
         print("STATUS: visual_pipeline_dry_run_ready")
         print(f"PLANNED_AI_INSERT_COUNT: {effective_image_count}")
+        print(
+            "THUMBNAIL_CANDIDATE_COUNT: "
+            f"{thumbnail_standard['concept_system']['candidate_count']}"
+        )
+        print(
+            "THUMBNAIL_FINALIST_COUNT: "
+            f"{thumbnail_standard['concept_system']['finalist_count']}"
+        )
+        print("THUMBNAIL_VISION_QA_REQUIRED: true")
         print(
             "THUMBNAIL_TEXT_HINT: "
             f"{get_thumbnail_hint(thumbnail_strategy_data)}"
@@ -1492,8 +1907,24 @@ def main() -> None:
             "ai_visual_insert_plan",
             {}
         ).get("items", [])
+        candidate_count = int(
+            load_thumbnail_standard()[
+                "concept_system"
+            ]["candidate_count"]
+        )
+        planned_candidates = plan.get(
+            "thumbnail_candidates",
+            []
+        )
+        v3_plan_ready = (
+            plan.get("thumbnail_system_version") == "3.0"
+            and len(planned_candidates) == candidate_count
+        )
 
-        if len(planned_items) != effective_image_count:
+        if (
+            len(planned_items) != effective_image_count
+            or not v3_plan_ready
+        ):
             plan = build_dynamic_plan(
                 context=context,
                 script_data=script_data,
@@ -1505,7 +1936,7 @@ def main() -> None:
             )
             save_json(plan_path, plan)
             print(
-                "VISUAL_PLAN_MODE: regenerated_for_count_upgrade"
+                "VISUAL_PLAN_MODE: regenerated_for_v3_contract"
             )
         else:
             print("VISUAL_PLAN_MODE: reused_existing")
@@ -1529,6 +1960,7 @@ def main() -> None:
         image_model=args.image_model,
         image_size=args.image_size,
         image_quality=args.image_quality,
+        thumbnail_qa_model=args.thumbnail_qa_model,
         force_regenerate=args.force_regenerate
     )
 
@@ -1540,7 +1972,15 @@ def main() -> None:
         "require_visual_asset_registry_ownership": True,
         "require_thumbnail_asset_registry_ownership": True,
         "require_hiddenova_thumbnail_standard": True,
-        "thumbnail_style": "hiddenova_cinematic_v2",
+        "thumbnail_style": "hiddenova_cinematic_v3",
+        "thumbnail_standard_name": "hiddenova_cinematic_v3",
+        "thumbnail_previous_standard_name": (
+            LEGACY_THUMBNAIL_STANDARD_NAME
+        ),
+        "thumbnail_candidate_count": 3,
+        "thumbnail_finalist_count": 2,
+        "thumbnail_vision_qa_required": True,
+        "thumbnail_minimum_final_score": 85,
         "thumbnail_text_min_words": 2,
         "thumbnail_text_max_words": 4,
         "thumbnail_text_size": "very_large",
@@ -1600,6 +2040,14 @@ def main() -> None:
         ),
         status="thumbnail_ready"
     )
+    context = register_output(
+        context=context,
+        agent="thumbnail_candidates",
+        reference=relative_path(
+            output_dir / "thumbnail_candidates.json"
+        ),
+        status="winner_selected"
+    )
 
     if context.get("status") not in {
         "uploaded_for_founder_review",
@@ -1632,6 +2080,31 @@ def main() -> None:
     print(
         "THUMBNAIL_LAYOUT_SIGNATURE: "
         f"{outputs['thumbnail']['thumbnail']['layout_signature']}"
+    )
+    print(
+        "THUMBNAIL_CANDIDATE_COUNT: "
+        f"{outputs['thumbnail_candidates']['candidate_count']}"
+    )
+    print(
+        "THUMBNAIL_APPROVED_CANDIDATE_COUNT: "
+        f"{outputs['thumbnail_candidates']['approved_candidate_count']}"
+    )
+    print(
+        "THUMBNAIL_SELECTED_CONCEPT: "
+        f"{outputs['thumbnail']['thumbnail']['selected_concept_id']}"
+    )
+    print(
+        "THUMBNAIL_SELECTED_SCORE: "
+        f"{outputs['thumbnail']['thumbnail']['selected_final_score']}"
+    )
+    print(
+        "THUMBNAIL_FINALISTS: "
+        + ", ".join(
+            item["relative_path"]
+            for item in outputs[
+                "thumbnail_candidates"
+            ]["finalists"]
+        )
     )
 
 
