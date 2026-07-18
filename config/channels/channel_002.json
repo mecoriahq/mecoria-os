@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "channel": "channel_002",
+  "display_name": "Channel 002",
+  "status": "planning",
+  "production_enabled": false,
+  "language": "en",
+  "timezone": "Europe/Istanbul",
+  "platforms": [
+    "youtube"
+  ],
+  "content": {
+    "niche": "TBD",
+    "format": "TBD",
+    "editorial_standard": "TBD",
+    "thumbnail_standard": "TBD",
+    "publishing_cadence_days": 3
+  },
+  "pipeline": {
+    "runner": "scripts/mecoria_media.py",
+    "auto_resume": true,
+    "auto_create_next_video": false,
+    "topic_approval_required": true,
+    "storyblocks_download_required": true,
+    "founder_final_review_required": true,
+    "automatic_public_release": false
+  },
+  "integrations": {
+    "notion_sync": true,
+    "youtube_analytics": true,
+    "google_drive": false,
+    "n8n": false
+  },
+  "youtube": {
+    "handle": null,
+    "latest_public_video_id": null,
+    "public_video_count": 0
+  },
+  "analytics": {
+    "checkpoints_hours": [
+      24,
+      48,
+      168,
+      672
+    ],
+    "next_action": "brand_and_niche_decision"
+  },
+  "safety": {
+    "allow_cross_channel_asset_reuse": false,
+    "allow_cross_channel_content_reuse": false,
+    "require_explicit_execute_flag": true
+  },
+  "blockers": [
+    "channel_name_required",
+    "niche_required",
+    "youtube_account_required",
+    "brand_assets_required"
+  ]
+}

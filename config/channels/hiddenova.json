@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "display_name": "Hiddenova",
+  "status": "active",
+  "production_enabled": true,
+  "language": "en",
+  "timezone": "Europe/Istanbul",
+  "platforms": [
+    "youtube",
+    "instagram",
+    "x"
+  ],
+  "content": {
+    "niche": "Premium documentaries about hidden systems behind everyday life",
+    "format": "8-12 minute English documentary",
+    "editorial_standard": "hiddenova_editorial_v2",
+    "thumbnail_standard": "hiddenova_cinematic_v3",
+    "publishing_cadence_days": 3
+  },
+  "pipeline": {
+    "runner": "scripts/mecoria_media.py",
+    "auto_resume": true,
+    "auto_create_next_video": false,
+    "topic_approval_required": true,
+    "storyblocks_download_required": true,
+    "founder_final_review_required": true,
+    "automatic_public_release": false
+  },
+  "integrations": {
+    "notion_sync": true,
+    "youtube_analytics": true,
+    "google_drive": false,
+    "n8n": false
+  },
+  "youtube": {
+    "handle": "HiddenovaHQ",
+    "latest_public_video_id": "MXRLZAMVKe8",
+    "public_video_count": 5
+  },
+  "analytics": {
+    "checkpoints_hours": [
+      24,
+      48,
+      168,
+      672
+    ],
+    "next_action": "analytics_48h"
+  },
+  "safety": {
+    "allow_cross_channel_asset_reuse": false,
+    "allow_cross_channel_content_reuse": false,
+    "require_explicit_execute_flag": true
+  }
+}
