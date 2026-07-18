@@ -3,7 +3,7 @@
   "channel": "hiddenova",
   "video_id": "video_002",
   "run_id": "hiddenova_video_002_v1",
-  "status": "uploaded_for_founder_review",
+  "status": "public",
   "topic_title": "The Hidden System That Moves Your Luggage After Check-In",
   "sources": {
     "script": "records/run_contexts/hiddenova/video_002/inputs/script.json",
@@ -54,7 +54,15 @@
     "visibility": "uploaded_visibility_not_verified",
     "founder_video_review": "approved",
     "intro_outro_exception": true,
-    "exception_note": "Video 2 approved for upload without standardized Hiddenova intro and outro. Mandatory from Video 3."
+    "exception_note": "Video 2 approved for upload without standardized Hiddenova intro and outro. Mandatory from Video 3.",
+    "youtube_visibility": "public",
+    "uploaded_by": "founder",
+    "founder_video_review_approved": true,
+    "public_release_approved": true,
+    "founder_video_review_approved_at": "2026-07-18T09:14:13.466977+00:00",
+    "public_release_approved_at": "2026-07-18T09:14:13.466977+00:00",
+    "public_release_approved_by": "founder",
+    "published_at": "2026-07-18T09:14:13.579463+00:00"
   },
   "history": [
     {
@@ -122,8 +130,27 @@
       "status": "upload_ready",
       "output_reference": "agents/video_publisher/output/hiddenova/video_002/hiddenova_video_002_v1/publisher.json",
       "recorded_at": "2026-07-15T19:34:28.467666+00:00"
+    },
+    {
+      "agent": "youtube_upload",
+      "status": "uploaded_unlisted",
+      "output_reference": "https://youtu.be/L7fmWb8bOTI",
+      "recorded_at": "2026-07-18T09:14:13.347513+00:00"
+    },
+    {
+      "agent": "founder_public_release",
+      "status": "approved",
+      "output_reference": "https://youtu.be/L7fmWb8bOTI",
+      "recorded_at": "2026-07-18T09:14:13.466977+00:00"
+    },
+    {
+      "agent": "youtube_upload",
+      "status": "visibility_public_registered",
+      "output_reference": "https://youtu.be/L7fmWb8bOTI",
+      "recorded_at": "2026-07-18T09:14:13.579463+00:00"
     }
   ],
-  "updated_at": "2026-07-15T19:34:28.467682+00:00",
-  "created_at": "2026-07-15T18:09:15.167729+00:00"
+  "updated_at": "2026-07-18T09:14:13.579474+00:00",
+  "created_at": "2026-07-15T18:09:15.167729+00:00",
+  "next_agent": "analytics_48h"
 }
