@@ -16,7 +16,7 @@ from output import save_json
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
 
-OUTPUT_PATH = BASE_DIR / "output" / "hiddenova" / "latest.json"
+OUTPUT_PATH = BASE_DIR / "output" / "system" / "latest.json"
 RECORD_PATH = PROJECT_ROOT / "records" / "system" / "notion_youtube_channels_sync_latest.json"
 SCHEMA_PATH = BASE_DIR / "schema.json"
 SOURCE_PREVIEW_PATH = PROJECT_ROOT / "records" / "system" / "notion_sync_preview_latest.json"
@@ -333,7 +333,10 @@ def load_source_rows() -> list[dict]:
     for row in rows:
         props = row.get("properties", {})
         channel_key = props.get("channel") or row.get("key")
-        channel_title = display_channel_title(str(channel_key))
+        channel_title = (
+            props.get("display_name")
+            or display_channel_title(str(channel_key))
+        )
 
         normalized_rows.append({
             "key": channel_key,

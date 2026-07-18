@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import os
 from datetime import datetime
@@ -16,7 +16,7 @@ from output import save_json
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
 
-OUTPUT_PATH = BASE_DIR / "output" / "hiddenova" / "latest.json"
+OUTPUT_PATH = BASE_DIR / "output" / "system" / "latest.json"
 RECORD_PATH = PROJECT_ROOT / "records" / "system" / "notion_publishing_queue_sync_latest.json"
 SCHEMA_PATH = BASE_DIR / "schema.json"
 SOURCE_PREVIEW_PATH = PROJECT_ROOT / "records" / "system" / "notion_sync_preview_latest.json"
@@ -339,12 +339,19 @@ def load_source_rows() -> list[dict]:
     for row in rows:
         props = row.get("properties", {})
         key = row.get("key")
-        channel_key = props.get("channel") or "hiddenova"
+        channel_key = props.get("channel")
+
+        if not channel_key:
+            raise RuntimeError(
+                "Publishing Queue row is missing channel."
+            )
         queue_status = props.get("status") or "unknown"
 
         normalized_rows.append({
             "key": key,
-            "queue_item_title": f"{str(channel_key).title()} | {key}",
+            "queue_item_title": (
+                f"{str(channel_key).replace('_', ' ').title()} | {key}"
+            ),
             "system_key": key,
             "sync_source": "GitHub",
             "channel_key": channel_key,
