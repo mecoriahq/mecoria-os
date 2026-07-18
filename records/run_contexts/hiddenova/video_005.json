@@ -3,11 +3,12 @@
   "channel": "hiddenova",
   "video_id": "video_005",
   "run_id": "hiddenova_video_005_v1",
-  "status": "stock_source_required",
+  "status": "public",
   "topic_title": "How Cities Quietly Remove Millions of Tons of Waste",
   "sources": {
     "research": "records/run_contexts/hiddenova/video_005/inputs/research.json",
-    "idea_selection": "records/run_contexts/hiddenova/video_005/inputs/idea_selection.json"
+    "idea_selection": "records/run_contexts/hiddenova/video_005/inputs/idea_selection.json",
+    "stock_manifest": "records/run_contexts/hiddenova/video_005/inputs/stock_source_manifest.json"
   },
   "outputs": {
     "script": "agents/script/output/hiddenova/video_005/hiddenova_video_005_v1/script.json",
@@ -22,7 +23,16 @@
     "ai_visual_generation": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/ai_visual_generation.json",
     "ai_visual_qa": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/ai_visual_qa.json",
     "thumbnail": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.jpg",
-    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.json"
+    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.json",
+    "stock_manifest": "records/run_contexts/hiddenova/video_005/outputs/stock/hiddenova_video_005_v1/stock_manifest.json",
+    "stock_qa": "records/run_contexts/hiddenova/video_005/outputs/stock/hiddenova_video_005_v1/stock_qa.json",
+    "hybrid_video_assembly": "agents/hybrid_video_assembly/output/hiddenova/video_005/hiddenova_video_005_v1/hybrid_video_assembly.json",
+    "final_video": "agents/hybrid_video_assembly/output/hiddenova/video_005/hiddenova_video_005_v1/render/hybrid_video_draft.mp4",
+    "video_qa": "agents/video_qa/output/hiddenova/video_005/hiddenova_video_005_v1/video_qa.json",
+    "publisher": "agents/video_publisher/output/hiddenova/video_005/hiddenova_video_005_v1/publisher.json",
+    "export_package": "exports/upload_packages/hiddenova/video_005/hiddenova_video_005_v1/2026-07-18_18-00-15/metadata.json",
+    "youtube_url": "https://youtu.be/MXRLZAMVKe8",
+    "youtube_video_id": "MXRLZAMVKe8"
   },
   "quality_gates": {
     "no_latest_json_sources": true,
@@ -86,14 +96,27 @@
     "require_hiddenova_thumbnail_standard": true,
     "thumbnail_style": "hiddenova_cinematic_v2",
     "thumbnail_text_size": "very_large",
-    "thumbnail_mobile_readability_priority": "maximum"
+    "thumbnail_mobile_readability_priority": "maximum",
+    "minimum_stock_duration_seconds": 180,
+    "minimum_distinct_stock_roles": 5,
+    "require_stock_qa_approval": true,
+    "require_asset_registry_ownership": true,
+    "require_final_video_asset_registry_ownership": true
   },
-  "next_agent": "video_stock_pipeline",
+  "next_agent": "analytics_48h",
   "release": {
     "topic_approved": true,
-    "public_release_approved": false,
+    "public_release_approved": true,
     "topic_approved_at": "2026-07-18T09:21:11.959422+00:00",
-    "topic_approved_by": "founder"
+    "topic_approved_by": "founder",
+    "youtube_visibility": "public",
+    "uploaded_at": "2026-07-18T15:17:16.340073+00:00",
+    "uploaded_by": "founder",
+    "founder_video_review_approved": true,
+    "founder_video_review_approved_at": "2026-07-18T15:17:16.461047+00:00",
+    "public_release_approved_at": "2026-07-18T15:17:16.461047+00:00",
+    "public_release_approved_by": "founder",
+    "published_at": "2026-07-18T15:17:16.570637+00:00"
   },
   "history": [
     {
@@ -230,8 +253,110 @@
       "agent": "media_video_orchestrator",
       "status": "stock_source_required",
       "recorded_at": "2026-07-18T09:32:43.157370+00:00"
+    },
+    {
+      "agent": "stock_asset_ingest",
+      "status": "stock_manifest_attached",
+      "output_reference": "records/run_contexts/hiddenova/video_005/inputs/stock_source_manifest.json",
+      "recorded_at": "2026-07-18T13:18:32.533723+00:00"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-18T13:18:39.063132+00:00",
+      "output_reference": "overall_score=86"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-18T13:18:39.063182+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "visual_content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-18T13:18:45.461929+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "stock_manifest",
+      "status": "approved_stock_ready",
+      "output_reference": "records/run_contexts/hiddenova/video_005/outputs/stock/hiddenova_video_005_v1/stock_manifest.json",
+      "recorded_at": "2026-07-18T13:18:48.897357+00:00"
+    },
+    {
+      "agent": "stock_qa",
+      "status": "approved",
+      "output_reference": "records/run_contexts/hiddenova/video_005/outputs/stock/hiddenova_video_005_v1/stock_qa.json",
+      "recorded_at": "2026-07-18T13:18:48.897387+00:00"
+    },
+    {
+      "agent": "stock_asset_ingest",
+      "status": "stock_manifest_attached",
+      "output_reference": "records/run_contexts/hiddenova/video_005/inputs/stock_source_manifest.json",
+      "recorded_at": "2026-07-18T14:23:22.215019+00:00"
+    },
+    {
+      "agent": "stock_manifest",
+      "status": "approved_stock_ready",
+      "output_reference": "records/run_contexts/hiddenova/video_005/outputs/stock/hiddenova_video_005_v1/stock_manifest.json",
+      "recorded_at": "2026-07-18T14:48:11.324286+00:00"
+    },
+    {
+      "agent": "stock_qa",
+      "status": "approved",
+      "output_reference": "records/run_contexts/hiddenova/video_005/outputs/stock/hiddenova_video_005_v1/stock_qa.json",
+      "recorded_at": "2026-07-18T14:48:11.324320+00:00"
+    },
+    {
+      "agent": "hybrid_video_assembly",
+      "status": "draft_ready",
+      "output_reference": "agents/hybrid_video_assembly/output/hiddenova/video_005/hiddenova_video_005_v1/hybrid_video_assembly.json",
+      "recorded_at": "2026-07-18T14:56:54.528340+00:00"
+    },
+    {
+      "agent": "final_video",
+      "status": "draft_ready",
+      "output_reference": "agents/hybrid_video_assembly/output/hiddenova/video_005/hiddenova_video_005_v1/render/hybrid_video_draft.mp4",
+      "recorded_at": "2026-07-18T14:56:54.528353+00:00"
+    },
+    {
+      "agent": "video_qa",
+      "status": "approved",
+      "output_reference": "agents/video_qa/output/hiddenova/video_005/hiddenova_video_005_v1/video_qa.json",
+      "recorded_at": "2026-07-18T14:58:00.633419+00:00"
+    },
+    {
+      "agent": "publisher",
+      "status": "upload_ready",
+      "output_reference": "agents/video_publisher/output/hiddenova/video_005/hiddenova_video_005_v1/publisher.json",
+      "recorded_at": "2026-07-18T14:59:28.899381+00:00"
+    },
+    {
+      "agent": "export_package",
+      "status": "export_ready",
+      "output_reference": "exports/upload_packages/hiddenova/video_005/hiddenova_video_005_v1/2026-07-18_18-00-15/metadata.json",
+      "recorded_at": "2026-07-18T15:00:15.752437+00:00"
+    },
+    {
+      "agent": "youtube_upload",
+      "status": "uploaded_unlisted",
+      "output_reference": "https://youtu.be/MXRLZAMVKe8",
+      "recorded_at": "2026-07-18T15:17:16.340073+00:00"
+    },
+    {
+      "agent": "founder_public_release",
+      "status": "approved",
+      "output_reference": "https://youtu.be/MXRLZAMVKe8",
+      "recorded_at": "2026-07-18T15:17:16.461047+00:00"
+    },
+    {
+      "agent": "youtube_upload",
+      "status": "visibility_public_registered",
+      "output_reference": "https://youtu.be/MXRLZAMVKe8",
+      "recorded_at": "2026-07-18T15:17:16.570637+00:00"
     }
   ],
   "created_at": "2026-07-18T09:18:20.580990+00:00",
-  "updated_at": "2026-07-18T09:32:43.157373+00:00"
+  "updated_at": "2026-07-18T15:17:16.570649+00:00"
 }

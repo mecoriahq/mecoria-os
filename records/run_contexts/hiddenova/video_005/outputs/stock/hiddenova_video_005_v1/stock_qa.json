@@ -1,0 +1,71 @@
+{
+  "agent": "video_stock_pipeline",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_005",
+  "run_id": "hiddenova_video_005_v1",
+  "status": "approved",
+  "summary": {
+    "approved_clip_count": 18,
+    "unique_clip_count": 18,
+    "distinct_role_count": 6,
+    "review_required_count": 0,
+    "diversity_mode": "hybrid_visual_diversity",
+    "configured_minimum_stock_clip_count": 30,
+    "minimum_required_clip_count": 18,
+    "minimum_ai_insert_count": 12,
+    "minimum_combined_visual_asset_count": 30,
+    "expected_combined_visual_count": 30,
+    "minimum_required_role_count": 5,
+    "total_duration_seconds": 279.32,
+    "largest_clip_share": 0.1298,
+    "license_confirmation_required_count": 18,
+    "reused_clip_count": 0,
+    "registry_record_count": 18
+  },
+  "checks": {
+    "minimum_clip_count": true,
+    "minimum_combined_visual_asset_count": true,
+    "minimum_total_duration": true,
+    "minimum_distinct_roles": true,
+    "unique_paths": true,
+    "unique_storyblocks_ids": true,
+    "no_manual_review_items": true,
+    "maximum_single_clip_share": true,
+    "cross_video_asset_reuse": true
+  },
+  "issues": [],
+  "warnings": [
+    {
+      "field": "stock_license",
+      "severity": "medium",
+      "message": "Public usage license confirmation is required for some stock clips.",
+      "candidate_ids": [
+        "VIDEO_005-C001",
+        "VIDEO_005-C002",
+        "VIDEO_005-C003",
+        "VIDEO_005-C005",
+        "VIDEO_005-C007",
+        "VIDEO_005-C008",
+        "VIDEO_005-C009",
+        "VIDEO_005-C010",
+        "VIDEO_005-C011",
+        "VIDEO_005-C012",
+        "VIDEO_005-C013",
+        "VIDEO_005-C014",
+        "VIDEO_005-C015",
+        "VIDEO_005-C016",
+        "VIDEO_005-C017",
+        "VIDEO_005-C018",
+        "VIDEO_005-C019",
+        "VIDEO_005-C020"
+      ]
+    }
+  ],
+  "metadata": {
+    "next_agent": "hybrid_video_assembly"
+  },
+  "source": {
+    "asset_registry_reference": "records/assets/asset_usage_registry.json"
+  }
+}

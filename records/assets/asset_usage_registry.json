@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-18T09:32:36.572275+00:00",
+  "updated_at": "2026-07-18T14:56:54.512266+00:00",
   "assets": {
     "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db": {
       "sha256": "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db",
@@ -2383,6 +2383,646 @@
           "run_id": "hiddenova_video_005_v1",
           "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.jpg",
           "registered_at": "2026-07-18T09:32:36.572189+00:00"
+        }
+      ]
+    },
+    "05ac8f4c61ae04cab769ffc7e9482e7c09cb18013b1b4ed0fbeaac9fa783c5d0": {
+      "sha256": "05ac8f4c61ae04cab769ffc7e9482e7c09cb18013b1b4ed0fbeaac9fa783c5d0",
+      "size_bytes": 6855882,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895061+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-sb_01_the_route_is_the_first_f__001__a-discarded-garbage-bag-in-front-of-a-building-SBV-348714773-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895071+00:00"
+        }
+      ]
+    },
+    "7ac258a161707522231dd22f83ecf78ea7a1e9b1e37fea6dbf2ca2971b1bc52e": {
+      "sha256": "7ac258a161707522231dd22f83ecf78ea7a1e9b1e37fea6dbf2ca2971b1bc52e",
+      "size_bytes": 14866083,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895075+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-sb_01_the_route_is_the_first_f__002__bags-of-trash-on-city-streets-after-rain-at-night-4k-SBV-348844766-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895077+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-the_route_is_the_first_filter__002__bags-of-trash-on-city-streets-after-rain-at-night-4k-SBV-348844766-4K.mp4",
+          "registered_at": "2026-07-18T14:48:11.322076+00:00"
+        }
+      ]
+    },
+    "00afc66e0491196800a910583cf5ffa963174c6c567f10bdafbf5cf16d23a620": {
+      "sha256": "00afc66e0491196800a910583cf5ffa963174c6c567f10bdafbf5cf16d23a620",
+      "size_bytes": 19560798,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895079+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-sb_01_the_route_is_the_first_f__003__trash-bags-stacked-up-on-city-sidewalks-at-night-4k-SBV-308048719-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895080+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-the_route_is_the_first_filter__003__trash-bags-stacked-up-on-city-sidewalks-at-night-4k-SBV-308048719-4K.mp4",
+          "registered_at": "2026-07-18T14:48:11.322078+00:00"
+        }
+      ]
+    },
+    "c9d6ba0f1ee64ae8584c0a4865d0a48c3fc2b0f17e4b9ea514c55d0695521ae0": {
+      "sha256": "c9d6ba0f1ee64ae8584c0a4865d0a48c3fc2b0f17e4b9ea514c55d0695521ae0",
+      "size_bytes": 5772078,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895082+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-sb_01_the_route_is_the_first_f__004__garbage-bags-at-city-street-an-night-SBV-346462531-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895083+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-the_route_is_the_first_filter__004__garbage-bags-at-city-street-an-night-SBV-346462531-4K.mp4",
+          "registered_at": "2026-07-18T14:48:11.322080+00:00"
+        }
+      ]
+    },
+    "27be4c8fa585d7ce67d634828b9e82202b81e2d94f126f8b0ff2310348145f3c": {
+      "sha256": "27be4c8fa585d7ce67d634828b9e82202b81e2d94f126f8b0ff2310348145f3c",
+      "size_bytes": 18578408,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895084+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-sb_01_the_route_is_the_first_f__006__new-york-city-new-york-usa-07-29-2024-in-manhattan-new-york-city-a-pile-.mp4",
+          "registered_at": "2026-07-18T13:18:48.895085+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-the_transfer_station_prevents_long_detours__005__new-york-city-new-york-usa-07-29-2024-in-manhattan-new-york-city-a-pile-.mp4",
+          "registered_at": "2026-07-18T14:48:11.322089+00:00"
+        }
+      ]
+    },
+    "95d8117fb8a6a94e3a829d1f0280e34bc9ddaaeb47739ddc2b9ac5a21cafd729": {
+      "sha256": "95d8117fb8a6a94e3a829d1f0280e34bc9ddaaeb47739ddc2b9ac5a21cafd729",
+      "size_bytes": 5811864,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895087+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-sb_02_inside_the_truck_space_b__001__precast-concrete-slabs-being-lowered-by-crane-onto-ground-SBV-354169524-.mp4",
+          "registered_at": "2026-07-18T13:18:48.895088+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-the_transfer_station_prevents_long_detours__004__precast-concrete-slabs-being-lowered-by-crane-onto-ground-SBV-354169524-.mp4",
+          "registered_at": "2026-07-18T14:48:11.322087+00:00"
+        }
+      ]
+    },
+    "fc68c9e934590989658aa5afc2e0545b4746624fe59a060c1cadcf748bfa468c": {
+      "sha256": "fc68c9e934590989658aa5afc2e0545b4746624fe59a060c1cadcf748bfa468c",
+      "size_bytes": 10484562,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895089+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-sb_02_inside_the_truck_space_b__003__jcb-crane-in-action-powerful-heavy-equipment-at-work-SBV-353490798-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895090+00:00"
+        }
+      ]
+    },
+    "3ac581960bc0f13a115fb4eafb8bf66fe79b95210b17dac8d728ca1753f2eff3": {
+      "sha256": "3ac581960bc0f13a115fb4eafb8bf66fe79b95210b17dac8d728ca1753f2eff3",
+      "size_bytes": 26497242,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895091+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-sb_02_inside_the_truck_space_b__005__skilled-mechanic-operates-hydraulic-lift-to-inspect-vehicle-SBV-35208514.mp4",
+          "registered_at": "2026-07-18T13:18:48.895092+00:00"
+        }
+      ]
+    },
+    "34fa74b18d5fcb58155ef3e21db7077356f35be9826be2deca482977140465c9": {
+      "sha256": "34fa74b18d5fcb58155ef3e21db7077356f35be9826be2deca482977140465c9",
+      "size_bytes": 31852714,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895094+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-sb_02_inside_the_truck_space_b__007__heavy-dump-truck-unloading-crushed-stone-gravel-at-a-construction-site-S.mp4",
+          "registered_at": "2026-07-18T13:18:48.895095+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-inside_the_truck_space_becomes_time__005__heavy-dump-truck-unloading-crushed-stone-gravel-at-a-construction-site-S.mp4",
+          "registered_at": "2026-07-18T14:48:11.322064+00:00"
+        }
+      ]
+    },
+    "b36b70eb799cad4587e039e2c3f7346db236982e90c9c127678438a738f1fd0c": {
+      "sha256": "b36b70eb799cad4587e039e2c3f7346db236982e90c9c127678438a738f1fd0c",
+      "size_bytes": 7777793,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895096+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-sb_02_inside_the_truck_space_b__009__a-scissor-lift-aerial-work-platform-is-folding-down-SBV-351792460-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895097+00:00"
+        }
+      ]
+    },
+    "f11ebc1dcc3be2371ee770f21c56489bf6ec967e3aaff2f44cdb1ff8247b7ba4": {
+      "sha256": "f11ebc1dcc3be2371ee770f21c56489bf6ec967e3aaff2f44cdb1ff8247b7ba4",
+      "size_bytes": 18989117,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895098+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-sb_03_the_transfer_station_pre__001__production-of-locomotives-at-the-plant-SBV-330804364-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895099+00:00"
+        }
+      ]
+    },
+    "831a9063f59256cad5221c0a6d4923757f90971ae0437e1c107903806d313c2a": {
+      "sha256": "831a9063f59256cad5221c0a6d4923757f90971ae0437e1c107903806d313c2a",
+      "size_bytes": 18964000,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895100+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-sb_03_the_transfer_station_pre__003__empty-heavy-industry-warehouse-with-massive-steel-beams-and-framework-no.mp4",
+          "registered_at": "2026-07-18T13:18:48.895101+00:00"
+        }
+      ]
+    },
+    "a15835c4da51968f7510d872b8b665843423f3dc2f0f04eb092d4e9fd38f6c75": {
+      "sha256": "a15835c4da51968f7510d872b8b665843423f3dc2f0f04eb092d4e9fd38f6c75",
+      "size_bytes": 49576530,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895102+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-sb_03_the_transfer_station_pre__005__efficient-logistics-center-with-trucks-loading-and-unloading-goods-SBV-3.mp4",
+          "registered_at": "2026-07-18T13:18:48.895103+00:00"
+        }
+      ]
+    },
+    "79b52bd61514fb00f23bdd44a010d731beb308d4764c5bb430627abdbbdebc62": {
+      "sha256": "79b52bd61514fb00f23bdd44a010d731beb308d4764c5bb430627abdbbdebc62",
+      "size_bytes": 15804554,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895106+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-sb_03_the_transfer_station_pre__007__production-of-locomotives-at-the-plant-SBV-330804323-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895107+00:00"
+        }
+      ]
+    },
+    "da1bcd93d146d26769a2ba19f779c9469c5efa441bdf3c1346d9064f801541b8": {
+      "sha256": "da1bcd93d146d26769a2ba19f779c9469c5efa441bdf3c1346d9064f801541b8",
+      "size_bytes": 11703112,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895108+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-sb_03_the_transfer_station_pre__009__garage-for-repairs-truck-in-the-workshop-wide-shot-move-camera-footage-S.mp4",
+          "registered_at": "2026-07-18T13:18:48.895109+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/02_sb_02_inside_the_truck_space_b/mecoria-role-inside_the_truck_space_becomes_time__003__garage-for-repairs-truck-in-the-workshop-wide-shot-move-camera-footage-S.mp4",
+          "registered_at": "2026-07-18T14:48:11.322062+00:00"
+        }
+      ]
+    },
+    "b61719bdd4b3bbeb04b8455e55bd64ef4e284140db4463a41bfdae686150576e": {
+      "sha256": "b61719bdd4b3bbeb04b8455e55bd64ef4e284140db4463a41bfdae686150576e",
+      "size_bytes": 28135652,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895110+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sb_04_sorting_turns_value_into__001__conveyor-belt-with-rocks-moving-up-near-shabby-path-at-daytime-on-quarry.mp4",
+          "registered_at": "2026-07-18T13:18:48.895111+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/03_sb_03_the_transfer_station_pre/mecoria-role-the_transfer_station_prevents_long_detours__003__conveyor-belt-with-rocks-moving-up-near-shabby-path-at-daytime-on-quarry.mp4",
+          "registered_at": "2026-07-18T14:48:11.322085+00:00"
+        }
+      ]
+    },
+    "a74556f7c3f7b0be80dfea574e1d758215ae1f04bc0265d3b8245a74be46be59": {
+      "sha256": "a74556f7c3f7b0be80dfea574e1d758215ae1f04bc0265d3b8245a74be46be59",
+      "size_bytes": 6798633,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895112+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sb_04_sorting_turns_value_into__003__recycling-line-operation-mechanical-assembly-line-efficiently-processes-.mp4",
+          "registered_at": "2026-07-18T13:18:48.895113+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sorting_turns_value_into_a_risk__003__recycling-line-operation-mechanical-assembly-line-efficiently-processes-.mp4",
+          "registered_at": "2026-07-18T14:48:11.322066+00:00"
+        }
+      ]
+    },
+    "f94a1ef07c904453e2b1d715fcb1d59414223fc0aadca16b66d497ef24a43c00": {
+      "sha256": "f94a1ef07c904453e2b1d715fcb1d59414223fc0aadca16b66d497ef24a43c00",
+      "size_bytes": 16286353,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895114+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sb_04_sorting_turns_value_into__005__process-of-sorting-glass-garbage-on-a-conveyor-belt-at-waste-sorting-pla.mp4",
+          "registered_at": "2026-07-18T13:18:48.895115+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sorting_turns_value_into_a_risk__005__process-of-sorting-glass-garbage-on-a-conveyor-belt-at-waste-sorting-pla.mp4",
+          "registered_at": "2026-07-18T14:48:11.322073+00:00"
+        }
+      ]
+    },
+    "d70509a3a32e90a7388109ec2cd9cd080f48eba7704d6aa5c54a261558af12af": {
+      "sha256": "d70509a3a32e90a7388109ec2cd9cd080f48eba7704d6aa5c54a261558af12af",
+      "size_bytes": 9081006,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895116+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sb_04_sorting_turns_value_into__007__conveyor-belt-delivering-stone-rubble-to-metal-container-on-mining-site-.mp4",
+          "registered_at": "2026-07-18T13:18:48.895117+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sorting_turns_value_into_a_risk__005__conveyor-belt-delivering-stone-rubble-to-metal-container-on-mining-site-.mp4",
+          "registered_at": "2026-07-18T14:48:11.322071+00:00"
+        }
+      ]
+    },
+    "ed4aabd0789f4fae53251fbf29f6dde93cefe32d613e5486fc20d3c506c72850": {
+      "sha256": "ed4aabd0789f4fae53251fbf29f6dde93cefe32d613e5486fc20d3c506c72850",
+      "size_bytes": 78552816,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895119+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sb_04_sorting_turns_value_into__009__cargo-train-in-motion-loaded-with-black-coal-top-view-from-above-freight.mp4",
+          "registered_at": "2026-07-18T13:18:48.895119+00:00"
+        }
+      ]
+    },
+    "55432869d4c2cf0f6ca4994083622a13e2dffaacaa1ee27be0cc79f180c54d54": {
+      "sha256": "55432869d4c2cf0f6ca4994083622a13e2dffaacaa1ee27be0cc79f180c54d54",
+      "size_bytes": 18279912,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895122+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-sb_05_disposal_is_engineered_n__001__dump-truck-unloading-waste-on-landfill-an-environmental-concept-SBV-3384.mp4",
+          "registered_at": "2026-07-18T13:18:48.895123+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-disposal_is_engineered_not_dumped__001__dump-truck-unloading-waste-on-landfill-an-environmental-concept-SBV-3384.mp4",
+          "registered_at": "2026-07-18T14:48:11.322049+00:00"
+        }
+      ]
+    },
+    "a76587172afe219b3b3af43fcdad4ae31741ccfe3ed697671f37541449d0ae73": {
+      "sha256": "a76587172afe219b3b3af43fcdad4ae31741ccfe3ed697671f37541449d0ae73",
+      "size_bytes": 21804250,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895124+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-sb_05_disposal_is_engineered_n__003__unique-seo-title-indian-truck-at-railway-cross-SBV-353123045-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895127+00:00"
+        }
+      ]
+    },
+    "5b545857ea83b7c398687b91f2f9c05598e825c71b1bbff471c046fc7bfe121f": {
+      "sha256": "5b545857ea83b7c398687b91f2f9c05598e825c71b1bbff471c046fc7bfe121f",
+      "size_bytes": 101025067,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895128+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-sb_05_disposal_is_engineered_n__005__dusty-lot-with-parked-trucks-ready-for-the-next-journey-SBV-349156306-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895129+00:00"
+        }
+      ]
+    },
+    "e506a0e54100220ecbe74e110bfd669830f84aacecb73123e8feb8e88ef30107": {
+      "sha256": "e506a0e54100220ecbe74e110bfd669830f84aacecb73123e8feb8e88ef30107",
+      "size_bytes": 145847337,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895130+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-sb_05_disposal_is_engineered_n__007__heavy-vehicles-moving-fast-on-a-divided-road-SBV-353551966-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895131+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-when_one_link_slows_the_city_notices__001__heavy-vehicles-moving-fast-on-a-divided-road-SBV-353551966-4K.mp4",
+          "registered_at": "2026-07-18T14:48:11.322092+00:00"
+        }
+      ]
+    },
+    "da7f9b11c26a6336605a4d3f5ee4a4c5c7aa69da245b2f1e2aa7fd238c5ae308": {
+      "sha256": "da7f9b11c26a6336605a4d3f5ee4a4c5c7aa69da245b2f1e2aa7fd238c5ae308",
+      "size_bytes": 203671318,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895132+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-sb_05_disposal_is_engineered_n__009__large-landfill-with-equipment-garbage-landfill-top-view-problems-with-ho.mp4",
+          "registered_at": "2026-07-18T13:18:48.895133+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-disposal_is_engineered_not_dumped__004__large-landfill-with-equipment-garbage-landfill-top-view-problems-with-ho.mp4",
+          "registered_at": "2026-07-18T14:48:11.322059+00:00"
+        }
+      ]
+    },
+    "13b66193b43e43c6bcf372c5d428fdb69b19039b7426172d4cc9a497807644e1": {
+      "sha256": "13b66193b43e43c6bcf372c5d428fdb69b19039b7426172d4cc9a497807644e1",
+      "size_bytes": 29392532,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895134+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-sb_06_when_one_link_slows_the__001__dawn-lights-organized-freight-storage-area-aerial-view-captures-peaceful.mp4",
+          "registered_at": "2026-07-18T13:18:48.895135+00:00"
+        }
+      ]
+    },
+    "49afd8558e5ea7a985623ae1887cc5852632bdce7a60f551693a3f2f09c9a22a": {
+      "sha256": "49afd8558e5ea7a985623ae1887cc5852632bdce7a60f551693a3f2f09c9a22a",
+      "size_bytes": 305987710,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895136+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-sb_06_when_one_link_slows_the__003__lutterworth-united-kingdom-19-january-2026-aerial-view-of-a-vast-industr.mp4",
+          "registered_at": "2026-07-18T13:18:48.895137+00:00"
+        }
+      ]
+    },
+    "436e2de859a8064eb3275784380087c272a9a412b61121b6aad62d2236ee589d": {
+      "sha256": "436e2de859a8064eb3275784380087c272a9a412b61121b6aad62d2236ee589d",
+      "size_bytes": 75655535,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895138+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-sb_06_when_one_link_slows_the__005__tula-russia-july-08-2021-aerial-view-of-trucks-unloading-garbage-waste-a.mp4",
+          "registered_at": "2026-07-18T13:18:48.895139+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/05_sb_05_disposal_is_engineered_n/mecoria-role-disposal_is_engineered_not_dumped__003__tula-russia-july-08-2021-aerial-view-of-trucks-unloading-garbage-waste-a.mp4",
+          "registered_at": "2026-07-18T14:48:11.322055+00:00"
+        }
+      ]
+    },
+    "fe820035ba3ef9b390d59666040327c6bed03500987b5a65d99af70878d4fb93": {
+      "sha256": "fe820035ba3ef9b390d59666040327c6bed03500987b5a65d99af70878d4fb93",
+      "size_bytes": 72484165,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895140+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-sb_06_when_one_link_slows_the__007__the-garbage-tractor-at-work-sorting-through-the-trash-SBV-352894146-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895142+00:00"
+        },
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/04_sb_04_sorting_turns_value_into/mecoria-role-sorting_turns_value_into_a_risk__004__the-garbage-tractor-at-work-sorting-through-the-trash-SBV-352894146-4K.mp4",
+          "registered_at": "2026-07-18T14:48:11.322069+00:00"
+        }
+      ]
+    },
+    "edc635a57303435700e6c447fe2fbff4b7fc8a9b075014e0385929c0097dae84": {
+      "sha256": "edc635a57303435700e6c447fe2fbff4b7fc8a9b075014e0385929c0097dae84",
+      "size_bytes": 124143506,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T13:18:48.895143+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-sb_06_when_one_link_slows_the__009__industrial-yard-with-heavy-scrap-materials-SBV-354173647-4K.mp4",
+          "registered_at": "2026-07-18T13:18:48.895144+00:00"
+        }
+      ]
+    },
+    "570f623f0494ae1d1ca5dddf6843d01f3c8bd22e622dce8a2f8fbeb1c2ade607": {
+      "sha256": "570f623f0494ae1d1ca5dddf6843d01f3c8bd22e622dce8a2f8fbeb1c2ade607",
+      "size_bytes": 12846149,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T14:48:11.322081+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/01_sb_01_the_route_is_the_first_f/mecoria-role-the_route_is_the_first_filter__004__in-a-late-night-view-of-manhattan-several-black-trash-bags-are-left-unco.mp4",
+          "registered_at": "2026-07-18T14:48:11.322082+00:00"
+        }
+      ]
+    },
+    "366dd5e6f8757476932681527e72c988eeded41803393d5c037c86c46feff083": {
+      "sha256": "366dd5e6f8757476932681527e72c988eeded41803393d5c037c86c46feff083",
+      "size_bytes": 57644081,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T14:48:11.322093+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "assets/stock/hiddenova/video_005/storyblocks/06_sb_06_when_one_link_slows_the/mecoria-role-when_one_link_slows_the_city_notices__003__waste-recycling-facility-processes-plastic-waste-in-industrial-setting-S.mp4",
+          "registered_at": "2026-07-18T14:48:11.322094+00:00"
+        }
+      ]
+    },
+    "115dc84916cf08ebd9636e1c6fda7eeaa10372754922b203c1bc3747225ebede": {
+      "sha256": "115dc84916cf08ebd9636e1c6fda7eeaa10372754922b203c1bc3747225ebede",
+      "size_bytes": 149728758,
+      "asset_type": "final_video",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T14:56:54.512147+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/hybrid_video_assembly/output/hiddenova/video_005/hiddenova_video_005_v1/render/hybrid_video_draft.mp4",
+          "registered_at": "2026-07-18T14:56:54.512160+00:00"
         }
       ]
     }
