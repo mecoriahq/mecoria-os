@@ -332,6 +332,21 @@ def get_storyblocks_id(
     return match.group(0).upper()
 
 
+def get_explicit_role_hint(
+    filename: str,
+) -> str | None:
+    match = re.search(
+        r"mecoria-role-([a-z0-9_]+?)__",
+        filename,
+        flags=re.IGNORECASE,
+    )
+
+    if not match:
+        return None
+
+    return match.group(1).lower()
+
+
 def normalize_text(value: str) -> str:
     value = value.lower()
     value = value.replace("&", " and ")
@@ -679,6 +694,55 @@ def classify_file(
             "Role catalog cannot be empty."
         )
 
+    explicit_role = get_explicit_role_hint(
+        filename
+    )
+
+    if explicit_role:
+        matching_role = next(
+            (
+                role
+                for role in role_catalog
+                if str(
+                    role.get("role_id", "")
+                ).lower() == explicit_role
+            ),
+            None,
+        )
+
+        role_id = (
+            matching_role["role_id"]
+            if matching_role
+            else explicit_role
+        )
+        role_title = (
+            matching_role["title"]
+            if matching_role
+            else explicit_role.replace("_", " ").title()
+        )
+        usage_priority = (
+            matching_role["usage_priority"]
+            if matching_role
+            else 50
+        )
+
+        return {
+            "role": role_id,
+            "role_title": role_title,
+            "usage_priority": usage_priority,
+            "classification_score": 100,
+            "classification_confidence": "high",
+            "matched_keywords": [
+                "mecoria_explicit_role_hint"
+            ],
+            "status": "approved_pending_stock_qa",
+            "risk_level": "low",
+            "notes": (
+                "Classified by the Storyblocks Bridge "
+                "role prefix."
+            ),
+        }
+
     ranked = sorted(
         (
             score_role(
@@ -790,12 +854,15 @@ def load_optional_visual_plan(
     ):
         return None
 
-    return load_json(
-        resolve_output(
-            context=context,
-            key="visual_plan",
+    try:
+        return load_json(
+            resolve_output(
+                context=context,
+                key="visual_plan",
+            )
         )
-    )
+    except FileNotFoundError:
+        return None
 
 
 def registered_hash_owners() -> dict[str, set[tuple[str, str]]]:
