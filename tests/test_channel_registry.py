@@ -28,14 +28,22 @@ class ChannelRegistryTests(unittest.TestCase):
             config["pipeline"]["automatic_public_release"]
         )
 
-    def test_second_channel_is_registered_but_blocked(self):
-        config = channel_registry.load_channel("channel_002")
+    def test_rise_dossier_is_registered_but_blocked(self):
+        config = channel_registry.load_channel("rise_dossier")
 
+        self.assertEqual(config["display_name"], "Rise Dossier")
         self.assertEqual(config["status"], "planning")
         self.assertFalse(config["production_enabled"])
-        self.assertIn("niche_required", config["blockers"])
+        self.assertEqual(
+            config["brand"]["domain"],
+            "risedossier.com",
+        )
+        self.assertEqual(
+            config["youtube"]["handle"],
+            "RiseDossier",
+        )
         self.assertIn(
-            "youtube_account_required",
+            "editorial_system_required",
             config["blockers"],
         )
 

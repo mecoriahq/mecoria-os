@@ -10,7 +10,7 @@ eligibility, status reporting, Notion sync, and safe execution.
 ## Registered Channels
 
 - `hiddenova`: active, production enabled, automatic next-video creation disabled.
-- `channel_002`: planning, production disabled until brand and niche decisions are complete.
+- `rise_dossier`: planning, production disabled until brand assets and channel-specific production systems are complete.
 
 ## Main Commands
 
@@ -20,7 +20,7 @@ python scripts\mecoria_media_os.py run all
 python scripts\mecoria_media_os.py run all --execute
 python scripts\mecoria_media_os.py sync-notion
 python scripts\mecoria_media_os.py sync-notion --apply
-python scripts\mecoria_media_os.py bootstrap channel_002
+python scripts\mecoria_media_os.py bootstrap rise_dossier
 ```
 
 ## Safety Rules
@@ -38,9 +38,9 @@ python scripts\mecoria_media_os.py bootstrap channel_002
 Hiddenova Video 6 is paused while the control plane, analytics feedback loop,
 and second-channel foundation are built.
 
-Channel 002 is registered but cannot produce content until these blockers are resolved:
+Rise Dossier is registered but cannot produce content until these blockers are resolved:
 
-- channel name
-- niche
-- YouTube account
 - brand assets
+- editorial system
+- thumbnail system
+- first full dry-run

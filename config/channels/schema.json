@@ -82,6 +82,15 @@
         "publishing_cadence_days": {
           "type": "integer",
           "minimum": 1
+        },
+        "core_promise": {
+          "type": "string"
+        },
+        "content_pillars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false
@@ -218,6 +227,36 @@
       "items": {
         "type": "string"
       }
+    },
+    "brand": {
+      "type": "object",
+      "required": [
+        "domain",
+        "workspace_email",
+        "youtube_channel_created",
+        "handle_reserved"
+      ],
+      "properties": {
+        "domain": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "workspace_email": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "youtube_channel_created": {
+          "type": "boolean"
+        },
+        "handle_reserved": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

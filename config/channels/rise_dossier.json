@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "channel": "rise_dossier",
+  "display_name": "Rise Dossier",
+  "status": "planning",
+  "production_enabled": false,
+  "language": "en",
+  "timezone": "Europe/Istanbul",
+  "platforms": [
+    "youtube"
+  ],
+  "brand": {
+    "domain": "risedossier.com",
+    "workspace_email": "hello@risedossier.com",
+    "youtube_channel_created": true,
+    "handle_reserved": true
+  },
+  "content": {
+    "niche": "Real stories behind the rise, fall, power, wealth, scandals and mysteries of companies and famous people",
+    "format": "9-10 minute English documentary",
+    "editorial_standard": "rise_dossier_editorial_v1_planned",
+    "thumbnail_standard": "rise_dossier_thumbnail_v1_planned",
+    "publishing_cadence_days": 3,
+    "core_promise": "The real stories behind the rise, fall, power, wealth, scandals and mysteries of companies and famous people.",
+    "content_pillars": [
+      "company_rise_and_fall",
+      "famous_people_and_founders",
+      "business_empires",
+      "scandals_and_mysteries"
+    ]
+  },
+  "pipeline": {
+    "runner": "scripts/mecoria_media.py",
+    "auto_resume": true,
+    "auto_create_next_video": false,
+    "topic_approval_required": true,
+    "storyblocks_download_required": true,
+    "founder_final_review_required": true,
+    "automatic_public_release": false
+  },
+  "integrations": {
+    "notion_sync": true,
+    "youtube_analytics": true,
+    "google_drive": false,
+    "n8n": false
+  },
+  "youtube": {
+    "handle": "RiseDossier",
+    "latest_public_video_id": null,
+    "public_video_count": 0
+  },
+  "analytics": {
+    "checkpoints_hours": [
+      24,
+      48,
+      168,
+      672
+    ],
+    "next_action": "brand_assets_and_pipeline_configuration"
+  },
+  "safety": {
+    "allow_cross_channel_asset_reuse": false,
+    "allow_cross_channel_content_reuse": false,
+    "require_explicit_execute_flag": true
+  },
+  "blockers": [
+    "brand_assets_required",
+    "editorial_system_required",
+    "thumbnail_system_required",
+    "first_dry_run_required"
+  ]
+}

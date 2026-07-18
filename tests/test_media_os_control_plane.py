@@ -36,9 +36,9 @@ class MediaOSControlPlaneTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
 
-    def test_second_channel_bootstrap_is_visible(self):
+    def test_rise_dossier_bootstrap_is_visible(self):
         module = load_module()
-        result = module.command_bootstrap("channel_002")
+        result = module.command_bootstrap("rise_dossier")
 
         self.assertEqual(result, 0)
 
