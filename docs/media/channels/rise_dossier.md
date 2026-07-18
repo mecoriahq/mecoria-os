@@ -9,6 +9,10 @@
 - Workspace account: `hello@risedossier.com`
 - Language: English
 - Production status: disabled
+- YouTube setup: complete
+- Logo: complete
+- Banner: complete
+- About section: complete
 
 ## Positioning
 
@@ -25,7 +29,6 @@ and mysteries of companies and famous people.
 
 ## Production Blockers
 
-- Brand assets
 - Channel-specific editorial system
 - Channel-specific thumbnail system
 - First full dry-run

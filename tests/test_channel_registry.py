@@ -42,6 +42,14 @@ class ChannelRegistryTests(unittest.TestCase):
             config["youtube"]["handle"],
             "RiseDossier",
         )
+        self.assertTrue(config["brand"]["logo_ready"])
+        self.assertTrue(config["brand"]["banner_ready"])
+        self.assertTrue(config["brand"]["about_ready"])
+        self.assertTrue(config["brand"]["youtube_ready"])
+        self.assertNotIn(
+            "brand_assets_required",
+            config["blockers"],
+        )
         self.assertIn(
             "editorial_system_required",
             config["blockers"],

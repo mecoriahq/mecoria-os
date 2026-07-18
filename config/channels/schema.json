@@ -234,7 +234,11 @@
         "domain",
         "workspace_email",
         "youtube_channel_created",
-        "handle_reserved"
+        "handle_reserved",
+        "logo_ready",
+        "banner_ready",
+        "about_ready",
+        "youtube_ready"
       ],
       "properties": {
         "domain": {
@@ -253,6 +257,18 @@
           "type": "boolean"
         },
         "handle_reserved": {
+          "type": "boolean"
+        },
+        "logo_ready": {
+          "type": "boolean"
+        },
+        "banner_ready": {
+          "type": "boolean"
+        },
+        "about_ready": {
+          "type": "boolean"
+        },
+        "youtube_ready": {
           "type": "boolean"
         }
       },

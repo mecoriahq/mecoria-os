@@ -13,7 +13,11 @@
     "domain": "risedossier.com",
     "workspace_email": "hello@risedossier.com",
     "youtube_channel_created": true,
-    "handle_reserved": true
+    "handle_reserved": true,
+    "logo_ready": true,
+    "banner_ready": true,
+    "about_ready": true,
+    "youtube_ready": true
   },
   "content": {
     "niche": "Real stories behind the rise, fall, power, wealth, scandals and mysteries of companies and famous people",
@@ -56,7 +60,7 @@
       168,
       672
     ],
-    "next_action": "brand_assets_and_pipeline_configuration"
+    "next_action": "editorial_and_thumbnail_system_configuration"
   },
   "safety": {
     "allow_cross_channel_asset_reuse": false,
@@ -64,7 +68,6 @@
     "require_explicit_execute_flag": true
   },
   "blockers": [
-    "brand_assets_required",
     "editorial_system_required",
     "thumbnail_system_required",
     "first_dry_run_required"
