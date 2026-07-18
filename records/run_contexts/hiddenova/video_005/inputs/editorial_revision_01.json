@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_005",
+  "run_id": "hiddenova_video_005_v1",
+  "attempt": 1,
+  "standard_version": "hiddenova_editorial_v2",
+  "standard_attempt": 1,
+  "topic_title": "How Cities Quietly Remove Millions of Tons of Waste",
+  "status": "editorial_revision_required",
+  "failed_checks": [
+    {
+      "check": "repetition_risk",
+      "reason": "below_threshold",
+      "actual": 76,
+      "minimum": 80,
+      "status": "warning"
+    },
+    {
+      "check": "title_thumbnail_synergy",
+      "reason": "below_threshold",
+      "actual": 82,
+      "minimum": 85,
+      "status": "warning"
+    },
+    {
+      "check": "overall_score",
+      "reason": "below_threshold",
+      "actual": 82,
+      "minimum": 85
+    },
+    {
+      "check": "qa_status",
+      "reason": "not_approved",
+      "actual": "rejected",
+      "minimum": "approved"
+    }
+  ],
+  "qa_checks": {
+    "script_quality": {
+      "status": "warning",
+      "score": 82
+    },
+    "hook_strength": {
+      "score": 87,
+      "status": "pass"
+    },
+    "hook_intro_distinctness": {
+      "score": 82,
+      "status": "pass"
+    },
+    "narrative_spine": {
+      "score": 86,
+      "status": "pass"
+    },
+    "specificity": {
+      "status": "pass",
+      "score": 80
+    },
+    "repetition_risk": {
+      "score": 76,
+      "status": "warning"
+    },
+    "seo_alignment": {
+      "status": "pass",
+      "score": 90
+    },
+    "title_quality": {
+      "status": "pass",
+      "score": 88
+    },
+    "title_thumbnail_synergy": {
+      "status": "warning",
+      "score": 82
+    },
+    "hiddenova_brand_intro": {
+      "score": 100,
+      "status": "pass"
+    },
+    "standard_cta": {
+      "score": 100,
+      "status": "pass"
+    },
+    "description_quality": {
+      "status": "pass",
+      "score": 88
+    },
+    "tags_quality": {
+      "status": "pass",
+      "score": 86
+    },
+    "thumbnail_text_quality": {
+      "status": "fail",
+      "score": 78
+    }
+  },
+  "issues": [
+    {
+      "field": "script.repetition_risk",
+      "severity": "high",
+      "message": "The script repeatedly returns to the same abstract framing: the bag must keep moving, each step creates a new constraint, the city answers where it goes next, and the chain must not break. This creates an AI-style documentary rhythm that is clear but too repetitive for approval."
+    },
+    {
+      "field": "seo.thumbnail_text",
+      "severity": "high",
+      "message": "Thumbnail text is correctly 3 all-caps words, but 'KEEP IT MOVING' is too vague visually and does not express a direct, immediately understandable tension about trash, overflow, trucks, or disposal."
+    },
+    {
+      "field": "seo.title_thumbnail_synergy",
+      "severity": "high",
+      "message": "The title clearly asks where trash goes after collection, but the thumbnail text does not add enough distinct visual conflict. The pairing is understandable only after reading the title, so synergy falls below the approval threshold."
+    },
+    {
+      "field": "script.specificity",
+      "severity": "medium",
+      "message": "The script explains real mechanisms such as compaction, transfer stations, sorting, contamination, and disposal, but many passages remain generalized and could benefit from more concrete operational consequences without inventing unsupported precision."
+    },
+    {
+      "field": "script.introduction",
+      "severity": "medium",
+      "message": "The introduction advances the hook by outlining the relay, but it also repeats the hook\u2019s core language about the bag entering a chain of decisions. It passes, but only narrowly."
+    },
+    {
+      "field": "editorial.repetition_risk",
+      "severity": "high",
+      "message": "repetition_risk did not meet the production threshold. Actual: 76. Required: 80."
+    },
+    {
+      "field": "editorial.title_thumbnail_synergy",
+      "severity": "high",
+      "message": "title_thumbnail_synergy did not meet the production threshold. Actual: 82. Required: 85."
+    }
+  ],
+  "recommendations": [
+    {
+      "field": "script.main_sections",
+      "suggestion": "Reduce repeated abstract transition language and make each section introduce a sharper new complication: route failure, truck capacity limits, transfer station bottlenecks, contamination rejection, and disposal capacity pressure."
+    },
+    {
+      "field": "script.narration",
+      "suggestion": "Replace repeated phrases about 'the chain,' 'the next question,' and 'keeping waste moving' with concrete cause-and-effect moments that show what breaks when a step fails."
+    },
+    {
+      "field": "script.specificity",
+      "suggestion": "Add more operational detail where already supported by the topic, such as why compaction changes trip frequency, why transfer stations reduce route downtime, and how contamination affects sorting outcomes, without adding unsourced numbers."
+    },
+    {
+      "field": "seo.thumbnail_text",
+      "suggestion": "Regenerate thumbnail text as 2 to 4 all-caps words that creates direct visual tension around trash movement, blockage, overload, or disappearance. Do not use vague motivational wording."
+    },
+    {
+      "field": "seo.title_thumbnail_synergy",
+      "suggestion": "Ensure the title identifies the subject while the thumbnail text adds a separate conflict or consequence visible in the image, rather than restating the general idea of movement."
+    },
+    {
+      "field": "repetition_risk",
+      "suggestion": "Regenerate the script or metadata to resolve this editorial weakness before audio production."
+    },
+    {
+      "field": "title_thumbnail_synergy",
+      "suggestion": "Regenerate the script or metadata to resolve this editorial weakness before audio production."
+    }
+  ],
+  "mandatory_instructions": [
+    "Strengthen the first 120 words with a concrete tension, paradox, or consequence.",
+    "Make the introduction advance the story instead of restating the hook.",
+    "Use one cause-and-effect narrative spine rather than list-like exposition.",
+    "Replace abstract documentary filler with concrete mechanisms and consequences supported by research.",
+    "Create a direct title and an ALL-CAPS 2-4 word thumbnail phrase that add different information.",
+    "Begin the introduction with a very short brand/context line containing the exact word Hiddenova within its first 25 words.",
+    "End with a concise CTA that explicitly asks viewers to comment, like, and subscribe.",
+    "Return no estimated chapter timestamps."
+  ],
+  "created_at": "2026-07-18T09:23:02.792997+00:00"
+}

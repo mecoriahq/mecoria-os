@@ -1,0 +1,119 @@
+{
+  "agent": "content_idea_selector",
+  "version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_005",
+  "run_id": "hiddenova_video_005_v1",
+  "status": "selected",
+  "selected_index": 4,
+  "selected_idea": {
+    "id": 5,
+    "title": "How Cities Quietly Remove Millions of Tons of Waste",
+    "summary": "An investigation into the collection routes, transfer stations, sorting facilities, landfills, and recycling systems behind urban waste removal.",
+    "target_audience": "Urban infrastructure enthusiasts, sustainability viewers, city dwellers, and documentary audiences.",
+    "potential": "Waste management is something everyone depends on but rarely understands, making it relatable, visual, and evergreen.",
+    "difficulty": "Medium"
+  },
+  "score": 90,
+  "reason": "The strongest genuinely new idea is urban waste removal. It avoids duplication with existing logistics, baggage, internet cable, and card-payment topics while offering a highly relatable hidden system with strong visual sequences, international relevance, evergreen appeal, and enough operational depth for a full documentary.",
+  "novelty_status": "approved",
+  "novelty_score": 91,
+  "content_score": 90,
+  "closest_video_id": null,
+  "duplicate_indices": [
+    1,
+    3,
+    8,
+    9
+  ],
+  "historical_topic_count": 4,
+  "novelty_evaluations": [
+    {
+      "index": 0,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 78,
+      "content_score": 86,
+      "reason": "Reverse logistics for online returns is adjacent to the existing broad logistics video, but it follows a distinct post-purchase workflow involving inspection, restocking, liquidation, recycling, and disposal. It has strong consumer relevance and documentary depth."
+    },
+    {
+      "index": 1,
+      "duplicate": true,
+      "closest_video_id": "video_002",
+      "novelty_score": 5,
+      "content_score": 72,
+      "reason": "This is a direct duplicate of the existing luggage-handling video. It covers the same airport baggage conveyors, scanners, routing software, ground crews, and hidden post-check-in workflow."
+    },
+    {
+      "index": 2,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 84,
+      "content_score": 85,
+      "reason": "The lifecycle of shipping containers after port departure is distinct from the existing logistics coverage. It offers global relevance, strong visual potential, and a clear hidden-infrastructure angle around tracking, repair, storage, and repositioning."
+    },
+    {
+      "index": 3,
+      "duplicate": true,
+      "closest_video_id": "video_001",
+      "novelty_score": 18,
+      "content_score": 80,
+      "reason": "The cold chain is explicitly included in the existing overnight logistics documentary. This would be a narrowed version of an already-covered infrastructure system involving refrigerated storage, transport, and monitoring."
+    },
+    {
+      "index": 4,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 91,
+      "content_score": 90,
+      "reason": "Urban waste removal is a genuinely new infrastructure topic for Hiddenova. It is universal, evergreen, highly visual, advertiser-safe enough, and rich in operational systems including collection routing, transfer stations, sorting, recycling, landfill logistics, and city-scale coordination."
+    },
+    {
+      "index": 5,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 66,
+      "content_score": 79,
+      "reason": "Same-day grocery delivery overlaps with the existing logistics and supermarket replenishment themes, but the dark-store, picker, app-based inventory, and last-mile delivery workflow is distinct enough to count as new. Novelty is reduced because the viewer promise remains close to hidden delivery logistics."
+    },
+    {
+      "index": 6,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 82,
+      "content_score": 87,
+      "reason": "Data center backup power is distinct from the existing undersea cable internet resilience video. It focuses on physical site reliability, batteries, generators, cooling, and failover planning rather than cable breaks and global routing. Strong stakes, but access and visualization may be harder."
+    },
+    {
+      "index": 7,
+      "duplicate": false,
+      "closest_video_id": null,
+      "novelty_score": 86,
+      "content_score": 84,
+      "reason": "City bus traffic control is a new civic infrastructure topic with strong everyday relevance. Dispatch centers, GPS tracking, scheduling, signal priority, and real-time control create a clear hidden system, though click potential may be slightly narrower than broader urban services."
+    },
+    {
+      "index": 8,
+      "duplicate": true,
+      "closest_video_id": "video_004",
+      "novelty_score": 4,
+      "content_score": 83,
+      "reason": "This is a direct duplicate of the existing card payment approval video. It repeats the same workflow involving payment networks, banks, processors, fraud checks, authorization, clearing, and settlement."
+    },
+    {
+      "index": 9,
+      "duplicate": true,
+      "closest_video_id": "video_001",
+      "novelty_score": 20,
+      "content_score": 78,
+      "reason": "Retail distribution centers, inventory forecasting, replenishment, and truck scheduling are substantially covered by the existing overnight logistics video, which already includes distribution centers and supermarket replenishment. This would be a narrowed version of that system."
+    }
+  ],
+  "source": {
+    "parent_agent": "research",
+    "parent_reference": "records/run_contexts/hiddenova/video_005/inputs/research.json"
+  },
+  "metadata": {
+    "next_agent": "founder_topic_approval"
+  }
+}

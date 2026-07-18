@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-17T17:30:37.060865+00:00",
+  "updated_at": "2026-07-18T09:32:36.572275+00:00",
   "assets": {
     "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db": {
       "sha256": "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db",
@@ -1999,6 +1999,390 @@
           "run_id": "hiddenova_video_004_v1",
           "relative_path": "agents/hybrid_video_assembly/output/hiddenova/video_004/hiddenova_video_004_v1/render/hybrid_video_draft.mp4",
           "registered_at": "2026-07-17T17:30:37.060766+00:00"
+        }
+      ]
+    },
+    "00576980c50aa0914c870dc94c3c67187d2c7622b511f9f8529830ba7ad1f353": {
+      "sha256": "00576980c50aa0914c870dc94c3c67187d2c7622b511f9f8529830ba7ad1f353",
+      "size_bytes": 561024,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856944+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_01.mp3",
+          "registered_at": "2026-07-18T09:26:23.856954+00:00"
+        }
+      ]
+    },
+    "32772e02fe318a84f10d9cb9722af43a41aa1836e7604cd95115c4a19db42d74": {
+      "sha256": "32772e02fe318a84f10d9cb9722af43a41aa1836e7604cd95115c4a19db42d74",
+      "size_bytes": 657792,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856959+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_02.mp3",
+          "registered_at": "2026-07-18T09:26:23.856960+00:00"
+        }
+      ]
+    },
+    "489bf4215923b2773ace4c923f30cb1986200de0072ace8e399d863c3cd04da8": {
+      "sha256": "489bf4215923b2773ace4c923f30cb1986200de0072ace8e399d863c3cd04da8",
+      "size_bytes": 902400,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856963+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_03.mp3",
+          "registered_at": "2026-07-18T09:26:23.856964+00:00"
+        }
+      ]
+    },
+    "bf906610e39dbd3fa9c7327097c9974026439f49c80e8767bf2a1aa1ea8fb8a5": {
+      "sha256": "bf906610e39dbd3fa9c7327097c9974026439f49c80e8767bf2a1aa1ea8fb8a5",
+      "size_bytes": 970368,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856966+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_04.mp3",
+          "registered_at": "2026-07-18T09:26:23.856967+00:00"
+        }
+      ]
+    },
+    "659045c6f75c3f43f175ac068f025d4e8c8c149125e163dcbc2c7fbe3ba540d9": {
+      "sha256": "659045c6f75c3f43f175ac068f025d4e8c8c149125e163dcbc2c7fbe3ba540d9",
+      "size_bytes": 1016064,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856968+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_05.mp3",
+          "registered_at": "2026-07-18T09:26:23.856969+00:00"
+        }
+      ]
+    },
+    "b8b7f8e2f7672b78de7c936f884f19eb3c4816f9dec4a0e3451427d4a13841d4": {
+      "sha256": "b8b7f8e2f7672b78de7c936f884f19eb3c4816f9dec4a0e3451427d4a13841d4",
+      "size_bytes": 1061760,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856970+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_06.mp3",
+          "registered_at": "2026-07-18T09:26:23.856971+00:00"
+        }
+      ]
+    },
+    "9cab01267b0f2be81264a1477035edb559b7b7b22037cf69e0e57dd8fd2276de": {
+      "sha256": "9cab01267b0f2be81264a1477035edb559b7b7b22037cf69e0e57dd8fd2276de",
+      "size_bytes": 1021056,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856972+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_07.mp3",
+          "registered_at": "2026-07-18T09:26:23.856973+00:00"
+        }
+      ]
+    },
+    "2b8ece52948eaa9b8d230c69499df8a0240e1a745290ce896997b55078534328": {
+      "sha256": "2b8ece52948eaa9b8d230c69499df8a0240e1a745290ce896997b55078534328",
+      "size_bytes": 1015296,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856975+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_08.mp3",
+          "registered_at": "2026-07-18T09:26:23.856975+00:00"
+        }
+      ]
+    },
+    "38f4e6c5f175e66ac0693c5a1b402a2cf86af294bbe63baff7579cbf192b3121": {
+      "sha256": "38f4e6c5f175e66ac0693c5a1b402a2cf86af294bbe63baff7579cbf192b3121",
+      "size_bytes": 574464,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856976+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_09.mp3",
+          "registered_at": "2026-07-18T09:26:23.856977+00:00"
+        }
+      ]
+    },
+    "0dc6a11af3d3cd6f6afcdf937687fcd28394ff6fdaffda8de7e78d017f92eb67": {
+      "sha256": "0dc6a11af3d3cd6f6afcdf937687fcd28394ff6fdaffda8de7e78d017f92eb67",
+      "size_bytes": 145920,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856979+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio/section_10.mp3",
+          "registered_at": "2026-07-18T09:26:23.856980+00:00"
+        }
+      ]
+    },
+    "d0559da50c106d33f891e356711c9f8178c37b3fd7dd33388852568b99775e1a": {
+      "sha256": "d0559da50c106d33f891e356711c9f8178c37b3fd7dd33388852568b99775e1a",
+      "size_bytes": 7926572,
+      "asset_type": "narration_audio",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:26:23.856982+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/assembled/narration_track.mp3",
+          "registered_at": "2026-07-18T09:26:23.856983+00:00"
+        }
+      ]
+    },
+    "4636a1502ade03fc37ad62581b3b48ff7c73b4d92d52b2a024d592ac5cf2d319": {
+      "sha256": "4636a1502ade03fc37ad62581b3b48ff7c73b4d92d52b2a024d592ac5cf2d319",
+      "size_bytes": 1924219,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572145+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-001.png",
+          "registered_at": "2026-07-18T09:32:36.572156+00:00"
+        }
+      ]
+    },
+    "a7ab9acac2a5843affec45ee7dbfc9428b5919b5e248e06630aa3775f71e61d2": {
+      "sha256": "a7ab9acac2a5843affec45ee7dbfc9428b5919b5e248e06630aa3775f71e61d2",
+      "size_bytes": 2317276,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572160+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-002.png",
+          "registered_at": "2026-07-18T09:32:36.572161+00:00"
+        }
+      ]
+    },
+    "5eb1b9fa31f6866b63cb8f2462b07a23842c7a9f6c1cff47d62f3b58b7720c9c": {
+      "sha256": "5eb1b9fa31f6866b63cb8f2462b07a23842c7a9f6c1cff47d62f3b58b7720c9c",
+      "size_bytes": 2312574,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572163+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-003.png",
+          "registered_at": "2026-07-18T09:32:36.572165+00:00"
+        }
+      ]
+    },
+    "1f8e81883ec950300ba5bb3b0f264f9af5454d7689c613acf9104185043965c6": {
+      "sha256": "1f8e81883ec950300ba5bb3b0f264f9af5454d7689c613acf9104185043965c6",
+      "size_bytes": 2147400,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572166+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-004.png",
+          "registered_at": "2026-07-18T09:32:36.572167+00:00"
+        }
+      ]
+    },
+    "2dc48a9f0d97e464f46aef05360c19644ad0efe8f9337f18ccd6bbbf15555a2a": {
+      "sha256": "2dc48a9f0d97e464f46aef05360c19644ad0efe8f9337f18ccd6bbbf15555a2a",
+      "size_bytes": 2485900,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572169+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-005.png",
+          "registered_at": "2026-07-18T09:32:36.572170+00:00"
+        }
+      ]
+    },
+    "7353eada57385b5c6602fb2e6eb9b5678f6cb9cbf8afeef1bec312257857a94d": {
+      "sha256": "7353eada57385b5c6602fb2e6eb9b5678f6cb9cbf8afeef1bec312257857a94d",
+      "size_bytes": 2169338,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572171+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-006.png",
+          "registered_at": "2026-07-18T09:32:36.572172+00:00"
+        }
+      ]
+    },
+    "e00c975dbea5344b90843d1638b7aa8b7436acc3ac373ae68876335b02b52138": {
+      "sha256": "e00c975dbea5344b90843d1638b7aa8b7436acc3ac373ae68876335b02b52138",
+      "size_bytes": 2368423,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572173+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-007.png",
+          "registered_at": "2026-07-18T09:32:36.572174+00:00"
+        }
+      ]
+    },
+    "70bc087ab95dd0e69301eca106cdc11de5a52f465f080ee99989434d5c198293": {
+      "sha256": "70bc087ab95dd0e69301eca106cdc11de5a52f465f080ee99989434d5c198293",
+      "size_bytes": 2006838,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572176+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-008.png",
+          "registered_at": "2026-07-18T09:32:36.572178+00:00"
+        }
+      ]
+    },
+    "4ba625ffedd5f38c0a478aec73bb24a06b9d251d0a41a55b0e6aa37a500fcdd5": {
+      "sha256": "4ba625ffedd5f38c0a478aec73bb24a06b9d251d0a41a55b0e6aa37a500fcdd5",
+      "size_bytes": 2158973,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572179+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-009.png",
+          "registered_at": "2026-07-18T09:32:36.572180+00:00"
+        }
+      ]
+    },
+    "c5fc4deb0f33f5fa3c47acbdf1a8d5cb51e88ec52f5ae892a5909ed6009c669c": {
+      "sha256": "c5fc4deb0f33f5fa3c47acbdf1a8d5cb51e88ec52f5ae892a5909ed6009c669c",
+      "size_bytes": 2161020,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572181+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-010.png",
+          "registered_at": "2026-07-18T09:32:36.572182+00:00"
+        }
+      ]
+    },
+    "5c303a4bc77cdbca64a76d187e04537a7f2af1253b2068d703ad7293460a2d4a": {
+      "sha256": "5c303a4bc77cdbca64a76d187e04537a7f2af1253b2068d703ad7293460a2d4a",
+      "size_bytes": 2357924,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572183+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-011.png",
+          "registered_at": "2026-07-18T09:32:36.572184+00:00"
+        }
+      ]
+    },
+    "0c572c4a4c70649913a010a179c48b00880c677980db57676030d1d3831d0739": {
+      "sha256": "0c572c4a4c70649913a010a179c48b00880c677980db57676030d1d3831d0739",
+      "size_bytes": 2300855,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572185+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/images/ai-012.png",
+          "registered_at": "2026-07-18T09:32:36.572186+00:00"
+        }
+      ]
+    },
+    "92f2b1723f7e5f256808852a20d09860bac489c1c67acd5b40ca6da0f422475d": {
+      "sha256": "92f2b1723f7e5f256808852a20d09860bac489c1c67acd5b40ca6da0f422475d",
+      "size_bytes": 156393,
+      "asset_type": "thumbnail",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-18T09:32:36.572188+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_005",
+          "run_id": "hiddenova_video_005_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.jpg",
+          "registered_at": "2026-07-18T09:32:36.572189+00:00"
         }
       ]
     }

@@ -1,0 +1,237 @@
+{
+  "schema_version": "1.0",
+  "channel": "hiddenova",
+  "video_id": "video_005",
+  "run_id": "hiddenova_video_005_v1",
+  "status": "stock_source_required",
+  "topic_title": "How Cities Quietly Remove Millions of Tons of Waste",
+  "sources": {
+    "research": "records/run_contexts/hiddenova/video_005/inputs/research.json",
+    "idea_selection": "records/run_contexts/hiddenova/video_005/inputs/idea_selection.json"
+  },
+  "outputs": {
+    "script": "agents/script/output/hiddenova/video_005/hiddenova_video_005_v1/script.json",
+    "seo": "agents/seo/output/hiddenova/video_005/hiddenova_video_005_v1/seo.json",
+    "qa": "agents/qa/output/hiddenova/video_005/hiddenova_video_005_v1/qa.json",
+    "voice": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/voice.json",
+    "voice_generation": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/voice_generation.json",
+    "audio_qa": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio_qa.json",
+    "audio_assembly": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio_assembly.json",
+    "narration_audio": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/assembled/narration_track.mp3",
+    "visual_plan": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/visual_plan.json",
+    "ai_visual_generation": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/ai_visual_generation.json",
+    "ai_visual_qa": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/ai_visual_qa.json",
+    "thumbnail": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.jpg",
+    "thumbnail_record": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.json"
+  },
+  "quality_gates": {
+    "no_latest_json_sources": true,
+    "minimum_content_qa_score": 85,
+    "target_script_word_count_min": 1250,
+    "target_script_word_count_max": 1650,
+    "target_audio_duration_min_seconds": 480,
+    "target_audio_duration_max_seconds": 720,
+    "target_video_duration_min_seconds": 480,
+    "target_video_duration_max_seconds": 720,
+    "require_actual_chapters": true,
+    "chapter_timing_source": "actual_audio_sections",
+    "max_audio_duration_revision_attempts": 2,
+    "require_hiddenova_brand_intro": true,
+    "require_standard_cta": true,
+    "require_end_screen_area": true,
+    "require_ai_visuals": true,
+    "minimum_ai_insert_count": 12,
+    "require_thumbnail": true,
+    "thumbnail_text_min_words": 2,
+    "thumbnail_text_max_words": 4,
+    "thumbnail_two_color_text": true,
+    "require_founder_review": true,
+    "require_topic_approval": true,
+    "require_topic_novelty": true,
+    "allow_topic_reuse": false,
+    "editorial_standard_version": "hiddenova_editorial_v2",
+    "editorial_standard_revision_count": 1,
+    "editorial_quality_gate_passed": true,
+    "minimum_editorial_overall_score": 85,
+    "minimum_hook_strength_score": 85,
+    "minimum_hook_intro_distinctness_score": 80,
+    "minimum_narrative_spine_score": 85,
+    "minimum_specificity_score": 80,
+    "minimum_repetition_risk_score": 80,
+    "minimum_title_thumbnail_synergy_score": 85,
+    "max_editorial_revision_attempts": 2,
+    "editorial_revision_count": 1,
+    "thumbnail_standard_name": "hiddenova_cinematic_v2",
+    "thumbnail_layout_signature": "oversized_headline_left__dominant_subject_right",
+    "thumbnail_gold_reference_required": true,
+    "thumbnail_text_position": "left",
+    "thumbnail_subject_position": "right",
+    "thumbnail_two_color_required": true,
+    "minimum_ai_video_insert_count": 4,
+    "maximum_ai_video_insert_count": 6,
+    "minimum_stock_clip_count": 30,
+    "maximum_single_stock_clip_share": 0.08,
+    "minimum_timeline_cycle_coverage": 1.0,
+    "maximum_timeline_cycles": 1,
+    "maximum_stock_segments_per_clip": 3,
+    "visual_diversity_standard_version": "hiddenova_visual_diversity_v2",
+    "allow_cross_video_ai_video_reuse": false,
+    "require_ai_video_asset_registry_ownership": true,
+    "require_content_fingerprint": true,
+    "allow_cross_video_content_reuse": false,
+    "allow_cross_video_asset_reuse": false,
+    "require_audio_asset_registry_ownership": true,
+    "require_visual_asset_registry_ownership": true,
+    "require_thumbnail_asset_registry_ownership": true,
+    "require_hiddenova_thumbnail_standard": true,
+    "thumbnail_style": "hiddenova_cinematic_v2",
+    "thumbnail_text_size": "very_large",
+    "thumbnail_mobile_readability_priority": "maximum"
+  },
+  "next_agent": "video_stock_pipeline",
+  "release": {
+    "topic_approved": true,
+    "public_release_approved": false,
+    "topic_approved_at": "2026-07-18T09:21:11.959422+00:00",
+    "topic_approved_by": "founder"
+  },
+  "history": [
+    {
+      "agent": "content_idea_selector",
+      "status": "selected",
+      "output_reference": "records/run_contexts/hiddenova/video_005/inputs/idea_selection.json"
+    },
+    {
+      "agent": "founder_topic_approval",
+      "status": "approved",
+      "recorded_at": "2026-07-18T09:21:11.959430+00:00"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_005/hiddenova_video_005_v1/script.json",
+      "recorded_at": "2026-07-18T09:22:09.676331+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_005/hiddenova_video_005_v1/seo.json",
+      "recorded_at": "2026-07-18T09:22:30.942515+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "rejected",
+      "output_reference": "agents/qa/output/hiddenova/video_005/hiddenova_video_005_v1/qa.json",
+      "recorded_at": "2026-07-18T09:23:02.707455+00:00"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "revision_required",
+      "recorded_at": "2026-07-18T09:23:02.798835+00:00",
+      "output_reference": "records/run_contexts/hiddenova/video_005/inputs/editorial_revision_01.json"
+    },
+    {
+      "agent": "script",
+      "status": "script_ready",
+      "output_reference": "agents/script/output/hiddenova/video_005/hiddenova_video_005_v1/script.json",
+      "recorded_at": "2026-07-18T09:24:03.663001+00:00"
+    },
+    {
+      "agent": "seo",
+      "status": "seo_ready",
+      "output_reference": "agents/seo/output/hiddenova/video_005/hiddenova_video_005_v1/seo.json",
+      "recorded_at": "2026-07-18T09:24:25.131720+00:00"
+    },
+    {
+      "agent": "qa",
+      "status": "approved",
+      "output_reference": "agents/qa/output/hiddenova/video_005/hiddenova_video_005_v1/qa.json",
+      "recorded_at": "2026-07-18T09:24:53.331551+00:00"
+    },
+    {
+      "agent": "editorial_quality_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-18T09:24:59.229460+00:00",
+      "output_reference": "overall_score=86"
+    },
+    {
+      "agent": "content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-18T09:24:59.229496+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "voice",
+      "status": "narration_ready",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/voice.json",
+      "recorded_at": "2026-07-18T09:26:23.858771+00:00"
+    },
+    {
+      "agent": "voice_generation",
+      "status": "audio_ready",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/voice_generation.json",
+      "recorded_at": "2026-07-18T09:26:23.858802+00:00"
+    },
+    {
+      "agent": "audio_qa",
+      "status": "approved",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio_qa.json",
+      "recorded_at": "2026-07-18T09:26:23.858938+00:00"
+    },
+    {
+      "agent": "audio_assembly",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/audio_assembly.json",
+      "recorded_at": "2026-07-18T09:26:23.858961+00:00"
+    },
+    {
+      "agent": "narration_audio",
+      "status": "assembled",
+      "output_reference": "agents/video_audio_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/assembled/narration_track.mp3",
+      "recorded_at": "2026-07-18T09:26:23.858983+00:00"
+    },
+    {
+      "agent": "visual_plan",
+      "status": "plan_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/visual_plan.json",
+      "recorded_at": "2026-07-18T09:32:36.575162+00:00"
+    },
+    {
+      "agent": "ai_visual_generation",
+      "status": "images_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/ai_visual_generation.json",
+      "recorded_at": "2026-07-18T09:32:36.575204+00:00"
+    },
+    {
+      "agent": "ai_visual_qa",
+      "status": "approved",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/ai_visual_qa.json",
+      "recorded_at": "2026-07-18T09:32:36.575236+00:00"
+    },
+    {
+      "agent": "thumbnail",
+      "status": "thumbnail_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.jpg",
+      "recorded_at": "2026-07-18T09:32:36.575243+00:00"
+    },
+    {
+      "agent": "thumbnail_record",
+      "status": "thumbnail_ready",
+      "output_reference": "agents/video_visual_pipeline/output/hiddenova/video_005/hiddenova_video_005_v1/thumbnail.json",
+      "recorded_at": "2026-07-18T09:32:36.575272+00:00"
+    },
+    {
+      "agent": "visual_content_fingerprint_gate",
+      "status": "approved",
+      "recorded_at": "2026-07-18T09:32:43.153821+00:00",
+      "output_reference": "records/content/content_usage_registry.json"
+    },
+    {
+      "agent": "media_video_orchestrator",
+      "status": "stock_source_required",
+      "recorded_at": "2026-07-18T09:32:43.157370+00:00"
+    }
+  ],
+  "created_at": "2026-07-18T09:18:20.580990+00:00",
+  "updated_at": "2026-07-18T09:32:43.157373+00:00"
+}

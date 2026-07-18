@@ -1,0 +1,93 @@
+{
+  "agent": "research",
+  "version": "2.0",
+  "channel": "hiddenova",
+  "video_id": "video_005",
+  "run_id": "hiddenova_video_005_v1",
+  "status": "research_ready",
+  "ideas": [
+    {
+      "id": 1,
+      "title": "The Invisible Network That Moves Your Online Returns",
+      "summary": "A documentary-style look at the reverse logistics systems that process, resell, recycle, or discard millions of returned online purchases.",
+      "target_audience": "Viewers interested in e-commerce, logistics, consumer behavior, and hidden business operations.",
+      "potential": "Online shopping returns are highly relatable, visually rich, and reveal a massive behind-the-scenes industry most consumers never see.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 2,
+      "title": "How Airports Move Your Luggage Without You Seeing It",
+      "summary": "An exploration of the conveyor belts, scanners, routing software, and ground crews that move baggage through airports at high speed.",
+      "target_audience": "Travelers, aviation enthusiasts, logistics fans, and documentary viewers curious about everyday infrastructure.",
+      "potential": "Air travel is universal, baggage systems are complex and visually compelling, and the topic has strong evergreen appeal.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 3,
+      "title": "The Secret Life of Shipping Containers After They Leave the Port",
+      "summary": "A behind-the-scenes look at how shipping containers are tracked, stored, repaired, repositioned, and reused across the global supply chain.",
+      "target_audience": "People interested in global trade, ports, transportation, and the hidden infrastructure of modern commerce.",
+      "potential": "Shipping containers are iconic but their full lifecycle is rarely explained, making the idea both accessible and original.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 4,
+      "title": "Inside the Cold Chain That Keeps Food and Medicine Alive",
+      "summary": "A documentary about the refrigerated warehouses, trucks, sensors, and monitoring systems that protect temperature-sensitive goods.",
+      "target_audience": "Viewers interested in food systems, healthcare logistics, supply chains, and invisible infrastructure.",
+      "potential": "The cold chain affects groceries, vaccines, and global health, giving the topic broad relevance and strong educational value.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 5,
+      "title": "How Cities Quietly Remove Millions of Tons of Waste",
+      "summary": "An investigation into the collection routes, transfer stations, sorting facilities, landfills, and recycling systems behind urban waste removal.",
+      "target_audience": "Urban infrastructure enthusiasts, sustainability viewers, city dwellers, and documentary audiences.",
+      "potential": "Waste management is something everyone depends on but rarely understands, making it relatable, visual, and evergreen.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 6,
+      "title": "The Hidden System Behind Same-Day Grocery Delivery",
+      "summary": "A look at dark stores, picker workflows, delivery routing, inventory software, and last-mile logistics that make rapid grocery delivery possible.",
+      "target_audience": "Viewers interested in startups, retail technology, logistics, and modern convenience systems.",
+      "potential": "Fast delivery is familiar to many people, but the operational machinery behind it remains largely invisible and highly engaging.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 7,
+      "title": "How Data Centers Keep the Internet Running During a Power Failure",
+      "summary": "An explanation of the backup power systems, batteries, generators, cooling infrastructure, and failover planning inside modern data centers.",
+      "target_audience": "Technology enthusiasts, internet users, infrastructure fans, and viewers curious about digital systems.",
+      "potential": "Data centers are critical to everyday life, and the reliability systems behind them offer high-stakes storytelling and strong visual potential.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 8,
+      "title": "The Invisible Traffic Control System Behind City Buses",
+      "summary": "A documentary on how transit agencies use dispatch centers, GPS tracking, schedules, priority signals, and real-time data to keep buses moving.",
+      "target_audience": "Urban planning fans, public transit users, infrastructure viewers, and civic technology audiences.",
+      "potential": "Public transit affects millions of people daily, and the unseen coordination behind it is both practical and rarely covered in depth.",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 9,
+      "title": "What Happens Behind the Scenes When You Tap a Credit Card",
+      "summary": "A clear breakdown of the payment networks, banks, processors, fraud checks, and settlement systems triggered by a simple card tap.",
+      "target_audience": "Everyday consumers, fintech followers, business viewers, and people curious about invisible financial infrastructure.",
+      "potential": "Card payments are extremely common, yet the hidden chain of technology and institutions behind them creates a strong curiosity gap.",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 10,
+      "title": "The Hidden Warehouses That Decide What Your Store Has in Stock",
+      "summary": "An inside look at regional distribution centers, inventory forecasting, replenishment systems, and truck scheduling that keep retail shelves filled.",
+      "target_audience": "Retail shoppers, business audiences, logistics enthusiasts, and viewers interested in supply chains.",
+      "potential": "Retail availability is a daily concern for consumers, and the hidden warehouse systems behind it provide a scalable documentary topic.",
+      "difficulty": "Medium"
+    }
+  ],
+  "metadata": {
+    "next_agent": "content_idea_selector"
+  }
+}
