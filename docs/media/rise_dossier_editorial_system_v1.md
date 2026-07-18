@@ -61,3 +61,11 @@ python scripts\mecoria_media.py run rise_dossier --dry-run
 
 The dry-run must not create a video, call production agents, publish,
 write to Notion, or enable production.
+## Certification
+
+- First full dry-run: passed
+- Full regression suite: 185 tests passed
+- Live OpenAI call during certification: no
+- Video created during certification: no
+- Production enabled: no
+- Next action: Notion sync and founder production review

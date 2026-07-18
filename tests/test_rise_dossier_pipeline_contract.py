@@ -74,15 +74,16 @@ class RiseDossierPipelineContractTests(unittest.TestCase):
         self.assertIn("require_channel_thumbnail_standard", self.visual)
         self.assertIn("no fabricated evidence", self.visual.lower())
 
-    def test_production_remains_disabled_until_dry_run(self):
+    def test_production_remains_disabled_after_certification(self):
+        self.assertEqual(self.config["status"], "active")
         self.assertFalse(self.config["production_enabled"])
-        self.assertEqual(
-            self.config["blockers"],
-            ["first_dry_run_required"],
+        self.assertFalse(
+            self.config["pipeline"]["auto_create_next_video"]
         )
+        self.assertEqual(self.config["blockers"], [])
         self.assertEqual(
             self.config["analytics"]["next_action"],
-            "first_full_dry_run",
+            "notion_sync_and_production_enablement_review",
         )
 
 

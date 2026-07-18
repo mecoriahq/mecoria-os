@@ -28,12 +28,15 @@ class ChannelRegistryTests(unittest.TestCase):
             config["pipeline"]["automatic_public_release"]
         )
 
-    def test_rise_dossier_is_registered_but_blocked(self):
+    def test_rise_dossier_is_ready_but_production_disabled(self):
         config = channel_registry.load_channel("rise_dossier")
 
         self.assertEqual(config["display_name"], "Rise Dossier")
-        self.assertEqual(config["status"], "planning")
+        self.assertEqual(config["status"], "active")
         self.assertFalse(config["production_enabled"])
+        self.assertFalse(
+            config["pipeline"]["auto_create_next_video"]
+        )
         self.assertEqual(
             config["brand"]["domain"],
             "risedossier.com",
@@ -58,10 +61,7 @@ class ChannelRegistryTests(unittest.TestCase):
             config["content"]["thumbnail_standard"],
             "rise_dossier_investigative_v1",
         )
-        self.assertEqual(
-            config["blockers"],
-            ["first_dry_run_required"],
-        )
+        self.assertEqual(config["blockers"], [])
 
     def test_latest_context_is_numeric_not_lexical(self):
         with tempfile.TemporaryDirectory() as temp_dir:

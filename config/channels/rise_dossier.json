@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "channel": "rise_dossier",
   "display_name": "Rise Dossier",
-  "status": "planning",
+  "status": "active",
   "production_enabled": false,
   "language": "en",
   "timezone": "Europe/Istanbul",
@@ -60,14 +60,12 @@
       168,
       672
     ],
-    "next_action": "first_full_dry_run"
+    "next_action": "notion_sync_and_production_enablement_review"
   },
   "safety": {
     "allow_cross_channel_asset_reuse": false,
     "allow_cross_channel_content_reuse": false,
     "require_explicit_execute_flag": true
   },
-  "blockers": [
-    "first_dry_run_required"
-  ]
+  "blockers": []
 }
