@@ -1,7 +1,8 @@
-﻿import argparse
+import argparse
 import json
 import os
 import re
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -14,12 +15,15 @@ from output import build_output
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
 
-DEFAULT_CHANNEL_NAME = "hiddenova"
-DEFAULT_CHANNEL_DESCRIPTION = (
-    "Hiddenova is an English documentary-style YouTube channel about "
-    "the hidden systems, unseen infrastructure, logistics, technology, "
-    "business operations, and invisible networks that quietly keep modern life running."
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.channel_content_policy import (
+    build_channel_description,
+    load_editorial_profile,
 )
+
+DEFAULT_CHANNEL_NAME = "hiddenova"
 
 
 def load_file(filename: str) -> str:
@@ -149,7 +153,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--description",
-        default=DEFAULT_CHANNEL_DESCRIPTION
+        default=None
     )
     parser.add_argument(
         "--video-id",
@@ -180,7 +184,12 @@ def resolve_channel_input(
             input("Channel Description: ")
         )
 
-    return args.channel, args.description
+    channel = args.channel.lower()
+    description = (
+        args.description
+        or build_channel_description(channel)
+    )
+    return channel, description
 
 
 def main() -> None:
@@ -228,9 +237,13 @@ def main() -> None:
     system_prompt = load_file("system.md")
     workflow = load_file("workflow.md")
 
+    editorial_profile = load_editorial_profile(
+        channel_name
+    )
     user_prompt = build_research_prompt(
         channel_name=channel_name,
-        channel_description=channel_description
+        channel_description=channel_description,
+        editorial_profile=editorial_profile,
     )
 
     response = client.responses.create(

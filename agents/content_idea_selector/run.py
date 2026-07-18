@@ -15,6 +15,10 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.channel_content_policy import (
+    build_quality_gates,
+    load_editorial_profile,
+)
 from core.topic_novelty import (
     load_historical_topics,
     resolve_selected_index,
@@ -123,34 +127,46 @@ def extract_json(text: str) -> dict:
 def select_with_ai(
     ideas: list[dict],
     historical_topics: list[dict],
-    model: str
+    model: str,
+    editorial_profile: dict,
 ) -> dict:
     client = OpenAI()
 
+    topic_strategy = editorial_profile["topic_strategy"]
+
     prompt = f"""
 You are the Topic Novelty Gate and Head Content Agent
-for Hiddenova.
+for {editorial_profile["display_name"]}.
 
 Evaluate every proposed idea before selecting the next
 documentary topic.
 
-A topic is a duplicate when it explains substantially
-the same underlying system, workflow, infrastructure,
-institution, viewer promise, or operational process as
-an existing video.
+CHANNEL PROMISE:
+{topic_strategy["channel_promise"]}
 
-Different wording does not make a topic unique.
-Baggage, luggage, and suitcase handling are the same
-topic. A new title or click angle is not enough.
+ALLOWED PILLARS:
+{json.dumps(topic_strategy["allowed_pillars"], indent=2)}
 
-EXISTING HIDDENOVA VIDEOS:
+SELECTION RULES:
+{json.dumps(topic_strategy["selection_rules"], indent=2)}
+
+FORBIDDEN ANGLES:
+{json.dumps(topic_strategy["forbidden_angles"], indent=2)}
+
+A topic is a duplicate when it delivers substantially
+the same subject, central question, turning point,
+viewer promise, or narrative journey as an existing
+video. Different wording is not enough.
+
+EXISTING CHANNEL VIDEOS:
 {json.dumps(historical_topics, indent=2, ensure_ascii=True)}
 
 NEW RESEARCH IDEAS:
 {json.dumps(ideas, indent=2, ensure_ascii=True)}
 
 Evaluate all ideas. Reject thematic and semantic
-duplicates. Select the strongest genuinely new idea.
+duplicates. Select the strongest genuinely new idea
+that matches the channel promise and source requirements.
 
 Return only valid JSON with exactly this structure:
 
@@ -181,7 +197,9 @@ Rules:
   synonym-based version of an existing video.
 - Prefer international relevance, click potential,
   evergreen value, visual feasibility, advertiser
-  safety, and documentary depth.
+  safety, documentary depth, and source feasibility.
+- Reject unsupported conspiracy, private-life speculation,
+  fictionalized stories, and low-evidence scandal angles.
 """
 
     response = client.chat.completions.create(
@@ -278,6 +296,8 @@ def main() -> None:
     if not os.getenv("OPENAI_API_KEY"):
         raise ValueError("OpenAI API Key not found.")
 
+    editorial_profile = load_editorial_profile(channel)
+
     historical_topics = load_historical_topics(
         project_root=PROJECT_ROOT,
         channel=channel,
@@ -287,7 +307,8 @@ def main() -> None:
     raw_analysis = select_with_ai(
         ideas=research_data["ideas"],
         historical_topics=historical_topics,
-        model=args.model
+        model=args.model,
+        editorial_profile=editorial_profile,
     )
 
     novelty_analysis = validate_novelty_analysis(
@@ -395,23 +416,21 @@ def main() -> None:
         "outputs": {},
         "quality_gates": {
             "no_latest_json_sources": True,
-            "minimum_content_qa_score": 85,
-            "target_script_word_count_min": 1250,
-            "target_script_word_count_max": 1650,
-            "target_audio_duration_min_seconds": 480,
-            "target_audio_duration_max_seconds": 720,
-            "target_video_duration_min_seconds": 480,
-            "target_video_duration_max_seconds": 720,
+            "minimum_content_qa_score": int(
+                editorial_profile["qa"][
+                    "minimum_overall_score"
+                ]
+            ),
+            **build_quality_gates(editorial_profile),
             "require_actual_chapters": True,
             "chapter_timing_source": "actual_audio_sections",
             "max_audio_duration_revision_attempts": 2,
-            "require_hiddenova_brand_intro": True,
             "require_standard_cta": True,
             "require_end_screen_area": True,
             "require_ai_visuals": True,
             "minimum_ai_insert_count": 8,
             "require_thumbnail": True,
-            "thumbnail_text_min_words": 1,
+            "thumbnail_text_min_words": 2,
             "thumbnail_text_max_words": 4,
             "thumbnail_two_color_text": True,
             "require_founder_review": True,

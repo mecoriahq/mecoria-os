@@ -22,8 +22,8 @@
   "content": {
     "niche": "Real stories behind the rise, fall, power, wealth, scandals and mysteries of companies and famous people",
     "format": "9-10 minute English documentary",
-    "editorial_standard": "rise_dossier_editorial_v1_planned",
-    "thumbnail_standard": "rise_dossier_thumbnail_v1_planned",
+    "editorial_standard": "rise_dossier_editorial_v1",
+    "thumbnail_standard": "rise_dossier_investigative_v1",
     "publishing_cadence_days": 3,
     "core_promise": "The real stories behind the rise, fall, power, wealth, scandals and mysteries of companies and famous people.",
     "content_pillars": [
@@ -60,7 +60,7 @@
       168,
       672
     ],
-    "next_action": "editorial_and_thumbnail_system_configuration"
+    "next_action": "first_full_dry_run"
   },
   "safety": {
     "allow_cross_channel_asset_reuse": false,
@@ -68,8 +68,6 @@
     "require_explicit_execute_flag": true
   },
   "blockers": [
-    "editorial_system_required",
-    "thumbnail_system_required",
     "first_dry_run_required"
   ]
 }

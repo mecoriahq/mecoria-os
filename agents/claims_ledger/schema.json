@@ -1,0 +1,116 @@
+{
+  "type": "object",
+  "required": [
+    "agent",
+    "version",
+    "channel",
+    "video_id",
+    "run_id",
+    "status",
+    "claims",
+    "summary",
+    "metadata"
+  ],
+  "properties": {
+    "agent": {
+      "const": "claims_ledger"
+    },
+    "version": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "video_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "claim",
+          "claim_type",
+          "sensitivity",
+          "source_ids",
+          "source_count",
+          "primary_source_count",
+          "high_risk",
+          "attribution_required",
+          "verification_status",
+          "blocked_reasons",
+          "allowed_language",
+          "prohibited_language"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string"
+          },
+          "claim": {
+            "type": "string"
+          },
+          "claim_type": {
+            "type": "string"
+          },
+          "sensitivity": {
+            "type": "string"
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_count": {
+            "type": "integer"
+          },
+          "primary_source_count": {
+            "type": "integer"
+          },
+          "high_risk": {
+            "type": "boolean"
+          },
+          "attribution_required": {
+            "type": "boolean"
+          },
+          "verification_status": {
+            "enum": [
+              "approved",
+              "blocked"
+            ]
+          },
+          "blocked_reasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowed_language": {
+            "type": "string"
+          },
+          "prohibited_language": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

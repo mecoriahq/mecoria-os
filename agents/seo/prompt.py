@@ -16,11 +16,41 @@ def load_text_file(filename: str) -> str:
     return file_path.read_text(encoding="utf-8")
 
 
-def build_prompt(script_data: dict) -> str:
+def build_prompt(
+    script_data: dict,
+    editorial_profile: dict | None = None,
+) -> str:
     system_prompt = load_text_file("system.md")
     workflow = load_text_file("workflow.md")
 
     script = script_data["script"]
+    profile = editorial_profile or {
+        "display_name": "Hiddenova",
+        "profile_name": "hiddenova_editorial_v2",
+        "thumbnail": {
+            "standard_name": "hiddenova_cinematic_v3",
+        },
+        "factuality": {
+            "pipeline_required": False,
+        },
+    }
+    channel_name = profile["display_name"]
+    thumbnail_standard = profile["thumbnail"][
+        "standard_name"
+    ]
+    factual_required = bool(
+        profile.get("factuality", {}).get(
+            "pipeline_required",
+            False,
+        )
+    )
+    factual_rule = (
+        "- Metadata must not introduce any factual claim, allegation, "
+        "criminal implication, quotation, date, number, or motive that "
+        "is absent from the approved script."
+        if factual_required
+        else "- Metadata must remain fully aligned with the script."
+    )
 
     required_schema = {
         "video_title": "string",
@@ -77,6 +107,14 @@ Call To Action:
 {script["call_to_action"]["narration"]}
 
 --------------------------------------------------
+CHANNEL EDITORIAL PROFILE
+--------------------------------------------------
+
+Channel: {channel_name}
+Editorial Standard: {profile["profile_name"]}
+Thumbnail Standard: {thumbnail_standard}
+
+--------------------------------------------------
 TITLE AND THUMBNAIL STANDARD
 --------------------------------------------------
 
@@ -97,6 +135,14 @@ TITLE AND THUMBNAIL STANDARD
 - Title and thumbnail must work as one package:
   one creates the question and the other sharpens the
   tension.
+- Follow the channel thumbnail standard named
+  {thumbnail_standard}.
+- For Rise Dossier, prefer specific power, turning-point,
+  collapse, scandal, or consequence language over vague
+  mystery phrases.
+- Never fabricate evidence, a mugshot, an arrest, a quote,
+  or a criminal implication.
+{factual_rule}
 
 --------------------------------------------------
 OUTPUT REQUIREMENTS

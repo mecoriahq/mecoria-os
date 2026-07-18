@@ -17,6 +17,10 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.channel_content_policy import (
+    factual_pipeline_required,
+    load_editorial_profile,
+)
 from core.video_run_context import (
     load_context,
     register_output,
@@ -336,8 +340,11 @@ def apply_deterministic_checks(
         script_data=script_data,
         require_brand_intro=bool(
             gates.get(
-                "require_hiddenova_brand_intro",
-                False
+                "require_channel_brand_intro",
+                gates.get(
+                    "require_hiddenova_brand_intro",
+                    False,
+                ),
             )
         ),
         require_standard_cta=bool(
@@ -345,7 +352,19 @@ def apply_deterministic_checks(
                 "require_standard_cta",
                 False
             )
-        )
+        ),
+        brand_name=str(
+            gates.get(
+                "channel_brand_name",
+                "Hiddenova",
+            )
+        ),
+        brand_intro_scan_words=int(
+            gates.get(
+                "channel_brand_intro_scan_words",
+                25,
+            )
+        ),
     )
 
     for name, result in contract["checks"].items():
@@ -371,9 +390,9 @@ def apply_deterministic_checks(
             {
                 "field": "script.introduction",
                 "suggestion": (
-                    "Begin the introduction with one very "
-                    "short sentence containing Hiddenova, "
-                    "then immediately advance the story."
+                    "Add the configured channel brand name "
+                    "within the required opening window, then "
+                    "immediately advance the story."
                 )
             }
         )
@@ -536,8 +555,8 @@ def build_thresholds(
     }
 
     if gates.get(
-        "require_hiddenova_brand_intro",
-        False
+        "require_channel_brand_intro",
+        gates.get("require_hiddenova_brand_intro", False)
     ):
         thresholds["hiddenova_brand_intro"] = 100
 
@@ -698,10 +717,11 @@ def normalize_output(
         "issues": issues,
         "recommendations": recommendations,
         "metadata": {
-            "source_agents": [
-                "script",
-                "seo"
-            ],
+            "source_agents": (
+                ["script", "seo", "fact_qa", "risk_review"]
+                if gates.get("factual_pipeline_required", False)
+                else ["script", "seo"]
+            ),
             "next_agent": next_agent
         }
     }
@@ -857,6 +877,39 @@ def save_video_specific_output(
     return output_path
 
 
+def load_factual_qa_inputs(
+    context: dict | None,
+    editorial_profile: dict,
+) -> tuple[dict | None, dict | None]:
+    if not context or not factual_pipeline_required(
+        editorial_profile
+    ):
+        return None, None
+
+    fact_path = resolve_output(
+        context=context,
+        key="fact_qa",
+    )
+    risk_path = resolve_output(
+        context=context,
+        key="risk_review",
+    )
+    fact_qa = load_json(fact_path)
+    risk_review = load_json(risk_path)
+
+    if fact_qa.get("status") != "approved":
+        raise ValueError(
+            "Fact QA must be approved before editorial QA."
+        )
+
+    if risk_review.get("status") != "approved":
+        raise ValueError(
+            "Risk review must be approved before editorial QA."
+        )
+
+    return fact_qa, risk_review
+
+
 def main() -> None:
     args = parse_args()
     channel = args.channel.lower()
@@ -879,6 +932,14 @@ def main() -> None:
         video_id=video_id
     )
 
+    editorial_profile = load_editorial_profile(channel)
+    fact_qa_data, risk_review_data = (
+        load_factual_qa_inputs(
+            context=context,
+            editorial_profile=editorial_profile,
+        )
+    )
+
     print(f"CHANNEL: {channel}")
     print(
         f"VIDEO_CONTEXT_ID: {video_id}"
@@ -898,6 +959,14 @@ def main() -> None:
     print(
         "SEO_TITLE: "
         f"{seo_data['seo']['video_title']}"
+    )
+    print(
+        "EDITORIAL_STANDARD: "
+        f"{editorial_profile['profile_name']}"
+    )
+    print(
+        "FACTUAL_PIPELINE_REQUIRED: "
+        f"{str(factual_pipeline_required(editorial_profile)).lower()}"
     )
 
     gates = (
@@ -947,7 +1016,10 @@ def main() -> None:
     else:
         prompt = build_prompt(
             script_data=script_data,
-            seo_data=seo_data
+            seo_data=seo_data,
+            editorial_profile=editorial_profile,
+            fact_qa_data=fact_qa_data,
+            risk_review_data=risk_review_data,
         )
         raw_qa_data = generate_qa(prompt)
 

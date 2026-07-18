@@ -5,14 +5,24 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_STANDARD_NAME = "hiddenova_cinematic_v3"
-DEFAULT_STANDARD_PATH = (
-    PROJECT_ROOT
-    / "config"
-    / "media"
-    / "hiddenova_thumbnail_standard.json"
-)
+DEFAULT_CHANNEL = "hiddenova"
+EXPECTED_STANDARD_NAMES = {
+    "hiddenova": "hiddenova_cinematic_v3",
+    "rise_dossier": "rise_dossier_investigative_v1",
+}
 
+
+def default_standard_path(channel: str = DEFAULT_CHANNEL) -> Path:
+    normalized = str(channel).strip().lower()
+    return (
+        PROJECT_ROOT
+        / "config"
+        / "media"
+        / f"{normalized}_thumbnail_standard.json"
+    )
+
+
+DEFAULT_STANDARD_PATH = default_standard_path(DEFAULT_CHANNEL)
 
 def file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -26,9 +36,15 @@ def file_sha256(path: Path) -> str:
 
 def resolve_gold_reference_path(
     standard: dict | None = None
-) -> Path:
+) -> Path | None:
     standard = standard or load_thumbnail_standard()
-    reference = Path(standard["gold_reference"]["asset_path"])
+    gold = standard.get("gold_reference", {})
+    asset_path = str(gold.get("asset_path", "")).strip()
+
+    if not asset_path:
+        return None
+
+    reference = Path(asset_path)
 
     if not reference.is_absolute():
         reference = PROJECT_ROOT / reference
@@ -37,8 +53,16 @@ def resolve_gold_reference_path(
 
 
 def load_thumbnail_standard(
-    path: Path = DEFAULT_STANDARD_PATH
+    path: Path | None = None,
+    channel: str | None = None,
 ) -> dict:
+    normalized_channel = (
+        str(channel).strip().lower()
+        if channel
+        else DEFAULT_CHANNEL
+    )
+    path = path or default_standard_path(normalized_channel)
+
     if not path.exists():
         raise FileNotFoundError(
             f"Thumbnail standard not found: {path}"
@@ -61,7 +85,6 @@ def load_thumbnail_standard(
         "qa_gates",
         "concept_system",
     }
-
     missing = required_fields - set(standard)
 
     if missing:
@@ -70,9 +93,21 @@ def load_thumbnail_standard(
             + ", ".join(sorted(missing))
         )
 
-    if standard["standard_name"] != EXPECTED_STANDARD_NAME:
+    standard_channel = str(standard["channel"]).strip().lower()
+
+    if channel and standard_channel != normalized_channel:
         raise ValueError(
-            "Unexpected Hiddenova thumbnail standard."
+            "Thumbnail standard channel mismatch: "
+            f"expected={normalized_channel} actual={standard_channel}"
+        )
+
+    expected_name = EXPECTED_STANDARD_NAMES.get(standard_channel)
+
+    if expected_name and standard["standard_name"] != expected_name:
+        raise ValueError(
+            "Unexpected thumbnail standard: "
+            f"channel={standard_channel} "
+            f"standard={standard['standard_name']}"
         )
 
     gold = standard["gold_reference"]
@@ -90,19 +125,22 @@ def load_thumbnail_standard(
             + ", ".join(sorted(gold_missing))
         )
 
+    gold_is_required = bool(gold.get("required", True))
     reference_path = resolve_gold_reference_path(standard)
 
-    if not reference_path.exists():
-        raise FileNotFoundError(
-            f"Thumbnail gold reference not found: {reference_path}"
-        )
+    if gold_is_required:
+        if reference_path is None or not reference_path.exists():
+            raise FileNotFoundError(
+                "Thumbnail gold reference not found: "
+                f"{reference_path}"
+            )
 
-    actual_sha = file_sha256(reference_path)
+        actual_sha = file_sha256(reference_path)
 
-    if actual_sha != str(gold["sha256"]):
-        raise ValueError(
-            "Thumbnail gold reference SHA-256 mismatch."
-        )
+        if actual_sha != str(gold["sha256"]):
+            raise ValueError(
+                "Thumbnail gold reference SHA-256 mismatch."
+            )
 
     layout_signature = standard["layout"].get(
         "layout_signature"
@@ -110,7 +148,7 @@ def load_thumbnail_standard(
 
     if layout_signature != gold["layout_signature"]:
         raise ValueError(
-            "Thumbnail layout signature does not match gold reference."
+            "Thumbnail layout signature does not match standard reference."
         )
 
     concept_system = standard["concept_system"]
@@ -122,10 +160,7 @@ def load_thumbnail_standard(
         "minimum_vision_score",
         "minimum_final_score",
     }
-    concept_missing = (
-        required_concept_fields
-        - set(concept_system)
-    )
+    concept_missing = required_concept_fields - set(concept_system)
 
     if concept_missing:
         raise ValueError(
@@ -133,19 +168,13 @@ def load_thumbnail_standard(
             + ", ".join(sorted(concept_missing))
         )
 
-    candidate_count = int(
-        concept_system["candidate_count"]
-    )
-    finalist_count = int(
-        concept_system["finalist_count"]
-    )
-    required_types = concept_system[
-        "required_concept_types"
-    ]
+    candidate_count = int(concept_system["candidate_count"])
+    finalist_count = int(concept_system["finalist_count"])
+    required_types = concept_system["required_concept_types"]
 
     if candidate_count != 3:
         raise ValueError(
-            "Hiddenova thumbnail v3 requires exactly 3 concepts."
+            "Mecoria thumbnail system requires exactly 3 concepts."
         )
 
     if not 1 <= finalist_count < candidate_count:
@@ -207,6 +236,7 @@ def assert_thumbnail_text(
     value: str,
     standard: dict | None = None
 ) -> dict:
+    standard = standard or load_thumbnail_standard()
     result = validate_thumbnail_text(
         value=value,
         standard=standard
@@ -214,7 +244,8 @@ def assert_thumbnail_text(
 
     if not result["approved"]:
         raise ValueError(
-            "Thumbnail text failed Hiddenova standard: "
+            "Thumbnail text failed channel standard: "
+            f"standard={standard['standard_name']} "
             f"text={result['original_text']} "
             f"word_count={result['word_count']} "
             f"required={result['minimum_words']}-"
@@ -261,6 +292,7 @@ def build_thumbnail_overlay_spec(
 ) -> dict:
     standard = standard or load_thumbnail_standard()
     overlay = dict(standard["overlay"])
+    gold = standard.get("gold_reference", {})
     overlay.update({
         "standard_name": standard["standard_name"],
         "layout_signature": standard["layout"][
@@ -270,15 +302,13 @@ def build_thumbnail_overlay_spec(
         "subject_position": standard["layout"][
             "subject_position"
         ],
-        "gold_reference_path": standard["gold_reference"][
-            "asset_path"
-        ],
-        "gold_reference_sha256": standard["gold_reference"][
-            "sha256"
-        ],
+        "gold_reference_required": bool(
+            gold.get("required", True)
+        ),
+        "gold_reference_path": gold.get("asset_path", ""),
+        "gold_reference_sha256": gold.get("sha256", ""),
     })
     return overlay
-
 
 
 THUMBNAIL_GENERIC_WORDS = {
@@ -777,14 +807,34 @@ def build_thumbnail_prompt(
     text_result = assert_thumbnail_text(thumbnail_text, standard)
     forbidden = ", ".join(standard["forbidden_elements"])
     signature = standard["layout"]["layout_signature"]
+    channel_name = standard.get(
+        "channel_display_name",
+        standard["channel"].replace("_", " ").title(),
+    )
+    text_config = standard["text"]
+    visual_lines = "\n".join(
+        f"- {line}"
+        for line in standard["visual_tone"].get(
+            "style_lines",
+            [],
+        )
+    )
+    gold_required = bool(
+        standard.get("gold_reference", {}).get("required", True)
+    )
+    reference_instruction = (
+        "Match the approved channel gold-reference structure exactly."
+        if gold_required
+        else "Follow the channel layout and visual standard exactly."
+    )
 
     return f"""
-Create a premium cinematic YouTube documentary thumbnail for Hiddenova.
+Create a premium cinematic YouTube documentary thumbnail for {channel_name}.
 
 THUMBNAIL_STANDARD:
 {standard["standard_name"]}
 
-GOLD_REFERENCE_LAYOUT_SIGNATURE:
+LAYOUT_SIGNATURE:
 {signature}
 
 VIDEO_TOPIC:
@@ -797,25 +847,22 @@ EXACT_THUMBNAIL_TEXT:
 {text_result["normalized_text"]}
 
 NON_NEGOTIABLE_HOUSE_STYLE:
-- match the approved Hiddenova cinematic gold-reference structure
-- oversized stacked ALL CAPS headline on the left
-- one dominant topic-specific subject on the right
-- white headline lines with the final emphasis line in bright yellow
+- {reference_instruction}
+- oversized stacked ALL CAPS headline on {text_position}
+- one dominant topic-specific subject on the {standard["layout"]["subject_position"]}
+- primary headline color {text_config["primary_color"]}
+- final emphasis color {text_config["highlight_color"]}
 - bold condensed sans-serif appearance
-- thick black outline and deep black shadow
-- dark blue cinematic high-contrast background
-- strong rim lighting, energy, depth, and visual tension
-- clean premium documentary composition
-- subject must remain instantly recognizable on mobile
-- headline must dominate approximately 40 to 52 percent of the frame
-- style consistency must be exact while the subject changes by topic
+- thick dark outline and deep shadow
+- high-contrast mobile-first documentary composition
+{visual_lines}
 
 FORBIDDEN:
 {forbidden}
 
 Do not add any other text.
 Do not change the exact thumbnail text.
-Do not copy the payment-terminal subject from the gold reference unless it matches the video topic.
+Do not fabricate evidence, quotations, arrests, or criminal implications.
 """.strip()
 
 
@@ -834,15 +881,33 @@ def build_thumbnail_background_prompt(
     text_result = assert_thumbnail_text(thumbnail_text, standard)
     layout = standard["layout"]
     visual = standard["visual_tone"]
+    channel_name = standard.get(
+        "channel_display_name",
+        standard["channel"].replace("_", " ").title(),
+    )
+    style_lines = "\n".join(
+        f"- {line}"
+        for line in visual.get("style_lines", [])
+    )
+    gold_required = bool(
+        standard.get("gold_reference", {}).get("required", True)
+    )
+    reference_instruction = (
+        "Use the approved channel gold reference for exact structure, "
+        "lighting hierarchy, and mobile readability."
+        if gold_required
+        else "Use the locked channel standard for composition, lighting, "
+        "evidence discipline, and mobile readability."
+    )
 
     return f"""
-Create a premium cinematic YouTube documentary thumbnail background for Hiddenova.
+Create a premium cinematic YouTube documentary thumbnail background for {channel_name}.
 
 THUMBNAIL_STANDARD:
 {standard["standard_name"]}
 
-GOLD_REFERENCE:
-Use the approved Hiddenova gold-reference thumbnail as the exact style and layout reference. Reproduce its composition discipline, emotional intensity, lighting hierarchy, depth, and mobile readability. Do not reproduce its payment-terminal subject unless the current topic requires it.
+STYLE_REFERENCE:
+{reference_instruction}
 
 VIDEO_TOPIC:
 {video_topic}
@@ -869,28 +934,20 @@ LOCKED_COMPOSITION:
 - layout signature: {layout["layout_signature"]}
 - reserve the left {int(float(layout["text_area_ratio_max"]) * 100)} percent for a huge stacked headline
 - place one dominant subject on the right or center-right
-- keep the left headline zone dark, simple, and high contrast
+- keep the headline zone dark, simple, and high contrast
 - create a clear visual path from headline to subject
 - no collage and no competing secondary subject
 
 MANDATORY_BACKGROUND_STYLE:
-- dark navy and electric blue cinematic palette
-- dramatic high-contrast lighting and bright focal glow
-- premium documentary realism
-- urgent high-curiosity atmosphere
-- strong depth, particles, light trails, or subtle network energy only when topic-relevant
-- realistic materials and lighting
-- mobile-first clarity
 - visual tone: {visual["tone"]}
+{style_lines}
 
 CRITICAL:
 - Generate the background only.
 - Do not render any text.
-- No logos.
-- No watermarks.
-- No readable UI labels.
-- No unrelated objects.
+- No watermarks or unrelated objects.
 - No generic stock-poster layout.
+- No fabricated evidence, fake mugshot, fake arrest scene, or unsupported criminal implication.
 """.strip()
 
 
@@ -900,31 +957,49 @@ def build_thumbnail_qa_checklist(
 ) -> dict:
     standard = standard or load_thumbnail_standard()
     text_result = validate_thumbnail_text(thumbnail_text, standard)
+    gold = standard.get("gold_reference", {})
+    gold_required = bool(gold.get("required", True))
     reference_path = resolve_gold_reference_path(standard)
-    reference_sha_valid = (
-        reference_path.exists()
-        and file_sha256(reference_path)
-        == standard["gold_reference"]["sha256"]
+
+    if gold_required:
+        reference_sha_valid = bool(
+            reference_path
+            and reference_path.exists()
+            and file_sha256(reference_path) == gold.get("sha256", "")
+        )
+    else:
+        reference_sha_valid = True
+
+    expected_name = EXPECTED_STANDARD_NAMES.get(
+        str(standard["channel"]).lower()
+    )
+    standard_matches_channel = (
+        expected_name is None
+        or standard["standard_name"] == expected_name
     )
 
     automatic_checks = {
         "text_word_count_valid": text_result["word_count_valid"],
         "text_is_uppercase": text_result["uppercase_valid"],
-        "standard_is_hiddenova_cinematic_v3": (
-            standard["standard_name"] == EXPECTED_STANDARD_NAME
-        ),
+        "standard_matches_channel": standard_matches_channel,
         "gold_reference_traceable": reference_sha_valid,
         "text_position_locked_left": (
             standard["layout"]["text_position"] == "left"
         ),
         "subject_position_locked_right": (
             standard["layout"]["subject_position"]
-            in {"right", "center_right"}
+            in {"right", "center_right", "center-right"}
         ),
         "two_color_emphasis_required": (
             standard["text"]["two_color_required"] is True
         ),
     }
+
+    if standard["channel"] == "hiddenova":
+        automatic_checks["standard_is_hiddenova_cinematic_v3"] = (
+            standard["standard_name"]
+            == EXPECTED_STANDARD_NAMES["hiddenova"]
+        )
 
     manual_checks = {
         key: None
@@ -934,12 +1009,14 @@ def build_thumbnail_qa_checklist(
 
     return {
         "standard_name": standard["standard_name"],
+        "channel": standard["channel"],
         "layout_signature": standard["layout"][
             "layout_signature"
         ],
         "gold_reference": {
-            "asset_path": standard["gold_reference"]["asset_path"],
-            "sha256": standard["gold_reference"]["sha256"],
+            "required": gold_required,
+            "asset_path": gold.get("asset_path", ""),
+            "sha256": gold.get("sha256", ""),
         },
         "thumbnail_text": text_result["normalized_text"],
         "word_count": text_result["word_count"],

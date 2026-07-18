@@ -613,7 +613,9 @@ def evaluate_editorial_structure(
 def evaluate_hiddenova_channel_contract(
     script_data: dict,
     require_brand_intro: bool = True,
-    require_standard_cta: bool = True
+    require_standard_cta: bool = True,
+    brand_name: str = "Hiddenova",
+    brand_intro_scan_words: int = 25,
 ) -> dict:
     script = script_data.get(
         "script",
@@ -631,12 +633,20 @@ def evaluate_hiddenova_channel_contract(
         r"\b[\w'-]+\b",
         introduction
     )
+    scan_limit = max(
+        1,
+        int(brand_intro_scan_words)
+    )
     intro_opening = " ".join(
-        intro_words[:25]
+        intro_words[:scan_limit]
     ).lower()
+    escaped_brand = re.escape(
+        str(brand_name).strip().lower()
+    )
     brand_intro_present = bool(
-        re.search(
-            r"\bhiddenova\b",
+        escaped_brand
+        and re.search(
+            rf"\b{escaped_brand}\b",
             intro_opening
         )
     )
@@ -694,7 +704,8 @@ def evaluate_hiddenova_channel_contract(
             "severity": "high",
             "message": (
                 "The introduction must include the exact "
-                "word Hiddenova within its first 25 words."
+                f"channel name {brand_name} within its first "
+                f"{scan_limit} words."
             )
         })
 
@@ -743,10 +754,12 @@ def evaluate_hiddenova_channel_contract(
             },
         },
         "metrics": {
+            "brand_name": brand_name,
+            "brand_intro_required": require_brand_intro,
             "brand_intro_present": brand_intro_present,
             "brand_intro_scan_words": min(
                 len(intro_words),
-                25
+                scan_limit
             ),
             "cta_actions": cta_actions,
             "cta_word_count": cta_word_count,
@@ -754,6 +767,7 @@ def evaluate_hiddenova_channel_contract(
         },
         "issues": issues,
     }
+
 
 def evaluate_qa_editorial_gate(
     qa_data: dict,

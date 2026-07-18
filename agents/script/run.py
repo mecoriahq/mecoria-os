@@ -17,10 +17,15 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.channel_content_policy import (
+    factual_pipeline_required,
+    load_editorial_profile,
+)
 from core.video_run_context import (
     assert_topic_approved,
     load_context,
     register_output,
+    resolve_output,
     resolve_source,
     save_context,
     set_status,
@@ -123,48 +128,135 @@ def to_text(value) -> str:
     return str(value)
 
 
-def get_narration(value) -> dict:
-    return {
+def normalize_claim_ids(value) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+
+    raw = value.get("claim_ids", [])
+
+    if not isinstance(raw, list):
+        return []
+
+    return list(dict.fromkeys(
+        str(item).strip()
+        for item in raw
+        if str(item).strip()
+    ))
+
+
+def get_narration(
+    value,
+    require_claim_ids: bool = False
+) -> dict:
+    result = {
         "narration": to_text(value)
     }
 
+    if require_claim_ids:
+        result["claim_ids"] = normalize_claim_ids(value)
 
-def normalize_sections(script: dict) -> list:
-    raw_sections = script.get("main_sections") or script.get("sections") or []
+    return result
+
+
+def normalize_sections(
+    script: dict,
+    require_claim_ids: bool = False
+) -> list:
+    raw_sections = (
+        script.get("main_sections")
+        or script.get("sections")
+        or []
+    )
     normalized_sections = []
 
     for index, section in enumerate(raw_sections, start=1):
-        title = section.get("title") or section.get("heading") or f"Section {index}"
-        narration = section.get("narration") or section.get("content") or ""
-        visual_direction = section.get("visual_direction") or section.get("visuals") or ""
-
-        normalized_sections.append(
-            {
-                "title": to_text(title),
-                "narration": to_text(narration),
-                "visual_direction": to_text(visual_direction)
-            }
+        title = (
+            section.get("title")
+            or section.get("heading")
+            or f"Section {index}"
         )
+        narration = (
+            section.get("narration")
+            or section.get("content")
+            or ""
+        )
+        visual_direction = (
+            section.get("visual_direction")
+            or section.get("visuals")
+            or ""
+        )
+        normalized = {
+            "title": to_text(title),
+            "narration": to_text(narration),
+            "visual_direction": to_text(visual_direction)
+        }
+
+        if require_claim_ids:
+            normalized["claim_ids"] = normalize_claim_ids(
+                section
+            )
+
+        normalized_sections.append(normalized)
 
     return normalized_sections
 
 
-def normalize_script(script_data: dict) -> dict:
+def normalize_script(
+    script_data: dict,
+    estimated_duration_label: str = "8-12 minutes",
+    require_claim_ids: bool = False,
+) -> dict:
     script = script_data.get("script", script_data)
 
     return {
         "title": to_text(script.get("title", "Untitled Script")),
-        "format": to_text(script.get("format", "Long-form YouTube documentary")),
-        "estimated_duration": "8-12 minutes",
-        "hook": get_narration(script.get("hook")),
-        "introduction": get_narration(script.get("introduction") or script.get("intro")),
-        "main_sections": normalize_sections(script),
-        "conclusion": get_narration(script.get("conclusion")),
-        "call_to_action": get_narration(script.get("call_to_action"))
+        "format": to_text(
+            script.get(
+                "format",
+                "Long-form YouTube documentary"
+            )
+        ),
+        "estimated_duration": estimated_duration_label,
+        "hook": get_narration(
+            script.get("hook"),
+            require_claim_ids=require_claim_ids,
+        ),
+        "introduction": get_narration(
+            script.get("introduction")
+            or script.get("intro"),
+            require_claim_ids=require_claim_ids,
+        ),
+        "main_sections": normalize_sections(
+            script,
+            require_claim_ids=require_claim_ids,
+        ),
+        "conclusion": get_narration(
+            script.get("conclusion"),
+            require_claim_ids=require_claim_ids,
+        ),
+        "call_to_action": get_narration(
+            script.get("call_to_action"),
+            require_claim_ids=require_claim_ids,
+        )
     }
 
 
-def normalize_output(research_data: dict, selected_idea: dict, script_data: dict) -> dict:
+def normalize_output(
+    research_data: dict,
+    selected_idea: dict,
+    script_data: dict,
+    editorial_profile: dict | None = None,
+) -> dict:
+    profile = editorial_profile or {
+        "script": {
+            "estimated_duration_label": "8-12 minutes"
+        },
+        "factuality": {
+            "pipeline_required": False
+        },
+    }
+    factual_required = factual_pipeline_required(profile)
+
     return {
         "agent": "script",
         "version": "1.0",
@@ -174,7 +266,15 @@ def normalize_output(research_data: dict, selected_idea: dict, script_data: dict
             "version": research_data["version"],
             "idea_title": selected_idea["title"]
         },
-        "script": normalize_script(script_data)
+        "script": normalize_script(
+            script_data,
+            estimated_duration_label=(
+                profile["script"][
+                    "estimated_duration_label"
+                ]
+            ),
+            require_claim_ids=factual_required,
+        )
     }
 
 
@@ -342,6 +442,44 @@ def load_revision_feedback(
     return data, path
 
 
+def load_factual_inputs(
+    context: dict | None,
+    editorial_profile: dict,
+) -> tuple[dict | None, dict | None, Path | None, Path | None]:
+    if not context or not factual_pipeline_required(
+        editorial_profile
+    ):
+        return None, None, None, None
+
+    research_path = resolve_output(
+        context=context,
+        key="factual_research",
+    )
+    ledger_path = resolve_output(
+        context=context,
+        key="claims_ledger",
+    )
+    factual_research = load_json(research_path)
+    claims_ledger = load_json(ledger_path)
+
+    if factual_research.get("status") != "approved":
+        raise ValueError(
+            "Factual research must be approved before script."
+        )
+
+    if claims_ledger.get("status") != "approved":
+        raise ValueError(
+            "Claims ledger must be approved before script."
+        )
+
+    return (
+        factual_research,
+        claims_ledger,
+        research_path,
+        ledger_path,
+    )
+
+
 def main() -> None:
     args = parse_args()
     channel = args.channel.lower()
@@ -365,6 +503,17 @@ def main() -> None:
         idea_index=args.idea_index
     )
 
+    editorial_profile = load_editorial_profile(channel)
+    (
+        factual_research,
+        claims_ledger,
+        factual_research_path,
+        claims_ledger_path,
+    ) = load_factual_inputs(
+        context=context,
+        editorial_profile=editorial_profile,
+    )
+
     print(f"CHANNEL: {channel}")
     print(f"VIDEO_CONTEXT_ID: {video_id}")
     print(
@@ -376,6 +525,24 @@ def main() -> None:
         f"{get_relative_path(selection_path) if selection_path else 'legacy'}"
     )
     print(f"SELECTED_TOPIC: {selected_idea['title']}")
+    print(
+        "EDITORIAL_STANDARD: "
+        f"{editorial_profile['profile_name']}"
+    )
+    print(
+        "FACTUAL_PIPELINE_REQUIRED: "
+        f"{str(factual_pipeline_required(editorial_profile)).lower()}"
+    )
+
+    if factual_research_path:
+        print(
+            "FACTUAL_RESEARCH_SOURCE: "
+            f"{get_relative_path(factual_research_path)}"
+        )
+        print(
+            "CLAIMS_LEDGER_SOURCE: "
+            f"{get_relative_path(claims_ledger_path)}"
+        )
 
     if args.dry_run:
         print("STATUS: script_dry_run_ready")
@@ -421,7 +588,10 @@ def main() -> None:
         selected_idea=selected_idea,
         target_word_count_min=target_word_min,
         target_word_count_max=target_word_max,
-        revision_feedback=revision_feedback
+        revision_feedback=revision_feedback,
+        editorial_profile=editorial_profile,
+        factual_research=factual_research,
+        claims_ledger=claims_ledger,
     )
 
     raw_script_data = generate_script(prompt)
@@ -429,7 +599,8 @@ def main() -> None:
     final_output = normalize_output(
         research_data=research_data,
         selected_idea=selected_idea,
-        script_data=raw_script_data
+        script_data=raw_script_data,
+        editorial_profile=editorial_profile,
     )
 
     if context:

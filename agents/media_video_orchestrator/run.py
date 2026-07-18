@@ -30,6 +30,11 @@ from core.content_quality import (
     evaluate_qa_editorial_gate,
     evaluate_script_word_count,
 )
+from core.channel_content_policy import (
+    apply_profile_quality_gates,
+    factual_pipeline_required,
+    load_editorial_profile,
+)
 from core.content_usage_registry import (
     register_context_content,
     remove_video_content_records,
@@ -64,8 +69,15 @@ TERMINAL_STATES = {
 }
 
 CONTENT_OUTPUTS = {
+    "factual_research": ["factual_research"],
+    "claims_ledger": ["claims_ledger"],
     "script": ["script"],
     "seo": ["seo"],
+    "fact_risk_qa": [
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
+    ],
     "qa": ["qa"],
 }
 
@@ -275,19 +287,27 @@ def append_history(
 def apply_production_quality_standard(
     context: dict
 ) -> dict:
+    channel = str(context.get("channel") or "hiddenova").lower()
+    profile = load_editorial_profile(channel)
     gates = context.setdefault("quality_gates", {})
-
+    standard_version = profile["profile_name"]
     previous_standard_version = gates.get(
         "editorial_standard_version"
     )
     total_revision_count = int(
         gates.get("editorial_revision_count", 0)
     )
+    duration_revision_count = int(
+        gates.get("audio_duration_revision_count", 0)
+    )
+    adjusted_word_min = gates.get(
+        "target_script_word_count_min"
+    )
+    adjusted_word_max = gates.get(
+        "target_script_word_count_max"
+    )
 
-    if previous_standard_version != EDITORIAL_STANDARD_VERSION:
-        gates["editorial_standard_version"] = (
-            EDITORIAL_STANDARD_VERSION
-        )
+    if previous_standard_version != standard_version:
         gates["editorial_standard_revision_count"] = 0
         gates["editorial_quality_gate_passed"] = False
 
@@ -303,15 +323,14 @@ def apply_production_quality_standard(
                 status="revision_budget_reset",
                 reference=(
                     f"from={previous_label};"
-                    f"to={EDITORIAL_STANDARD_VERSION};"
+                    f"to={standard_version};"
                     "preserved_total_revisions="
                     f"{total_revision_count}"
                 )
             )
             print(
                 "EDITORIAL_STANDARD_MIGRATION: "
-                f"{previous_label} -> "
-                f"{EDITORIAL_STANDARD_VERSION}",
+                f"{previous_label} -> {standard_version}",
                 flush=True
             )
             print(
@@ -319,33 +338,23 @@ def apply_production_quality_standard(
                 flush=True
             )
 
-    duration_revision_count = int(
-        gates.get("audio_duration_revision_count", 0)
+    context = apply_profile_quality_gates(
+        context=context,
+        profile=profile,
     )
+    gates = context["quality_gates"]
 
-    if duration_revision_count == 0:
-        gates.update({
-            "target_script_word_count_min": (
-                DEFAULT_SCRIPT_WORD_MIN
-            ),
-            "target_script_word_count_max": (
-                DEFAULT_SCRIPT_WORD_MAX
-            ),
-        })
+    if duration_revision_count > 0:
+        if adjusted_word_min is not None:
+            gates["target_script_word_count_min"] = int(
+                adjusted_word_min
+            )
+        if adjusted_word_max is not None:
+            gates["target_script_word_count_max"] = int(
+                adjusted_word_max
+            )
 
     gates.update({
-        "target_audio_duration_min_seconds": (
-            DEFAULT_MEDIA_DURATION_MIN_SECONDS
-        ),
-        "target_audio_duration_max_seconds": (
-            DEFAULT_MEDIA_DURATION_MAX_SECONDS
-        ),
-        "target_video_duration_min_seconds": (
-            DEFAULT_MEDIA_DURATION_MIN_SECONDS
-        ),
-        "target_video_duration_max_seconds": (
-            DEFAULT_MEDIA_DURATION_MAX_SECONDS
-        ),
         "require_actual_chapters": True,
         "chapter_timing_source": "actual_audio_sections",
         "max_audio_duration_revision_attempts": int(
@@ -354,81 +363,23 @@ def apply_production_quality_standard(
                 2
             )
         ),
-        "minimum_editorial_overall_score": int(
-            gates.get(
-                "minimum_editorial_overall_score",
-                DEFAULT_EDITORIAL_OVERALL_MIN
-            )
-        ),
-        "minimum_hook_strength_score": int(
-            gates.get(
-                "minimum_hook_strength_score",
-                DEFAULT_HOOK_STRENGTH_MIN
-            )
-        ),
-        "minimum_hook_intro_distinctness_score": int(
-            gates.get(
-                (
-                    "minimum_hook_intro_"
-                    "distinctness_score"
-                ),
-                DEFAULT_HOOK_INTRO_DISTINCTNESS_MIN
-            )
-        ),
-        "minimum_narrative_spine_score": int(
-            gates.get(
-                "minimum_narrative_spine_score",
-                DEFAULT_NARRATIVE_SPINE_MIN
-            )
-        ),
-        "minimum_specificity_score": int(
-            gates.get(
-                "minimum_specificity_score",
-                DEFAULT_SPECIFICITY_MIN
-            )
-        ),
-        "minimum_repetition_risk_score": int(
-            gates.get(
-                "minimum_repetition_risk_score",
-                DEFAULT_REPETITION_RISK_MIN
-            )
-        ),
-        "minimum_title_thumbnail_synergy_score": int(
-            gates.get(
-                (
-                    "minimum_title_thumbnail_"
-                    "synergy_score"
-                ),
-                DEFAULT_TITLE_THUMBNAIL_SYNERGY_MIN
-            )
-        ),
-        "max_editorial_revision_attempts": int(
-            gates.get(
-                "max_editorial_revision_attempts",
-                2
-            )
-        ),
         "editorial_revision_count": int(
-            gates.get(
-                "editorial_revision_count",
-                0
-            )
-        ),
-        "editorial_standard_version": (
-            EDITORIAL_STANDARD_VERSION
+            gates.get("editorial_revision_count", 0)
         ),
         "editorial_standard_revision_count": int(
-            gates.get(
-                "editorial_standard_revision_count",
-                0
-            )
+            gates.get("editorial_standard_revision_count", 0)
         ),
-        "thumbnail_standard_name": "hiddenova_cinematic_v3",
-        "thumbnail_previous_standard_name": "hiddenova_cinematic_v2",
+        "thumbnail_previous_standard_name": (
+            "hiddenova_cinematic_v2"
+            if channel == "hiddenova"
+            else None
+        ),
         "thumbnail_layout_signature": (
             "oversized_headline_left__dominant_subject_right"
         ),
-        "thumbnail_gold_reference_required": True,
+        "thumbnail_gold_reference_required": bool(
+            channel == "hiddenova"
+        ),
         "thumbnail_text_position": "left",
         "thumbnail_subject_position": "right",
         "thumbnail_two_color_required": True,
@@ -496,6 +447,9 @@ def approve_topic(
         )
 
     context = apply_production_quality_standard(context)
+    profile = load_editorial_profile(
+        str(context.get("channel") or "hiddenova")
+    )
 
     context.setdefault(
         "release",
@@ -518,10 +472,16 @@ def approve_topic(
         status="approved"
     )
 
+    next_agent = (
+        "factual_research"
+        if factual_pipeline_required(profile)
+        else "script"
+    )
+
     return set_status(
         context=context,
         status="topic_approved",
-        next_agent="script"
+        next_agent=next_agent
     )
 
 
@@ -718,6 +678,9 @@ def invalidate_bad_content_outputs(
     for key in (
         "script",
         "seo",
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
         "qa",
         "voice",
         "voice_generation",
@@ -813,10 +776,7 @@ def get_editorial_thresholds(
         ),
         "hook_intro_distinctness": int(
             gates.get(
-                (
-                    "minimum_hook_intro_"
-                    "distinctness_score"
-                ),
+                "minimum_hook_intro_distinctness_score",
                 DEFAULT_HOOK_INTRO_DISTINCTNESS_MIN
             )
         ),
@@ -840,27 +800,18 @@ def get_editorial_thresholds(
         ),
         "title_thumbnail_synergy": int(
             gates.get(
-                (
-                    "minimum_title_thumbnail_"
-                    "synergy_score"
-                ),
+                "minimum_title_thumbnail_synergy_score",
                 DEFAULT_TITLE_THUMBNAIL_SYNERGY_MIN
             )
         ),
     }
 
-    if gates.get(
-        "require_hiddenova_brand_intro",
-        False
-    ):
+    if gates.get("require_channel_brand_intro", False):
         thresholds["hiddenova_brand_intro"] = int(
             DEFAULT_HIDDENOVA_BRAND_INTRO_MIN
         )
 
-    if gates.get(
-        "require_standard_cta",
-        False
-    ):
+    if gates.get("require_standard_cta", False):
         thresholds["standard_cta"] = int(
             DEFAULT_STANDARD_CTA_MIN
         )
@@ -873,21 +824,15 @@ def write_editorial_revision_brief(
     qa_data: dict,
     gate_result: dict
 ) -> dict:
-    gates = context.setdefault(
-        "quality_gates",
-        {}
+    profile = load_editorial_profile(
+        str(context.get("channel") or "hiddenova")
     )
+    gates = context.setdefault("quality_gates", {})
     revision_count = int(
-        gates.get(
-            "editorial_revision_count",
-            0
-        )
+        gates.get("editorial_revision_count", 0)
     ) + 1
     standard_revision_count = int(
-        gates.get(
-            "editorial_standard_revision_count",
-            0
-        )
+        gates.get("editorial_standard_revision_count", 0)
     ) + 1
 
     brief_dir = (
@@ -898,118 +843,80 @@ def write_editorial_revision_brief(
         / context["video_id"]
         / "inputs"
     )
-    brief_dir.mkdir(
-        parents=True,
-        exist_ok=True
+    brief_dir.mkdir(parents=True, exist_ok=True)
+    brief_path = brief_dir / (
+        "editorial_revision_"
+        f"{revision_count:02d}.json"
     )
+    instructions = [
+        "Strengthen the first 120 words with a concrete tension, "
+        "paradox, decision, or consequence.",
+        "Make the introduction advance the story instead of "
+        "restating the hook.",
+        "Use one cause-and-effect narrative spine rather than "
+        "list-like exposition.",
+        "Replace abstract filler with concrete mechanisms, dates, "
+        "decisions, and consequences supported by approved research.",
+        "Create a direct title and an ALL-CAPS 2-4 word thumbnail "
+        "phrase that add different information.",
+        "End with a concise CTA that explicitly asks viewers to "
+        "comment, like, and subscribe.",
+        "Return no estimated chapter timestamps.",
+    ]
 
-    brief_path = (
-        brief_dir
-        / (
-            "editorial_revision_"
-            f"{revision_count:02d}.json"
+    if profile["script"]["brand_intro"]["required"]:
+        instructions.append(
+            "Begin the introduction with a very short brand/context "
+            f"line containing the exact word {profile['display_name']} "
+            f"within its first {profile['script']['brand_intro']['scan_word_limit']} words."
         )
-    )
+
+    if factual_pipeline_required(profile):
+        instructions.extend([
+            "Use only approved claims from the claims ledger.",
+            "Attach approved claim_ids to every factual narration block.",
+            "Keep allegations attributed and never intensify certainty.",
+        ])
+
     brief = {
         "schema_version": "1.0",
         "channel": context["channel"],
         "video_id": context["video_id"],
         "run_id": context["run_id"],
         "attempt": revision_count,
-        "standard_version": EDITORIAL_STANDARD_VERSION,
+        "standard_version": profile["profile_name"],
         "standard_attempt": standard_revision_count,
         "topic_title": context["topic_title"],
         "status": "editorial_revision_required",
-        "failed_checks": gate_result.get(
-            "failures",
-            []
-        ),
-        "qa_checks": qa_data.get(
-            "checks",
-            {}
-        ),
-        "issues": qa_data.get(
-            "issues",
-            []
-        ),
-        "recommendations": qa_data.get(
-            "recommendations",
-            []
-        ),
-        "mandatory_instructions": [
-            (
-                "Strengthen the first 120 words with "
-                "a concrete tension, paradox, or "
-                "consequence."
-            ),
-            (
-                "Make the introduction advance the "
-                "story instead of restating the hook."
-            ),
-            (
-                "Use one cause-and-effect narrative "
-                "spine rather than list-like exposition."
-            ),
-            (
-                "Replace abstract documentary filler "
-                "with concrete mechanisms and "
-                "consequences supported by research."
-            ),
-            (
-                "Create a direct title and an ALL-CAPS "
-                "2-4 word thumbnail phrase that add "
-                "different information."
-            ),
-            (
-                "Begin the introduction with a very short "
-                "brand/context line containing the exact "
-                "word Hiddenova within its first 25 words."
-            ),
-            (
-                "End with a concise CTA that explicitly "
-                "asks viewers to comment, like, and "
-                "subscribe."
-            ),
-            (
-                "Return no estimated chapter "
-                "timestamps."
-            ),
-        ],
+        "failed_checks": gate_result.get("failures", []),
+        "qa_checks": qa_data.get("checks", {}),
+        "issues": qa_data.get("issues", []),
+        "recommendations": qa_data.get("recommendations", []),
+        "mandatory_instructions": instructions,
         "created_at": utc_now(),
     }
     brief_path.write_text(
-        json.dumps(
-            brief,
-            indent=2,
-            ensure_ascii=True
-        ),
+        json.dumps(brief, indent=2, ensure_ascii=True),
         encoding="utf-8"
     )
-
     reference = str(
-        brief_path.relative_to(
-            PROJECT_ROOT
-        )
+        brief_path.relative_to(PROJECT_ROOT)
     ).replace("\\", "/")
-
-    context.setdefault(
-        "sources",
-        {}
-    )["editorial_revision_brief"] = (
-        reference
-    )
-    gates["editorial_revision_count"] = (
-        revision_count
-    )
+    context.setdefault("sources", {})[
+        "editorial_revision_brief"
+    ] = reference
+    gates["editorial_revision_count"] = revision_count
     gates["editorial_standard_revision_count"] = (
         standard_revision_count
     )
 
     removed_outputs = []
-
     for key in (
         "script",
         "seo",
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
         "qa",
         "voice",
         "voice_generation",
@@ -1021,36 +928,29 @@ def write_editorial_revision_brief(
         "ai_visual_qa",
         "thumbnail",
         "thumbnail_record",
+        "ai_video_insert_plan",
+        "ai_video_generation",
+        "ai_video_qa",
         "hybrid_video_assembly",
         "final_video",
         "video_qa",
         "publisher",
     ):
-        if key in context.get(
-            "outputs",
-            {}
-        ):
+        if key in context.get("outputs", {}):
             context["outputs"].pop(key)
             removed_outputs.append(key)
 
-    removed_registry_records = (
-        remove_video_content_records(
-            channel=context["channel"],
-            video_id=context["video_id"],
-            record_types=[
-                "script",
-                "seo",
-            ]
-        )
+    removed_registry_records = remove_video_content_records(
+        channel=context["channel"],
+        video_id=context["video_id"],
+        record_types=["script", "seo"],
     )
-
     append_history(
         context=context,
         agent="editorial_quality_gate",
         status="revision_required",
         reference=reference
     )
-
     context = set_status(
         context=context,
         status="topic_approved",
@@ -1083,7 +983,111 @@ def write_editorial_revision_brief(
         f"{removed_registry_records}",
         flush=True
     )
+    return context
 
+
+def write_fact_risk_revision_brief(
+    context: dict,
+    fact_risk_data: dict,
+) -> dict:
+    gate_result = {
+        "failures": [
+            {
+                "check": "factual_grounding",
+                "score": fact_risk_data.get(
+                    "factual_grounding_score",
+                    0,
+                ),
+                "minimum": 100,
+            },
+            {
+                "check": "risk_compliance",
+                "score": fact_risk_data.get(
+                    "risk_compliance_score",
+                    0,
+                ),
+                "minimum": 100,
+            },
+        ]
+    }
+    qa_data = {
+        "checks": {},
+        "issues": (
+            fact_risk_data.get("unsupported_statements", [])
+            + fact_risk_data.get("risk_issues", [])
+        ),
+        "recommendations": [
+            {
+                "field": "script",
+                "suggestion": item.get(
+                    "suggested_action",
+                    "Revise the statement using only approved claim language.",
+                ),
+            }
+            for item in fact_risk_data.get(
+                "unsupported_statements",
+                [],
+            )
+        ],
+    }
+    return write_editorial_revision_brief(
+        context=context,
+        qa_data=qa_data,
+        gate_result=gate_result,
+    )
+
+
+def invalidate_factual_research_outputs(
+    context: dict,
+    reason: str,
+    attempt: int,
+) -> dict:
+    removed_outputs: list[str] = []
+
+    for key in (
+        "factual_research",
+        "claims_ledger",
+    ):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key)
+            removed_outputs.append(key)
+
+    context.setdefault("quality_gates", {})[
+        "factual_research_revision_count"
+    ] = int(attempt)
+    append_history(
+        context=context,
+        agent="factual_research_quality_gate",
+        status="revision_required",
+        reference=(
+            f"reason={reason};"
+            f"attempt={attempt};"
+            "removed_outputs="
+            f"{','.join(removed_outputs)}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="topic_approved",
+        next_agent="factual_research",
+    )
+    save_context(context)
+
+    print(
+        "FACTUAL_RESEARCH_REVISION_REQUIRED: "
+        f"attempt_{attempt}",
+        flush=True,
+    )
+    print(
+        "FACTUAL_RESEARCH_REVISION_REASON: "
+        f"{reason}",
+        flush=True,
+    )
+    print(
+        "INVALIDATED_FACTUAL_OUTPUTS: "
+        f"{removed_outputs}",
+        flush=True,
+    )
     return context
 
 
@@ -1091,80 +1095,176 @@ def run_content_phase(
     context: dict
 ) -> dict:
     assert_topic_approved(context)
+    profile = load_editorial_profile(
+        str(context.get("channel") or "hiddenova")
+    )
+    requires_factual = factual_pipeline_required(profile)
 
-    context = invalidate_bad_content_outputs(
-        context
-    )
-    context = apply_production_quality_standard(
-        context
-    )
+    context = invalidate_bad_content_outputs(context)
+    context = apply_production_quality_standard(context)
     save_context(context)
 
+    if requires_factual:
+        max_research_revisions = int(
+            context.get("quality_gates", {}).get(
+                "max_factual_research_revision_attempts",
+                1,
+            )
+        )
+
+        for research_attempt in range(
+            max_research_revisions + 1
+        ):
+            context = run_agent_if_missing(
+                context=context,
+                agent_name="factual_research",
+                agent_path="agents/factual_research/run.py",
+                required_outputs=CONTENT_OUTPUTS[
+                    "factual_research"
+                ],
+            )
+            research_data = load_context_record(
+                context=context,
+                key="factual_research",
+            )
+
+            if research_data.get("status") != "approved":
+                if research_attempt >= max_research_revisions:
+                    raise RuntimeError(
+                        "Factual research remained rejected after "
+                        "the maximum automatic revision attempts."
+                    )
+
+                context = invalidate_factual_research_outputs(
+                    context=context,
+                    reason="source_validation_failed",
+                    attempt=research_attempt + 1,
+                )
+                continue
+
+            context = run_agent_if_missing(
+                context=context,
+                agent_name="claims_ledger",
+                agent_path="agents/claims_ledger/run.py",
+                required_outputs=CONTENT_OUTPUTS[
+                    "claims_ledger"
+                ],
+            )
+            ledger_data = load_context_record(
+                context=context,
+                key="claims_ledger",
+            )
+
+            if ledger_data.get("status") == "approved":
+                break
+
+            if research_attempt >= max_research_revisions:
+                raise RuntimeError(
+                    "Claims ledger remained rejected after the "
+                    "maximum automatic research revisions."
+                )
+
+            context = invalidate_factual_research_outputs(
+                context=context,
+                reason="claims_ledger_rejected",
+                attempt=research_attempt + 1,
+            )
+        else:
+            raise RuntimeError(
+                "Factual research pipeline did not reach approval."
+            )
+
     while True:
-        steps = [
+        for name, agent_path, outputs in (
             (
                 "script",
                 "agents/script/run.py",
-                CONTENT_OUTPUTS["script"]
+                CONTENT_OUTPUTS["script"],
             ),
             (
                 "seo",
                 "agents/seo/run.py",
-                CONTENT_OUTPUTS["seo"]
+                CONTENT_OUTPUTS["seo"],
             ),
-            (
-                "qa",
-                "agents/qa/run.py",
-                CONTENT_OUTPUTS["qa"]
-            ),
-        ]
-
-        for name, path, outputs in steps:
+        ):
             context = run_agent_if_missing(
                 context=context,
                 agent_name=name,
-                agent_path=path,
-                required_outputs=outputs
+                agent_path=agent_path,
+                required_outputs=outputs,
             )
 
+        gates = context.get("quality_gates", {})
         script_data = load_context_record(
             context=context,
             key="script"
         )
-        gates = context.get(
-            "quality_gates",
-            {}
-        )
-        final_word_gate = (
-            evaluate_script_word_count(
-                script_data=script_data,
-                minimum=int(
-                    gates.get(
-                        (
-                            "target_script_"
-                            "word_count_min"
-                        ),
-                        DEFAULT_SCRIPT_WORD_MIN
-                    )
-                ),
-                maximum=int(
-                    gates.get(
-                        (
-                            "target_script_"
-                            "word_count_max"
-                        ),
-                        DEFAULT_SCRIPT_WORD_MAX
-                    )
+        final_word_gate = evaluate_script_word_count(
+            script_data=script_data,
+            minimum=int(
+                gates.get(
+                    "target_script_word_count_min",
+                    DEFAULT_SCRIPT_WORD_MIN,
                 )
-            )
+            ),
+            maximum=int(
+                gates.get(
+                    "target_script_word_count_max",
+                    DEFAULT_SCRIPT_WORD_MAX,
+                )
+            ),
         )
 
         if not final_word_gate["approved"]:
             raise ValueError(
-                "Content phase produced an invalid "
-                "script narration word count."
+                "Content phase produced an invalid script "
+                "narration word count."
             )
 
+        if requires_factual:
+            context = run_agent_if_missing(
+                context=context,
+                agent_name="fact_risk_qa",
+                agent_path="agents/fact_risk_qa/run.py",
+                required_outputs=CONTENT_OUTPUTS["fact_risk_qa"],
+            )
+            fact_risk_data = load_context_record(
+                context=context,
+                key="fact_risk_qa",
+            )
+
+            if fact_risk_data.get("status") != "approved":
+                revision_count = int(
+                    gates.get(
+                        "editorial_standard_revision_count",
+                        0,
+                    )
+                )
+                max_revisions = int(
+                    gates.get(
+                        "max_editorial_revision_attempts",
+                        2,
+                    )
+                )
+
+                if revision_count >= max_revisions:
+                    raise RuntimeError(
+                        "Factual or risk review remained rejected "
+                        "after the maximum automatic revisions."
+                    )
+
+                context = write_fact_risk_revision_brief(
+                    context=context,
+                    fact_risk_data=fact_risk_data,
+                )
+                continue
+
+        context = run_agent_if_missing(
+            context=context,
+            agent_name="qa",
+            agent_path="agents/qa/run.py",
+            required_outputs=CONTENT_OUTPUTS["qa"],
+        )
         qa_data = load_context_record(
             context=context,
             key="qa"
@@ -1173,18 +1273,11 @@ def run_content_phase(
             qa_data=qa_data,
             minimum_overall=int(
                 gates.get(
-                    (
-                        "minimum_editorial_"
-                        "overall_score"
-                    ),
-                    DEFAULT_EDITORIAL_OVERALL_MIN
+                    "minimum_editorial_overall_score",
+                    DEFAULT_EDITORIAL_OVERALL_MIN,
                 )
             ),
-            critical_thresholds=(
-                get_editorial_thresholds(
-                    context
-                )
-            )
+            critical_thresholds=get_editorial_thresholds(context),
         )
 
         print(
@@ -1193,22 +1286,13 @@ def run_content_phase(
             flush=True
         )
 
-        for check_name, threshold in (
-            gate_result[
-                "critical_thresholds"
-            ].items()
-        ):
-            score = (
-                qa_data.get(
-                    "checks",
-                    {}
-                ).get(
-                    check_name,
-                    {}
-                ).get(
-                    "score"
-                )
-            )
+        for check_name, threshold in gate_result[
+            "critical_thresholds"
+        ].items():
+            score = qa_data.get("checks", {}).get(
+                check_name,
+                {},
+            ).get("score")
             print(
                 "EDITORIAL_CHECK_"
                 f"{check_name.upper()}: "
@@ -1220,59 +1304,42 @@ def run_content_phase(
             break
 
         revision_count = int(
-            gates.get(
-                "editorial_standard_revision_count",
-                0
-            )
+            gates.get("editorial_standard_revision_count", 0)
         )
         max_revisions = int(
-            gates.get(
-                "max_editorial_revision_attempts",
-                2
-            )
+            gates.get("max_editorial_revision_attempts", 2)
         )
 
         if revision_count >= max_revisions:
             failed = ", ".join(
                 item["check"]
-                for item in gate_result[
-                    "failures"
-                ]
+                for item in gate_result["failures"]
             )
             raise RuntimeError(
-                "Editorial quality remained below "
-                "the current production standard after "
-                "the maximum automatic revision attempts. "
-                f"Failed checks: {failed}."
+                "Editorial quality remained below the current "
+                "production standard after the maximum automatic "
+                f"revision attempts. Failed checks: {failed}."
             )
 
         context = write_editorial_revision_brief(
             context=context,
             qa_data=qa_data,
-            gate_result=gate_result
+            gate_result=gate_result,
         )
 
-    content_result = register_context_content(
-        context=context
-    )
-
-    context.setdefault(
-        "quality_gates",
-        {}
-    ).update({
+    content_result = register_context_content(context=context)
+    context.setdefault("quality_gates", {}).update({
         "require_content_fingerprint": True,
         "allow_cross_video_content_reuse": False,
         "editorial_quality_gate_passed": True,
+        "factual_quality_gate_passed": (
+            True if requires_factual else None
+        ),
     })
-
-    context.get(
-        "sources",
-        {}
-    ).pop(
+    context.get("sources", {}).pop(
         "editorial_revision_brief",
-        None
+        None,
     )
-
     append_history(
         context=context,
         agent="editorial_quality_gate",
@@ -1282,22 +1349,28 @@ def run_content_phase(
             f"{qa_data.get('overall_score')}"
         )
     )
+
+    if requires_factual:
+        append_history(
+            context=context,
+            agent="fact_risk_quality_gate",
+            status="approved",
+            reference="factual_grounding=100;risk_compliance=100",
+        )
+
     append_history(
         context=context,
         agent="content_fingerprint_gate",
         status="approved",
         reference=str(
-            content_result["registry_path"]
-            .relative_to(PROJECT_ROOT)
+            content_result["registry_path"].relative_to(PROJECT_ROOT)
         ).replace("\\", "/")
     )
-
     context = set_status(
         context=context,
         status="content_qa_ready",
         next_agent="video_audio_pipeline"
     )
-
     save_context(context)
     return context
 
@@ -1671,12 +1744,33 @@ def print_dry_run(
     context_exists: bool,
     context: dict | None
 ) -> None:
+    profile = load_editorial_profile(channel)
+    requires_factual = factual_pipeline_required(profile)
+    content_flow = (
+        "factual_research -> claims_ledger -> script -> seo -> "
+        "fact_risk_qa -> strict_editorial_qa"
+        if requires_factual
+        else "script -> seo -> strict_editorial_qa"
+    )
+
     print(f"CHANNEL: {channel}")
     print(f"VIDEO_CONTEXT_ID: {video_id}")
     print(
         f"RUN_ID: {channel}_{video_id}_v1"
         if not context
         else f"RUN_ID: {context['run_id']}"
+    )
+    print(
+        "EDITORIAL_STANDARD: "
+        f"{profile['profile_name']}"
+    )
+    print(
+        "THUMBNAIL_STANDARD: "
+        f"{profile['thumbnail']['standard_name']}"
+    )
+    print(
+        "FACTUAL_PIPELINE_REQUIRED: "
+        f"{str(requires_factual).lower()}"
     )
     print("LATEST_JSON_INPUTS: blocked")
     print("LEGACY_PRODUCTION_AGENTS: blocked")
@@ -1688,7 +1782,7 @@ def print_dry_run(
         )
         print(
             "PRODUCTION_AFTER_APPROVAL: "
-            "script -> seo -> strict_editorial_qa "
+            f"{content_flow} "
             "-> automatic_revision_if_needed "
             "-> content_fingerprint "
             "-> video_audio_pipeline "
@@ -1704,16 +1798,12 @@ def print_dry_run(
         print("STATUS: new_video_dry_run_ready")
         return
 
+    print(f"CURRENT_STATUS: {context.get('status')}")
     print(
-        f"CURRENT_STATUS: {context.get('status')}"
+        f"CURRENT_NEXT_AGENT: {context.get('next_agent')}"
     )
     print(
-        f"CURRENT_NEXT_AGENT: "
-        f"{context.get('next_agent')}"
-    )
-    print(
-        f"TOPIC_APPROVED: "
-        f"{topic_is_approved(context)}"
+        f"TOPIC_APPROVED: {topic_is_approved(context)}"
     )
 
     if context.get("status") in TERMINAL_STATES:

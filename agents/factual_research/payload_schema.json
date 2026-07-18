@@ -1,0 +1,220 @@
+{
+  "type": "object",
+  "required": [
+    "subject",
+    "story_angle",
+    "executive_summary",
+    "timeline",
+    "turning_points",
+    "sources",
+    "candidate_claims",
+    "unresolved_questions"
+  ],
+  "properties": {
+    "subject": {
+      "type": "object",
+      "required": [
+        "name",
+        "subject_type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "subject_type": {
+          "type": "string",
+          "enum": [
+            "company",
+            "founder",
+            "public_figure",
+            "institution",
+            "empire",
+            "scandal",
+            "mystery",
+            "other"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "story_angle": {
+      "type": "string"
+    },
+    "executive_summary": {
+      "type": "string"
+    },
+    "timeline": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "date",
+          "event",
+          "source_ids"
+        ],
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "source_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "turning_points": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "source_ids"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "source_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "url",
+          "title",
+          "publisher",
+          "source_type",
+          "reliability",
+          "publication_date"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^S[0-9]{2,}$"
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "secondary"
+            ]
+          },
+          "reliability": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "publication_date": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "candidate_claims": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "claim",
+          "claim_type",
+          "sensitivity",
+          "source_ids",
+          "notes"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^C[0-9]{2,}$"
+          },
+          "claim": {
+            "type": "string"
+          },
+          "claim_type": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "date",
+              "number",
+              "quote",
+              "interpretation",
+              "allegation",
+              "criminal_allegation",
+              "fraud_allegation",
+              "misconduct_allegation",
+              "private_motive",
+              "health_claim",
+              "legal_conclusion"
+            ]
+          },
+          "sensitivity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "source_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

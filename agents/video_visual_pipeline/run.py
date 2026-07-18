@@ -272,13 +272,23 @@ def call_thumbnail_vision_qa(
     image_b64 = base64.b64encode(
         image_path.read_bytes()
     ).decode("ascii")
+    channel_name = standard.get(
+        "channel_display_name",
+        standard["channel"].replace("_", " ").title(),
+    )
+    forbidden = ", ".join(
+        standard.get("forbidden_elements", [])
+    )
     prompt = f"""
-You are the strict thumbnail QA judge for Hiddenova.
+You are the strict thumbnail QA judge for {channel_name}.
 
 Evaluate the actual rendered YouTube thumbnail image.
 
 VIDEO_TOPIC:
 {video_topic}
+
+CHANNEL_STANDARD:
+{standard["standard_name"]}
 
 CONCEPT_TYPE:
 {concept["concept_type"]}
@@ -292,7 +302,10 @@ EXPECTED_DOMINANT_SUBJECT:
 EXPECTED_CONFLICT:
 {concept["conflict"]}
 
-Reject average, generic, low-tension, cluttered, or weak thumbnails.
+FORBIDDEN_OR_MISLEADING ELEMENTS:
+{forbidden}
+
+Reject average, generic, low-tension, cluttered, weak, or misleading thumbnails.
 
 Return exactly one JSON object:
 {{
@@ -318,6 +331,7 @@ Scoring rules:
 - One dominant topic-specific subject must control the right side.
 - The concept must communicate one clear tension or consequence.
 - Generic stock-poster appearance must be rejected.
+- Reject fabricated evidence, fake quotations, fake arrests, or unsupported criminal implications.
 - Do not approve merely because the image is technically valid.
 """.strip()
 
@@ -331,10 +345,7 @@ Scoring rules:
                     {
                         "role": "user",
                         "content": [
-                            {
-                                "type": "text",
-                                "text": prompt
-                            },
+                            {"type": "text", "text": prompt},
                             {
                                 "type": "image_url",
                                 "image_url": {
@@ -348,9 +359,7 @@ Scoring rules:
                     }
                 ],
                 max_completion_tokens=1400,
-                response_format={
-                    "type": "json_object"
-                }
+                response_format={"type": "json_object"}
             )
 
             content = response.choices[0].message.content
@@ -360,10 +369,8 @@ Scoring rules:
                     "Thumbnail vision QA returned an empty response."
                 )
 
-            raw_result = extract_json(content)
-
             return normalize_thumbnail_vision_qa(
-                raw_result=raw_result,
+                raw_result=extract_json(content),
                 standard=standard
             )
 
@@ -394,7 +401,9 @@ def build_dynamic_plan(
         "asset_plan",
         visual_asset_plan_data
     )
-    thumbnail_standard = load_thumbnail_standard()
+    thumbnail_standard = load_thumbnail_standard(
+        channel=context["channel"]
+    )
     concept_types = thumbnail_standard[
         "concept_system"
     ]["required_concept_types"]
@@ -403,6 +412,13 @@ def build_dynamic_plan(
             "concept_system"
         ]["candidate_count"]
     )
+    channel_name = thumbnail_standard.get(
+        "channel_display_name",
+        context["channel"].replace("_", " ").title(),
+    )
+    visual_style_lines = thumbnail_standard[
+        "visual_tone"
+    ].get("style_lines", [])
 
     thumbnail_hint = (
         get_thumbnail_hint(thumbnail_strategy_data)
@@ -412,7 +428,7 @@ def build_dynamic_plan(
     )
 
     prompt = f"""
-You are the visual director for Hiddenova, a premium English
+You are the visual director for {channel_name}, a premium English
 documentary YouTube channel.
 
 Create a topic-specific visual production plan for this exact video.
@@ -423,6 +439,7 @@ RUN_ID: {context["run_id"]}
 VIDEO_TITLE: {context["topic_title"]}
 SEO_TITLE: {seo_payload.get("video_title", "")}
 THUMBNAIL_TEXT_HINT: {thumbnail_hint or "none"}
+THUMBNAIL_STANDARD: {thumbnail_standard["standard_name"]}
 
 SCRIPT:
 {json.dumps(script_payload, ensure_ascii=True)}
@@ -436,16 +453,14 @@ Return one JSON object with exactly this structure:
   "thumbnail_concepts": [
     {{
       "concept_id": "THUMB-01",
-      "concept_type": "{concept_types[0]}",
+      "concept_type": "one required concept type",
       "overlay_text": "2 to 4 English words in uppercase",
       "dominant_subject": "one precise topic-specific subject",
       "conflict": "clear visual tension or consequence",
       "emotional_trigger": "curiosity, urgency, shock, or risk",
       "visual_hook": "one instantly understandable visual idea",
       "differentiation": "why this concept is unlike the other two",
-      "topic_keywords": [
-        "three topic-specific keywords"
-      ],
+      "topic_keywords": ["three topic-specific keywords"],
       "background_prompt": "detailed cinematic background prompt with no text"
     }}
   ],
@@ -463,56 +478,39 @@ THUMBNAIL CONCEPT CONTRACT:
 - Return exactly {candidate_count} thumbnail concepts.
 - Use each concept_type exactly once:
   {json.dumps(concept_types, ensure_ascii=True)}
-- Concept 1 must emphasize scale and consequence.
-- Concept 2 must emphasize failure, risk, or a breaking point.
-- Concept 3 must reveal the hidden mechanism or decision layer.
-- The three concepts must use different headlines.
-- The three concepts must use different dominant subjects.
+- Interpret each concept type literally and make it visually distinct.
+- The three concepts must use different headlines and dominant subjects.
 - The supplied thumbnail hint may be used for only one concept.
 - Each concept must contain one clear visual story, not a collage.
-- Each background prompt must explicitly require:
-  subject on the right or center-right,
-  clean dark negative space on the left,
-  one dominant subject,
-  realistic premium cinematic lighting,
-  high contrast, depth, visual tension, and no text.
-- Avoid generic phrases such as HIDDEN SYSTEM unless the visual idea
-  is exceptionally topic-specific.
+- Each background prompt must require subject on the right or center-right,
+  clean dark negative space on the left, one dominant subject,
+  premium cinematic lighting, high contrast, depth, visual tension,
+  and no text.
 - Do not output small variations of the same scene.
+- Do not fabricate evidence, quotes, arrests, documents, or criminal implications.
 
 AI INSERT CONTRACT:
 - Return exactly {image_count} inserts.
-- Every insert must directly match this exact video topic.
-- Cover the hook, key explanations, human/system layer,
+- Every insert must directly match this exact video topic and script.
+- Cover the hook, key explanations, human layer, turning point,
   failure or tension point, and conclusion.
 - Every visual must be meaningfully different.
 - Use realistic premium documentary imagery.
 - Do not reuse imagery from another video topic.
-- No logos, readable labels, barcodes, private data,
-  fake dashboards, or operational interfaces.
-- No embedded text inside generated images.
+- No logos, readable labels, private data, fake dashboards,
+  fabricated evidence, or embedded text.
 
-HIDDENOVA HOUSE STYLE:
-- hiddenova_cinematic_v3
-- oversized stacked headline on the left
-- dominant topic-specific subject on the right
-- white headline lines with final emphasis line in yellow
-- dark cinematic high-contrast background
-- mobile-first readability
-- premium investigative documentary tone
+CHANNEL HOUSE STYLE:
+- standard: {thumbnail_standard["standard_name"]}
+- layout: {thumbnail_standard["layout"]["layout_signature"]}
+- primary text: {thumbnail_standard["text"]["primary_color"]}
+- emphasis text: {thumbnail_standard["text"]["highlight_color"]}
+- style rules: {json.dumps(visual_style_lines, ensure_ascii=True)}
 """
 
-    raw_plan = call_text_model(
-        prompt=prompt,
-        model=text_model
-    )
-
-    raw_concepts = raw_plan.get(
-        "thumbnail_concepts",
-        []
-    )
+    raw_plan = call_text_model(prompt=prompt, model=text_model)
     concepts = validate_thumbnail_concepts(
-        concepts=raw_concepts,
+        concepts=raw_plan.get("thumbnail_concepts", []),
         video_topic=context["topic_title"],
         standard=thumbnail_standard
     )
@@ -535,9 +533,7 @@ HIDDENOVA HOUSE STYLE:
         item_prompt = str(item.get("prompt", "")).strip()
 
         if not item_prompt:
-            raise ValueError(
-                f"AI insert {index} has no prompt."
-            )
+            raise ValueError(f"AI insert {index} has no prompt.")
 
         items.append({
             "insert_id": f"AI-{index:03d}",
@@ -553,7 +549,8 @@ HIDDENOVA HOUSE STYLE:
             "negative_prompt": (
                 "no logos, no readable text, no barcodes, "
                 "no QR codes, no brand names, no private data, "
-                "no fake UI, no distorted hands, no cartoon style"
+                "no fake UI, no fabricated evidence, no fake quote, "
+                "no fake arrest, no distorted hands, no cartoon style"
             ),
             "status": "planned"
         })
@@ -565,25 +562,28 @@ HIDDENOVA HOUSE STYLE:
         "video_id": context["video_id"],
         "run_id": context["run_id"],
         "video_title": context["topic_title"],
-        "thumbnail_system_version": "3.0",
+        "thumbnail_system_version": str(
+            thumbnail_standard["version"]
+        ),
+        "thumbnail_standard_name": thumbnail_standard[
+            "standard_name"
+        ],
         "thumbnail_candidates": concepts,
         "thumbnail": {
-            "overlay_text": strongest_preflight[
-                "overlay_text"
-            ],
+            "overlay_text": strongest_preflight["overlay_text"],
             "text_position": "left",
             "background_prompt": strongest_preflight[
                 "background_prompt"
             ],
-            "preflight_selected_concept_id": (
-                strongest_preflight["concept_id"]
-            )
+            "preflight_selected_concept_id": strongest_preflight[
+                "concept_id"
+            ]
         },
         "ai_visual_insert_plan": {
             "style_rules": [
                 "realistic documentary look",
                 "premium cinematic lighting",
-                "dark Hiddenova atmosphere",
+                *visual_style_lines,
                 "16:9 composition",
                 "no embedded text"
             ],
@@ -591,10 +591,9 @@ HIDDENOVA HOUSE STYLE:
                 "no unrelated previous-video imagery",
                 "no logos",
                 "no readable labels",
-                "no barcodes",
-                "no QR codes",
                 "no private information",
                 "no fake operational interface",
+                "no fabricated evidence",
                 "no cartoon style"
             ],
             "items": items
@@ -690,13 +689,28 @@ def apply_thumbnail_text_gradient(
     ).convert("RGB")
 
 
+def hex_to_rgba(value: str) -> tuple[int, int, int, int]:
+    normalized = str(value).strip().lstrip("#")
+
+    if len(normalized) != 6:
+        raise ValueError(f"Invalid RGB hex value: {value}")
+
+    return (
+        int(normalized[0:2], 16),
+        int(normalized[2:4], 16),
+        int(normalized[4:6], 16),
+        255,
+    )
+
+
 def create_thumbnail(
     background_path: Path,
     output_path: Path,
     overlay_text: str,
-    text_position: str
+    text_position: str,
+    standard: dict | None = None,
 ) -> dict:
-    standard = load_thumbnail_standard()
+    standard = standard or load_thumbnail_standard()
     text_result = assert_thumbnail_text(
         value=overlay_text,
         standard=standard
@@ -708,8 +722,12 @@ def create_thumbnail(
     )
 
     colors = {
-        "primary_white": (255, 255, 255, 255),
-        "highlight_yellow": (255, 214, 0, 255),
+        "primary_white": hex_to_rgba(
+            standard["text"]["primary_color"]
+        ),
+        "highlight_yellow": hex_to_rgba(
+            standard["text"]["highlight_color"]
+        ),
     }
     lines = [
         (item["text"], colors[item["color_role"]])
@@ -768,10 +786,7 @@ def create_thumbnail(
         line_gap = max(2, int(
             font_size * float(overlay_spec["line_gap_ratio"])
         ))
-        total_height = (
-            sum(heights)
-            + line_gap * (len(lines) - 1)
-        )
+        total_height = sum(heights) + line_gap * (len(lines) - 1)
 
         if (
             max(widths) <= target_width_max
@@ -786,10 +801,7 @@ def create_thumbnail(
     line_gap = max(2, int(
         font_size * float(overlay_spec["line_gap_ratio"])
     ))
-    total_height = (
-        sum(heights)
-        + line_gap * (len(lines) - 1)
-    )
+    total_height = sum(heights) + line_gap * (len(lines) - 1)
     y = int((canvas_height - total_height) / 2)
     x = int(overlay_spec["left_margin_px"])
 
@@ -829,6 +841,7 @@ def create_thumbnail(
         "line_count": len(lines),
         "line_texts": [item["text"] for item in line_specs],
         "highlight_line": line_specs[-1]["text"],
+        "highlight_color": standard["text"]["highlight_color"],
         "max_line_width": max_line_width,
         "text_width_ratio": text_width_ratio,
         "text_width_target_min": round(
@@ -845,11 +858,15 @@ def create_thumbnail(
         ),
         "stroke_width": stroke_width,
         "shadow_offset": shadow_offset,
-        "text_position": "left",
-        "subject_position": standard["layout"]["subject_position"],
-        "layout_signature": standard["layout"]["layout_signature"],
-        "gold_reference_path": standard["gold_reference"]["asset_path"],
-        "gold_reference_sha256": standard["gold_reference"]["sha256"],
+        "layout_signature": overlay_spec["layout_signature"],
+        "text_position": overlay_spec["text_position"],
+        "subject_position": overlay_spec["subject_position"],
+        "gold_reference_path": overlay_spec[
+            "gold_reference_path"
+        ],
+        "gold_reference_sha256": overlay_spec[
+            "gold_reference_sha256"
+        ],
         "standard_name": standard["standard_name"],
     }
 
@@ -1084,7 +1101,7 @@ def generate_outputs(
     )
     image_dir = output_dir / "images"
     candidate_dir = output_dir / "thumbnail_candidates"
-    thumbnail_standard = load_thumbnail_standard()
+    thumbnail_standard = load_thumbnail_standard(channel=channel)
     concept_system = thumbnail_standard["concept_system"]
     candidates = plan.get("thumbnail_candidates", [])
 
@@ -1330,7 +1347,8 @@ def generate_outputs(
                 background_path=background_path,
                 output_path=candidate_path,
                 overlay_text=concept["overlay_text"],
-                text_position="left"
+                text_position="left",
+                standard=thumbnail_standard
             )
 
         if layout_metrics is None:
@@ -1338,7 +1356,8 @@ def generate_outputs(
                 background_path=background_path,
                 output_path=candidate_path,
                 overlay_text=concept["overlay_text"],
-                text_position="left"
+                text_position="left",
+                standard=thumbnail_standard
             )
 
         technical_inspection = inspect_image(
@@ -1361,7 +1380,7 @@ def generate_outputs(
                 layout_metrics["font_size"]
                 >= minimum_font_size
             ),
-            "last_line_is_yellow": (
+            "last_line_uses_highlight_color": (
                 bool(layout_metrics["highlight_line"])
             ),
             "mobile_readability_passed": (
@@ -1841,6 +1860,9 @@ def main() -> None:
         video_id,
         context["run_id"]
     )
+    thumbnail_standard = load_thumbnail_standard(
+        channel=channel
+    )
 
     print(f"VIDEO_CONTEXT_ID: {video_id}")
     print(f"RUN_ID: {context['run_id']}")
@@ -1857,10 +1879,12 @@ def main() -> None:
         f"{relative_path(thumbnail_strategy_path) if thumbnail_strategy_path else 'seo'}"
     )
     print("LATEST_JSON_INPUTS: blocked")
-    print("THUMBNAIL_STYLE: hiddenova_cinematic_v3")
+    print(
+        "THUMBNAIL_STYLE: "
+        f"{thumbnail_standard['standard_name']}"
+    )
 
     if args.dry_run:
-        thumbnail_standard = load_thumbnail_standard()
         print("STATUS: visual_pipeline_dry_run_ready")
         print(f"PLANNED_AI_INSERT_COUNT: {effective_image_count}")
         print(
@@ -1908,16 +1932,17 @@ def main() -> None:
             {}
         ).get("items", [])
         candidate_count = int(
-            load_thumbnail_standard()[
-                "concept_system"
-            ]["candidate_count"]
+            thumbnail_standard["concept_system"][
+                "candidate_count"
+            ]
         )
         planned_candidates = plan.get(
             "thumbnail_candidates",
             []
         )
         v3_plan_ready = (
-            plan.get("thumbnail_system_version") == "3.0"
+            str(plan.get("thumbnail_system_version"))
+            == str(thumbnail_standard["version"])
             and len(planned_candidates) == candidate_count
         )
 
@@ -1936,7 +1961,7 @@ def main() -> None:
             )
             save_json(plan_path, plan)
             print(
-                "VISUAL_PLAN_MODE: regenerated_for_v3_contract"
+                "VISUAL_PLAN_MODE: regenerated_for_channel_contract"
             )
         else:
             print("VISUAL_PLAN_MODE: reused_existing")
@@ -1971,18 +1996,37 @@ def main() -> None:
         "allow_cross_video_asset_reuse": False,
         "require_visual_asset_registry_ownership": True,
         "require_thumbnail_asset_registry_ownership": True,
-        "require_hiddenova_thumbnail_standard": True,
-        "thumbnail_style": "hiddenova_cinematic_v3",
-        "thumbnail_standard_name": "hiddenova_cinematic_v3",
+        "require_channel_thumbnail_standard": True,
+        "require_hiddenova_thumbnail_standard": (
+            channel == "hiddenova"
+        ),
+        "thumbnail_style": thumbnail_standard["standard_name"],
+        "thumbnail_standard_name": thumbnail_standard[
+            "standard_name"
+        ],
         "thumbnail_previous_standard_name": (
             LEGACY_THUMBNAIL_STANDARD_NAME
+            if channel == "hiddenova"
+            else None
         ),
-        "thumbnail_candidate_count": 3,
-        "thumbnail_finalist_count": 2,
+        "thumbnail_candidate_count": int(
+            thumbnail_standard["concept_system"]["candidate_count"]
+        ),
+        "thumbnail_finalist_count": int(
+            thumbnail_standard["concept_system"]["finalist_count"]
+        ),
         "thumbnail_vision_qa_required": True,
-        "thumbnail_minimum_final_score": 85,
-        "thumbnail_text_min_words": 2,
-        "thumbnail_text_max_words": 4,
+        "thumbnail_minimum_final_score": int(
+            thumbnail_standard["concept_system"][
+                "minimum_final_score"
+            ]
+        ),
+        "thumbnail_text_min_words": int(
+            thumbnail_standard["text"]["min_words"]
+        ),
+        "thumbnail_text_max_words": int(
+            thumbnail_standard["text"]["max_words"]
+        ),
         "thumbnail_text_size": "very_large",
         "thumbnail_mobile_readability_priority": "maximum"
     })

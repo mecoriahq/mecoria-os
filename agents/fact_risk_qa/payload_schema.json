@@ -1,0 +1,109 @@
+{
+  "type": "object",
+  "required": [
+    "factual_grounding_score",
+    "risk_compliance_score",
+    "unsupported_statements",
+    "risk_issues",
+    "approved_claim_ids",
+    "summary"
+  ],
+  "properties": {
+    "factual_grounding_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "risk_compliance_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "unsupported_statements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "location",
+          "statement",
+          "reason",
+          "suggested_action"
+        ],
+        "properties": {
+          "location": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "suggested_action": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "risk_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "category",
+          "severity",
+          "location",
+          "message",
+          "required_edit"
+        ],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "defamation",
+              "privacy",
+              "criminal_allegation",
+              "fraud_allegation",
+              "misleading_certainty",
+              "fabricated_motive",
+              "quote_accuracy",
+              "legal_conclusion",
+              "health_claim",
+              "financial_claim",
+              "other"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "required_edit": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "approved_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

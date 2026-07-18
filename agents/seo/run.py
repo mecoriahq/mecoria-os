@@ -17,6 +17,9 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.channel_content_policy import (
+    load_editorial_profile,
+)
 from core.video_run_context import (
     load_context,
     register_output,
@@ -202,6 +205,7 @@ def main() -> None:
         channel=channel,
         video_id=video_id
     )
+    editorial_profile = load_editorial_profile(channel)
 
     print(f"CHANNEL: {channel}")
     print(f"VIDEO_CONTEXT_ID: {video_id}")
@@ -218,7 +222,10 @@ def main() -> None:
         print("STATUS: seo_dry_run_ready")
         return
 
-    prompt = build_prompt(script_data=script_data)
+    prompt = build_prompt(
+        script_data=script_data,
+        editorial_profile=editorial_profile,
+    )
     raw_seo_data = generate_seo(prompt)
 
     final_output = normalize_output(

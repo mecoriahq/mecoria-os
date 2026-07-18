@@ -18,10 +18,41 @@ def load_text_file(filename: str) -> str:
 
 def build_prompt(
     script_data: dict,
-    seo_data: dict
+    seo_data: dict,
+    editorial_profile: dict | None = None,
+    fact_qa_data: dict | None = None,
+    risk_review_data: dict | None = None,
 ) -> str:
     system_prompt = load_text_file("system.md")
     workflow = load_text_file("workflow.md")
+    profile = editorial_profile or {
+        "display_name": "Hiddenova",
+        "profile_name": "hiddenova_editorial_v2",
+        "script": {
+            "brand_intro": {
+                "required": True,
+                "brand_name": "Hiddenova",
+                "scan_word_limit": 25,
+            }
+        },
+        "factuality": {
+            "pipeline_required": False,
+        },
+        "qa": {
+            "minimum_overall_score": 85,
+            "minimum_hook_strength_score": 85,
+            "minimum_hook_intro_distinctness_score": 80,
+            "minimum_narrative_spine_score": 85,
+            "minimum_specificity_score": 80,
+            "minimum_repetition_risk_score": 80,
+            "minimum_title_thumbnail_synergy_score": 85,
+        },
+    }
+    brand_intro = profile["script"]["brand_intro"]
+    qa = profile["qa"]
+    factual_required = bool(
+        profile["factuality"]["pipeline_required"]
+    )
 
     required_schema = {
         "status": "approved or rejected",
@@ -99,10 +130,50 @@ def build_prompt(
         ]
     }
 
+    if brand_intro["required"]:
+        brand_rule = (
+            f'The introduction must contain the exact word '
+            f'"{brand_intro["brand_name"]}" within its first '
+            f'{brand_intro["scan_word_limit"]} words.'
+        )
+    else:
+        brand_rule = (
+            "A branded introduction is not required for this channel. "
+            "Set the legacy hiddenova_brand_intro schema check to "
+            'status="pass" and score=100.'
+        )
+
+    factual_section = (
+        f"""
+FACT QA OUTPUT:
+{json.dumps(fact_qa_data, indent=2, ensure_ascii=True)}
+
+RISK REVIEW OUTPUT:
+{json.dumps(risk_review_data, indent=2, ensure_ascii=True)}
+
+The factual and risk layers are mandatory for this channel.
+Reject the editorial package if either supplied output is not approved.
+Do not re-litigate sourced facts; evaluate whether the script remains
+clear, compelling, and accurately packaged.
+"""
+        if factual_required
+        else "This channel does not require the factual research pipeline."
+    )
+
     return f"""
 {system_prompt}
 
 {workflow}
+
+--------------------------------------------------
+CHANNEL EDITORIAL PROFILE
+--------------------------------------------------
+
+CHANNEL:
+{profile["display_name"]}
+
+EDITORIAL STANDARD:
+{profile["profile_name"]}
 
 --------------------------------------------------
 SCRIPT AGENT OUTPUT
@@ -123,6 +194,12 @@ SEO AGENT OUTPUT
     ensure_ascii=False,
     indent=2
 )}
+
+--------------------------------------------------
+FACTUAL AND RISK GATES
+--------------------------------------------------
+
+{factual_section}
 
 --------------------------------------------------
 STRICT EDITORIAL SCORING
@@ -150,8 +227,8 @@ Evaluate these critical checks:
    rephrase the hook?
 
 3. narrative_spine
-   Is there one cause-and-effect journey, escalation, or
-   investigation instead of a list of explanations?
+   Is there one cause-and-effect journey, escalation,
+   rise, fall, investigation, or turning-point chain?
 
 4. specificity
    Does the script explain concrete mechanisms,
@@ -169,8 +246,9 @@ Evaluate these critical checks:
    Is the subject immediately clear?
 
 7. hiddenova_brand_intro
-   Does the introduction contain the exact word Hiddenova
-   within its first 25 words, without weakening the hook?
+   This is a legacy schema key for the active channel-brand
+   introduction contract.
+   {brand_rule}
 
 8. standard_cta
    Does the final CTA explicitly ask viewers to comment,
@@ -178,13 +256,13 @@ Evaluate these critical checks:
 
 Mandatory thresholds for approval:
 
-- overall_score: at least 85
-- hook_strength: at least 85
-- hook_intro_distinctness: at least 80
-- narrative_spine: at least 85
-- specificity: at least 80
-- repetition_risk: at least 80
-- title_thumbnail_synergy: at least 85
+- overall_score: at least {qa["minimum_overall_score"]}
+- hook_strength: at least {qa["minimum_hook_strength_score"]}
+- hook_intro_distinctness: at least {qa["minimum_hook_intro_distinctness_score"]}
+- narrative_spine: at least {qa["minimum_narrative_spine_score"]}
+- specificity: at least {qa["minimum_specificity_score"]}
+- repetition_risk: at least {qa["minimum_repetition_risk_score"]}
+- title_thumbnail_synergy: at least {qa["minimum_title_thumbnail_synergy_score"]}
 - hiddenova_brand_intro: 100
 - standard_cta: 100
 
@@ -202,11 +280,8 @@ OUTPUT REQUIREMENTS
 --------------------------------------------------
 
 Return ONLY valid JSON.
-
 Do NOT return markdown.
-
 Do NOT wrap JSON inside code blocks.
-
 Do NOT explain anything.
 
 Use EXACTLY this structure:
@@ -214,19 +289,16 @@ Use EXACTLY this structure:
 {json.dumps(required_schema, indent=2)}
 
 Rules:
-
 - status must be either "approved" or "rejected".
 - overall_score must be an integer between 0 and 100.
-- Each check status must be one of:
-  "pass", "warning", "fail".
+- Each check status must be pass, warning, or fail.
 - Each check score must be an integer between 0 and 100.
-- If status is "rejected", issues must explain each
+- If status is rejected, issues must explain each
   production-blocking weakness.
 - Recommendations must be concrete enough for an automatic
   script regeneration.
 - Do not rewrite the script.
 - Do not create new SEO metadata.
 - Only evaluate quality and readiness.
-
-Return JSON only.
+- Return JSON only.
 """.strip()

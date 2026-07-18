@@ -50,9 +50,17 @@ class ChannelRegistryTests(unittest.TestCase):
             "brand_assets_required",
             config["blockers"],
         )
-        self.assertIn(
-            "editorial_system_required",
+        self.assertEqual(
+            config["content"]["editorial_standard"],
+            "rise_dossier_editorial_v1",
+        )
+        self.assertEqual(
+            config["content"]["thumbnail_standard"],
+            "rise_dossier_investigative_v1",
+        )
+        self.assertEqual(
             config["blockers"],
+            ["first_dry_run_required"],
         )
 
     def test_latest_context_is_numeric_not_lexical(self):

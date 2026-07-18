@@ -1,0 +1,60 @@
+{
+  "channel": "rise_dossier",
+  "version": "1.0",
+  "status": "active",
+  "decision": "rise_dossier_thumbnail_system_v1_active",
+  "thumbnail_standard": {
+    "platform": "youtube",
+    "size": "1280x720",
+    "aspect_ratio": "16:9",
+    "standard_path": "config/media/rise_dossier_thumbnail_standard.json",
+    "layout_signature": "oversized_headline_left__dominant_subject_right",
+    "primary_goal": "Create a truthful, premium, high-curiosity investigative package around one recognizable subject and one decisive consequence.",
+    "text_rules": {
+      "min_words": 2,
+      "max_words": 4,
+      "preferred_word_count": 3,
+      "case": "ALL_CAPS",
+      "placement": "left",
+      "stacking": "2_or_3_lines",
+      "primary_color": "warm_white",
+      "highlight_color": "dossier_red",
+      "stroke": "thick_black",
+      "shadow": "deep_black",
+      "mobile_readability_required": true
+    },
+    "visual_rules": {
+      "single_dominant_subject": true,
+      "subject_position": "right_or_center_right",
+      "dark_investigative_background": true,
+      "high_contrast": true,
+      "subtle_archival_texture": true,
+      "clean_negative_space_left": true,
+      "truthful_visual_implication_required": true
+    },
+    "forbidden_patterns": [
+      "one-word headline",
+      "more than four words",
+      "small headline",
+      "multiple competing subjects",
+      "fabricated evidence",
+      "fake mugshot",
+      "fake arrest scene",
+      "unsupported criminal implication",
+      "full video title copy",
+      "generic stock poster"
+    ],
+    "concept_system": {
+      "candidate_count": 3,
+      "finalist_count": 2,
+      "concept_types": [
+        "power_and_scale",
+        "turning_point",
+        "scandal_or_collapse"
+      ],
+      "vision_qa_required": true,
+      "minimum_final_score": 85,
+      "selection_policy": "highest_scoring_truthful_approved_candidate"
+    }
+  }
+}

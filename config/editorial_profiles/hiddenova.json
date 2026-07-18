@@ -1,0 +1,83 @@
+{
+  "profile_name": "hiddenova_editorial_v2",
+  "channel": "hiddenova",
+  "display_name": "Hiddenova",
+  "version": "2.0",
+  "status": "active",
+  "topic_strategy": {
+    "channel_promise": "Hidden systems behind everyday life.",
+    "allowed_pillars": [
+      "hidden_infrastructure",
+      "logistics_and_networks",
+      "operational_systems",
+      "technology_behind_daily_life"
+    ],
+    "selection_rules": [
+      "Prefer globally relevant evergreen systems.",
+      "Reject semantic duplicates of previous videos.",
+      "Require clear visual feasibility and a concrete mechanism."
+    ],
+    "forbidden_angles": [
+      "celebrity biography",
+      "pure opinion",
+      "unsupported conspiracy",
+      "generic listicle"
+    ]
+  },
+  "script": {
+    "word_count_min": 1250,
+    "word_count_max": 1650,
+    "duration_min_seconds": 480,
+    "duration_max_seconds": 720,
+    "estimated_duration_label": "8-12 minutes",
+    "main_section_min": 5,
+    "main_section_max": 7,
+    "brand_intro": {
+      "required": true,
+      "brand_name": "Hiddenova",
+      "scan_word_limit": 25
+    },
+    "cta": {
+      "required": true,
+      "required_actions": [
+        "comment",
+        "like",
+        "subscribe"
+      ],
+      "word_count_min": 20,
+      "word_count_max": 55
+    },
+    "story_rules": [
+      "Build one cause-and-effect narrative spine.",
+      "Open with a concrete event, object, decision, or consequence.",
+      "Explain mechanisms, constraints, and consequences.",
+      "Avoid abstract filler and repeated summaries."
+    ]
+  },
+  "factuality": {
+    "pipeline_required": false,
+    "web_search_required": false,
+    "minimum_sources": 0,
+    "minimum_primary_sources": 0,
+    "minimum_sources_per_high_risk_claim": 0,
+    "require_claims_ledger": false,
+    "require_fact_qa": false,
+    "require_risk_review": false,
+    "max_research_revision_attempts": 0
+  },
+  "qa": {
+    "minimum_overall_score": 85,
+    "minimum_hook_strength_score": 85,
+    "minimum_hook_intro_distinctness_score": 80,
+    "minimum_narrative_spine_score": 85,
+    "minimum_specificity_score": 80,
+    "minimum_repetition_risk_score": 80,
+    "minimum_title_thumbnail_synergy_score": 85,
+    "max_editorial_revision_attempts": 2
+  },
+  "thumbnail": {
+    "standard_name": "hiddenova_cinematic_v3",
+    "standard_path": "config/media/hiddenova_thumbnail_standard.json",
+    "rules_path": "config/thumbnail_rules/hiddenova.json"
+  }
+}

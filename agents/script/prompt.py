@@ -21,34 +21,74 @@ def build_prompt(
     selected_idea: dict,
     target_word_count_min: int = 1250,
     target_word_count_max: int = 1650,
-    revision_feedback: dict | None = None
+    revision_feedback: dict | None = None,
+    editorial_profile: dict | None = None,
+    factual_research: dict | None = None,
+    claims_ledger: dict | None = None,
 ) -> str:
     system_prompt = load_text_file("system.md")
     workflow = load_text_file("workflow.md")
+    profile = editorial_profile or {
+        "display_name": "Hiddenova",
+        "profile_name": "hiddenova_editorial_v2",
+        "script": {
+            "estimated_duration_label": "8-12 minutes",
+            "main_section_min": 5,
+            "main_section_max": 7,
+            "brand_intro": {
+                "required": True,
+                "brand_name": "Hiddenova",
+                "scan_word_limit": 25,
+            },
+            "cta": {
+                "required": True,
+            },
+            "story_rules": [],
+        },
+        "factuality": {
+            "pipeline_required": False,
+        },
+    }
+    script_policy = profile["script"]
+    factual_required = bool(
+        profile.get("factuality", {}).get(
+            "pipeline_required",
+            False,
+        )
+    )
+
+    narration_block = {
+        "narration": "string",
+        "claim_ids": ["C01"],
+    } if factual_required else {
+        "narration": "string",
+    }
+
+    section_block = {
+        "title": "string",
+        "narration": "string",
+        "visual_direction": "string",
+    }
+
+    if factual_required:
+        section_block["claim_ids"] = ["C01"]
 
     required_schema = {
         "title": "string",
         "format": "string",
         "estimated_duration": "string",
-        "hook": {
-            "narration": "string"
-        },
-        "introduction": {
-            "narration": "string"
-        },
-        "main_sections": [
-            {
-                "title": "string",
-                "narration": "string",
-                "visual_direction": "string"
-            }
-        ],
-        "conclusion": {
-            "narration": "string"
-        },
+        "hook": narration_block,
+        "introduction": narration_block,
+        "main_sections": [section_block],
+        "conclusion": narration_block,
         "call_to_action": {
-            "narration": "string"
-        }
+            "narration": "string",
+            **(
+                {"claim_ids": []}
+                if factual_required
+                else {}
+            ),
+        },
     }
 
     revision_section = ""
@@ -70,10 +110,87 @@ script.
 )}
 """
 
+    brand_intro = script_policy["brand_intro"]
+    brand_rule = (
+        f'- The introduction MUST contain the exact word '
+        f'"{brand_intro["brand_name"]}" within its first '
+        f'{brand_intro["scan_word_limit"]} words, then '
+        "immediately advance the story."
+        if brand_intro["required"]
+        else (
+            "- Do not force a channel-name sentence into the opening. "
+            "Start with the story immediately."
+        )
+    )
+
+    factual_section = ""
+
+    if factual_required:
+        if not factual_research or not claims_ledger:
+            raise ValueError(
+                "Factual research and claims ledger are required."
+            )
+
+        approved_claims = [
+            item
+            for item in claims_ledger.get("claims", [])
+            if item.get("verification_status") == "approved"
+        ]
+
+        factual_section = f"""
+--------------------------------------------------
+APPROVED FACTUAL SOURCE PACK
+--------------------------------------------------
+
+RESEARCH DOSSIER:
+{json.dumps(
+    factual_research,
+    ensure_ascii=True,
+    indent=2
+)}
+
+APPROVED CLAIMS LEDGER:
+{json.dumps(
+    approved_claims,
+    ensure_ascii=True,
+    indent=2
+)}
+
+FACTUAL GROUNDING RULES:
+- Use only claims marked verification_status="approved".
+- Attach the supporting claim IDs to every factual narration block.
+- Every non-CTA narration block must include at least one claim ID.
+- Do not add facts that are absent from the approved claims ledger.
+- Preserve attribution for allegations, disputed claims, quotations,
+  interpretations, and legal conclusions.
+- Never intensify certainty or infer private motive.
+- Never invent dialogue, quotations, precise numbers, dates, or events.
+"""
+
+    # Legacy Hiddenova profile rule uses the exact word "Hiddenova".
+    # Keep this comment so the original contract remains traceable.
+
     return f"""
 {system_prompt}
 
 {workflow}
+
+--------------------------------------------------
+CHANNEL EDITORIAL PROFILE
+--------------------------------------------------
+
+CHANNEL:
+{profile["display_name"]}
+
+EDITORIAL STANDARD:
+{profile["profile_name"]}
+
+STORY RULES:
+{json.dumps(
+    script_policy.get("story_rules", []),
+    indent=2,
+    ensure_ascii=True
+)}
 
 --------------------------------------------------
 SELECTED IDEA
@@ -94,6 +211,8 @@ Potential:
 Difficulty:
 {selected_idea["difficulty"]}
 
+{factual_section}
+
 {revision_section}
 
 --------------------------------------------------
@@ -105,32 +224,22 @@ Build the documentary around ONE clear narrative spine.
 - Open with one concrete event, object, decision, or
   moment the viewer can visualize immediately.
 - Reveal the strongest counterintuitive fact, paradox,
-  or consequence within the first 120 narration words.
+  turning point, or consequence within the first
+  120 narration words.
 - The hook must create tension. The introduction must
   advance the story instead of restating the hook.
-- The introduction MUST begin with a very short brand/context
-  line containing the exact word "Hiddenova" within its first
-  25 words, then immediately advance the story.
+{brand_rule}
 - Organize every main section as the next causal step,
-  escalation, consequence, or reveal.
+  escalation, consequence, turning point, or reveal.
 - Prefer specific mechanisms, decisions, constraints,
   and consequences over broad descriptions.
-- Use only facts supported by the supplied research and
-  selected idea. Never invent statistics, companies,
-  quotations, case studies, regulations, or technical
-  details merely to sound specific.
+- Use only facts supported by the approved source pack.
 - Explain jargon at first use and keep the language
   accessible to a global English-speaking audience.
-- Avoid generic documentary filler such as repeated use
-  of "hidden system", "quiet technology",
-  "beneath the surface", "modern world",
-  "deceptively simple", "invisible", or "trust".
-- Avoid repeating the same abstract point using
-  different words.
+- Avoid generic documentary filler and repeated summaries.
 - Do not use list-like exposition when a cause-and-effect
   sequence can carry the explanation.
-- End each section with a reason to continue into the
-  next section.
+- End each section with a reason to continue into the next.
 - The conclusion must deliver a final implication, not
   merely summarize every section.
 
@@ -144,13 +253,13 @@ NARRATION LENGTH REQUIREMENTS:
   all main sections, conclusion, and call_to_action
   MUST be between {target_word_count_min} and
   {target_word_count_max} words.
-- Target runtime: 8 to 12 minutes.
-- Set estimated_duration to exactly "8-12 minutes".
+- Target runtime: {script_policy["estimated_duration_label"]}.
+- Set estimated_duration to exactly
+  "{script_policy["estimated_duration_label"]}".
 - Hook target: 70 to 110 words.
 - Introduction target: 90 to 140 words.
-- Use 5 to 7 main sections.
-- Combined main section narration target:
-  950 to 1300 words.
+- Use {script_policy["main_section_min"]} to
+  {script_policy["main_section_max"]} main sections.
 - Conclusion target: 80 to 120 words.
 - Call to action target: 25 to 45 words.
 - The call to action MUST explicitly ask viewers to comment,
@@ -160,11 +269,8 @@ NARRATION LENGTH REQUIREMENTS:
   length.
 
 Return ONLY valid JSON.
-
 Do NOT return markdown.
-
 Do NOT wrap JSON inside code blocks.
-
 Do NOT explain anything.
 
 Use EXACTLY this structure:
@@ -172,10 +278,7 @@ Use EXACTLY this structure:
 {json.dumps(required_schema, indent=2)}
 
 Every narration field MUST be a single string.
-
 Never return narration as an array.
-
 Never rename any field.
-
 Return JSON only.
 """.strip()

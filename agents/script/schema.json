@@ -67,6 +67,12 @@
           "properties": {
             "narration": {
               "type": "string"
+            },
+            "claim_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -78,6 +84,12 @@
           "properties": {
             "narration": {
               "type": "string"
+            },
+            "claim_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -99,6 +111,12 @@
               },
               "visual_direction": {
                 "type": "string"
+              },
+              "claim_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -111,6 +129,12 @@
           "properties": {
             "narration": {
               "type": "string"
+            },
+            "claim_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
@@ -122,6 +146,12 @@
           "properties": {
             "narration": {
               "type": "string"
+            },
+            "claim_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         }

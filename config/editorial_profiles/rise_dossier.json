@@ -1,0 +1,111 @@
+{
+  "profile_name": "rise_dossier_editorial_v1",
+  "channel": "rise_dossier",
+  "display_name": "Rise Dossier",
+  "version": "1.0",
+  "status": "active",
+  "topic_strategy": {
+    "channel_promise": "The real stories behind the rise, fall, power, wealth, scandals and mysteries of companies and famous people.",
+    "allowed_pillars": [
+      "company_rise_and_fall",
+      "famous_people_and_founders",
+      "business_empires",
+      "scandals_and_mysteries"
+    ],
+    "selection_rules": [
+      "The subject must be a real company, founder, public figure, institution, empire, scandal, or mystery with strong public documentation.",
+      "The story must have a clear turning point, conflict, rise, fall, power mechanism, or unresolved question.",
+      "Prefer globally recognizable subjects with evergreen search demand and strong visual archives.",
+      "Reject topics that depend mainly on gossip, private-life speculation, or unsupported conspiracy."
+    ],
+    "forbidden_angles": [
+      "fictional biography",
+      "celebrity gossip without business or historical significance",
+      "unsupported criminal accusation",
+      "private-person investigation",
+      "medical diagnosis",
+      "political persuasion",
+      "generic net-worth listicle"
+    ]
+  },
+  "script": {
+    "word_count_min": 1325,
+    "word_count_max": 1550,
+    "duration_min_seconds": 540,
+    "duration_max_seconds": 630,
+    "estimated_duration_label": "9-10 minutes",
+    "main_section_min": 5,
+    "main_section_max": 7,
+    "brand_intro": {
+      "required": false,
+      "brand_name": "Rise Dossier",
+      "scan_word_limit": 30
+    },
+    "cta": {
+      "required": true,
+      "required_actions": [
+        "comment",
+        "like",
+        "subscribe"
+      ],
+      "word_count_min": 20,
+      "word_count_max": 55
+    },
+    "story_rules": [
+      "Open on the decisive moment, contradiction, collapse, breakthrough, or mystery.",
+      "Build a chronological cause-and-effect spine rather than a list of facts.",
+      "Explain how power, money, influence, or failure was created.",
+      "Separate verified fact, attributed allegation, and interpretation.",
+      "Every factual section must reference approved claim IDs.",
+      "Do not invent dialogue, motives, quotations, private conversations, or precise numbers."
+    ]
+  },
+  "factuality": {
+    "pipeline_required": true,
+    "web_search_required": true,
+    "minimum_sources": 8,
+    "minimum_primary_sources": 2,
+    "minimum_sources_per_high_risk_claim": 2,
+    "require_claims_ledger": true,
+    "require_fact_qa": true,
+    "require_risk_review": true,
+    "source_quality_order": [
+      "official filing or company record",
+      "government or court record",
+      "direct interview or speech",
+      "major established news organization",
+      "reputable book or academic source",
+      "specialist trade publication"
+    ],
+    "blocked_source_types": [
+      "anonymous social post",
+      "unsourced aggregation",
+      "AI-generated article",
+      "fan wiki as sole evidence"
+    ],
+    "high_risk_claim_types": [
+      "criminal_allegation",
+      "fraud_allegation",
+      "misconduct_allegation",
+      "private_motive",
+      "health_claim",
+      "legal_conclusion"
+    ],
+    "max_research_revision_attempts": 1
+  },
+  "qa": {
+    "minimum_overall_score": 87,
+    "minimum_hook_strength_score": 88,
+    "minimum_hook_intro_distinctness_score": 82,
+    "minimum_narrative_spine_score": 88,
+    "minimum_specificity_score": 85,
+    "minimum_repetition_risk_score": 82,
+    "minimum_title_thumbnail_synergy_score": 85,
+    "max_editorial_revision_attempts": 2
+  },
+  "thumbnail": {
+    "standard_name": "rise_dossier_investigative_v1",
+    "standard_path": "config/media/rise_dossier_thumbnail_standard.json",
+    "rules_path": "config/thumbnail_rules/rise_dossier.json"
+  }
+}
