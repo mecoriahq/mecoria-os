@@ -28,6 +28,7 @@ from core.script_candidate_manager import (
     extract_repair_targets,
     get_script_block,
     merge_script_repairs,
+    resolve_repair_targets_for_script,
 )
 from core.script_preflight import (
     assert_script_preflight,
@@ -271,14 +272,47 @@ def main() -> None:
 
     script_data = load_json(script_path)
     ledger_data = load_json(ledger_path)
-    repair_targets = extract_repair_targets(
+    extracted_targets = extract_repair_targets(
         qa_data
+    )
+    target_resolution = (
+        resolve_repair_targets_for_script(
+            script_data=script_data,
+            repair_targets=extracted_targets,
+        )
+    )
+    repair_targets = target_resolution["targets"]
+    stale_issues = target_resolution["stale_issues"]
+    relocated_issues = target_resolution[
+        "relocated_issues"
+    ]
+
+    print(
+        "STALE_REPAIR_TARGET_COUNT: "
+        f"{len(stale_issues)}"
+    )
+    print(
+        "RELOCATED_REPAIR_TARGET_COUNT: "
+        f"{len(relocated_issues)}"
     )
 
     if not repair_targets:
-        raise ValueError(
-            "Fact Risk QA did not provide repairable locations."
+        context.get("sources", {}).pop(
+            "fact_risk_section_repair_brief",
+            None,
         )
+        context = set_status(
+            context=context,
+            status="script_repaired",
+            next_agent="fact_risk_qa",
+        )
+        save_context(context)
+        print(
+            "SCRIPT_SECTION_REPAIR_STATUS: "
+            "no_actionable_targets"
+        )
+        print("MODEL_CALLED: false")
+        return
 
     target_locations = [
         item["location"]

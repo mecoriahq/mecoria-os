@@ -38,6 +38,7 @@ from core.script_candidate_manager import (
     extract_repair_targets,
     load_candidate_json,
     restore_best_candidate_script,
+    resolve_repair_targets_for_script,
 )
 from core.channel_content_policy import (
     apply_profile_quality_gates,
@@ -1306,15 +1307,68 @@ def write_fact_risk_section_repair_brief(
             "fact_risk_section_repair_policy_version"
         ] = "1.0"
 
-    targets = extract_repair_targets(
+    extracted_targets = extract_repair_targets(
         fact_risk_data
+    )
+    script_data = load_context_record(
+        context=context,
+        key="script",
+    )
+    target_resolution = (
+        resolve_repair_targets_for_script(
+            script_data=script_data,
+            repair_targets=extracted_targets,
+        )
+    )
+    targets = target_resolution["targets"]
+    stale_issues = target_resolution["stale_issues"]
+    relocated_issues = target_resolution[
+        "relocated_issues"
+    ]
+
+    print(
+        "STALE_FACT_RISK_TARGET_COUNT: "
+        f"{len(stale_issues)}",
+        flush=True,
+    )
+    print(
+        "RELOCATED_FACT_RISK_TARGET_COUNT: "
+        f"{len(relocated_issues)}",
+        flush=True,
     )
 
     if not targets:
-        raise RuntimeError(
-            "Fact Risk QA rejection has no repairable "
-            "script locations."
+        for key in (
+            "fact_qa",
+            "risk_review",
+            "fact_risk_qa",
+        ):
+            context.get("outputs", {}).pop(
+                key,
+                None,
+            )
+
+        append_history(
+            context=context,
+            agent="fact_risk_target_guard",
+            status="stale_qa_invalidated",
+            reference=(
+                "reason=no_actionable_locations;"
+                f"stale_issue_count={len(stale_issues)}"
+            ),
         )
+        context = set_status(
+            context=context,
+            status="script_ready",
+            next_agent="fact_risk_qa",
+        )
+        save_context(context)
+
+        print(
+            "STALE_FACT_RISK_QA_INVALIDATED: true",
+            flush=True,
+        )
+        return context
 
     input_dir = (
         PROJECT_ROOT

@@ -226,6 +226,188 @@ def merge_script_repairs(
     return result
 
 
+
+def iter_script_narration_blocks(
+    script_data: dict[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    script = script_data.get("script", {})
+
+    if not isinstance(script, dict):
+        raise ValueError(
+            "Script output is missing script object."
+        )
+
+    blocks: list[tuple[str, dict[str, Any]]] = []
+
+    for key in (
+        "hook",
+        "introduction",
+    ):
+        block = script.get(key)
+
+        if isinstance(block, dict):
+            blocks.append(
+                (f"{key}.narration", block)
+            )
+
+    sections = script.get("main_sections", [])
+
+    if isinstance(sections, list):
+        for index, block in enumerate(sections):
+            if isinstance(block, dict):
+                blocks.append(
+                    (
+                        f"main_sections[{index}].narration",
+                        block,
+                    )
+                )
+
+    for key in (
+        "conclusion",
+        "call_to_action",
+    ):
+        block = script.get(key)
+
+        if isinstance(block, dict):
+            blocks.append(
+                (f"{key}.narration", block)
+            )
+
+    return blocks
+
+
+def normalize_statement_text(value: Any) -> str:
+    text = str(value or "")
+    text = text.replace("\u201c", '"')
+    text = text.replace("\u201d", '"')
+    text = text.replace("\u2018", "'")
+    text = text.replace("\u2019", "'")
+    text = re.sub(r"\s+", " ", text)
+    return text.strip().strip('"').lower()
+
+
+def find_statement_location(
+    script_data: dict[str, Any],
+    statement: Any,
+) -> str | None:
+    needle = normalize_statement_text(statement)
+
+    if not needle:
+        return None
+
+    matches = []
+
+    for location, block in iter_script_narration_blocks(
+        script_data
+    ):
+        narration = normalize_statement_text(
+            block.get("narration", "")
+        )
+
+        if needle in narration:
+            matches.append(location)
+
+    if len(matches) == 1:
+        return matches[0]
+
+    return None
+
+
+def repair_location_exists(
+    script_data: dict[str, Any],
+    location: str,
+) -> bool:
+    try:
+        get_script_block(
+            script_data=script_data,
+            location=location,
+        )
+    except (IndexError, KeyError, TypeError, ValueError):
+        return False
+
+    return True
+
+
+def resolve_repair_targets_for_script(
+    script_data: dict[str, Any],
+    repair_targets: list[dict[str, Any]],
+) -> dict[str, Any]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    stale_issues: list[dict[str, Any]] = []
+    relocated_issues: list[dict[str, Any]] = []
+
+    for target in repair_targets:
+        if not isinstance(target, dict):
+            continue
+
+        original_location = normalize_repair_location(
+            target.get("location")
+        )
+        target_issues = target.get("issues", [])
+
+        if not isinstance(target_issues, list):
+            target_issues = []
+
+        for issue in target_issues:
+            if not isinstance(issue, dict):
+                continue
+
+            resolved_location = original_location
+
+            if (
+                not resolved_location
+                or not repair_location_exists(
+                    script_data,
+                    resolved_location,
+                )
+            ):
+                resolved_location = find_statement_location(
+                    script_data=script_data,
+                    statement=issue.get("statement"),
+                )
+
+            if not resolved_location:
+                stale_record = copy.deepcopy(issue)
+                stale_record[
+                    "original_location"
+                ] = target.get("location")
+                stale_issues.append(stale_record)
+                continue
+
+            issue_copy = copy.deepcopy(issue)
+            issue_copy["location"] = resolved_location
+            grouped.setdefault(
+                resolved_location,
+                [],
+            ).append(issue_copy)
+
+            if resolved_location != original_location:
+                relocated_issues.append({
+                    "original_location": (
+                        target.get("location")
+                    ),
+                    "resolved_location": resolved_location,
+                    "statement": issue.get("statement"),
+                })
+
+    targets = [
+        {
+            "location": location,
+            "issues": grouped[location],
+        }
+        for location in sorted(
+            grouped,
+            key=repair_location_sort_key,
+        )
+    ]
+
+    return {
+        "targets": targets,
+        "stale_issues": stale_issues,
+        "relocated_issues": relocated_issues,
+    }
+
+
 def qa_metrics(
     qa_data: dict[str, Any],
 ) -> dict[str, Any]:
