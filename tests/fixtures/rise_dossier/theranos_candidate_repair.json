@@ -1,0 +1,277 @@
+{
+  "channel": "rise_dossier",
+  "video_id": "video_001",
+  "topic": "Theranos: The Blood Testing Empire Built on a Promise",
+  "better_candidate_qa": {
+    "status": "rejected",
+    "factual_grounding_score": 88,
+    "risk_compliance_score": 90,
+    "unsupported_statements": [
+      {
+        "location": "main_sections[0].narration / The Walgreens Door Opens",
+        "statement": "The first major public step was the Walgreens announcement.",
+        "reason": "C03 supports the September 9, 2013 Walgreens announcement, but the attached claims do not establish that it was the first major public step.",
+        "suggested_action": "Remove or qualify \u201cfirst major,\u201d or add an approved claim supporting chronology and significance."
+      },
+      {
+        "location": "main_sections[0].narration / The Walgreens Door Opens",
+        "statement": "beginning with a Wellness Center at 300 University Avenue in Palo Alto",
+        "reason": "C03 supports a first Wellness Center in Palo Alto, but the exact street address is not included in the approved claim.",
+        "suggested_action": "Remove the street address unless an approved claim is added for it."
+      },
+      {
+        "location": "main_sections[0].narration / The Walgreens Door Opens",
+        "statement": "From that moment, the Theranos idea was no longer only a company claim inside its own materials.",
+        "reason": "The attached claims support that Walgreens and Theranos publicly announced a partnership and that launch materials made small-sample claims, but they do not establish that the claim had previously existed only inside Theranos materials.",
+        "suggested_action": "Remove the exclusivity implication or add an approved claim supporting it."
+      },
+      {
+        "location": "main_sections[3].narration / The Machine Behind the Message",
+        "statement": "later supported in the approved ledger by SEC material and an appellate source",
+        "reason": "The approved claim C11 requires attribution to The Wall Street Journal and notes source IDs, but the script adds source-characterization language not present in the approved claim text. It also introduces production-internal wording into the narration.",
+        "suggested_action": "Remove this phrase or approve a claim specifically allowing the source-characterization statement."
+      },
+      {
+        "location": "main_sections[4].narration / The Retail Pathway Closes",
+        "statement": "The same partnership that had helped put the small-sample promise into public retail language was now ending.",
+        "reason": "This block attaches C03, C16, C18, and C13. C03 supports the Walgreens partnership, and C16 supports termination, but the small-sample launch-language component is supported by C04, which is not attached to this narration block.",
+        "suggested_action": "Add C04 to this narration block or remove the small-sample/public retail language reference."
+      }
+    ],
+    "risk_issues": [
+      {
+        "category": "misleading_certainty",
+        "severity": "medium",
+        "location": "hook.narration",
+        "message": "C24 is an interpretation claim requiring explicit attribution and cautious wording. The sentence states the interpretive pattern directly: \u201cThe tension is precise: the public promise moved ahead of the evidence...\u201d",
+        "required_edit": "Attribute the interpretation to the approved record or use cautious wording rather than presenting it as an unqualified conclusion."
+      },
+      {
+        "category": "misleading_certainty",
+        "severity": "medium",
+        "location": "conclusion.narration",
+        "message": "C07 requires attribution and cautious wording. The sentence \u201cProminent advisers helped create an aura of credibility\u201d presents the interpretation directly without attribution.",
+        "required_edit": "Add explicit attribution to reporting/the approved record or otherwise qualify the statement."
+      },
+      {
+        "category": "other",
+        "severity": "low",
+        "location": "main_sections[4].narration / The Retail Pathway Closes",
+        "message": "A concrete claim supported by C04 is used in a block where C04 is not attached, violating the rule that every concrete factual statement must be supported by the claim IDs attached to its narration block.",
+        "required_edit": "Attach C04 to the block or remove the small-sample promise reference."
+      }
+    ]
+  },
+  "worse_candidate_qa": {
+    "agent": "fact_risk_qa",
+    "version": "1.0",
+    "channel": "rise_dossier",
+    "video_id": "video_001",
+    "run_id": "rise_dossier_video_001_v1",
+    "status": "rejected",
+    "factual_grounding_score": 78,
+    "risk_compliance_score": 86,
+    "unsupported_statements": [
+      {
+        "location": "introduction.narration",
+        "statement": "Media coverage gave it a founder narrative.",
+        "reason": "The attached claim IDs for this block do not support a general causal claim that media coverage created or gave Theranos a founder narrative. C05 is not attached to this block, and C07 only supports reporting about prominent board members/advisers and credibility.",
+        "suggested_action": "Remove the sentence or support it with an approved claim specifically covering media/founder-narrative framing."
+      },
+      {
+        "location": "main_sections[1].narration",
+        "statement": "That claim placed the company inside a powerful narrative: one small sample, many possible answers, and a founder positioned at the center of a medical-testing revolution.",
+        "reason": "C05 supports that The New Yorker reported Holmes said Theranos had developed tests for dozens of conditions from a drop or two of blood. It does not support the broader characterization of a \u201cmedical-testing revolution\u201d or Holmes being positioned at its center.",
+        "suggested_action": "Remove or substantially soften the characterization unless an approved claim supports it."
+      },
+      {
+        "location": "main_sections[1].narration",
+        "statement": "In a startup environment built on belief in future breakthroughs, credibility could travel ahead of peer-reviewed evidence.",
+        "reason": "The attached claims do not support a general factual characterization of startup environments or how credibility travels within them.",
+        "suggested_action": "Remove the generalized startup-environment claim or replace it only with approved C24-style language tied to the public record."
+      },
+      {
+        "location": "main_sections[1].narration",
+        "statement": "That is where the next pressure point appeared: scientists began asking what had actually been shown.",
+        "reason": "This block does not attach C08 or C09, which are the approved claims about scientific criticism. The attached claims C05, C07, and C24 do not directly support this statement.",
+        "suggested_action": "Either remove the statement from this block or attach and use the approved scientific-criticism claims with proper wording."
+      },
+      {
+        "location": "main_sections[2].narration",
+        "statement": "That mattered because peer review is one way scientific claims are examined by outside experts before becoming part of accepted evidence.",
+        "reason": "This is a concrete explanatory statement about peer review that is not contained in the approved claims ledger. Strict rules require every concrete factual statement to be supported by the attached claim IDs.",
+        "suggested_action": "Remove this general explanation unless the ledger includes an approved claim defining peer review."
+      },
+      {
+        "location": "main_sections[3].narration",
+        "statement": "It had a founder story reported in major media.",
+        "reason": "This block attaches C07, C10, and C24, but not C05. The approved claim about The New Yorker reporting Holmes\u2019s statements is not attached here, and no attached claim supports \u201cfounder story reported in major media.\u201d",
+        "suggested_action": "Remove this line or attach the relevant approved claim and keep the wording within that claim."
+      },
+      {
+        "location": "main_sections[3].narration",
+        "statement": "It also had scientific critics pointing to missing public evidence.",
+        "reason": "This block does not attach C08 or C09, which support scientific criticism. C07, C10, and C24 do not directly support this concrete statement.",
+        "suggested_action": "Remove or support with the approved scientific-criticism claim IDs."
+      },
+      {
+        "location": "main_sections[4].narration",
+        "statement": "...later SEC allegations and court records addressed related issues.",
+        "reason": "C12 and C13 support SEC allegations, but the attached claims do not specifically support the broader statement that \u201ccourt records addressed related issues.\u201d",
+        "suggested_action": "Limit this to the approved SEC allegations or use an approved claim that explicitly references court records."
+      },
+      {
+        "location": "main_sections[4].narration",
+        "statement": "The public contradiction had sharpened: the story promised a new blood-testing platform, while the allegations questioned how much of that platform was actually doing the work.",
+        "reason": "The attached claims support WSJ reporting and SEC allegations about the proprietary analyzer and commercial analyzers. They do not directly support the broader interpretive phrase \u201cpublic contradiction\u201d or \u201cthe story promised a new blood-testing platform\u201d within this block.",
+        "suggested_action": "Keep the allegation language tightly attributed to WSJ/SEC or support the interpretation with C24 if allowed in this block."
+      },
+      {
+        "location": "main_sections[5].narration",
+        "statement": "The same retail pathway that had carried the promise into pharmacies was now closing.",
+        "reason": "C16 supports Walgreens terminating the relationship and closing 40 Arizona Wellness Centers. This block does not attach C03, which supports the original Walgreens launch and retail pathway context.",
+        "suggested_action": "Either remove the retrospective retail-pathway wording or attach the approved partnership claim."
+      },
+      {
+        "location": "main_sections[5].narration",
+        "statement": "What began as a question about evidence had become a legal case about representations, investors, and the limits of the company\u2019s claims.",
+        "reason": "This sentence blends scientific-evidence framing with later legal proceedings. C18 and C19 support legal allegations, but this block does not attach C08, C09, or C24 for the evidence-framing portion.",
+        "suggested_action": "Remove the evidence-framing portion or support it with the relevant approved claims."
+      },
+      {
+        "location": "main_sections[6].narration",
+        "statement": "...what was promised to investors, what was represented about the technology and business, and what the jury found proved beyond the required standard in the investor-fraud counts.",
+        "reason": "C20 supports the conviction/acquittal outcome, and C22 supports restitution. This block does not attach C13 or C18, which support allegations about investor representations, technology, business, and financial performance. The phrase \u201cproved beyond the required standard\u201d is also a legal-standard characterization not stated in the ledger.",
+        "suggested_action": "Confine this section to the exact conviction, acquittal, and restitution claims, or attach the relevant allegation claims and maintain attribution."
+      },
+      {
+        "location": "main_sections[6].narration",
+        "statement": "The myth of one-drop transformation had met the language of verdicts, counts, and restitution.",
+        "reason": "\u201cMyth\u201d is an interpretive and potentially misleading characterization implying falsity beyond the approved wording. The ledger supports a public promise outpacing evidence and specific legal outcomes, not this rhetorical conclusion.",
+        "suggested_action": "Remove the sentence or replace with approved C24/C20/C22 language only."
+      },
+      {
+        "location": "conclusion.narration",
+        "statement": "Theranos is often remembered as a technology failure...",
+        "reason": "The approved ledger does not support a public-memory claim about how Theranos is often remembered.",
+        "suggested_action": "Remove the public-memory framing or support it with an approved claim."
+      },
+      {
+        "location": "conclusion.narration",
+        "statement": "...scientific criticism focused on missing public proof.",
+        "reason": "The conclusion attaches C07, C20, C24, and C25, but not C08 or C09, which are the approved scientific-criticism claims.",
+        "suggested_action": "Attach C08/C09 if this claim remains, or remove it from the conclusion."
+      },
+      {
+        "location": "conclusion.narration",
+        "statement": "It was building power, money, and trust around claims before the evidence could carry them.",
+        "reason": "This expands beyond C24 by adding \u201cpower\u201d and \u201cmoney\u201d as concrete stakes in the conclusion without attaching the investor-funding claim C13 or another approved claim supporting that phrasing.",
+        "suggested_action": "Limit the interpretation to C24\u2019s approved wording about the public promise outpacing available evidence."
+      }
+    ],
+    "risk_issues": [
+      {
+        "category": "misleading_certainty",
+        "severity": "medium",
+        "location": "main_sections[1].narration",
+        "message": "The phrase \u201cmedical-testing revolution\u201d intensifies the approved claim and may overstate what C05 supports.",
+        "required_edit": "Remove or soften the phrase to stay within the reported claim about tests for dozens of conditions from a drop or two of blood."
+      },
+      {
+        "category": "misleading_certainty",
+        "severity": "medium",
+        "location": "main_sections[6].narration",
+        "message": "Calling the Theranos promise a \u201cmyth\u201d risks converting the approved record\u2019s careful distinction between promise, allegations, convictions, and acquittals into a broader statement of falsity.",
+        "required_edit": "Remove \u201cmyth\u201d or replace with neutral language tied to the approved claims."
+      },
+      {
+        "category": "legal_conclusion",
+        "severity": "medium",
+        "location": "main_sections[6].narration",
+        "message": "The sentence about what the jury \u201cfound proved beyond the required standard\u201d adds legal-standard language not present in the ledger and broadens the outcome beyond the exact approved conviction/acquittal wording.",
+        "required_edit": "State only the approved conviction/acquittal outcome and restitution order, with attribution as required."
+      },
+      {
+        "category": "fraud_allegation",
+        "severity": "medium",
+        "location": "main_sections[4].narration",
+        "message": "\u201cCourt records addressed related issues\u201d is not specifically supported by the attached claim IDs and appears in a high-risk fraud-allegation context.",
+        "required_edit": "Remove the court-records reference unless an approved claim explicitly supports it."
+      },
+      {
+        "category": "misleading_certainty",
+        "severity": "low",
+        "location": "main_sections[1].narration",
+        "message": "General statements about startup environments and credibility traveling ahead of evidence add unsupported explanatory certainty beyond the ledger.",
+        "required_edit": "Remove the generalized statement or tie it explicitly to the approved public-record interpretation."
+      },
+      {
+        "category": "other",
+        "severity": "low",
+        "location": "conclusion.narration",
+        "message": "The public-memory framing that Theranos is \u201coften remembered\u201d in a particular way is unsupported by the ledger.",
+        "required_edit": "Remove the unsupported public-memory claim."
+      }
+    ],
+    "approved_claim_ids": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "C16",
+      "C18",
+      "C19",
+      "C20",
+      "C22",
+      "C24",
+      "C25"
+    ],
+    "summary": "Rejected for factual grounding below 100. The script handles the core high-risk allegations and conviction/acquittal boundary mostly carefully, but several narration blocks include unsupported interpretive, explanatory, or rhetorical statements, and some concrete claims rely on claim IDs not attached to the relevant block. No high-severity risk issue was identified, but unsupported statements must be removed or supported before approval.",
+    "deterministic_validation": {
+      "approved": true,
+      "status": "pass",
+      "used_claim_ids": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "C07",
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C16",
+        "C18",
+        "C19",
+        "C20",
+        "C22",
+        "C24",
+        "C25"
+      ],
+      "location_count": 11,
+      "errors": []
+    },
+    "metadata": {
+      "model": "gpt-5.5",
+      "source_agents": [
+        "factual_research",
+        "claims_ledger",
+        "script"
+      ],
+      "next_agent": "script"
+    }
+  },
+  "expected_better_unique_repair_locations": 5,
+  "expected_worse_unique_repair_locations": 8
+}

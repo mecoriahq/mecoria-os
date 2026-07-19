@@ -98,7 +98,9 @@
     "max_research_revision_attempts": 1,
     "minimum_approved_claims_for_script": 15,
     "minimum_claim_coverage_rate": 0.6,
-    "blocked_claim_policy": "quarantine"
+    "blocked_claim_policy": "quarantine",
+    "max_section_repair_attempts": 3,
+    "candidate_selection_policy": "best_fact_risk_score"
   },
   "qa": {
     "minimum_overall_score": 87,
