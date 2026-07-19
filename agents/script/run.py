@@ -45,6 +45,15 @@ from core.script_preflight import (
     assert_script_preflight,
     evaluate_script_preflight,
 )
+from core.model_pause import (
+    record_model_retry_pause,
+)
+from core.openai_resilience import (
+    OpenAIRetryExhausted,
+    RetryPolicy,
+    call_with_retry,
+    require_nonempty_text,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IDEA_INDEX = 0
@@ -94,26 +103,43 @@ def extract_json(text: str) -> dict:
 def generate_script(prompt: str) -> dict:
     client = OpenAI()
 
-    response = client.chat.completions.create(
-        model="gpt-5.5",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        max_completion_tokens=5000,
-        response_format={
-            "type": "json_object"
-        }
+    def operation() -> dict:
+        response = client.chat.completions.create(
+            model="gpt-5.5",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            max_completion_tokens=5000,
+            response_format={
+                "type": "json_object",
+            },
+        )
+        choices = getattr(response, "choices", None)
+
+        if not choices:
+            raise ValueError(
+                "Script Agent returned an empty response."
+            )
+
+        content = require_nonempty_text(
+            choices[0].message.content,
+            label="Script Agent",
+        )
+        return extract_json(content)
+
+    return call_with_retry(
+        operation,
+        operation_name="script_generation",
+        policy=RetryPolicy(max_attempts=3),
+        on_retry=lambda attempt, maximum, error, delay: print(
+            "OPENAI_RETRY: "
+            f"script attempt={attempt + 1}/{maximum} "
+            f"delay={delay}s error={type(error).__name__}"
+        ),
     )
-
-    content = response.choices[0].message.content
-
-    if not content:
-        raise ValueError("OpenAI returned an empty response.")
-
-    return extract_json(content)
 
 
 def to_text(value) -> str:
@@ -646,7 +672,17 @@ def main() -> None:
             claims_ledger=claims_ledger,
         )
 
-        raw_script_data = generate_script(prompt)
+        try:
+            raw_script_data = generate_script(prompt)
+        except OpenAIRetryExhausted as error:
+            if context is None:
+                raise
+            record_model_retry_pause(
+                context=context,
+                agent="script",
+                error=error,
+            )
+            return
 
         candidate_output = normalize_output(
             research_data=research_data,
@@ -701,7 +737,7 @@ def main() -> None:
             generation_attempt
             >= max_word_count_revision_attempts
         ):
-            preflight_gate = assert_script_preflight(
+            preflight_gate = evaluate_script_preflight(
                 script_data=candidate_output,
                 target_minimum=target_word_min,
                 target_maximum=target_word_max,
@@ -711,6 +747,39 @@ def main() -> None:
                     audio_duration_authoritative
                 ),
             )
+
+            if not preflight_gate["accepted"]:
+                if context is None:
+                    assert_script_preflight(
+                        script_data=candidate_output,
+                        target_minimum=target_word_min,
+                        target_maximum=target_word_max,
+                        absolute_floor=pre_audio_word_floor,
+                        minimum_ratio=pre_audio_minimum_ratio,
+                        audio_duration_authoritative=(
+                            audio_duration_authoritative
+                        ),
+                    )
+
+                context.setdefault("quality_gates", {})[
+                    "script_generation_preflight_failure"
+                ] = preflight_gate
+                context = set_status(
+                    context=context,
+                    status="founder_editorial_review_required",
+                    next_agent="founder_editorial_review",
+                )
+                save_context(context)
+                print(
+                    "SCRIPT_GENERATION_CONTROLLED_PAUSE: true"
+                )
+                print(
+                    "SCRIPT_PREFLIGHT_STATUS: "
+                    f"{preflight_gate['status']}"
+                )
+                print("STACK_TRACE: false")
+                return
+
             break
 
         word_count_revision_attempts += 1

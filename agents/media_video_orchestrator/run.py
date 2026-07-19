@@ -35,10 +35,22 @@ from core.script_preflight import (
 )
 from core.script_candidate_manager import (
     archive_fact_risk_candidate,
+    candidates_are_factually_equivalent,
     extract_repair_targets,
     load_candidate_json,
     restore_best_candidate_script,
     resolve_repair_targets_for_script,
+)
+from core.editorial_candidate_manager import (
+    archive_editorial_candidate,
+    load_json_reference,
+    restore_editorial_candidate,
+)
+from core.editorial_repair import (
+    build_editorial_repair_targets,
+)
+from core.model_pause import (
+    CONTROLLED_MODEL_RETRY_STATUS,
 )
 from core.channel_content_policy import (
     apply_profile_quality_gates,
@@ -76,6 +88,12 @@ TERMINAL_STATES = {
     "uploaded_for_founder_review",
     "published",
     "public",
+}
+
+CONTROLLED_PAUSE_STATES = {
+    CONTROLLED_MODEL_RETRY_STATUS,
+    "founder_editorial_review_required",
+    "founder_factual_review_required",
 }
 
 CONTENT_OUTPUTS = {
@@ -213,6 +231,31 @@ def run_step(
             f"Agent failed: {name} "
             f"(exit code {result.returncode})"
         )
+
+
+def is_controlled_pause(
+    context: dict,
+) -> bool:
+    return str(
+        context.get("status") or ""
+    ) in CONTROLLED_PAUSE_STATES
+
+
+def print_controlled_pause(
+    context: dict,
+) -> None:
+    print("PIPELINE_CONTROLLED_PAUSE: true", flush=True)
+    print(
+        "STATUS: "
+        f"{context.get('status')}",
+        flush=True,
+    )
+    print(
+        "NEXT_AGENT: "
+        f"{context.get('next_agent')}",
+        flush=True,
+    )
+    print("STACK_TRACE: false", flush=True)
 
 
 def build_agent_command(
@@ -630,6 +673,10 @@ def run_agent_if_missing(
         context,
         required_outputs
     ):
+        if is_controlled_pause(context):
+            print_controlled_pause(context)
+            return context
+
         raise RuntimeError(
             f"Agent completed without required "
             f"outputs: {agent_name}"
@@ -1192,11 +1239,554 @@ def invalidate_stale_claims_ledger(
 
 
 
+def canonical_script_path(
+    context: dict,
+) -> Path:
+    return (
+        PROJECT_ROOT
+        / "agents"
+        / "script"
+        / "output"
+        / context["channel"]
+        / context["video_id"]
+        / context["run_id"]
+        / "script.json"
+    )
+
+
+def canonical_seo_path(
+    context: dict,
+) -> Path:
+    return (
+        PROJECT_ROOT
+        / "agents"
+        / "seo"
+        / "output"
+        / context["channel"]
+        / context["video_id"]
+        / context["run_id"]
+        / "seo.json"
+    )
+
+
+def relative_project_path(path: Path) -> str:
+    return str(
+        path.relative_to(PROJECT_ROOT)
+    ).replace("\\", "/")
+
+
+def recover_locked_factual_candidate(
+    context: dict,
+    profile: dict,
+) -> dict:
+    if not factual_pipeline_required(profile):
+        return context
+
+    gates = context.setdefault("quality_gates", {})
+
+    legacy_full_rewrite_pending = (
+        "editorial_revision_brief"
+        in context.get("sources", {})
+        or (
+            context.get("next_agent") == "script"
+            and context.get("status") in {
+                "topic_approved",
+                "content_revision_required",
+            }
+        )
+    )
+
+    if (
+        gates.get("editorial_repair_policy_version")
+        == "section_level_v1"
+        and not legacy_full_rewrite_pending
+    ):
+        return context
+
+    best = gates.get("fact_risk_best_candidate")
+
+    if not isinstance(best, dict):
+        return context
+
+    metrics = best.get("metrics", {})
+
+    if not metrics.get("approved"):
+        return context
+
+    script_reference = best.get("script_reference")
+
+    if (
+        not script_reference
+        or not (PROJECT_ROOT / script_reference).exists()
+    ):
+        return context
+
+    script_path = canonical_script_path(context)
+    script_path.parent.mkdir(parents=True, exist_ok=True)
+    restore_best_candidate_script(
+        project_root=PROJECT_ROOT,
+        context=context,
+        canonical_script_path=script_path,
+    )
+    context.setdefault("outputs", {})["script"] = (
+        relative_project_path(script_path)
+    )
+
+    removed_outputs = []
+    for key in (
+        "seo",
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
+        "qa",
+        "script_section_repair",
+    ):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key)
+            removed_outputs.append(key)
+
+    removed_sources = []
+    for key in (
+        "editorial_revision_brief",
+        "editorial_section_repair_brief",
+        "fact_risk_section_repair_brief",
+    ):
+        if key in context.get("sources", {}):
+            context["sources"].pop(key)
+            removed_sources.append(key)
+
+    gates["legacy_full_script_editorial_revision_count"] = int(
+        gates.get("editorial_standard_revision_count", 0)
+    )
+    gates["editorial_standard_revision_count"] = 0
+    gates["editorial_section_repair_count"] = 0
+    gates["fact_risk_section_repair_count"] = 0
+    gates["editorial_candidate_count"] = 0
+    gates.pop("editorial_best_candidate", None)
+    gates.pop("editorial_founder_review_reason", None)
+    gates.pop("editorial_founder_review_score", None)
+    gates["editorial_repair_policy_version"] = (
+        "section_level_v1"
+    )
+
+    append_history(
+        context=context,
+        agent="editorial_repair_policy_migration",
+        status="factual_candidate_restored",
+        reference=(
+            f"script={script_reference};"
+            f"removed_outputs={','.join(removed_outputs)};"
+            f"removed_sources={','.join(removed_sources)}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="script_ready",
+        next_agent="seo",
+    )
+    save_context(context)
+
+    print(
+        "FACTUAL_APPROVED_SCRIPT_RESTORED: true",
+        flush=True,
+    )
+    print(
+        "FULL_SCRIPT_EDITORIAL_REWRITE_DISABLED: true",
+        flush=True,
+    )
+    return context
+
+
+def consider_editorial_candidate(
+    *,
+    context: dict,
+    script_data: dict,
+    seo_data: dict,
+    qa_data: dict,
+    fact_risk_data: dict,
+    gate_result: dict,
+) -> tuple[dict, dict, dict, dict, bool]:
+    assessment = archive_editorial_candidate(
+        project_root=PROJECT_ROOT,
+        context=context,
+        script_data=script_data,
+        seo_data=seo_data,
+        qa_data=qa_data,
+        fact_risk_data=fact_risk_data,
+        gate_result=gate_result,
+    )
+    accepted = bool(assessment["accepted_as_best"])
+    selected_qa = qa_data
+    selected_fact_risk = fact_risk_data
+    selected_gate = gate_result
+
+    if not accepted:
+        best = assessment["best_candidate"]
+        restore_editorial_candidate(
+            project_root=PROJECT_ROOT,
+            candidate=best,
+            canonical_script_path=canonical_script_path(context),
+            canonical_seo_path=canonical_seo_path(context),
+        )
+        context.setdefault("outputs", {})["script"] = (
+            relative_project_path(
+                canonical_script_path(context)
+            )
+        )
+        context["outputs"]["seo"] = relative_project_path(
+            canonical_seo_path(context)
+        )
+        context["outputs"]["qa"] = best["qa_reference"]
+        context["outputs"]["fact_risk_qa"] = (
+            best["fact_risk_qa_reference"]
+        )
+        selected_qa = load_json_reference(
+            PROJECT_ROOT,
+            best["qa_reference"],
+        )
+        selected_fact_risk = load_json_reference(
+            PROJECT_ROOT,
+            best["fact_risk_qa_reference"],
+        )
+        selected_gate = evaluate_qa_editorial_gate(
+            qa_data=selected_qa,
+            minimum_overall=int(
+                context.get("quality_gates", {}).get(
+                    "minimum_editorial_overall_score",
+                    DEFAULT_EDITORIAL_OVERALL_MIN,
+                )
+            ),
+            critical_thresholds=get_editorial_thresholds(
+                context
+            ),
+        )
+        append_history(
+            context=context,
+            agent="editorial_candidate_selector",
+            status="worse_candidate_rejected",
+            reference=(
+                "candidate="
+                f"{assessment['record']['candidate_index']};"
+                "best="
+                f"{best['candidate_index']}"
+            ),
+        )
+        print(
+            "EDITORIAL_CANDIDATE_RESULT: "
+            "worse_candidate_rejected",
+            flush=True,
+        )
+        print(
+            "RESTORED_BEST_EDITORIAL_CANDIDATE: "
+            f"{best['candidate_index']}",
+            flush=True,
+        )
+    else:
+        append_history(
+            context=context,
+            agent="editorial_candidate_selector",
+            status="best_candidate_updated",
+            reference=(
+                "candidate="
+                f"{assessment['record']['candidate_index']}"
+            ),
+        )
+        print(
+            "EDITORIAL_CANDIDATE_RESULT: "
+            "best_candidate_updated",
+            flush=True,
+        )
+        print(
+            "BEST_EDITORIAL_CANDIDATE_INDEX: "
+            f"{assessment['record']['candidate_index']}",
+            flush=True,
+        )
+
+    save_context(context)
+    return (
+        context,
+        selected_qa,
+        selected_fact_risk,
+        selected_gate,
+        accepted,
+    )
+
+
+def write_editorial_section_repair_brief(
+    *,
+    context: dict,
+    qa_data: dict,
+    gate_result: dict,
+    max_attempts: int,
+) -> dict:
+    gates = context.setdefault("quality_gates", {})
+    attempt = int(
+        gates.get("editorial_section_repair_count", 0)
+    ) + 1
+
+    if attempt > max_attempts:
+        return pause_for_founder_editorial_review(
+            context=context,
+            reason="editorial_section_repair_limit_reached",
+            qa_data=qa_data,
+        )
+
+    script_data = load_context_record(
+        context=context,
+        key="script",
+    )
+    targets = build_editorial_repair_targets(
+        script_data=script_data,
+        qa_data=qa_data,
+        gate_result=gate_result,
+        maximum_targets=6,
+    )
+
+    if not targets:
+        return pause_for_founder_editorial_review(
+            context=context,
+            reason="no_actionable_editorial_targets",
+            qa_data=qa_data,
+        )
+
+    input_dir = (
+        PROJECT_ROOT
+        / "records"
+        / "run_contexts"
+        / context["channel"]
+        / context["video_id"]
+        / "inputs"
+    )
+    input_dir.mkdir(parents=True, exist_ok=True)
+    brief_path = (
+        input_dir
+        / f"editorial_section_repair_{attempt:02d}.json"
+    )
+    brief = {
+        "schema_version": "1.0",
+        "channel": context["channel"],
+        "video_id": context["video_id"],
+        "run_id": context["run_id"],
+        "attempt": attempt,
+        "status": "editorial_section_repair_required",
+        "topic_title": context["topic_title"],
+        "target_locations": [
+            item["location"]
+            for item in targets
+        ],
+        "repair_targets": targets,
+        "editorial_qa": qa_data,
+        "editorial_gate": gate_result,
+        "factual_lock": gates.get(
+            "fact_risk_best_candidate"
+        ),
+        "created_at": utc_now(),
+    }
+    brief_path.write_text(
+        json.dumps(brief, indent=2, ensure_ascii=True)
+        + "\n",
+        encoding="utf-8",
+    )
+    reference = relative_project_path(brief_path)
+    context.setdefault("sources", {})[
+        "editorial_section_repair_brief"
+    ] = reference
+    context.get("sources", {}).pop(
+        "editorial_revision_brief",
+        None,
+    )
+    gates["editorial_section_repair_count"] = attempt
+    gates["fact_risk_section_repair_count"] = 0
+    gates["editorial_repair_policy_version"] = (
+        "section_level_v1"
+    )
+    context.get("sources", {}).pop(
+        "fact_risk_section_repair_brief",
+        None,
+    )
+
+    removed_outputs = []
+    for key in (
+        "seo",
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
+        "qa",
+        "script_section_repair",
+    ):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key)
+            removed_outputs.append(key)
+
+    remove_video_content_records(
+        channel=context["channel"],
+        video_id=context["video_id"],
+        record_types=["seo"],
+    )
+    append_history(
+        context=context,
+        agent="editorial_section_repair_gate",
+        status="repair_required",
+        reference=reference,
+    )
+    context = set_status(
+        context=context,
+        status="editorial_section_repair_required",
+        next_agent="script_section_repair",
+    )
+    save_context(context)
+
+    print(
+        "EDITORIAL_SECTION_REPAIR_REQUIRED: "
+        f"attempt_{attempt}",
+        flush=True,
+    )
+    print(
+        "EDITORIAL_REPAIR_TARGET_COUNT: "
+        f"{len(targets)}",
+        flush=True,
+    )
+    print(
+        "FULL_SCRIPT_REWRITE: false",
+        flush=True,
+    )
+    print(
+        "INVALIDATED_AFTER_EDITORIAL_REVIEW: "
+        f"{removed_outputs}",
+        flush=True,
+    )
+    return context
+
+
+def pause_for_founder_editorial_review(
+    *,
+    context: dict,
+    reason: str,
+    qa_data: dict,
+) -> dict:
+    gates = context.setdefault("quality_gates", {})
+    best = gates.get("editorial_best_candidate")
+
+    if isinstance(best, dict):
+        restore_editorial_candidate(
+            project_root=PROJECT_ROOT,
+            candidate=best,
+            canonical_script_path=canonical_script_path(context),
+            canonical_seo_path=canonical_seo_path(context),
+        )
+        context.setdefault("outputs", {})["script"] = (
+            relative_project_path(
+                canonical_script_path(context)
+            )
+        )
+        context["outputs"]["seo"] = relative_project_path(
+            canonical_seo_path(context)
+        )
+        context["outputs"]["qa"] = best["qa_reference"]
+        context["outputs"]["fact_risk_qa"] = (
+            best["fact_risk_qa_reference"]
+        )
+
+    context.get("sources", {}).pop(
+        "editorial_section_repair_brief",
+        None,
+    )
+    gates["editorial_founder_review_reason"] = reason
+    gates["editorial_founder_review_score"] = qa_data.get(
+        "overall_score"
+    )
+    append_history(
+        context=context,
+        agent="editorial_section_repair_gate",
+        status="founder_review_required",
+        reference=(
+            f"reason={reason};"
+            f"score={qa_data.get('overall_score')}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="founder_editorial_review_required",
+        next_agent="founder_editorial_review",
+    )
+    save_context(context)
+    print(
+        "FOUNDER_EDITORIAL_REVIEW_REQUIRED: true",
+        flush=True,
+    )
+    print(
+        "BEST_FACTUAL_CANDIDATE_PRESERVED: true",
+        flush=True,
+    )
+    print("STACK_TRACE: false", flush=True)
+    return context
+
+
+def pause_for_founder_factual_review(
+    *,
+    context: dict,
+    reason: str,
+    metrics: dict | None = None,
+) -> dict:
+    gates = context.setdefault("quality_gates", {})
+    best = gates.get("fact_risk_best_candidate")
+
+    if isinstance(best, dict):
+        script_reference = best.get("script_reference")
+
+        if (
+            script_reference
+            and (PROJECT_ROOT / script_reference).exists()
+        ):
+            restore_best_candidate_script(
+                project_root=PROJECT_ROOT,
+                context=context,
+                canonical_script_path=canonical_script_path(context),
+            )
+            context.setdefault("outputs", {})["script"] = (
+                relative_project_path(
+                    canonical_script_path(context)
+                )
+            )
+
+    context.get("sources", {}).pop(
+        "fact_risk_section_repair_brief",
+        None,
+    )
+    gates["founder_factual_review_reason"] = reason
+    gates["founder_factual_review_metrics"] = metrics or {}
+    append_history(
+        context=context,
+        agent="factual_quality_gate",
+        status="founder_review_required",
+        reference=(
+            f"reason={reason};"
+            f"metrics={json.dumps(metrics or {}, ensure_ascii=True)}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="founder_factual_review_required",
+        next_agent="founder_factual_review",
+    )
+    save_context(context)
+    print(
+        "FOUNDER_FACTUAL_REVIEW_REQUIRED: true",
+        flush=True,
+    )
+    print(
+        "BEST_FACTUAL_CANDIDATE_PRESERVED: true",
+        flush=True,
+    )
+    print("STACK_TRACE: false", flush=True)
+    return context
+
+
 def consider_fact_risk_candidate(
     context: dict,
     script_data: dict,
     fact_risk_data: dict,
-) -> tuple[dict, dict, bool]:
+) -> tuple[dict, dict, str]:
     canonical_script_path = resolve_output(
         context=context,
         key="script",
@@ -1211,39 +1801,71 @@ def consider_fact_risk_candidate(
         assessment["accepted_as_best"]
     )
     selected_qa = fact_risk_data
+    selection_status = "best_candidate_updated"
 
     if not accepted_as_best:
-        restore_best_candidate_script(
-            project_root=PROJECT_ROOT,
-            context=context,
-            canonical_script_path=canonical_script_path,
-        )
         best = assessment["best_candidate"]
-        selected_qa = load_candidate_json(
-            PROJECT_ROOT,
-            best["qa_reference"],
+        equivalent = candidates_are_factually_equivalent(
+            assessment["record"]["metrics"],
+            best.get("metrics"),
         )
-        append_history(
-            context=context,
-            agent="fact_risk_candidate_selector",
-            status="worse_candidate_rejected",
-            reference=(
-                "candidate="
-                f"{assessment['record']['candidate_index']};"
-                "best="
-                f"{best['candidate_index']}"
-            ),
-        )
-        print(
-            "FACT_RISK_CANDIDATE_RESULT: "
-            "worse_candidate_rejected",
-            flush=True,
-        )
-        print(
-            "RESTORED_BEST_CANDIDATE: "
-            f"{best['candidate_index']}",
-            flush=True,
-        )
+
+        if equivalent:
+            selection_status = "factually_equivalent_candidate"
+            selected_qa = fact_risk_data
+            append_history(
+                context=context,
+                agent="fact_risk_candidate_selector",
+                status="factually_equivalent_candidate",
+                reference=(
+                    "candidate="
+                    f"{assessment['record']['candidate_index']};"
+                    "best="
+                    f"{best['candidate_index']};"
+                    "editorial_evaluation=allowed"
+                ),
+            )
+            print(
+                "FACT_RISK_CANDIDATE_RESULT: "
+                "factually_equivalent_candidate",
+                flush=True,
+            )
+            print(
+                "EDITORIAL_EVALUATION_ALLOWED: true",
+                flush=True,
+            )
+        else:
+            selection_status = "worse_candidate_rejected"
+            restore_best_candidate_script(
+                project_root=PROJECT_ROOT,
+                context=context,
+                canonical_script_path=canonical_script_path,
+            )
+            selected_qa = load_candidate_json(
+                PROJECT_ROOT,
+                best["qa_reference"],
+            )
+            append_history(
+                context=context,
+                agent="fact_risk_candidate_selector",
+                status="worse_candidate_rejected",
+                reference=(
+                    "candidate="
+                    f"{assessment['record']['candidate_index']};"
+                    "best="
+                    f"{best['candidate_index']}"
+                ),
+            )
+            print(
+                "FACT_RISK_CANDIDATE_RESULT: "
+                "worse_candidate_rejected",
+                flush=True,
+            )
+            print(
+                "RESTORED_BEST_CANDIDATE: "
+                f"{best['candidate_index']}",
+                flush=True,
+            )
     else:
         append_history(
             context=context,
@@ -1266,7 +1888,7 @@ def consider_fact_risk_candidate(
         )
 
     save_context(context)
-    return context, selected_qa, accepted_as_best
+    return context, selected_qa, selection_status
 
 
 def write_fact_risk_section_repair_brief(
@@ -1487,9 +2109,15 @@ def run_pending_fact_risk_section_repair(
     pending = (
         context.get("next_agent")
         == "script_section_repair"
-        and reference_exists(
-            context,
-            "fact_risk_section_repair_brief",
+        and (
+            reference_exists(
+                context,
+                "fact_risk_section_repair_brief",
+            )
+            or reference_exists(
+                context,
+                "editorial_section_repair_brief",
+            )
         )
     )
 
@@ -1528,6 +2156,10 @@ def run_content_phase(
 
     context = invalidate_bad_content_outputs(context)
     context = apply_production_quality_standard(context)
+    context = recover_locked_factual_candidate(
+        context=context,
+        profile=profile,
+    )
     save_context(context)
 
     if requires_factual:
@@ -1556,9 +2188,20 @@ def run_content_phase(
 
             if research_data.get("status") != "approved":
                 if research_attempt >= max_research_revisions:
-                    raise RuntimeError(
-                        "Factual research remained rejected after "
-                        "the maximum automatic revision attempts."
+                    return pause_for_founder_factual_review(
+                        context=context,
+                        reason=(
+                            "factual_research_revision_limit_reached"
+                        ),
+                        metrics={
+                            "status": research_data.get("status"),
+                            "source_count": research_data.get(
+                                "source_count"
+                            ),
+                            "primary_source_count": research_data.get(
+                                "primary_source_count"
+                            ),
+                        },
                     )
 
                 context = invalidate_factual_research_outputs(
@@ -1603,9 +2246,12 @@ def run_content_phase(
                 break
 
             if research_attempt >= max_research_revisions:
-                raise RuntimeError(
-                    "Claims ledger remained rejected after the "
-                    "maximum automatic research revisions."
+                return pause_for_founder_factual_review(
+                    context=context,
+                    reason=(
+                        "claims_ledger_revision_limit_reached"
+                    ),
+                    metrics=ledger_data.get("summary", {}),
                 )
 
             context = invalidate_factual_research_outputs(
@@ -1614,14 +2260,21 @@ def run_content_phase(
                 attempt=research_attempt + 1,
             )
         else:
-            raise RuntimeError(
-                "Factual research pipeline did not reach approval."
+            return pause_for_founder_factual_review(
+                context=context,
+                reason="factual_pipeline_did_not_reach_approval",
+                metrics={},
             )
 
     while True:
         context = run_pending_fact_risk_section_repair(
             context
         )
+
+        if is_controlled_pause(context):
+            return context
+
+        selected_fact_risk_data = None
 
         for name, agent_path, outputs in (
             (
@@ -1642,6 +2295,9 @@ def run_content_phase(
                 required_outputs=outputs,
             )
 
+            if is_controlled_pause(context):
+                return context
+
         gates = context.get("quality_gates", {})
         script_data = load_context_record(
             context=context,
@@ -1654,9 +2310,14 @@ def run_content_phase(
         )
 
         if not script_preflight["accepted"]:
-            raise ValueError(
-                "Content phase produced a script that failed "
-                "the pre-audio narration gate."
+            gates["script_preflight_failure"] = script_preflight
+            return pause_for_founder_editorial_review(
+                context=context,
+                reason="script_preflight_rejected",
+                qa_data={
+                    "overall_score": None,
+                    "script_preflight": script_preflight,
+                },
             )
 
         gates["script_preflight_status"] = (
@@ -1704,20 +2365,58 @@ def run_content_phase(
                 agent_path="agents/fact_risk_qa/run.py",
                 required_outputs=CONTENT_OUTPUTS["fact_risk_qa"],
             )
+
+            if is_controlled_pause(context):
+                return context
+
             fact_risk_data = load_context_record(
                 context=context,
                 key="fact_risk_qa",
             )
-            context, selected_fact_risk_data, _ = (
-                consider_fact_risk_candidate(
-                    context=context,
-                    script_data=script_data,
-                    fact_risk_data=fact_risk_data,
-                )
+            (
+                context,
+                selected_fact_risk_data,
+                fact_candidate_status,
+            ) = consider_fact_risk_candidate(
+                context=context,
+                script_data=script_data,
+                fact_risk_data=fact_risk_data,
             )
             gates = context.get("quality_gates", {})
 
-            if fact_risk_data.get("status") != "approved":
+            if fact_candidate_status == "worse_candidate_rejected":
+                for key in (
+                    "seo",
+                    "fact_qa",
+                    "risk_review",
+                    "fact_risk_qa",
+                    "qa",
+                ):
+                    context.get("outputs", {}).pop(key, None)
+                remove_video_content_records(
+                    channel=context["channel"],
+                    video_id=context["video_id"],
+                    record_types=["seo"],
+                )
+                context = set_status(
+                    context=context,
+                    status="script_ready",
+                    next_agent="seo",
+                )
+                save_context(context)
+                print(
+                    "WORSE_FACTUAL_CANDIDATE_RECOVERY: "
+                    "regenerate_seo_and_qa",
+                    flush=True,
+                )
+                continue
+
+            script_data = load_context_record(
+                context=context,
+                key="script",
+            )
+
+            if selected_fact_risk_data.get("status") != "approved":
                 max_section_repairs = int(
                     profile.get(
                         "factuality",
@@ -1746,18 +2445,12 @@ def run_content_phase(
                         "metrics",
                         {},
                     )
-                    raise RuntimeError(
-                        "Factual or risk review remained rejected "
-                        "after section-level repair attempts. "
-                        "Best candidate preserved with "
-                        "unsupported="
-                        f"{metrics.get('unsupported_statement_count')};"
-                        "high_risk="
-                        f"{metrics.get('high_risk_issue_count')};"
-                        "factual_score="
-                        f"{metrics.get('factual_grounding_score')};"
-                        "risk_score="
-                        f"{metrics.get('risk_compliance_score')}."
+                    return pause_for_founder_factual_review(
+                        context=context,
+                        reason=(
+                            "fact_risk_section_repair_limit_reached"
+                        ),
+                        metrics=metrics,
                     )
 
                 context = write_fact_risk_section_repair_brief(
@@ -1779,6 +2472,10 @@ def run_content_phase(
             agent_path="agents/qa/run.py",
             required_outputs=CONTENT_OUTPUTS["qa"],
         )
+
+        if is_controlled_pause(context):
+            return context
+
         qa_data = load_context_record(
             context=context,
             key="qa"
@@ -1814,8 +2511,67 @@ def run_content_phase(
                 flush=True
             )
 
+        if requires_factual:
+            seo_data = load_context_record(
+                context=context,
+                key="seo",
+            )
+            (
+                context,
+                qa_data,
+                selected_fact_risk_data,
+                gate_result,
+                _,
+            ) = consider_editorial_candidate(
+                context=context,
+                script_data=script_data,
+                seo_data=seo_data,
+                qa_data=qa_data,
+                fact_risk_data=selected_fact_risk_data,
+                gate_result=gate_result,
+            )
+            gates = context.get("quality_gates", {})
+
         if gate_result["approved"]:
             break
+
+        if requires_factual:
+            max_revisions = int(
+                profile.get("qa", {}).get(
+                    "max_editorial_revision_attempts",
+                    gates.get(
+                        "max_editorial_revision_attempts",
+                        3,
+                    ),
+                )
+            )
+            revision_count = int(
+                gates.get(
+                    "editorial_section_repair_count",
+                    0,
+                )
+            )
+
+            if revision_count >= max_revisions:
+                return pause_for_founder_editorial_review(
+                    context=context,
+                    reason=(
+                        "editorial_section_repair_limit_reached"
+                    ),
+                    qa_data=qa_data,
+                )
+
+            context = write_editorial_section_repair_brief(
+                context=context,
+                qa_data=qa_data,
+                gate_result=gate_result,
+                max_attempts=max_revisions,
+            )
+
+            if is_controlled_pause(context):
+                return context
+
+            continue
 
         revision_count = int(
             gates.get("editorial_standard_revision_count", 0)
@@ -1852,6 +2608,10 @@ def run_content_phase(
     })
     context.get("sources", {}).pop(
         "editorial_revision_brief",
+        None,
+    )
+    context.get("sources", {}).pop(
+        "editorial_section_repair_brief",
         None,
     )
     append_history(
@@ -2495,6 +3255,10 @@ def main() -> None:
         save_context(context)
 
     context = run_content_phase(context)
+
+    if is_controlled_pause(context):
+        print_controlled_pause(context)
+        return
 
     if args.stop_after_content:
         print(

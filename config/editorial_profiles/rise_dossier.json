@@ -110,11 +110,19 @@
     "minimum_specificity_score": 85,
     "minimum_repetition_risk_score": 82,
     "minimum_title_thumbnail_synergy_score": 85,
-    "max_editorial_revision_attempts": 2
+    "max_editorial_revision_attempts": 3,
+    "revision_mode": "section_level",
+    "fallback_status": "founder_editorial_review_required",
+    "maximum_section_repair_targets": 6
   },
   "thumbnail": {
     "standard_name": "rise_dossier_investigative_v1",
     "standard_path": "config/media/rise_dossier_thumbnail_standard.json",
     "rules_path": "config/thumbnail_rules/rise_dossier.json"
+  },
+  "resilience": {
+    "openai_retry_attempts": 3,
+    "transient_failure_status": "model_retry_required",
+    "preserve_best_candidate_on_failure": true
   }
 }

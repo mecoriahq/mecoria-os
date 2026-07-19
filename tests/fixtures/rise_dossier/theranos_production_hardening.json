@@ -1,0 +1,28 @@
+{
+  "channel": "rise_dossier",
+  "video_id": "video_001",
+  "topic": "Theranos: The Blood Testing Empire Built on a Promise",
+  "locked_factual_candidate": {
+    "word_count": 1341,
+    "factual_grounding_score": 100,
+    "risk_compliance_score": 100,
+    "unsupported_statement_count": 0,
+    "high_risk_issue_count": 0
+  },
+  "editorial_qa": {
+    "overall_score": 78,
+    "hook_strength": 74,
+    "hook_intro_distinctness": 64,
+    "narrative_spine": 86,
+    "specificity": 83,
+    "repetition_risk": 50,
+    "title_thumbnail_synergy": 88
+  },
+  "required_guards": [
+    "factual_candidate_lock",
+    "section_level_editorial_repair",
+    "worse_candidate_rejection",
+    "openai_retry",
+    "controlled_pause"
+  ]
+}

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from jsonschema import validate
+from jsonschema import ValidationError, validate
 from openai import OpenAI
 
 
@@ -32,6 +32,13 @@ from core.script_candidate_manager import (
 )
 from core.script_preflight import (
     assert_script_preflight,
+)
+from core.model_pause import record_model_retry_pause
+from core.openai_resilience import (
+    OpenAIRetryExhausted,
+    RetryPolicy,
+    call_with_retry,
+    require_nonempty_text,
 )
 from core.video_run_context import (
     load_context,
@@ -110,6 +117,7 @@ def build_prompt(
     qa_data: dict[str, Any],
     ledger_data: dict[str, Any],
     repair_targets: list[dict[str, Any]],
+    repair_mode: str,
 ) -> str:
     target_payload = []
 
@@ -130,6 +138,23 @@ def build_prompt(
             ),
             "issues": target["issues"],
         })
+
+    mode_rules = (
+        """
+EDITORIAL REPAIR MODE:
+- Improve only the editorial objectives listed for each block.
+- Preserve every factual sentence that already passed Fact/Risk QA.
+- Do not change title, section order, chronology, or non-target blocks.
+- Improve hook tension, hook/intro distinction, specificity, narrative
+  connection, or repetition only through approved claim detail.
+""".strip()
+        if repair_mode == "editorial"
+        else """
+FACT/RISK REPAIR MODE:
+- Remove every flagged unsupported statement and equivalent implication.
+- Preserve the block's factual scope and attribution.
+""".strip()
+    )
 
     return f"""
 You are the Script Section Repair Agent for
@@ -163,6 +188,8 @@ CURRENT TARGET BLOCKS AND QA ISSUES:
     ensure_ascii=True,
     indent=2,
 )}
+
+{mode_rules}
 
 STRICT REPAIR RULES:
 - Return exactly one repair for every requested location, in the same
@@ -201,25 +228,36 @@ def call_model(
     schema: dict[str, Any],
 ) -> dict[str, Any]:
     client = OpenAI()
-    response = client.responses.create(
-        model=model,
-        input=prompt,
-        text={
-            "format": {
-                "type": "json_schema",
-                "name": "rise_dossier_script_section_repair",
-                "strict": True,
-                "schema": schema,
-            }
-        },
-    )
 
-    if not response.output_text:
-        raise ValueError(
-            "Script section repair returned an empty response."
+    def operation() -> dict[str, Any]:
+        response = client.responses.create(
+            model=model,
+            input=prompt,
+            text={
+                "format": {
+                    "type": "json_schema",
+                    "name": "rise_dossier_script_section_repair",
+                    "strict": True,
+                    "schema": schema,
+                }
+            },
         )
+        output_text = require_nonempty_text(
+            response.output_text,
+            label="Script Section Repair",
+        )
+        return json.loads(output_text)
 
-    return json.loads(response.output_text)
+    return call_with_retry(
+        operation,
+        operation_name="script_section_repair",
+        policy=RetryPolicy(max_attempts=3),
+        on_retry=lambda attempt, maximum, error, delay: print(
+            "OPENAI_RETRY: "
+            f"script_section_repair attempt={attempt + 1}/{maximum} "
+            f"delay={delay}s error={type(error).__name__}"
+        ),
+    )
 
 
 def main() -> None:
@@ -243,17 +281,35 @@ def main() -> None:
         key="claims_ledger",
     )
 
-    if "fact_risk_section_repair_brief" in context.get(
-        "sources",
-        {},
-    ):
+    sources = context.get("sources", {})
+    repair_mode = "fact_risk"
+    source_key = "fact_risk_section_repair_brief"
+
+    if "editorial_section_repair_brief" in sources:
+        repair_mode = "editorial"
+        source_key = "editorial_section_repair_brief"
         brief_path = resolve_source(
             context=context,
-            key="fact_risk_section_repair_brief",
+            key=source_key,
+        )
+        brief_data = load_json(brief_path)
+        qa_data = brief_data["editorial_qa"]
+        attempt = int(brief_data["attempt"])
+        extracted_targets = brief_data.get(
+            "repair_targets",
+            [],
+        )
+    elif source_key in sources:
+        brief_path = resolve_source(
+            context=context,
+            key=source_key,
         )
         brief_data = load_json(brief_path)
         qa_data = brief_data["fact_risk_qa"]
         attempt = int(brief_data["attempt"])
+        extracted_targets = extract_repair_targets(
+            qa_data
+        )
     else:
         qa_path = resolve_output(
             context=context,
@@ -269,12 +325,12 @@ def main() -> None:
                 1,
             )
         )
+        extracted_targets = extract_repair_targets(
+            qa_data
+        )
 
     script_data = load_json(script_path)
     ledger_data = load_json(ledger_path)
-    extracted_targets = extract_repair_targets(
-        qa_data
-    )
     target_resolution = (
         resolve_repair_targets_for_script(
             script_data=script_data,
@@ -298,14 +354,21 @@ def main() -> None:
 
     if not repair_targets:
         context.get("sources", {}).pop(
-            "fact_risk_section_repair_brief",
+            source_key,
             None,
         )
-        context = set_status(
-            context=context,
-            status="script_repaired",
-            next_agent="fact_risk_qa",
-        )
+        if repair_mode == "editorial":
+            context = set_status(
+                context=context,
+                status="founder_editorial_review_required",
+                next_agent="founder_editorial_review",
+            )
+        else:
+            context = set_status(
+                context=context,
+                status="script_repaired",
+                next_agent="fact_risk_qa",
+            )
         save_context(context)
         print(
             "SCRIPT_SECTION_REPAIR_STATUS: "
@@ -322,6 +385,7 @@ def main() -> None:
     print(f"CHANNEL: {channel}")
     print(f"VIDEO_CONTEXT_ID: {video_id}")
     print(f"RUN_ID: {context['run_id']}")
+    print(f"REPAIR_MODE: {repair_mode}")
     print(f"REPAIR_ATTEMPT: {attempt}")
     print(
         "TARGET_LOCATION_COUNT: "
@@ -340,99 +404,126 @@ def main() -> None:
     if not os.getenv("OPENAI_API_KEY"):
         raise ValueError("OpenAI API Key not found.")
 
-    raw = call_model(
-        prompt=build_prompt(
+    try:
+        raw = call_model(
+            prompt=build_prompt(
+                context=context,
+                profile=profile,
+                script_data=script_data,
+                qa_data=qa_data,
+                ledger_data=ledger_data,
+                repair_targets=repair_targets,
+                repair_mode=repair_mode,
+            ),
+            model=args.model,
+            schema=load_json(
+                BASE_DIR / "payload_schema.json"
+            ),
+        )
+    except OpenAIRetryExhausted as error:
+        record_model_retry_pause(
             context=context,
-            profile=profile,
+            agent="script_section_repair",
+            error=error,
+        )
+        return
+    try:
+        validate(
+            instance=raw,
+            schema=load_json(
+                BASE_DIR / "payload_schema.json"
+            ),
+        )
+
+        repaired_script = merge_script_repairs(
             script_data=script_data,
-            qa_data=qa_data,
-            ledger_data=ledger_data,
-            repair_targets=repair_targets,
-        ),
-        model=args.model,
-        schema=load_json(
-            BASE_DIR / "payload_schema.json"
-        ),
-    )
-    validate(
-        instance=raw,
-        schema=load_json(
-            BASE_DIR / "payload_schema.json"
-        ),
-    )
+            repairs=raw["repairs"],
+            required_locations=target_locations,
+        )
+        deterministic = (
+            validate_script_claim_references(
+                script_data=repaired_script,
+                ledger_data=ledger_data,
+            )
+        )
 
-    repaired_script = merge_script_repairs(
-        script_data=script_data,
-        repairs=raw["repairs"],
-        required_locations=target_locations,
-    )
-    deterministic = (
-        validate_script_claim_references(
+        if not deterministic["approved"]:
+            raise ValueError(
+                "Section repair failed deterministic claim "
+                "validation: "
+                + "; ".join(
+                    deterministic["errors"]
+                )
+            )
+
+        script_policy = profile["script"]
+        gates = context.get("quality_gates", {})
+        preflight = assert_script_preflight(
             script_data=repaired_script,
-            ledger_data=ledger_data,
+            target_minimum=int(
+                gates.get(
+                    "target_script_word_count_min",
+                    script_policy["word_count_min"],
+                )
+            ),
+            target_maximum=int(
+                gates.get(
+                    "target_script_word_count_max",
+                    script_policy["word_count_max"],
+                )
+            ),
+            absolute_floor=int(
+                script_policy.get(
+                    "pre_audio_word_floor",
+                    1100,
+                )
+            ),
+            minimum_ratio=float(
+                script_policy.get(
+                    "pre_audio_minimum_ratio",
+                    0.85,
+                )
+            ),
+            audio_duration_authoritative=bool(
+                script_policy.get(
+                    "audio_duration_authoritative",
+                    True,
+                )
+            ),
         )
-    )
+        repaired_script.setdefault(
+            "quality",
+            {},
+        )["pre_audio_gate"] = preflight
+        repaired_script["quality"][
+            "actual_audio_duration_pending"
+        ] = True
 
-    if not deterministic["approved"]:
-        raise ValueError(
-            "Section repair failed deterministic claim validation: "
-            + "; ".join(
-                deterministic["errors"]
-            )
+        validate(
+            instance=repaired_script,
+            schema=load_json(
+                PROJECT_ROOT
+                / "agents"
+                / "script"
+                / "schema.json"
+            ),
         )
-
-    script_policy = profile["script"]
-    gates = context.get("quality_gates", {})
-    preflight = assert_script_preflight(
-        script_data=repaired_script,
-        target_minimum=int(
-            gates.get(
-                "target_script_word_count_min",
-                script_policy["word_count_min"],
-            )
-        ),
-        target_maximum=int(
-            gates.get(
-                "target_script_word_count_max",
-                script_policy["word_count_max"],
-            )
-        ),
-        absolute_floor=int(
-            script_policy.get(
-                "pre_audio_word_floor",
-                1100,
-            )
-        ),
-        minimum_ratio=float(
-            script_policy.get(
-                "pre_audio_minimum_ratio",
-                0.85,
-            )
-        ),
-        audio_duration_authoritative=bool(
-            script_policy.get(
-                "audio_duration_authoritative",
-                True,
-            )
-        ),
-    )
-    repaired_script.setdefault(
-        "quality",
-        {},
-    )["pre_audio_gate"] = preflight
-    repaired_script["quality"][
-        "actual_audio_duration_pending"
-    ] = True
-
-    validate(
-        instance=repaired_script,
-        schema=load_json(
-            PROJECT_ROOT
-            / "agents"
-            / "script"
-            / "schema.json"
-        ),
-    )
+    except (
+        ValidationError,
+        ValueError,
+        KeyError,
+        IndexError,
+        TypeError,
+    ) as error:
+        record_model_retry_pause(
+            context=context,
+            agent="script_section_repair",
+            error=error,
+        )
+        print(
+            "SECTION_REPAIR_VALIDATION_PAUSE: true"
+        )
+        return
 
     canonical_script_path = (
         PROJECT_ROOT
@@ -473,7 +564,8 @@ def main() -> None:
     repair_path = output_dir / "repair.json"
     final_output = {
         "agent": "script_section_repair",
-        "version": "1.0",
+        "version": "1.1",
+        "repair_mode": repair_mode,
         "channel": channel,
         "video_id": video_id,
         "run_id": context["run_id"],
@@ -493,11 +585,19 @@ def main() -> None:
         },
         "metadata": {
             "model": args.model,
-            "source_agents": [
-                "script",
-                "claims_ledger",
-                "fact_risk_qa",
-            ],
+            "source_agents": (
+                [
+                    "script",
+                    "claims_ledger",
+                    "qa",
+                ]
+                if repair_mode == "editorial"
+                else [
+                    "script",
+                    "claims_ledger",
+                    "fact_risk_qa",
+                ]
+            ),
             "next_agent": "seo",
         },
     }
@@ -532,7 +632,7 @@ def main() -> None:
         status="repair_ready",
     )
     context.get("sources", {}).pop(
-        "fact_risk_section_repair_brief",
+        source_key,
         None,
     )
     context = set_status(

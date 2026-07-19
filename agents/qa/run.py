@@ -28,6 +28,15 @@ from core.video_run_context import (
     save_context,
     set_status,
 )
+from core.model_pause import (
+    record_model_retry_pause,
+)
+from core.openai_resilience import (
+    OpenAIRetryExhausted,
+    RetryPolicy,
+    call_with_retry,
+    require_nonempty_text,
+)
 from core.content_quality import (
     DEFAULT_EDITORIAL_OVERALL_MIN,
     EDITORIAL_CRITICAL_CHECKS,
@@ -117,28 +126,43 @@ def extract_json(text: str) -> dict:
 def generate_qa(prompt: str) -> dict:
     client = OpenAI()
 
-    response = client.chat.completions.create(
-        model="gpt-5.5",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        max_completion_tokens=6000,
-        response_format={
-            "type": "json_object"
-        }
-    )
-
-    content = response.choices[0].message.content
-
-    if not content:
-        raise ValueError(
-            "OpenAI returned an empty response."
+    def operation() -> dict:
+        response = client.chat.completions.create(
+            model="gpt-5.5",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            max_completion_tokens=6000,
+            response_format={
+                "type": "json_object",
+            },
         )
+        choices = getattr(response, "choices", None)
 
-    return extract_json(content)
+        if not choices:
+            raise ValueError(
+                "QA Agent returned an empty response."
+            )
+
+        content = require_nonempty_text(
+            choices[0].message.content,
+            label="QA Agent",
+        )
+        return extract_json(content)
+
+    return call_with_retry(
+        operation,
+        operation_name="editorial_qa",
+        policy=RetryPolicy(max_attempts=3),
+        on_retry=lambda attempt, maximum, error, delay: print(
+            "OPENAI_RETRY: "
+            f"qa attempt={attempt + 1}/{maximum} "
+            f"delay={delay}s error={type(error).__name__}"
+        ),
+    )
 
 
 def build_default_checks(
@@ -1021,7 +1045,17 @@ def main() -> None:
             fact_qa_data=fact_qa_data,
             risk_review_data=risk_review_data,
         )
-        raw_qa_data = generate_qa(prompt)
+        try:
+            raw_qa_data = generate_qa(prompt)
+        except OpenAIRetryExhausted as error:
+            if context is None:
+                raise
+            record_model_retry_pause(
+                context=context,
+                agent="qa",
+                error=error,
+            )
+            return
 
     final_output = normalize_output(
         script_data=script_data,

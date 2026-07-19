@@ -471,6 +471,21 @@ def candidate_is_better(
     )
 
 
+def candidates_are_factually_equivalent(
+    candidate_metrics: dict[str, Any],
+    incumbent_metrics: dict[str, Any] | None,
+) -> bool:
+    if incumbent_metrics is None:
+        return False
+
+    return (
+        bool(candidate_metrics.get("approved"))
+        and bool(incumbent_metrics.get("approved"))
+        and tuple(candidate_metrics.get("rank", []))
+        == tuple(incumbent_metrics.get("rank", []))
+    )
+
+
 def archive_fact_risk_candidate(
     *,
     project_root: Path,

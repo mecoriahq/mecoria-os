@@ -20,6 +20,13 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from core.channel_content_policy import load_editorial_profile
 from core.factuality import validate_script_claim_references
+from core.model_pause import record_model_retry_pause
+from core.openai_resilience import (
+    OpenAIRetryExhausted,
+    RetryPolicy,
+    call_with_retry,
+    require_nonempty_text,
+)
 from core.video_run_context import (
     load_context,
     register_output,
@@ -118,25 +125,36 @@ def call_model(
     schema: dict[str, Any],
 ) -> dict[str, Any]:
     client = OpenAI()
-    response = client.responses.create(
-        model=model,
-        input=prompt,
-        text={
-            "format": {
-                "type": "json_schema",
-                "name": "rise_dossier_fact_risk_qa",
-                "strict": True,
-                "schema": schema,
-            }
-        },
-    )
 
-    if not response.output_text:
-        raise ValueError(
-            "Fact Risk QA returned an empty response."
+    def operation() -> dict[str, Any]:
+        response = client.responses.create(
+            model=model,
+            input=prompt,
+            text={
+                "format": {
+                    "type": "json_schema",
+                    "name": "rise_dossier_fact_risk_qa",
+                    "strict": True,
+                    "schema": schema,
+                }
+            },
         )
+        output_text = require_nonempty_text(
+            response.output_text,
+            label="Fact Risk QA",
+        )
+        return json.loads(output_text)
 
-    return json.loads(response.output_text)
+    return call_with_retry(
+        operation,
+        operation_name="fact_risk_qa",
+        policy=RetryPolicy(max_attempts=3),
+        on_retry=lambda attempt, maximum, error, delay: print(
+            "OPENAI_RETRY: "
+            f"fact_risk_qa attempt={attempt + 1}/{maximum} "
+            f"delay={delay}s error={type(error).__name__}"
+        ),
+    )
 
 
 def save_output(
@@ -233,18 +251,26 @@ def main() -> None:
         if not os.getenv("OPENAI_API_KEY"):
             raise ValueError("OpenAI API Key not found.")
 
-        raw = call_model(
-            prompt=build_prompt(
+        try:
+            raw = call_model(
+                prompt=build_prompt(
+                    context=context,
+                    profile=profile,
+                    script_data=script_data,
+                    ledger_data=ledger_data,
+                ),
+                model=args.model,
+                schema=load_json(
+                    BASE_DIR / "payload_schema.json"
+                ),
+            )
+        except OpenAIRetryExhausted as error:
+            record_model_retry_pause(
                 context=context,
-                profile=profile,
-                script_data=script_data,
-                ledger_data=ledger_data,
-            ),
-            model=args.model,
-            schema=load_json(
-                BASE_DIR / "payload_schema.json"
-            ),
-        )
+                agent="fact_risk_qa",
+                error=error,
+            )
+            return
 
     high_risk_issues = [
         item

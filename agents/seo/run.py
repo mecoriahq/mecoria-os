@@ -27,6 +27,15 @@ from core.video_run_context import (
     save_context,
     set_status,
 )
+from core.model_pause import (
+    record_model_retry_pause,
+)
+from core.openai_resilience import (
+    OpenAIRetryExhausted,
+    RetryPolicy,
+    call_with_retry,
+    require_nonempty_text,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 
@@ -62,26 +71,43 @@ def extract_json(text: str) -> dict:
 def generate_seo(prompt: str) -> dict:
     client = OpenAI()
 
-    response = client.chat.completions.create(
-        model="gpt-5.5",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        max_completion_tokens=4000,
-        response_format={
-            "type": "json_object"
-        }
+    def operation() -> dict:
+        response = client.chat.completions.create(
+            model="gpt-5.5",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            max_completion_tokens=4000,
+            response_format={
+                "type": "json_object",
+            },
+        )
+        choices = getattr(response, "choices", None)
+
+        if not choices:
+            raise ValueError(
+                "SEO Agent returned an empty response."
+            )
+
+        content = require_nonempty_text(
+            choices[0].message.content,
+            label="SEO Agent",
+        )
+        return extract_json(content)
+
+    return call_with_retry(
+        operation,
+        operation_name="seo_generation",
+        policy=RetryPolicy(max_attempts=3),
+        on_retry=lambda attempt, maximum, error, delay: print(
+            "OPENAI_RETRY: "
+            f"seo attempt={attempt + 1}/{maximum} "
+            f"delay={delay}s error={type(error).__name__}"
+        ),
     )
-
-    content = response.choices[0].message.content
-
-    if not content:
-        raise ValueError("OpenAI returned an empty response.")
-
-    return extract_json(content)
 
 
 def normalize_output(script_data: dict, seo_data: dict) -> dict:
@@ -226,7 +252,17 @@ def main() -> None:
         script_data=script_data,
         editorial_profile=editorial_profile,
     )
-    raw_seo_data = generate_seo(prompt)
+    try:
+        raw_seo_data = generate_seo(prompt)
+    except OpenAIRetryExhausted as error:
+        if context is None:
+            raise
+        record_model_retry_pause(
+            context=context,
+            agent="seo",
+            error=error,
+        )
+        return
 
     final_output = normalize_output(
         script_data=script_data,

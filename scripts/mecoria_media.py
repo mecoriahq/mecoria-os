@@ -39,6 +39,18 @@ FOUNDER_REVIEW_STATES = {
     "uploaded_for_founder_review",
 }
 
+EDITORIAL_REVIEW_STATES = {
+    "founder_editorial_review_required",
+}
+
+FACTUAL_REVIEW_STATES = {
+    "founder_factual_review_required",
+}
+
+MODEL_RETRY_STATES = {
+    "model_retry_required",
+}
+
 TOPIC_APPROVAL_STATES = {
     "topic_approval_required",
 }
@@ -212,6 +224,15 @@ def classify_context(context: dict) -> str:
 
     if status in FOUNDER_REVIEW_STATES:
         return "wait_founder_video_review"
+
+    if status in EDITORIAL_REVIEW_STATES:
+        return "wait_founder_editorial_review"
+
+    if status in FACTUAL_REVIEW_STATES:
+        return "wait_founder_factual_review"
+
+    if status in MODEL_RETRY_STATES:
+        return "retry_model"
 
     if (
         status in TOPIC_APPROVAL_STATES
@@ -494,6 +515,18 @@ def next_command(
     if action == "wait_founder_video_review":
         return "review_unlisted_video_and_approve_or_revise"
 
+    if action == "wait_founder_editorial_review":
+        return "review_locked_factual_script_and_approve_or_revise"
+
+    if action == "wait_founder_factual_review":
+        return "review_best_factual_candidate_and_sources"
+
+    if action == "retry_model":
+        return (
+            "python scripts\mecoria_media.py "
+            f"run {channel} --video-id {video_id}"
+        )
+
     if action == "complete":
         return (
             "python scripts\\mecoria_media.py "
@@ -519,6 +552,9 @@ def print_context_summary(context: dict) -> None:
     founder_action = {
         "wait_topic_approval": "topic_approval",
         "wait_founder_video_review": "final_video_review",
+        "wait_founder_editorial_review": "editorial_script_review",
+        "wait_founder_factual_review": "factual_source_review",
+        "retry_model": "none_transient_retry_available",
         "wait_stock_source": "storyblocks_downloads_only",
         "resume_existing": "none",
         "complete": "none",
@@ -809,6 +845,8 @@ def execute_run(args: argparse.Namespace) -> None:
     if action in {
         "wait_topic_approval",
         "wait_founder_video_review",
+        "wait_founder_editorial_review",
+        "wait_founder_factual_review",
         "complete",
     } and not args.stock_manifest:
         print("RUNNER_EXECUTION: no_action")

@@ -75,11 +75,18 @@
     },
     "metadata": {
       "type": "object"
+    },
+    "repair_mode": {
+      "enum": [
+        "fact_risk",
+        "editorial"
+      ]
     }
   },
   "required": [
     "agent",
     "version",
+    "repair_mode",
     "channel",
     "video_id",
     "run_id",
