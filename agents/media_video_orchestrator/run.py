@@ -46,6 +46,9 @@ from core.editorial_candidate_manager import (
     load_json_reference,
     restore_editorial_candidate,
 )
+from core.founder_editorial_override import (
+    founder_editorial_override_matches,
+)
 from core.editorial_repair import (
     build_editorial_repair_targets,
 )
@@ -1512,6 +1515,65 @@ def consider_editorial_candidate(
     )
 
 
+def consume_founder_editorial_override(
+    *,
+    context: dict,
+    qa_data: dict,
+    fact_risk_data: dict,
+    gate_result: dict,
+) -> tuple[dict, dict, bool]:
+    applies, reason = founder_editorial_override_matches(
+        project_root=PROJECT_ROOT,
+        context=context,
+        qa_data=qa_data,
+        fact_risk_data=fact_risk_data,
+    )
+
+    if not applies:
+        return context, gate_result, False
+
+    approved_at = utc_now()
+    gates = context.setdefault("quality_gates", {})
+    override = gates["founder_editorial_override"]
+    override["consumed"] = True
+    override["consumed_at"] = approved_at
+    gates["editorial_approval_source"] = (
+        "founder_editorial_override"
+    )
+    gates["editorial_quality_gate_passed"] = True
+
+    append_history(
+        context=context,
+        agent="founder_editorial_review",
+        status="approved_override_consumed",
+        reference=(
+            f"scope={override.get('scope')};"
+            f"candidate={override.get('approved_candidate_index')};"
+            f"reason={reason}"
+        ),
+    )
+    save_context(context)
+
+    approved_gate = dict(gate_result)
+    approved_gate["approved"] = True
+    approved_gate["status"] = "founder_approved_override"
+    approved_gate["failures"] = []
+
+    print(
+        "FOUNDER_EDITORIAL_OVERRIDE_CONSUMED: true",
+        flush=True,
+    )
+    print(
+        "EDITORIAL_APPROVAL_SOURCE: founder",
+        flush=True,
+    )
+    print(
+        "GLOBAL_EDITORIAL_PROFILE_CHANGED: false",
+        flush=True,
+    )
+    return context, approved_gate, True
+
+
 def write_editorial_section_repair_brief(
     *,
     context: dict,
@@ -2526,6 +2588,19 @@ def run_content_phase(
                 context=context,
                 script_data=script_data,
                 seo_data=seo_data,
+                qa_data=qa_data,
+                fact_risk_data=selected_fact_risk_data,
+                gate_result=gate_result,
+            )
+            gates = context.get("quality_gates", {})
+
+        if requires_factual and not gate_result["approved"]:
+            (
+                context,
+                gate_result,
+                _,
+            ) = consume_founder_editorial_override(
+                context=context,
                 qa_data=qa_data,
                 fact_risk_data=selected_fact_risk_data,
                 gate_result=gate_result,
