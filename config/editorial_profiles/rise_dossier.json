@@ -58,7 +58,8 @@
       "Separate verified fact, attributed allegation, and interpretation.",
       "Every factual section must reference approved claim IDs.",
       "Do not invent dialogue, motives, quotations, private conversations, or precise numbers."
-    ]
+    ],
+    "word_count_revision_attempts": 2
   },
   "factuality": {
     "pipeline_required": true,

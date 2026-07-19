@@ -36,10 +36,15 @@ from core.content_quality import (
     DEFAULT_SCRIPT_WORD_MAX,
     DEFAULT_SCRIPT_WORD_MIN,
     assert_script_word_count,
+    evaluate_script_word_count,
+)
+from core.script_revision import (
+    build_word_count_revision_feedback,
 )
 
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IDEA_INDEX = 0
+DEFAULT_WORD_COUNT_REVISION_ATTEMPTS = 2
 
 
 def load_json(file_path: Path) -> dict:
@@ -568,6 +573,21 @@ def main() -> None:
         )
     ) if context else DEFAULT_SCRIPT_WORD_MAX
 
+    max_word_count_revision_attempts = int(
+        editorial_profile.get(
+            "script",
+            {},
+        ).get(
+            "word_count_revision_attempts",
+            DEFAULT_WORD_COUNT_REVISION_ATTEMPTS,
+        )
+    )
+
+    if max_word_count_revision_attempts < 0:
+        raise ValueError(
+            "word_count_revision_attempts cannot be negative."
+        )
+
     (
         revision_feedback,
         revision_feedback_path
@@ -583,50 +603,105 @@ def main() -> None:
             f"{revision_feedback.get('attempt')}"
         )
 
-    prompt = build_prompt(
-        research_data=research_data,
-        selected_idea=selected_idea,
-        target_word_count_min=target_word_min,
-        target_word_count_max=target_word_max,
-        revision_feedback=revision_feedback,
-        editorial_profile=editorial_profile,
-        factual_research=factual_research,
-        claims_ledger=claims_ledger,
-    )
+    active_revision_feedback = revision_feedback
+    final_output = None
+    word_gate = None
+    word_count_revision_attempts = 0
 
-    raw_script_data = generate_script(prompt)
-
-    final_output = normalize_output(
-        research_data=research_data,
-        selected_idea=selected_idea,
-        script_data=raw_script_data,
-        editorial_profile=editorial_profile,
-    )
-
-    if context:
-        final_output["version"] = "2.0"
-        final_output["video_id"] = context["video_id"]
-        final_output["run_id"] = context["run_id"]
-        final_output["source"]["parent_agent"] = (
-            "content_idea_selector"
-        )
-        final_output["source"]["parent_reference"] = (
-            get_relative_path(selection_path)
+    for generation_attempt in range(
+        max_word_count_revision_attempts + 1
+    ):
+        prompt = build_prompt(
+            research_data=research_data,
+            selected_idea=selected_idea,
+            target_word_count_min=target_word_min,
+            target_word_count_max=target_word_max,
+            revision_feedback=active_revision_feedback,
+            editorial_profile=editorial_profile,
+            factual_research=factual_research,
+            claims_ledger=claims_ledger,
         )
 
-    word_gate = assert_script_word_count(
-        script_data=final_output,
-        minimum=target_word_min,
-        maximum=target_word_max
-    )
+        raw_script_data = generate_script(prompt)
+
+        candidate_output = normalize_output(
+            research_data=research_data,
+            selected_idea=selected_idea,
+            script_data=raw_script_data,
+            editorial_profile=editorial_profile,
+        )
+
+        if context:
+            candidate_output["version"] = "2.0"
+            candidate_output["video_id"] = context["video_id"]
+            candidate_output["run_id"] = context["run_id"]
+            candidate_output["source"]["parent_agent"] = (
+                "content_idea_selector"
+            )
+            candidate_output["source"]["parent_reference"] = (
+                get_relative_path(selection_path)
+            )
+
+        candidate_gate = evaluate_script_word_count(
+            script_data=candidate_output,
+            minimum=target_word_min,
+            maximum=target_word_max,
+        )
+
+        print(
+            "SCRIPT_GENERATION_ATTEMPT: "
+            f"{generation_attempt + 1}"
+        )
+        print(
+            "SCRIPT_NARRATION_WORD_COUNT: "
+            f"{candidate_gate['word_count']}"
+        )
+
+        final_output = candidate_output
+        word_gate = candidate_gate
+
+        if candidate_gate["approved"]:
+            break
+
+        if (
+            generation_attempt
+            >= max_word_count_revision_attempts
+        ):
+            assert_script_word_count(
+                script_data=candidate_output,
+                minimum=target_word_min,
+                maximum=target_word_max,
+            )
+
+        word_count_revision_attempts += 1
+        active_revision_feedback = (
+            build_word_count_revision_feedback(
+                attempt=word_count_revision_attempts,
+                word_gate=candidate_gate,
+                previous_script=candidate_output["script"],
+                prior_revision_feedback=revision_feedback,
+            )
+        )
+
+        print(
+            "SCRIPT_WORD_COUNT_REVISION_REQUIRED: "
+            f"attempt_{word_count_revision_attempts}"
+        )
+        print(
+            "SCRIPT_WORD_COUNT_REVISION_DIRECTION: "
+            f"{active_revision_feedback['direction']}"
+        )
+
+    if final_output is None or word_gate is None:
+        raise RuntimeError(
+            "Script generation produced no candidate output."
+        )
 
     print(
-        "SCRIPT_NARRATION_WORD_COUNT: "
-        f"{word_gate['word_count']}"
+        "SCRIPT_WORD_COUNT_REVISION_ATTEMPTS: "
+        f"{word_count_revision_attempts}"
     )
-    print(
-        "SCRIPT_WORD_GATE: passed"
-    )
+    print("SCRIPT_WORD_GATE: passed")
 
     schema = load_schema()
     validate(instance=final_output, schema=schema)
