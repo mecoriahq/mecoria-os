@@ -1091,6 +1091,54 @@ def invalidate_factual_research_outputs(
     return context
 
 
+def invalidate_stale_claims_ledger(
+    context: dict,
+) -> dict:
+    if not reference_exists(context, "claims_ledger"):
+        return context
+
+    ledger_data = load_context_record(
+        context=context,
+        key="claims_ledger",
+    )
+    summary = ledger_data.get("summary", {})
+    current_policy = (
+        str(ledger_data.get("version", ""))
+        == "1.1"
+        and "continuation_eligible" in summary
+        and "quarantined_claim_count" in summary
+    )
+
+    if current_policy:
+        return context
+
+    context.get("outputs", {}).pop(
+        "claims_ledger",
+        None,
+    )
+    append_history(
+        context=context,
+        agent="claims_ledger_policy_upgrade",
+        status="invalidated",
+        reference=(
+            "reason=legacy_all_or_nothing_policy;"
+            "next=claims_ledger_v1_1"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="factual_research_ready",
+        next_agent="claims_ledger",
+    )
+    save_context(context)
+
+    print(
+        "STALE_CLAIMS_LEDGER_INVALIDATED: true",
+        flush=True,
+    )
+    return context
+
+
 def run_content_phase(
     context: dict
 ) -> dict:
@@ -1142,6 +1190,9 @@ def run_content_phase(
                 )
                 continue
 
+            context = invalidate_stale_claims_ledger(
+                context
+            )
             context = run_agent_if_missing(
                 context=context,
                 agent_name="claims_ledger",
@@ -1156,6 +1207,21 @@ def run_content_phase(
             )
 
             if ledger_data.get("status") == "approved":
+                summary = ledger_data.get("summary", {})
+                print(
+                    "CLAIMS_LEDGER_CONTINUATION: approved",
+                    flush=True,
+                )
+                print(
+                    "APPROVED_CLAIM_COUNT: "
+                    f"{summary.get('approved_claim_count', 0)}",
+                    flush=True,
+                )
+                print(
+                    "QUARANTINED_CLAIM_COUNT: "
+                    f"{summary.get('quarantined_claim_count', 0)}",
+                    flush=True,
+                )
                 break
 
             if research_attempt >= max_research_revisions:

@@ -159,7 +159,19 @@ def validate_research_dossier(
 def build_claims_ledger(
     dossier: dict[str, Any],
     minimum_sources_per_high_risk_claim: int,
+    minimum_approved_claims: int | None = None,
+    minimum_coverage_rate: float = 1.0,
 ) -> dict[str, Any]:
+    if minimum_approved_claims is not None:
+        if int(minimum_approved_claims) < 1:
+            raise ValueError(
+                "minimum_approved_claims must be at least 1."
+            )
+
+    if not 0.0 <= float(minimum_coverage_rate) <= 1.0:
+        raise ValueError(
+            "minimum_coverage_rate must be between 0 and 1."
+        )
     sources = source_map(dossier)
     ledger: list[dict[str, Any]] = []
     blocked_count = 0
@@ -221,11 +233,20 @@ def build_claims_ledger(
             high_risk
             or claim_type in ATTRIBUTION_REQUIRED_TYPES
         )
-        allowed_language = (
-            "Use explicit attribution and cautious wording."
-            if attribution_required
-            else "State directly without adding unsupported detail."
-        )
+        if status == "blocked":
+            allowed_language = (
+                "Excluded from script. Do not use unless the claim "
+                "is re-researched and independently approved."
+            )
+        else:
+            allowed_language = (
+                "Use explicit attribution and cautious wording."
+                if attribution_required
+                else (
+                    "State directly without adding unsupported "
+                    "detail."
+                )
+            )
 
         ledger.append({
             "claim_id": claim_id,
@@ -247,11 +268,26 @@ def build_claims_ledger(
         })
 
     approved_count = len(ledger) - blocked_count
+    coverage_rate = (
+        round(approved_count / len(ledger), 4)
+        if ledger
+        else 0.0
+    )
+    required_approved_claims = (
+        int(minimum_approved_claims)
+        if minimum_approved_claims is not None
+        else len(ledger)
+    )
+    continuation_eligible = (
+        bool(ledger)
+        and approved_count >= required_approved_claims
+        and coverage_rate >= float(minimum_coverage_rate)
+    )
 
     return {
         "status": (
             "approved"
-            if ledger and blocked_count == 0
+            if continuation_eligible
             else "rejected"
         ),
         "claims": ledger,
@@ -259,11 +295,13 @@ def build_claims_ledger(
             "total_claim_count": len(ledger),
             "approved_claim_count": approved_count,
             "blocked_claim_count": blocked_count,
-            "coverage_rate": (
-                round(approved_count / len(ledger), 4)
-                if ledger
-                else 0.0
+            "quarantined_claim_count": blocked_count,
+            "coverage_rate": coverage_rate,
+            "minimum_approved_claims": required_approved_claims,
+            "minimum_coverage_rate": float(
+                minimum_coverage_rate
             ),
+            "continuation_eligible": continuation_eligible,
         },
     }
 

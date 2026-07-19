@@ -78,6 +78,14 @@ def main() -> None:
         "HIGH_RISK_MINIMUM_SOURCES: "
         f"{profile['factuality']['minimum_sources_per_high_risk_claim']}"
     )
+    print(
+        "MINIMUM_APPROVED_CLAIMS: "
+        f"{profile['factuality']['minimum_approved_claims_for_script']}"
+    )
+    print(
+        "MINIMUM_CLAIM_COVERAGE_RATE: "
+        f"{profile['factuality']['minimum_claim_coverage_rate']}"
+    )
 
     if args.dry_run:
         print("STATUS: claims_ledger_dry_run_ready")
@@ -90,11 +98,21 @@ def main() -> None:
                 "minimum_sources_per_high_risk_claim"
             ]
         ),
+        minimum_approved_claims=int(
+            profile["factuality"][
+                "minimum_approved_claims_for_script"
+            ]
+        ),
+        minimum_coverage_rate=float(
+            profile["factuality"][
+                "minimum_claim_coverage_rate"
+            ]
+        ),
     )
 
     final_output = {
         "agent": "claims_ledger",
-        "version": "1.0",
+        "version": "1.1",
         "channel": channel,
         "video_id": video_id,
         "run_id": context["run_id"],
@@ -165,6 +183,14 @@ def main() -> None:
     print(
         "BLOCKED_CLAIM_COUNT: "
         f"{final_output['summary']['blocked_claim_count']}"
+    )
+    print(
+        "QUARANTINED_CLAIM_COUNT: "
+        f"{final_output['summary']['quarantined_claim_count']}"
+    )
+    print(
+        "CONTINUATION_ELIGIBLE: "
+        f"{str(final_output['summary']['continuation_eligible']).lower()}"
     )
     print(f"OUTPUT_SAVED: {relative_path(output_path)}")
 
