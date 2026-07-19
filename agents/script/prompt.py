@@ -16,6 +16,127 @@ def load_text_file(filename: str) -> str:
     return file_path.read_text(encoding="utf-8")
 
 
+def build_revision_section(
+    revision_feedback: dict | None,
+) -> str:
+    if not revision_feedback:
+        return ""
+
+    if (
+        revision_feedback.get("reason")
+        == "script_word_count_out_of_range"
+    ):
+        return f"""
+--------------------------------------------------
+MANDATORY COMBINED FACT/RISK + WORD COUNT REVISION
+--------------------------------------------------
+
+This regeneration has TWO simultaneous obligations:
+
+1. Preserve every correction from the prior Fact/Risk QA brief.
+2. Land inside the exact narration target band without adding facts.
+
+WORD COUNT REPAIR:
+{json.dumps(
+    {
+        "attempt": revision_feedback.get("attempt"),
+        "direction": revision_feedback.get("direction"),
+        "actual_word_count": revision_feedback.get(
+            "actual_word_count"
+        ),
+        "target_word_count": revision_feedback.get(
+            "target_word_count"
+        ),
+        "target_word_band": revision_feedback.get(
+            "target_word_band"
+        ),
+        "target_net_change": revision_feedback.get(
+            "target_net_change"
+        ),
+        "section_word_targets": revision_feedback.get(
+            "section_word_targets"
+        ),
+        "instructions": revision_feedback.get(
+            "instructions",
+            [],
+        ),
+    },
+    ensure_ascii=False,
+    indent=2,
+)}
+
+APPROVED CLAIM IDS AVAILABLE:
+{json.dumps(
+    revision_feedback.get(
+        "approved_claim_ids",
+        [],
+    ),
+    ensure_ascii=False,
+    indent=2,
+)}
+
+FLAGGED OR UNSUPPORTED LANGUAGE THAT MUST NOT RETURN:
+{json.dumps(
+    revision_feedback.get(
+        "editorial_constraints",
+        {},
+    ),
+    ensure_ascii=False,
+    indent=2,
+)}
+
+PRIOR FACT/RISK QA BRIEF — STILL MANDATORY:
+{json.dumps(
+    revision_feedback.get(
+        "prior_editorial_revision_brief"
+    ),
+    ensure_ascii=False,
+    indent=2,
+)}
+
+PREVIOUS SCRIPT TO REPAIR:
+{json.dumps(
+    revision_feedback.get(
+        "previous_script",
+        {},
+    ),
+    ensure_ascii=False,
+    indent=2,
+)}
+
+COMBINED REVISION RULES:
+- Do not solve length by restoring any sentence, implication,
+  motive, causal claim, legal conclusion, or dramatic framing
+  rejected by the prior QA brief.
+- Expand only from approved claim wording, dates, chronology,
+  attribution, documented comparisons, and documented outcomes.
+- A narrative transition may orient the viewer, but it must add
+  no factual implication beyond the attached claims.
+- Do not add generic medical, legal, scientific, business, or
+  psychological explanations unless they are approved claims.
+- Keep allegations attributed. Never convert allegation into fact.
+- Every factual sentence must be supported by claim IDs attached
+  to the same narration block.
+- Return the complete script JSON.
+""".strip()
+
+    return f"""
+--------------------------------------------------
+MANDATORY EDITORIAL REVISION BRIEF
+--------------------------------------------------
+
+This is a regeneration attempt. Correct every relevant
+issue below. Do not mention the revision process in the
+script.
+
+{json.dumps(
+    revision_feedback,
+    ensure_ascii=False,
+    indent=2
+)}
+""".strip()
+
+
 def build_prompt(
     research_data: dict,
     selected_idea: dict,
@@ -91,24 +212,9 @@ def build_prompt(
         },
     }
 
-    revision_section = ""
-
-    if revision_feedback:
-        revision_section = f"""
---------------------------------------------------
-MANDATORY EDITORIAL REVISION BRIEF
---------------------------------------------------
-
-This is a regeneration attempt. Correct every relevant
-issue below. Do not mention the revision process in the
-script.
-
-{json.dumps(
-    revision_feedback,
-    ensure_ascii=False,
-    indent=2
-)}
-"""
+    revision_section = build_revision_section(
+        revision_feedback
+    )
 
     brand_intro = script_policy["brand_intro"]
     brand_rule = (
@@ -164,6 +270,13 @@ FACTUAL GROUNDING RULES:
 - Preserve attribution for allegations, disputed claims, quotations,
   interpretations, and legal conclusions.
 - Never intensify certainty or infer private motive.
+- Treat rhetoric as factual when it implies secrecy, collapse,
+  causation, credibility effects, public psychology, investor impact,
+  medical practice, or a person's legal innocence or guilt.
+- Do not add general medical, legal, scientific, or business
+  explanations unless they exist in an approved claim.
+- Stay close to approved claim wording when describing allegations,
+  regulatory action, convictions, patient impact, or scientific limits.
 - Never invent dialogue, quotations, precise numbers, dates, or events.
 """
 

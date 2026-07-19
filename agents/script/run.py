@@ -680,6 +680,17 @@ def main() -> None:
                 word_gate=candidate_gate,
                 previous_script=candidate_output["script"],
                 prior_revision_feedback=revision_feedback,
+                approved_claim_ids=[
+                    item.get("claim_id")
+                    for item in (
+                        claims_ledger or {}
+                    ).get("claims", [])
+                    if (
+                        item.get("verification_status")
+                        == "approved"
+                        and item.get("claim_id")
+                    )
+                ],
             )
         )
 
@@ -690,6 +701,14 @@ def main() -> None:
         print(
             "SCRIPT_WORD_COUNT_REVISION_DIRECTION: "
             f"{active_revision_feedback['direction']}"
+        )
+        print(
+            "SCRIPT_WORD_COUNT_REVISION_TARGET: "
+            f"{active_revision_feedback['target_word_count']}"
+        )
+        print(
+            "SCRIPT_WORD_COUNT_REVISION_ISSUES_PRESERVED: "
+            f"{active_revision_feedback['editorial_constraints']['issue_count']}"
         )
 
     if final_output is None or word_gate is None:
