@@ -5,6 +5,71 @@ from pathlib import Path
 from typing import Any
 
 
+def _coerce_number(value: Any) -> float | None:
+    if isinstance(value, bool) or value is None:
+        return None
+
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    if isinstance(value, str):
+        normalized = value.strip()
+
+        if not normalized:
+            return None
+
+        try:
+            return float(normalized)
+        except ValueError:
+            return None
+
+    return None
+
+
+def _coerce_int(value: Any, default: int = 0) -> int:
+    number = _coerce_number(value)
+
+    if number is None:
+        return int(default)
+
+    return int(round(number))
+
+
+def failure_penalties(
+    failures: list[dict[str, Any]],
+) -> dict[str, int]:
+    numeric_deficit = 0
+    categorical_failure_count = 0
+
+    for item in failures:
+        actual = item.get(
+            "actual",
+            item.get("score"),
+        )
+        minimum = item.get("minimum")
+        actual_number = _coerce_number(actual)
+        minimum_number = _coerce_number(minimum)
+
+        if (
+            actual_number is None
+            or minimum_number is None
+        ):
+            categorical_failure_count += 1
+            continue
+
+        numeric_deficit += max(
+            0,
+            int(round(minimum_number - actual_number)),
+        )
+
+    return {
+        "numeric_deficit": numeric_deficit,
+        "categorical_failure_count": (
+            categorical_failure_count
+        ),
+    }
+
+
 def factual_metrics(
     fact_risk_data: dict[str, Any],
 ) -> dict[str, Any]:
@@ -19,10 +84,10 @@ def factual_metrics(
     unsupported = len(
         fact_risk_data.get("unsupported_statements", [])
     )
-    factual_score = int(
+    factual_score = _coerce_int(
         fact_risk_data.get("factual_grounding_score", 0)
     )
-    risk_score = int(
+    risk_score = _coerce_int(
         fact_risk_data.get("risk_compliance_score", 0)
     )
     approved = (
@@ -53,20 +118,24 @@ def editorial_metrics(
         for item in gate_result.get("failures", [])
         if isinstance(item, dict)
     ]
-    deficit = sum(
-        max(
-            0,
-            int(item.get("minimum", 0))
-            - int(item.get("score", 0)),
-        )
-        for item in failures
+    penalties = failure_penalties(failures)
+    deficit = penalties["numeric_deficit"]
+    categorical_failure_count = penalties[
+        "categorical_failure_count"
+    ]
+    overall = max(
+        0,
+        min(
+            100,
+            _coerce_int(qa_data.get("overall_score", 0)),
+        ),
     )
-    overall = int(qa_data.get("overall_score", 0))
     editorial_approved = bool(gate_result.get("approved"))
     rank = (
         0 if fact["approved"] else 1,
         0 if editorial_approved else 1,
         len(failures),
+        categorical_failure_count,
         deficit,
         100 - overall,
     )
@@ -75,6 +144,9 @@ def editorial_metrics(
         "editorial_approved": editorial_approved,
         "editorial_overall_score": overall,
         "editorial_failure_count": len(failures),
+        "editorial_categorical_failure_count": (
+            categorical_failure_count
+        ),
         "editorial_deficit": deficit,
         "rank": list(rank),
     }

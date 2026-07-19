@@ -104,5 +104,136 @@ class EditorialCandidateManagerTests(unittest.TestCase):
             self.assertEqual(restored["script"]["hook"]["narration"], "best")
 
 
+
+class EditorialMetricInputHardeningTests(unittest.TestCase):
+    def test_real_gate_shape_with_categorical_status_does_not_crash(self):
+        result = editorial_metrics(
+            qa_data={
+                "status": "rejected",
+                "overall_score": 78,
+            },
+            gate_result={
+                "approved": False,
+                "failures": [
+                    {
+                        "check": "hook_strength",
+                        "actual": 80,
+                        "minimum": 88,
+                    },
+                    {
+                        "check": "hook_intro_distinctness",
+                        "actual": 70,
+                        "minimum": 82,
+                    },
+                    {
+                        "check": "narrative_spine",
+                        "actual": 86,
+                        "minimum": 88,
+                    },
+                    {
+                        "check": "repetition_risk",
+                        "actual": 50,
+                        "minimum": 82,
+                    },
+                    {
+                        "check": "overall_score",
+                        "actual": 78,
+                        "minimum": 85,
+                    },
+                    {
+                        "check": "qa_status",
+                        "actual": "rejected",
+                        "minimum": "approved",
+                    },
+                ],
+            },
+            fact_risk_data=FACT_APPROVED,
+        )
+
+        self.assertEqual(
+            result["editorial_deficit"],
+            61,
+        )
+        self.assertEqual(
+            result[
+                "editorial_categorical_failure_count"
+            ],
+            1,
+        )
+        self.assertEqual(
+            result["editorial_failure_count"],
+            6,
+        )
+        self.assertFalse(
+            result["editorial_approved"]
+        )
+
+    def test_missing_check_failure_is_categorical(self):
+        result = editorial_metrics(
+            qa_data={
+                "status": "rejected",
+                "overall_score": "75",
+            },
+            gate_result={
+                "approved": False,
+                "failures": [
+                    {
+                        "check": "hook_strength",
+                        "actual": None,
+                        "minimum": 88,
+                    }
+                ],
+            },
+            fact_risk_data=FACT_APPROVED,
+        )
+
+        self.assertEqual(
+            result["editorial_deficit"],
+            0,
+        )
+        self.assertEqual(
+            result[
+                "editorial_categorical_failure_count"
+            ],
+            1,
+        )
+        self.assertEqual(
+            result["editorial_overall_score"],
+            75,
+        )
+
+    def test_numeric_strings_are_supported(self):
+        result = editorial_metrics(
+            qa_data={
+                "status": "rejected",
+                "overall_score": "78",
+            },
+            gate_result={
+                "approved": False,
+                "failures": [
+                    {
+                        "check": "hook_strength",
+                        "actual": "80",
+                        "minimum": "88",
+                    }
+                ],
+            },
+            fact_risk_data=FACT_APPROVED,
+        )
+
+        self.assertEqual(
+            result["editorial_deficit"],
+            8,
+        )
+        self.assertEqual(
+            result[
+                "editorial_categorical_failure_count"
+            ],
+            0,
+        )
+
+
+
+
 if __name__ == "__main__":
     unittest.main()

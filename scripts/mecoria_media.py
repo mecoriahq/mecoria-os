@@ -523,7 +523,7 @@ def next_command(
 
     if action == "retry_model":
         return (
-            "python scripts\mecoria_media.py "
+            "python scripts\\mecoria_media.py "
             f"run {channel} --video-id {video_id}"
         )
 
