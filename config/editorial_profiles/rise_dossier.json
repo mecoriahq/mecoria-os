@@ -59,7 +59,10 @@
       "Every factual section must reference approved claim IDs.",
       "Do not invent dialogue, motives, quotations, private conversations, or precise numbers."
     ],
-    "word_count_revision_attempts": 2
+    "word_count_revision_attempts": 2,
+    "pre_audio_word_floor": 1100,
+    "pre_audio_minimum_ratio": 0.85,
+    "audio_duration_authoritative": true
   },
   "factuality": {
     "pipeline_required": true,

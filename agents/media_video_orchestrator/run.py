@@ -30,6 +30,9 @@ from core.content_quality import (
     evaluate_qa_editorial_gate,
     evaluate_script_word_count,
 )
+from core.script_preflight import (
+    evaluate_script_preflight,
+)
 from core.channel_content_policy import (
     apply_profile_quality_gates,
     factual_pipeline_required,
@@ -625,6 +628,59 @@ def run_agent_if_missing(
 
 
 
+def evaluate_context_script_preflight(
+    *,
+    context: dict,
+    script_data: dict,
+    profile: dict | None = None,
+) -> dict:
+    editorial_profile = profile or load_editorial_profile(
+        str(context.get("channel") or "hiddenova")
+    )
+    script_policy = editorial_profile.get(
+        "script",
+        {},
+    )
+    gates = context.get(
+        "quality_gates",
+        {},
+    )
+
+    return evaluate_script_preflight(
+        script_data=script_data,
+        target_minimum=int(
+            gates.get(
+                "target_script_word_count_min",
+                DEFAULT_SCRIPT_WORD_MIN,
+            )
+        ),
+        target_maximum=int(
+            gates.get(
+                "target_script_word_count_max",
+                DEFAULT_SCRIPT_WORD_MAX,
+            )
+        ),
+        absolute_floor=int(
+            script_policy.get(
+                "pre_audio_word_floor",
+                1100,
+            )
+        ),
+        minimum_ratio=float(
+            script_policy.get(
+                "pre_audio_minimum_ratio",
+                0.85,
+            )
+        ),
+        audio_duration_authoritative=bool(
+            script_policy.get(
+                "audio_duration_authoritative",
+                False,
+            )
+        ),
+    )
+
+
 def invalidate_bad_content_outputs(
     context: dict
 ) -> dict:
@@ -646,29 +702,13 @@ def invalidate_bad_content_outputs(
         key="script"
     )
 
-    gates = context.get(
-        "quality_gates",
-        {}
-    )
-
-    word_gate = evaluate_script_word_count(
+    preflight_gate = evaluate_context_script_preflight(
+        context=context,
         script_data=script_data,
-        minimum=int(
-            gates.get(
-                "target_script_word_count_min",
-                DEFAULT_SCRIPT_WORD_MIN
-            )
-        ),
-        maximum=int(
-            gates.get(
-                "target_script_word_count_max",
-                DEFAULT_SCRIPT_WORD_MAX
-            )
-        )
     )
 
     if (
-        word_gate["approved"]
+        preflight_gate["accepted"]
         and not duration_revision_required
     ):
         return context
@@ -725,7 +765,7 @@ def invalidate_bad_content_outputs(
         status="invalidated",
         reference=(
             "word_count="
-            f"{word_gate['word_count']};"
+            f"{preflight_gate['word_count']};"
             "reason="
             f"{'audio_duration' if duration_revision_required else 'word_count'};"
             "removed_outputs="
@@ -1265,27 +1305,55 @@ def run_content_phase(
             context=context,
             key="script"
         )
-        final_word_gate = evaluate_script_word_count(
+        script_preflight = evaluate_context_script_preflight(
+            context=context,
             script_data=script_data,
-            minimum=int(
-                gates.get(
-                    "target_script_word_count_min",
-                    DEFAULT_SCRIPT_WORD_MIN,
-                )
-            ),
-            maximum=int(
-                gates.get(
-                    "target_script_word_count_max",
-                    DEFAULT_SCRIPT_WORD_MAX,
-                )
-            ),
+            profile=profile,
         )
 
-        if not final_word_gate["approved"]:
+        if not script_preflight["accepted"]:
             raise ValueError(
-                "Content phase produced an invalid script "
-                "narration word count."
+                "Content phase produced a script that failed "
+                "the pre-audio narration gate."
             )
+
+        gates["script_preflight_status"] = (
+            script_preflight["status"]
+        )
+        gates["script_preflight_word_count"] = (
+            script_preflight["word_count"]
+        )
+        gates["script_preflight_floor"] = (
+            script_preflight["provisional_floor"]
+        )
+
+        if script_preflight["status"] == "provisional":
+            append_history(
+                context=context,
+                agent="script_preflight_gate",
+                status="provisional",
+                reference=(
+                    "word_count="
+                    f"{script_preflight['word_count']};"
+                    "target="
+                    f"{script_preflight['target_minimum']}-"
+                    f"{script_preflight['target_maximum']};"
+                    "final_authority=actual_audio_duration"
+                ),
+            )
+
+        save_context(context)
+
+        print(
+            "SCRIPT_PREFLIGHT_STATUS: "
+            f"{script_preflight['status']}",
+            flush=True,
+        )
+        print(
+            "SCRIPT_PREFLIGHT_WORD_COUNT: "
+            f"{script_preflight['word_count']}",
+            flush=True,
+        )
 
         if requires_factual:
             context = run_agent_if_missing(

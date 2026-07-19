@@ -41,6 +41,10 @@ from core.content_quality import (
 from core.script_revision import (
     build_word_count_revision_feedback,
 )
+from core.script_preflight import (
+    assert_script_preflight,
+    evaluate_script_preflight,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 DEFAULT_IDEA_INDEX = 0
@@ -573,13 +577,32 @@ def main() -> None:
         )
     ) if context else DEFAULT_SCRIPT_WORD_MAX
 
+    script_policy = editorial_profile.get(
+        "script",
+        {},
+    )
     max_word_count_revision_attempts = int(
-        editorial_profile.get(
-            "script",
-            {},
-        ).get(
+        script_policy.get(
             "word_count_revision_attempts",
             DEFAULT_WORD_COUNT_REVISION_ATTEMPTS,
+        )
+    )
+    pre_audio_word_floor = int(
+        script_policy.get(
+            "pre_audio_word_floor",
+            1100,
+        )
+    )
+    pre_audio_minimum_ratio = float(
+        script_policy.get(
+            "pre_audio_minimum_ratio",
+            0.85,
+        )
+    )
+    audio_duration_authoritative = bool(
+        script_policy.get(
+            "audio_duration_authoritative",
+            False,
         )
     )
 
@@ -606,6 +629,7 @@ def main() -> None:
     active_revision_feedback = revision_feedback
     final_output = None
     word_gate = None
+    preflight_gate = None
     word_count_revision_attempts = 0
 
     for generation_attempt in range(
@@ -661,17 +685,33 @@ def main() -> None:
         word_gate = candidate_gate
 
         if candidate_gate["approved"]:
+            preflight_gate = evaluate_script_preflight(
+                script_data=candidate_output,
+                target_minimum=target_word_min,
+                target_maximum=target_word_max,
+                absolute_floor=pre_audio_word_floor,
+                minimum_ratio=pre_audio_minimum_ratio,
+                audio_duration_authoritative=(
+                    audio_duration_authoritative
+                ),
+            )
             break
 
         if (
             generation_attempt
             >= max_word_count_revision_attempts
         ):
-            assert_script_word_count(
+            preflight_gate = assert_script_preflight(
                 script_data=candidate_output,
-                minimum=target_word_min,
-                maximum=target_word_max,
+                target_minimum=target_word_min,
+                target_maximum=target_word_max,
+                absolute_floor=pre_audio_word_floor,
+                minimum_ratio=pre_audio_minimum_ratio,
+                audio_duration_authoritative=(
+                    audio_duration_authoritative
+                ),
             )
+            break
 
         word_count_revision_attempts += 1
         active_revision_feedback = (
@@ -711,16 +751,43 @@ def main() -> None:
             f"{active_revision_feedback['editorial_constraints']['issue_count']}"
         )
 
-    if final_output is None or word_gate is None:
+    if (
+        final_output is None
+        or word_gate is None
+        or preflight_gate is None
+    ):
         raise RuntimeError(
             "Script generation produced no candidate output."
         )
+
+    final_output["quality"] = {
+        "target_word_gate": word_gate,
+        "pre_audio_gate": preflight_gate,
+        "actual_audio_duration_pending": (
+            preflight_gate["status"] == "provisional"
+        ),
+    }
 
     print(
         "SCRIPT_WORD_COUNT_REVISION_ATTEMPTS: "
         f"{word_count_revision_attempts}"
     )
-    print("SCRIPT_WORD_GATE: passed")
+    print(
+        "SCRIPT_PREFLIGHT_GATE: "
+        f"{preflight_gate['status']}"
+    )
+    print(
+        "SCRIPT_PREFLIGHT_REASON: "
+        f"{preflight_gate['reason']}"
+    )
+    print(
+        "SCRIPT_PREFLIGHT_FLOOR: "
+        f"{preflight_gate['provisional_floor']}"
+    )
+    print(
+        "SCRIPT_WORD_GATE: "
+        f"{'passed' if word_gate['approved'] else 'provisional'}"
+    )
 
     schema = load_schema()
     validate(instance=final_output, schema=schema)
