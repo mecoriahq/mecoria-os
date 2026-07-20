@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -144,6 +145,69 @@ def current_editorial_scores(
         )
 
     return result
+
+
+def load_json_file(path: Path) -> dict[str, Any]:
+    return json.loads(
+        path.read_text(encoding="utf-8-sig")
+    )
+
+
+def effective_content_approval(
+    *,
+    project_root: Path,
+    context: dict[str, Any],
+    qa_data: dict[str, Any],
+    fact_risk_data: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    if qa_data.get("status") == "approved":
+        return {
+            "approved": True,
+            "source": "qa",
+            "reason": "qa_approved",
+        }
+
+    if fact_risk_data is None:
+        fact_path = resolve_context_output(
+            project_root=project_root,
+            context=context,
+            key="fact_risk_qa",
+        )
+
+        if fact_path is None:
+            return {
+                "approved": False,
+                "source": "none",
+                "reason": "fact_risk_output_missing",
+            }
+
+        try:
+            fact_risk_data = load_json_file(
+                fact_path
+            )
+        except (OSError, ValueError):
+            return {
+                "approved": False,
+                "source": "none",
+                "reason": "fact_risk_output_invalid",
+            }
+
+    applies, reason = founder_editorial_override_matches(
+        project_root=project_root,
+        context=context,
+        qa_data=qa_data,
+        fact_risk_data=fact_risk_data,
+    )
+
+    return {
+        "approved": applies,
+        "source": (
+            "founder_editorial_override"
+            if applies
+            else "none"
+        ),
+        "reason": reason,
+    }
 
 
 def founder_editorial_override_matches(

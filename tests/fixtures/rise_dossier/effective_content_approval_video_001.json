@@ -1,0 +1,15 @@
+{
+  "channel": "rise_dossier",
+  "video_id": "video_001",
+  "run_id": "rise_dossier_video_001_v1",
+  "qa_status": "rejected",
+  "qa_overall_score": 79,
+  "minimum_content_qa_score": 85,
+  "fact_qa_score": 100,
+  "risk_qa_score": 100,
+  "unsupported_statement_count": 0,
+  "high_risk_issue_count": 0,
+  "founder_override_valid": true,
+  "expected_approval_source": "founder_editorial_override",
+  "visual_pipeline_should_continue": true
+}

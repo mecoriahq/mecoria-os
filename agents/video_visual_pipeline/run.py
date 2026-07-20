@@ -28,6 +28,10 @@ from core.video_run_context import (
     set_status,
 )
 
+from core.founder_editorial_override import (
+    effective_content_approval,
+)
+
 
 from core.asset_usage_registry import (
     build_asset_record,
@@ -1825,18 +1829,26 @@ def main() -> None:
             )
         }
 
-    if qa_data.get("status") != "approved":
-        raise ValueError("Content QA is not approved.")
+    content_approval = effective_content_approval(
+        project_root=PROJECT_ROOT,
+        context=context,
+        qa_data=qa_data,
+    )
 
-    minimum_qa_score = context.get(
-        "quality_gates",
-        {}
-    ).get("minimum_content_qa_score", 85)
-
-    if qa_data.get("overall_score", 0) < minimum_qa_score:
+    if not content_approval["approved"]:
         raise ValueError(
-            "Content QA score is below the required gate."
+            "Content approval is not valid: "
+            f"{content_approval['reason']}"
         )
+
+    print(
+        "CONTENT_APPROVAL_SOURCE: "
+        f"{content_approval['source']}"
+    )
+    print(
+        "CONTENT_APPROVAL_REASON: "
+        f"{content_approval['reason']}"
+    )
 
     minimum_ai_count = int(
         context.get(
