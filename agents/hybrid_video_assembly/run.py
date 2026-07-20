@@ -52,6 +52,7 @@ FPS = 30
 
 STOCK_SEGMENT_SECONDS = 6
 MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS = 8
+MAX_AI_IMAGE_SEGMENT_SECONDS = 13.0
 TIMELINE_TAIL_PADDING_SECONDS = 3.0
 AI_INSERT_AFTER_STOCK_SEGMENTS = 2
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
@@ -1019,7 +1020,9 @@ def expand_ai_image_specs_for_target(
     ai_specs: list[dict],
     target_total_duration: float,
     maximum_uses_per_image: int = 2,
-    maximum_segment_seconds: float = 12.0,
+    maximum_segment_seconds: float = (
+        MAX_AI_IMAGE_SEGMENT_SECONDS
+    ),
 ) -> list[dict]:
     if not ai_specs:
         raise ValueError(
