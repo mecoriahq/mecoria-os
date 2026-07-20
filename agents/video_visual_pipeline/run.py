@@ -498,6 +498,13 @@ AI INSERT CONTRACT:
 - Every insert must directly match this exact video topic and script.
 - Cover the hook, key explanations, human layer, turning point,
   failure or tension point, and conclusion.
+- Distribute the inserts across every named script section.
+- Give each main section at least two meaningfully distinct visual ideas
+  when the requested image count allows it.
+- Avoid generic filler repetition such as repeated boardrooms, hands,
+  books, document close-ups, or anonymous silhouettes.
+- Alternate visual scale and subject type: environment, person, object,
+  process, evidence boundary, consequence, and turning point.
 - Every visual must be meaningfully different.
 - Use realistic premium documentary imagery.
 - Do not reuse imagery from another video topic.

@@ -23,6 +23,10 @@ class ChannelContentPolicyTests(unittest.TestCase):
             gates["thumbnail_standard_name"],
             "hiddenova_cinematic_v3",
         )
+        self.assertNotIn(
+            "visual_quality_standard_version",
+            gates,
+        )
 
     def test_rise_dossier_profile_activates_factual_pipeline(self):
         profile = load_editorial_profile("rise_dossier")
@@ -45,6 +49,32 @@ class ChannelContentPolicyTests(unittest.TestCase):
             1,
         )
         self.assertFalse(gates["require_channel_brand_intro"])
+        self.assertEqual(
+            gates["visual_quality_standard_version"],
+            "rise_dossier_visual_quality_v1",
+        )
+        self.assertEqual(gates["minimum_ai_insert_count"], 22)
+        self.assertEqual(
+            gates["minimum_hybrid_stock_clip_count"],
+            26,
+        )
+        self.assertEqual(
+            gates["minimum_combined_visual_asset_count"],
+            48,
+        )
+        self.assertEqual(
+            gates["minimum_stock_duration_seconds"],
+            300.0,
+        )
+        self.assertEqual(
+            gates["maximum_ai_image_segment_seconds"],
+            8.0,
+        )
+        self.assertEqual(
+            gates["maximum_average_visual_hold_seconds"],
+            6.75,
+        )
+        self.assertTrue(gates["require_visual_pacing_qa"])
 
     def test_rise_dossier_thumbnail_path_is_channel_specific(self):
         path = thumbnail_standard_path("rise_dossier")

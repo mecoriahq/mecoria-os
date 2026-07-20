@@ -119,6 +119,151 @@ def thumbnail_standard_path(
     return reference
 
 
+def build_visual_quality_gates(
+    profile: dict[str, Any]
+) -> dict[str, Any]:
+    visual = profile.get("visual_quality")
+
+    if visual is None:
+        return {}
+
+    if not isinstance(visual, dict):
+        raise ValueError(
+            "visual_quality must be an object."
+        )
+
+    required = {
+        "standard_name",
+        "minimum_ai_insert_count",
+        "minimum_stock_clip_count",
+        "minimum_hybrid_stock_clip_count",
+        "minimum_combined_visual_asset_count",
+        "minimum_stock_duration_seconds",
+        "minimum_distinct_stock_roles",
+        "maximum_single_stock_clip_share",
+        "maximum_stock_source_clip_share",
+        "maximum_stock_segments_per_clip",
+        "minimum_timeline_cycle_coverage",
+        "maximum_timeline_cycles",
+        "maximum_ai_image_segment_seconds",
+        "maximum_ai_image_uses",
+        "minimum_ai_reuse_gap_seconds",
+        "maximum_average_visual_hold_seconds",
+        "maximum_p95_visual_hold_seconds",
+        "require_visual_pacing_qa",
+    }
+    missing = required - set(visual)
+
+    if missing:
+        raise ValueError(
+            "visual_quality is missing fields: "
+            + ", ".join(sorted(missing))
+        )
+
+    minimum_ai = int(
+        visual["minimum_ai_insert_count"]
+    )
+    minimum_stock = int(
+        visual["minimum_hybrid_stock_clip_count"]
+    )
+    minimum_combined = int(
+        visual["minimum_combined_visual_asset_count"]
+    )
+    maximum_ai_hold = float(
+        visual["maximum_ai_image_segment_seconds"]
+    )
+    maximum_average_hold = float(
+        visual["maximum_average_visual_hold_seconds"]
+    )
+    maximum_p95_hold = float(
+        visual["maximum_p95_visual_hold_seconds"]
+    )
+
+    if minimum_ai <= 0 or minimum_stock <= 0:
+        raise ValueError(
+            "Visual asset minimums must be positive."
+        )
+
+    if minimum_combined < minimum_ai + minimum_stock:
+        raise ValueError(
+            "Combined visual minimum cannot be below "
+            "the AI plus stock minimum."
+        )
+
+    if not (
+        0 < float(
+            visual["maximum_stock_source_clip_share"]
+        ) <= 1
+    ):
+        raise ValueError(
+            "maximum_stock_source_clip_share must be "
+            "between 0 and 1."
+        )
+
+    if not (
+        maximum_average_hold
+        <= maximum_p95_hold
+        <= maximum_ai_hold
+    ):
+        raise ValueError(
+            "Visual hold thresholds must satisfy "
+            "average <= p95 <= AI maximum."
+        )
+
+    return {
+        "visual_quality_standard_version": str(
+            visual["standard_name"]
+        ),
+        "minimum_ai_insert_count": minimum_ai,
+        "minimum_stock_clip_count": int(
+            visual["minimum_stock_clip_count"]
+        ),
+        "minimum_hybrid_stock_clip_count": minimum_stock,
+        "minimum_combined_visual_asset_count": (
+            minimum_combined
+        ),
+        "minimum_stock_duration_seconds": float(
+            visual["minimum_stock_duration_seconds"]
+        ),
+        "minimum_distinct_stock_roles": int(
+            visual["minimum_distinct_stock_roles"]
+        ),
+        "maximum_single_stock_clip_share": float(
+            visual["maximum_single_stock_clip_share"]
+        ),
+        "maximum_stock_source_clip_share": float(
+            visual["maximum_stock_source_clip_share"]
+        ),
+        "maximum_stock_segments_per_clip": int(
+            visual["maximum_stock_segments_per_clip"]
+        ),
+        "minimum_timeline_cycle_coverage": float(
+            visual["minimum_timeline_cycle_coverage"]
+        ),
+        "maximum_timeline_cycles": int(
+            visual["maximum_timeline_cycles"]
+        ),
+        "maximum_ai_image_segment_seconds": (
+            maximum_ai_hold
+        ),
+        "maximum_ai_image_uses": int(
+            visual["maximum_ai_image_uses"]
+        ),
+        "minimum_ai_reuse_gap_seconds": float(
+            visual["minimum_ai_reuse_gap_seconds"]
+        ),
+        "maximum_average_visual_hold_seconds": (
+            maximum_average_hold
+        ),
+        "maximum_p95_visual_hold_seconds": (
+            maximum_p95_hold
+        ),
+        "require_visual_pacing_qa": bool(
+            visual["require_visual_pacing_qa"]
+        ),
+    }
+
+
 def build_quality_gates(
     profile: dict[str, Any]
 ) -> dict[str, Any]:
@@ -223,6 +368,7 @@ def build_quality_gates(
         "thumbnail_standard_name": str(
             thumbnail["standard_name"]
         ),
+        **build_visual_quality_gates(profile),
     }
 
 

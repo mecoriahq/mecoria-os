@@ -13,6 +13,12 @@ class RiseDossierPipelineContractTests(unittest.TestCase):
         cls.visual = (
             cls.root / "agents" / "video_visual_pipeline" / "run.py"
         ).read_text(encoding="utf-8-sig")
+        cls.selector = (
+            cls.root / "agents" / "content_idea_selector" / "run.py"
+        ).read_text(encoding="utf-8-sig")
+        cls.hybrid = (
+            cls.root / "agents" / "hybrid_video_assembly" / "run.py"
+        ).read_text(encoding="utf-8-sig")
         cls.research = (
             cls.root / "agents" / "factual_research" / "run.py"
         ).read_text(encoding="utf-8-sig")
@@ -73,6 +79,29 @@ class RiseDossierPipelineContractTests(unittest.TestCase):
         )
         self.assertIn("require_channel_thumbnail_standard", self.visual)
         self.assertIn("no fabricated evidence", self.visual.lower())
+        self.assertIn(
+            "Distribute the inserts across every named script section",
+            self.visual,
+        )
+
+    def test_visual_quality_profile_is_authoritative(self):
+        self.assertIn(
+            "quality_gates.update(\n"
+            "        build_quality_gates(editorial_profile)",
+            self.selector,
+        )
+        self.assertIn(
+            "build_visual_quality_gates",
+            self.orchestrator,
+        )
+        self.assertIn(
+            "validate_visual_pacing",
+            self.hybrid,
+        )
+        self.assertIn(
+            "maximum_ai_image_segment_seconds",
+            self.hybrid,
+        )
 
     def test_production_is_enabled_but_manual_start_only(self):
         self.assertEqual(self.config["status"], "active")

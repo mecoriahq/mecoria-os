@@ -402,6 +402,33 @@ def main() -> None:
 
     save_json(selection_path, selection_output)
 
+    quality_gates = {
+        "no_latest_json_sources": True,
+        "minimum_content_qa_score": int(
+            editorial_profile["qa"][
+                "minimum_overall_score"
+            ]
+        ),
+        "require_actual_chapters": True,
+        "chapter_timing_source": "actual_audio_sections",
+        "max_audio_duration_revision_attempts": 2,
+        "require_standard_cta": True,
+        "require_end_screen_area": True,
+        "require_ai_visuals": True,
+        "minimum_ai_insert_count": 8,
+        "require_thumbnail": True,
+        "thumbnail_text_min_words": 2,
+        "thumbnail_text_max_words": 4,
+        "thumbnail_two_color_text": True,
+        "require_founder_review": True,
+        "require_topic_approval": True,
+        "require_topic_novelty": True,
+        "allow_topic_reuse": False,
+    }
+    quality_gates.update(
+        build_quality_gates(editorial_profile)
+    )
+
     context = {
         "schema_version": "1.0",
         "channel": channel,
@@ -414,30 +441,7 @@ def main() -> None:
             "idea_selection": relative_path(selection_path)
         },
         "outputs": {},
-        "quality_gates": {
-            "no_latest_json_sources": True,
-            "minimum_content_qa_score": int(
-                editorial_profile["qa"][
-                    "minimum_overall_score"
-                ]
-            ),
-            **build_quality_gates(editorial_profile),
-            "require_actual_chapters": True,
-            "chapter_timing_source": "actual_audio_sections",
-            "max_audio_duration_revision_attempts": 2,
-            "require_standard_cta": True,
-            "require_end_screen_area": True,
-            "require_ai_visuals": True,
-            "minimum_ai_insert_count": 8,
-            "require_thumbnail": True,
-            "thumbnail_text_min_words": 2,
-            "thumbnail_text_max_words": 4,
-            "thumbnail_two_color_text": True,
-            "require_founder_review": True,
-            "require_topic_approval": True,
-            "require_topic_novelty": True,
-            "allow_topic_reuse": False
-        },
+        "quality_gates": quality_gates,
         "next_agent": "founder_topic_approval",
         "release": {
             "topic_approved": False,

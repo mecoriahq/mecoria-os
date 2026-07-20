@@ -1627,6 +1627,253 @@ def build_timeline_sequence(cycle: list[dict], audio_duration: float) -> list[di
     return entries
 
 
+def effective_timeline_entries(
+    timeline_entries: list[dict],
+    target_duration: float,
+) -> list[dict]:
+    remaining = max(0.0, float(target_duration))
+    elapsed = 0.0
+    effective = []
+
+    for item in timeline_entries:
+        if remaining <= 0.01:
+            break
+
+        duration = min(
+            float(item["duration_seconds"]),
+            remaining,
+        )
+
+        if duration <= 0.01:
+            continue
+
+        entry = dict(item)
+        entry["timeline_start_seconds"] = round(
+            elapsed,
+            2,
+        )
+        entry["effective_duration_seconds"] = round(
+            duration,
+            2,
+        )
+        effective.append(entry)
+        elapsed += duration
+        remaining -= duration
+
+    return effective
+
+
+def nearest_rank_percentile(
+    values: list[float],
+    percentile: float,
+) -> float:
+    if not values:
+        return 0.0
+
+    ordered = sorted(float(value) for value in values)
+    rank = max(
+        1,
+        math.ceil(float(percentile) * len(ordered)),
+    )
+    return ordered[min(rank - 1, len(ordered) - 1)]
+
+
+def validate_visual_pacing(
+    context: dict | None,
+    timeline_entries: list[dict],
+    audio_duration: float,
+) -> dict:
+    gates = (
+        context.get("quality_gates", {})
+        if context
+        else {}
+    )
+    required = bool(
+        gates.get("require_visual_pacing_qa", False)
+    )
+    target_duration = (
+        float(audio_duration)
+        + TIMELINE_TAIL_PADDING_SECONDS
+    )
+    effective = effective_timeline_entries(
+        timeline_entries=timeline_entries,
+        target_duration=target_duration,
+    )
+    durations = [
+        float(item["effective_duration_seconds"])
+        for item in effective
+    ]
+    covered_duration = sum(durations)
+    average_hold = (
+        covered_duration / len(durations)
+        if durations
+        else 0.0
+    )
+    p95_hold = nearest_rank_percentile(
+        durations,
+        0.95,
+    )
+    maximum_average = float(
+        gates.get(
+            "maximum_average_visual_hold_seconds",
+            999.0,
+        )
+    )
+    maximum_p95 = float(
+        gates.get(
+            "maximum_p95_visual_hold_seconds",
+            999.0,
+        )
+    )
+    maximum_ai_hold = float(
+        gates.get(
+            "maximum_ai_image_segment_seconds",
+            MAX_AI_IMAGE_SEGMENT_SECONDS,
+        )
+    )
+    maximum_ai_uses = int(
+        gates.get("maximum_ai_image_uses", 2)
+    )
+    minimum_reuse_gap = float(
+        gates.get("minimum_ai_reuse_gap_seconds", 0.0)
+    )
+
+    ai_occurrences: dict[str, list[float]] = {}
+    ai_holds = []
+
+    for item in effective:
+        if item.get("type") != "ai_insert":
+            continue
+
+        source = str(
+            item.get("source_relative_path")
+            or item.get("source_path")
+            or item.get("insert_id")
+            or item.get("segment_id")
+        )
+        ai_occurrences.setdefault(
+            source,
+            [],
+        ).append(
+            float(item["timeline_start_seconds"])
+        )
+        ai_holds.append(
+            float(item["effective_duration_seconds"])
+        )
+
+    maximum_actual_ai_uses = max(
+        (
+            len(starts)
+            for starts in ai_occurrences.values()
+        ),
+        default=0,
+    )
+    reuse_gaps = []
+
+    for starts in ai_occurrences.values():
+        starts.sort()
+        reuse_gaps.extend(
+            following - current
+            for current, following in zip(
+                starts,
+                starts[1:],
+            )
+        )
+
+    actual_minimum_reuse_gap = (
+        min(reuse_gaps)
+        if reuse_gaps
+        else None
+    )
+
+    checks = {
+        "timeline_coverage": (
+            covered_duration + 0.01
+            >= target_duration
+        ),
+        "maximum_average_visual_hold": (
+            average_hold <= maximum_average + 0.01
+        ),
+        "maximum_p95_visual_hold": (
+            p95_hold <= maximum_p95 + 0.01
+        ),
+        "maximum_ai_image_hold": (
+            max(ai_holds, default=0.0)
+            <= maximum_ai_hold + 0.01
+        ),
+        "maximum_ai_image_uses": (
+            maximum_actual_ai_uses
+            <= maximum_ai_uses
+        ),
+        "minimum_ai_reuse_gap": (
+            actual_minimum_reuse_gap is None
+            or actual_minimum_reuse_gap + 0.01
+            >= minimum_reuse_gap
+        ),
+    }
+    issues = [
+        name
+        for name, passed in checks.items()
+        if not passed
+    ]
+    status = (
+        "approved"
+        if all(checks.values())
+        else "rejected"
+    )
+
+    report = {
+        "required": required,
+        "status": status if required else "not_required",
+        "checks": checks,
+        "issues": issues,
+        "metrics": {
+            "timeline_visual_entry_count": len(effective),
+            "average_visual_hold_seconds": round(
+                average_hold,
+                2,
+            ),
+            "p95_visual_hold_seconds": round(
+                p95_hold,
+                2,
+            ),
+            "maximum_ai_image_hold_seconds": round(
+                max(ai_holds, default=0.0),
+                2,
+            ),
+            "maximum_actual_ai_image_uses": (
+                maximum_actual_ai_uses
+            ),
+            "minimum_actual_ai_reuse_gap_seconds": (
+                round(actual_minimum_reuse_gap, 2)
+                if actual_minimum_reuse_gap is not None
+                else None
+            ),
+        },
+        "thresholds": {
+            "maximum_average_visual_hold_seconds": (
+                maximum_average
+            ),
+            "maximum_p95_visual_hold_seconds": maximum_p95,
+            "maximum_ai_image_segment_seconds": (
+                maximum_ai_hold
+            ),
+            "maximum_ai_image_uses": maximum_ai_uses,
+            "minimum_ai_reuse_gap_seconds": (
+                minimum_reuse_gap
+            ),
+        },
+    }
+
+    if required and issues:
+        raise ValueError(
+            "Visual pacing QA rejected the timeline: "
+            + " | ".join(issues)
+        )
+
+    return report
+
+
 def render_stock_segment(spec: dict, segment_path: Path) -> None:
     ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
 
@@ -2298,6 +2545,20 @@ def main() -> None:
     target_timeline_duration = (
         audio_duration + TIMELINE_TAIL_PADDING_SECONDS
     )
+    quality_gates = (
+        context.get("quality_gates", {})
+        if context
+        else {}
+    )
+    maximum_ai_image_uses = int(
+        quality_gates.get("maximum_ai_image_uses", 2)
+    )
+    maximum_ai_image_segment_seconds = float(
+        quality_gates.get(
+            "maximum_ai_image_segment_seconds",
+            MAX_AI_IMAGE_SEGMENT_SECONDS,
+        )
+    )
 
     base_stock_specs = build_stock_segment_specs(
         stock_clips=stock_clips,
@@ -2319,6 +2580,10 @@ def main() -> None:
     ai_image_specs = expand_ai_image_specs_for_target(
         ai_specs=unique_ai_image_specs,
         target_total_duration=minimum_ai_timeline_duration,
+        maximum_uses_per_image=maximum_ai_image_uses,
+        maximum_segment_seconds=(
+            maximum_ai_image_segment_seconds
+        ),
     ) if unique_ai_image_specs else []
 
     ai_specs = interleave_ai_specs(
@@ -2407,6 +2672,28 @@ def main() -> None:
         cycle=cycle,
         audio_duration=audio_duration
     )
+    pacing_report = validate_visual_pacing(
+        context=context,
+        timeline_entries=timeline_entries,
+        audio_duration=audio_duration,
+    )
+
+    print(
+        "VISUAL_PACING_QA_STATUS: "
+        f"{pacing_report['status']}"
+    )
+    print(
+        "AVERAGE_VISUAL_HOLD_SECONDS: "
+        f"{pacing_report['metrics']['average_visual_hold_seconds']}"
+    )
+    print(
+        "P95_VISUAL_HOLD_SECONDS: "
+        f"{pacing_report['metrics']['p95_visual_hold_seconds']}"
+    )
+    print(
+        "MINIMUM_AI_REUSE_GAP_SECONDS: "
+        f"{pacing_report['metrics']['minimum_actual_ai_reuse_gap_seconds']}"
+    )
 
     dry_run_summary = {
         "audio_duration_seconds": round(audio_duration, 2),
@@ -2419,6 +2706,8 @@ def main() -> None:
         "timeline_plan_path": None,
         "concat_list_path": None,
         "silent_video_path": None,
+        "visual_pacing_qa_status": pacing_report["status"],
+        **pacing_report["metrics"],
         **stock_report
     }
 
@@ -2462,6 +2751,10 @@ def main() -> None:
     )
 
     render_summary.update(stock_report)
+    render_summary.update({
+        "visual_pacing_qa_status": pacing_report["status"],
+        **pacing_report["metrics"],
+    })
 
     final_video_record = None
     final_video_registry_path = None

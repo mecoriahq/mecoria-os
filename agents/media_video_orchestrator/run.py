@@ -57,6 +57,7 @@ from core.model_pause import (
 )
 from core.channel_content_policy import (
     apply_profile_quality_gates,
+    build_visual_quality_gates,
     factual_pipeline_required,
     load_editorial_profile,
 )
@@ -453,6 +454,15 @@ def apply_production_quality_standard(
         context=context,
         config=load_ai_video_production_config()
     )
+
+    visual_profile_gates = build_visual_quality_gates(
+        profile
+    )
+    if visual_profile_gates:
+        context.setdefault(
+            "quality_gates",
+            {}
+        ).update(visual_profile_gates)
 
     return context
 

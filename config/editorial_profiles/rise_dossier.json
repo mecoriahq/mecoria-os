@@ -115,6 +115,26 @@
     "fallback_status": "founder_editorial_review_required",
     "maximum_section_repair_targets": 6
   },
+  "visual_quality": {
+    "standard_name": "rise_dossier_visual_quality_v1",
+    "minimum_ai_insert_count": 22,
+    "minimum_stock_clip_count": 26,
+    "minimum_hybrid_stock_clip_count": 26,
+    "minimum_combined_visual_asset_count": 48,
+    "minimum_stock_duration_seconds": 300,
+    "minimum_distinct_stock_roles": 6,
+    "maximum_single_stock_clip_share": 0.12,
+    "maximum_stock_source_clip_share": 0.12,
+    "maximum_stock_segments_per_clip": 2,
+    "minimum_timeline_cycle_coverage": 1.0,
+    "maximum_timeline_cycles": 1,
+    "maximum_ai_image_segment_seconds": 8.0,
+    "maximum_ai_image_uses": 2,
+    "minimum_ai_reuse_gap_seconds": 90.0,
+    "maximum_average_visual_hold_seconds": 6.75,
+    "maximum_p95_visual_hold_seconds": 8.0,
+    "require_visual_pacing_qa": true
+  },
   "thumbnail": {
     "standard_name": "rise_dossier_investigative_v1",
     "standard_path": "config/media/rise_dossier_thumbnail_standard.json",
