@@ -53,6 +53,7 @@ FPS = 30
 STOCK_SEGMENT_SECONDS = 6
 MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS = 8
 MAX_AI_IMAGE_SEGMENT_SECONDS = 13.0
+DURATION_EPSILON_SECONDS = 0.001
 TIMELINE_TAIL_PADDING_SECONDS = 3.0
 AI_INSERT_AFTER_STOCK_SEGMENTS = 2
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
@@ -747,7 +748,7 @@ def expand_stock_specs_for_target(
         float(target_total_duration) - current_duration,
     )
 
-    if required_extra <= 0.01:
+    if required_extra <= DURATION_EPSILON_SECONDS:
         return stock_specs
 
     clip_duration_by_id = {
@@ -804,21 +805,21 @@ def expand_stock_specs_for_target(
                 - current_segment_duration,
             )
 
-            if capacity > 0.01:
+            if capacity > DURATION_EPSILON_SECONDS:
                 capacities.append({
                     "spec": spec,
                     "remaining": capacity,
                 })
 
-    while required_extra > 0.01 and capacities:
+    while required_extra > DURATION_EPSILON_SECONDS and capacities:
         progressed = False
 
         for item in capacities:
-            if required_extra <= 0.01:
+            if required_extra <= DURATION_EPSILON_SECONDS:
                 break
 
             available = float(item["remaining"])
-            if available <= 0.01:
+            if available <= DURATION_EPSILON_SECONDS:
                 continue
 
             increment = min(
@@ -845,13 +846,13 @@ def expand_stock_specs_for_target(
         capacities = [
             item
             for item in capacities
-            if float(item["remaining"]) > 0.01
+            if float(item["remaining"]) > DURATION_EPSILON_SECONDS
         ]
 
         if not progressed:
             break
 
-    if required_extra > 0.01:
+    if required_extra > DURATION_EPSILON_SECONDS:
         raise ValueError(
             "Stock source duration cannot satisfy one-cycle "
             "timeline coverage without overlapping or reusing "
@@ -1047,7 +1048,7 @@ def expand_ai_image_specs_for_target(
         float(target_total_duration),
     )
 
-    if target - current_duration > 0.01:
+    if target - current_duration > DURATION_EPSILON_SECONDS:
         originals = list(expanded)
 
         for use_index in range(2, maximum_uses_per_image + 1):
@@ -1068,11 +1069,11 @@ def expand_ai_image_specs_for_target(
         2,
     )
 
-    while remaining > 0.01:
+    while remaining > DURATION_EPSILON_SECONDS:
         progressed = False
 
         for item in expanded:
-            if remaining <= 0.01:
+            if remaining <= DURATION_EPSILON_SECONDS:
                 break
 
             current = float(item["duration_seconds"])
@@ -1081,7 +1082,7 @@ def expand_ai_image_specs_for_target(
                 float(maximum_segment_seconds) - current,
             )
 
-            if capacity <= 0.01:
+            if capacity <= DURATION_EPSILON_SECONDS:
                 continue
 
             increment = min(
@@ -1102,7 +1103,7 @@ def expand_ai_image_specs_for_target(
         if not progressed:
             break
 
-    if remaining > 0.01:
+    if remaining > DURATION_EPSILON_SECONDS:
         raise ValueError(
             "Combined stock and AI image capacity cannot satisfy "
             "one-cycle timeline coverage."
