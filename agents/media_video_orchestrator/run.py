@@ -1438,6 +1438,86 @@ def consider_editorial_candidate(
     selected_qa = qa_data
     selected_fact_risk = fact_risk_data
     selected_gate = gate_result
+    gates = context.setdefault("quality_gates", {})
+    marker = gates.get(
+        "founder_manual_editorial_revision"
+    )
+    manual_lineage_active = bool(
+        isinstance(marker, dict)
+        and marker.get("manual_revision_lineage_active")
+    )
+
+    if manual_lineage_active:
+        marker.update({
+            "active_editorial_candidate_index": int(
+                assessment["record"]["candidate_index"]
+            ),
+            "active_editorial_script_reference": (
+                assessment["record"]["script_reference"]
+            ),
+            "active_editorial_qa_reference": (
+                assessment["record"]["qa_reference"]
+            ),
+            "manual_revision_lineage_status": (
+                "completed"
+                if gate_result.get("approved")
+                else "founder_editorial_review_pending"
+            ),
+            "editorial_validation_status": (
+                "approved"
+                if gate_result.get("approved")
+                else "founder_review_required"
+            ),
+            "editorial_validation_completed_at": (
+                utc_now()
+                if gate_result.get("approved")
+                else None
+            ),
+        })
+
+        if gate_result.get("approved"):
+            marker["manual_revision_lineage_active"] = False
+        else:
+            marker["manual_revision_lineage_active"] = True
+
+        append_history(
+            context=context,
+            agent="editorial_candidate_selector",
+            status=(
+                "founder_manual_candidate_approved"
+                if gate_result.get("approved")
+                else "founder_manual_candidate_preserved"
+            ),
+            reference=(
+                "candidate="
+                f"{assessment['record']['candidate_index']};"
+                "gate="
+                f"{gate_result.get('status')};"
+                "automatic_editorial_repair=blocked"
+            ),
+        )
+        print(
+            "EDITORIAL_CANDIDATE_RESULT: "
+            "founder_manual_candidate_preserved",
+            flush=True,
+        )
+        print(
+            "FOUNDER_MANUAL_EDITORIAL_CANDIDATE_INDEX: "
+            f"{assessment['record']['candidate_index']}",
+            flush=True,
+        )
+        print(
+            "FOUNDER_MANUAL_AUTOMATIC_EDITORIAL_REPAIR: blocked",
+            flush=True,
+        )
+        save_context(context)
+        return (
+            context,
+            selected_qa,
+            selected_fact_risk,
+            selected_gate,
+            True,
+        )
 
     if not accepted:
         best = assessment["best_candidate"]
@@ -1744,8 +1824,18 @@ def pause_for_founder_editorial_review(
 ) -> dict:
     gates = context.setdefault("quality_gates", {})
     best = gates.get("editorial_best_candidate")
+    marker = gates.get(
+        "founder_manual_editorial_revision"
+    )
+    preserve_current_candidate = bool(
+        isinstance(marker, dict)
+        and marker.get("manual_revision_lineage_active")
+    )
 
-    if isinstance(best, dict):
+    if (
+        isinstance(best, dict)
+        and not preserve_current_candidate
+    ):
         restore_editorial_candidate(
             project_root=PROJECT_ROOT,
             candidate=best,
@@ -1788,6 +1878,12 @@ def pause_for_founder_editorial_review(
         next_agent="founder_editorial_review",
     )
     save_context(context)
+    if preserve_current_candidate:
+        print(
+            "FOUNDER_MANUAL_EDITORIAL_CANDIDATE_PRESERVED: true",
+            flush=True,
+        )
+
     print(
         "FOUNDER_EDITORIAL_REVIEW_REQUIRED: true",
         flush=True,
@@ -1871,7 +1967,12 @@ def recover_pending_founder_manual_revision_candidate(
 
     if (
         isinstance(marker, dict)
-        and marker.get("fact_risk_repair_chain_active")
+        and (
+            marker.get("fact_risk_repair_chain_active")
+            or marker.get("manual_revision_lineage_active")
+        )
+        and marker.get("factual_validation_status")
+        != "fallback_to_best"
     ):
         return context, None
 
@@ -1905,7 +2006,17 @@ def recover_pending_founder_manual_revision_candidate(
     gates = context.setdefault("quality_gates", {})
     marker = gates["founder_manual_editorial_revision"]
     marker.update({
+        "pending_fact_risk_qa": True,
         "fact_risk_repair_chain_active": True,
+        "manual_revision_lineage_active": True,
+        "manual_revision_lineage_status": (
+            "fact_repair_active"
+        ),
+        "manual_revision_record_reference": (
+            context.get("sources", {}).get(
+                "founder_manual_editorial_revision"
+            )
+        ),
         "recovered_candidate_index": int(
             record["candidate_index"]
         ),
@@ -1918,6 +2029,9 @@ def recover_pending_founder_manual_revision_candidate(
         "recovery_reason": policy["reason"],
         "recovered_at": utc_now(),
     })
+    marker.pop("factual_fallback_reason", None)
+    marker.pop("factual_fallback_at", None)
+    marker.pop("factual_validation_status", None)
     gates["fact_risk_section_repair_count"] = 0
     gates["editorial_section_repair_count"] = 0
     gates["editorial_candidate_count"] = 0
@@ -2008,7 +2122,12 @@ def consider_fact_risk_candidate(
                 marker.get("fact_risk_repair_chain_active")
             )
             marker.update({
+                "pending_fact_risk_qa": True,
                 "fact_risk_repair_chain_active": True,
+                "manual_revision_lineage_active": True,
+                "manual_revision_lineage_status": (
+                    "fact_repair_active"
+                ),
                 "active_candidate_index": int(
                     assessment["record"]["candidate_index"]
                 ),
@@ -2082,6 +2201,10 @@ def consider_fact_risk_candidate(
                 marker.update({
                     "pending_fact_risk_qa": False,
                     "fact_risk_repair_chain_active": False,
+                    "manual_revision_lineage_active": True,
+                    "manual_revision_lineage_status": (
+                        "editorial_validation_pending"
+                    ),
                     "factual_validation_status": "approved",
                     "factual_validation_candidate_index": int(
                         assessment["record"]["candidate_index"]
@@ -2124,6 +2247,10 @@ def consider_fact_risk_candidate(
                 marker.update({
                     "fact_risk_repair_chain_active": False,
                     "pending_fact_risk_qa": False,
+                    "manual_revision_lineage_active": False,
+                    "manual_revision_lineage_status": (
+                        "aborted_fallback_to_best"
+                    ),
                     "factual_validation_status": "fallback_to_best",
                     "factual_fallback_reason": manual_policy["reason"],
                     "factual_fallback_at": utc_now(),
@@ -2169,6 +2296,10 @@ def consider_fact_risk_candidate(
             marker.update({
                 "pending_fact_risk_qa": False,
                 "fact_risk_repair_chain_active": False,
+                "manual_revision_lineage_active": True,
+                "manual_revision_lineage_status": (
+                    "editorial_validation_pending"
+                ),
                 "factual_validation_status": "approved",
                 "factual_validation_candidate_index": int(
                     assessment["record"]["candidate_index"]
@@ -2882,6 +3013,26 @@ def run_content_phase(
 
         if gate_result["approved"]:
             break
+
+        if requires_factual:
+            marker = context.get(
+                "quality_gates",
+                {},
+            ).get("founder_manual_editorial_revision")
+
+            if (
+                isinstance(marker, dict)
+                and marker.get(
+                    "manual_revision_lineage_active"
+                )
+            ):
+                return pause_for_founder_editorial_review(
+                    context=context,
+                    reason=(
+                        "founder_manual_revision_editorial_review_required"
+                    ),
+                    qa_data=qa_data,
+                )
 
         if requires_factual:
             max_revisions = int(

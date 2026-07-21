@@ -514,44 +514,100 @@ def load_founder_manual_revision_state(
     if not isinstance(marker, dict):
         return None
 
-    if not bool(marker.get("pending_fact_risk_qa")):
-        return None
-
-    reference = context.get(
-        "sources",
-        {},
-    ).get("founder_manual_editorial_revision")
-
-    if not reference:
-        return None
-
-    record_path = project_root / str(reference)
-
-    if not record_path.is_file():
-        return None
-
-    record = json.loads(
-        record_path.read_text(encoding="utf-8-sig")
+    lineage_active = bool(
+        marker.get("manual_revision_lineage_active")
+        or marker.get("fact_risk_repair_chain_active")
+    )
+    fallback_recovery_allowed = bool(
+        marker.get("factual_validation_status")
+        == "fallback_to_best"
+        and (
+            marker.get("recovered_candidate_script_reference")
+            or marker.get("active_candidate_script_reference")
+        )
+    )
+    pending_fact_risk = bool(
+        marker.get("pending_fact_risk_qa")
     )
 
-    for key in ("channel", "video_id", "run_id"):
-        if str(record.get(key)) != str(context.get(key)):
-            return None
+    if not (
+        pending_fact_risk
+        or lineage_active
+        or fallback_recovery_allowed
+    ):
+        return None
 
-    revised_hash = str(
-        record.get("revised_script_sha256", "")
-    ).strip().lower()
+    reference = (
+        context.get(
+            "sources",
+            {},
+        ).get("founder_manual_editorial_revision")
+        or marker.get("manual_revision_record_reference")
+    )
+    record: dict[str, Any] | None = None
+    revised_hash = ""
 
-    if not re.fullmatch(r"[0-9a-f]{64}", revised_hash):
+    if reference:
+        record_path = project_root / str(reference)
+
+        if record_path.is_file():
+            loaded = json.loads(
+                record_path.read_text(encoding="utf-8-sig")
+            )
+
+            identity_matches = all(
+                str(loaded.get(key))
+                == str(context.get(key))
+                for key in ("channel", "video_id", "run_id")
+            )
+            candidate_hash = str(
+                loaded.get("revised_script_sha256", "")
+            ).strip().lower()
+
+            if (
+                identity_matches
+                and re.fullmatch(r"[0-9a-f]{64}", candidate_hash)
+            ):
+                record = loaded
+                revised_hash = candidate_hash
+
+    if not revised_hash:
+        recovered_reference = (
+            marker.get("recovered_candidate_script_reference")
+            or marker.get("active_candidate_script_reference")
+        )
+
+        if recovered_reference:
+            recovered_path = (
+                project_root / str(recovered_reference)
+            )
+
+            if recovered_path.is_file():
+                revised_hash = sha256_file(recovered_path)
+                record = {
+                    "channel": context.get("channel"),
+                    "video_id": context.get("video_id"),
+                    "run_id": context.get("run_id"),
+                    "revised_script_sha256": revised_hash,
+                    "recovered_script_reference": str(
+                        recovered_reference
+                    ),
+                }
+
+    if not revised_hash or record is None:
         return None
 
     return {
         "marker": marker,
         "record": record,
-        "reference": str(reference),
+        "reference": str(reference or ""),
         "revised_script_sha256": revised_hash,
         "repair_chain_active": bool(
             marker.get("fact_risk_repair_chain_active")
+        ),
+        "lineage_active": lineage_active,
+        "fallback_recovery_allowed": (
+            fallback_recovery_allowed
         ),
     }
 
@@ -592,7 +648,10 @@ def evaluate_founder_manual_candidate_policy(
     exact_match = (
         candidate_hash == state["revised_script_sha256"]
     )
-    chain_match = bool(state["repair_chain_active"])
+    chain_match = bool(
+        state["repair_chain_active"]
+        or state.get("lineage_active")
+    )
     matches_manual = exact_match or chain_match
 
     if not matches_manual:
