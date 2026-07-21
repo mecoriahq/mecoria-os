@@ -30,6 +30,9 @@ from core.asset_usage_registry import (
     register_asset_batch,
     validate_asset_batch,
 )
+from core.hybrid_capacity import (
+    build_capacity_report_from_records,
+)
 
 
 def load_json(path: Path) -> dict:
@@ -333,6 +336,41 @@ def build_stock_registry_records(
 
 
 
+def build_stock_capacity_report(
+    manifest: dict,
+    context: dict,
+) -> dict:
+    audio_assembly = load_json(
+        resolve_output(context, "audio_assembly")
+    )
+    ai_visual_generation = load_json(
+        resolve_output(
+            context,
+            "ai_visual_generation",
+        )
+    )
+    ai_video_generation = None
+
+    if "ai_video_generation" in context.get(
+        "outputs",
+        {},
+    ):
+        ai_video_generation = load_json(
+            resolve_output(
+                context,
+                "ai_video_generation",
+            )
+        )
+
+    return build_capacity_report_from_records(
+        context=context,
+        stock_manifest=manifest,
+        audio_assembly=audio_assembly,
+        ai_visual_generation=ai_visual_generation,
+        ai_video_generation=ai_video_generation,
+    )
+
+
 def resolve_stock_qa_thresholds(context: dict) -> dict:
     gates = context.get("quality_gates", {})
 
@@ -397,7 +435,8 @@ def resolve_stock_qa_thresholds(context: dict) -> dict:
 
 def build_stock_qa(
     manifest: dict,
-    context: dict
+    context: dict,
+    capacity_report: dict | None = None,
 ) -> dict:
     gates = context.get("quality_gates", {})
 
@@ -484,7 +523,11 @@ def build_stock_qa(
         ),
         "maximum_single_clip_share": (
             largest_share <= maximum_share
-        )
+        ),
+        "hybrid_capacity_contract": (
+            capacity_report is None
+            or bool(capacity_report.get("approved"))
+        ),
     }
 
     issues = []
@@ -548,7 +591,50 @@ def build_stock_qa(
             ),
             "license_confirmation_required_count": len(
                 license_warnings
-            )
+            ),
+            "hybrid_capacity_contract": (
+                capacity_report.get("contract_version")
+                if capacity_report
+                else None
+            ),
+            "hybrid_capacity_status": (
+                capacity_report.get("status")
+                if capacity_report
+                else "not_evaluated"
+            ),
+            "hybrid_capacity_target_seconds": (
+                capacity_report.get("target", {}).get(
+                    "seconds"
+                )
+                if capacity_report
+                else None
+            ),
+            "hybrid_capacity_maximum_seconds": (
+                round(
+                    capacity_report.get(
+                        "stock",
+                        {},
+                    ).get("maximum_seconds", 0)
+                    + capacity_report.get(
+                        "ai_images",
+                        {},
+                    ).get("maximum_seconds", 0)
+                    + capacity_report.get(
+                        "ai_video",
+                        {},
+                    ).get("seconds", 0),
+                    6,
+                )
+                if capacity_report
+                else None
+            ),
+            "hybrid_capacity_deficit_seconds": (
+                capacity_report.get("deficit", {}).get(
+                    "seconds"
+                )
+                if capacity_report
+                else None
+            ),
         },
         "checks": checks,
         "issues": issues,
@@ -632,9 +718,14 @@ def main() -> None:
         records=asset_records
     )
 
+    capacity_report = build_stock_capacity_report(
+        manifest=normalized_manifest,
+        context=context,
+    )
     qa_output = build_stock_qa(
         manifest=normalized_manifest,
-        context=context
+        context=context,
+        capacity_report=capacity_report,
     )
 
     qa_output["checks"][
@@ -674,6 +765,18 @@ def main() -> None:
     )
     print(f"STOCK_QA_STATUS: {qa_output['status']}")
     print(
+        "HYBRID_CAPACITY_CONTRACT: "
+        f"{capacity_report['contract_version']}"
+    )
+    print(
+        "HYBRID_CAPACITY_STATUS: "
+        f"{capacity_report['status']}"
+    )
+    print(
+        "HYBRID_CAPACITY_DEFICIT_SECONDS: "
+        f"{capacity_report['deficit']['seconds']}"
+    )
+    print(
         "CROSS_VIDEO_REUSED_CLIP_COUNT: "
         f"{qa_output['summary']['reused_clip_count']}"
     )
@@ -683,6 +786,99 @@ def main() -> None:
         return
 
     if qa_output["status"] != "approved":
+        failed_checks = {
+            name
+            for name, passed in qa_output[
+                "checks"
+            ].items()
+            if not passed
+        }
+        capacity_only_failure = (
+            failed_checks
+            == {"hybrid_capacity_contract"}
+        )
+
+        if capacity_only_failure:
+            output_dir = (
+                PROJECT_ROOT
+                / "records"
+                / "run_contexts"
+                / channel
+                / video_id
+                / "outputs"
+                / "stock"
+                / context["run_id"]
+            )
+            diagnostic_path = (
+                output_dir
+                / "capacity_diagnostic.json"
+            )
+            save_json(
+                diagnostic_path,
+                {
+                    "agent": "video_stock_pipeline",
+                    "status": (
+                        "visual_capacity_repair_required"
+                    ),
+                    "channel": channel,
+                    "video_id": video_id,
+                    "run_id": context["run_id"],
+                    "capacity_report": capacity_report,
+                    "source_manifest": relative_path(
+                        source_path
+                    ),
+                },
+            )
+            context = set_status(
+                context=context,
+                status=(
+                    "visual_capacity_repair_required"
+                ),
+                next_agent="video_stock_pipeline",
+            )
+            context["capacity_repair"] = {
+                "contract_version": capacity_report[
+                    "contract_version"
+                ],
+                "deficit_frames": capacity_report[
+                    "deficit"
+                ]["frames"],
+                "deficit_seconds": capacity_report[
+                    "deficit"
+                ]["seconds"],
+                "estimated_additional_stock_clips": (
+                    capacity_report[
+                        "deficit"
+                    ][
+                        "estimated_additional_stock_clips"
+                    ]
+                ),
+                "diagnostic_reference": relative_path(
+                    diagnostic_path
+                ),
+            }
+            save_context(context)
+
+            print(
+                "PIPELINE_CONTROLLED_PAUSE: true"
+            )
+            print(
+                "STATUS: visual_capacity_repair_required"
+            )
+            print(
+                "NEXT_AGENT: video_stock_pipeline"
+            )
+            print(
+                "HYBRID_CAPACITY_DEFICIT_SECONDS: "
+                f"{capacity_report['deficit']['seconds']}"
+            )
+            print(
+                "ESTIMATED_ADDITIONAL_STOCK_CLIPS: "
+                f"{capacity_report['deficit']['estimated_additional_stock_clips']}"
+            )
+            print("STACK_TRACE: false")
+            return
+
         raise ValueError(
             "Stock QA rejected the stock package."
         )

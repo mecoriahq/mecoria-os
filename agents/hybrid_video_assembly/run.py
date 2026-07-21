@@ -43,6 +43,16 @@ from core.ai_video_integration import (
     ai_video_context_enabled,
     interleave_ai_specs,
 )
+from core.hybrid_capacity import (
+    CAPACITY_CONTRACT_VERSION,
+    HybridCapacityError,
+    build_hybrid_capacity_report,
+    materialize_hybrid_capacity_plan,
+    build_stock_segment_specs as shared_build_stock_segment_specs,
+    expand_ai_image_specs_for_target as shared_expand_ai_image_specs_for_target,
+    expand_stock_specs_for_target as shared_expand_stock_specs_for_target,
+    maximum_stock_spec_duration as shared_maximum_stock_spec_duration,
+)
 
 DEFAULT_CHANNEL = "hiddenova"
 OUTPUT_FILENAME = "hybrid_video_draft.mp4"
@@ -734,132 +744,20 @@ def load_stock_clips(
 def expand_stock_specs_for_target(
     stock_clips: list[dict],
     stock_specs: list[dict],
-    target_total_duration: float,
+    target_total_duration: float | None = None,
     maximum_segment_seconds: float = (
         MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS
     ),
+    target_total_frames: int | None = None,
 ) -> list[dict]:
-    current_duration = sum(
-        float(item["duration_seconds"])
-        for item in stock_specs
+    return shared_expand_stock_specs_for_target(
+        stock_clips=stock_clips,
+        stock_specs=stock_specs,
+        target_total_duration=target_total_duration,
+        maximum_segment_seconds=maximum_segment_seconds,
+        fps=FPS,
+        target_total_frames=target_total_frames,
     )
-    required_extra = max(
-        0.0,
-        float(target_total_duration) - current_duration,
-    )
-
-    if required_extra <= DURATION_EPSILON_SECONDS:
-        return stock_specs
-
-    clip_duration_by_id = {
-        str(item["candidate_id"]): float(
-            item["duration_seconds"]
-        )
-        for item in stock_clips
-    }
-    grouped: dict[str, list[dict]] = {}
-
-    for spec in stock_specs:
-        grouped.setdefault(
-            str(spec["candidate_id"]),
-            [],
-        ).append(spec)
-
-    capacities = []
-
-    for candidate_id, specs in grouped.items():
-        specs.sort(
-            key=lambda item: float(
-                item["start_seconds"]
-            )
-        )
-        clip_duration = clip_duration_by_id[
-            candidate_id
-        ]
-
-        for index, spec in enumerate(specs):
-            start_seconds = float(
-                spec["start_seconds"]
-            )
-            current_segment_duration = float(
-                spec["duration_seconds"]
-            )
-            next_start = (
-                float(
-                    specs[index + 1]["start_seconds"]
-                )
-                if index + 1 < len(specs)
-                else clip_duration
-            )
-            non_overlapping_limit = max(
-                0.0,
-                next_start - start_seconds,
-            )
-            maximum_duration = min(
-                float(maximum_segment_seconds),
-                non_overlapping_limit,
-            )
-            capacity = max(
-                0.0,
-                maximum_duration
-                - current_segment_duration,
-            )
-
-            if capacity > DURATION_EPSILON_SECONDS:
-                capacities.append({
-                    "spec": spec,
-                    "remaining": capacity,
-                })
-
-    while required_extra > DURATION_EPSILON_SECONDS and capacities:
-        progressed = False
-
-        for item in capacities:
-            if required_extra <= DURATION_EPSILON_SECONDS:
-                break
-
-            available = float(item["remaining"])
-            if available <= DURATION_EPSILON_SECONDS:
-                continue
-
-            increment = min(
-                0.5,
-                available,
-                required_extra,
-            )
-            spec = item["spec"]
-            spec["duration_seconds"] = round(
-                float(spec["duration_seconds"])
-                + increment,
-                2,
-            )
-            item["remaining"] = round(
-                available - increment,
-                2,
-            )
-            required_extra = round(
-                required_extra - increment,
-                2,
-            )
-            progressed = True
-
-        capacities = [
-            item
-            for item in capacities
-            if float(item["remaining"]) > DURATION_EPSILON_SECONDS
-        ]
-
-        if not progressed:
-            break
-
-    if required_extra > DURATION_EPSILON_SECONDS:
-        raise ValueError(
-            "Stock source duration cannot satisfy one-cycle "
-            "timeline coverage without overlapping or reusing "
-            "segments."
-        )
-
-    return stock_specs
 
 
 def build_stock_segment_specs(
@@ -870,94 +768,14 @@ def build_stock_segment_specs(
         MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS
     ),
 ) -> list[dict]:
-    clip_buckets = []
-
-    for clip in stock_clips:
-        duration = clip["duration_seconds"]
-        possible_count = max(
-            1,
-            math.ceil(duration / STOCK_SEGMENT_SECONDS)
-        )
-        segment_count = min(
-            possible_count,
-            max_segments_per_clip
-        )
-
-        if segment_count == 1:
-            starts = [0.0]
-        elif possible_count <= max_segments_per_clip:
-            starts = [
-                index * STOCK_SEGMENT_SECONDS
-                for index in range(segment_count)
-            ]
-        else:
-            maximum_start = max(
-                0.0,
-                duration - STOCK_SEGMENT_SECONDS
-            )
-            step = maximum_start / (segment_count - 1)
-            starts = [
-                round(index * step, 2)
-                for index in range(segment_count)
-            ]
-
-        bucket = []
-
-        for index, start in enumerate(starts, start=1):
-            remaining = duration - start
-            segment_duration = min(
-                STOCK_SEGMENT_SECONDS,
-                remaining
-            )
-
-            if segment_duration < 2:
-                continue
-
-            bucket.append({
-                "type": "stock",
-                "segment_id": (
-                    f"{clip['candidate_id']}_S{index:02d}"
-                ),
-                "asset_id": clip["asset_id"],
-                "candidate_id": clip["candidate_id"],
-                "role": clip["role"],
-                "source_path": clip["path"],
-                "source_relative_path": get_relative_path(
-                    clip["path"]
-                ),
-                "start_seconds": round(start, 2),
-                "duration_seconds": round(
-                    segment_duration,
-                    2
-                ),
-                "risk_level": clip.get(
-                    "risk_level",
-                    "unknown"
-                )
-            })
-
-        clip_buckets.append(bucket)
-
-    specs = []
-    maximum_bucket_size = max(
-        len(bucket)
-        for bucket in clip_buckets
+    return shared_build_stock_segment_specs(
+        stock_clips=stock_clips,
+        max_segments_per_clip=max_segments_per_clip,
+        target_total_duration=target_total_duration,
+        maximum_segment_seconds=maximum_segment_seconds,
+        stock_segment_seconds=STOCK_SEGMENT_SECONDS,
+        fps=FPS,
     )
-
-    for segment_index in range(maximum_bucket_size):
-        for bucket in clip_buckets:
-            if segment_index < len(bucket):
-                specs.append(bucket[segment_index])
-
-    if target_total_duration is not None:
-        specs = expand_stock_specs_for_target(
-            stock_clips=stock_clips,
-            stock_specs=specs,
-            target_total_duration=target_total_duration,
-            maximum_segment_seconds=maximum_segment_seconds,
-        )
-
-    return specs
 
 
 
@@ -968,148 +786,31 @@ def maximum_stock_spec_duration(
         MAX_ADAPTIVE_STOCK_SEGMENT_SECONDS
     ),
 ) -> float:
-    clip_duration_by_id = {
-        str(item["candidate_id"]): float(
-            item["duration_seconds"]
-        )
-        for item in stock_clips
-    }
-    grouped: dict[str, list[dict]] = {}
-
-    for spec in stock_specs:
-        grouped.setdefault(
-            str(spec["candidate_id"]),
-            [],
-        ).append(spec)
-
-    total = 0.0
-
-    for candidate_id, specs in grouped.items():
-        specs.sort(
-            key=lambda item: float(
-                item["start_seconds"]
-            )
-        )
-        clip_duration = clip_duration_by_id[
-            candidate_id
-        ]
-
-        for index, spec in enumerate(specs):
-            start_seconds = float(
-                spec["start_seconds"]
-            )
-            next_start = (
-                float(
-                    specs[index + 1]["start_seconds"]
-                )
-                if index + 1 < len(specs)
-                else clip_duration
-            )
-            non_overlapping_limit = max(
-                0.0,
-                next_start - start_seconds,
-            )
-            total += min(
-                float(maximum_segment_seconds),
-                non_overlapping_limit,
-            )
-
-    return round(total, 2)
+    return shared_maximum_stock_spec_duration(
+        stock_clips=stock_clips,
+        stock_specs=stock_specs,
+        maximum_segment_seconds=maximum_segment_seconds,
+        fps=FPS,
+    )
 
 
 def expand_ai_image_specs_for_target(
     ai_specs: list[dict],
-    target_total_duration: float,
+    target_total_duration: float | None = None,
     maximum_uses_per_image: int = 2,
     maximum_segment_seconds: float = (
         MAX_AI_IMAGE_SEGMENT_SECONDS
     ),
+    target_total_frames: int | None = None,
 ) -> list[dict]:
-    if not ai_specs:
-        raise ValueError(
-            "AI image specs are required for hybrid coverage."
-        )
-
-    expanded = []
-
-    for item in ai_specs:
-        spec = dict(item)
-        spec["motion_variant"] = int(
-            spec.get("motion_variant", 1)
-        )
-        expanded.append(spec)
-
-    current_duration = sum(
-        float(item["duration_seconds"])
-        for item in expanded
+    return shared_expand_ai_image_specs_for_target(
+        ai_specs=ai_specs,
+        target_total_duration=target_total_duration,
+        maximum_uses_per_image=maximum_uses_per_image,
+        maximum_segment_seconds=maximum_segment_seconds,
+        fps=FPS,
+        target_total_frames=target_total_frames,
     )
-    target = max(
-        current_duration,
-        float(target_total_duration),
-    )
-
-    if target - current_duration > DURATION_EPSILON_SECONDS:
-        originals = list(expanded)
-
-        for use_index in range(2, maximum_uses_per_image + 1):
-            for original in originals:
-                duplicate = dict(original)
-                duplicate["segment_id"] = (
-                    f"{original['segment_id']}_M{use_index:02d}"
-                )
-                duplicate["motion_variant"] = use_index
-                expanded.append(duplicate)
-
-    remaining = round(
-        target
-        - sum(
-            float(item["duration_seconds"])
-            for item in expanded
-        ),
-        2,
-    )
-
-    while remaining > DURATION_EPSILON_SECONDS:
-        progressed = False
-
-        for item in expanded:
-            if remaining <= DURATION_EPSILON_SECONDS:
-                break
-
-            current = float(item["duration_seconds"])
-            capacity = max(
-                0.0,
-                float(maximum_segment_seconds) - current,
-            )
-
-            if capacity <= DURATION_EPSILON_SECONDS:
-                continue
-
-            increment = min(
-                0.5,
-                capacity,
-                remaining,
-            )
-            item["duration_seconds"] = round(
-                current + increment,
-                2,
-            )
-            remaining = round(
-                remaining - increment,
-                2,
-            )
-            progressed = True
-
-        if not progressed:
-            break
-
-    if remaining > DURATION_EPSILON_SECONDS:
-        raise ValueError(
-            "Combined stock and AI image capacity cannot satisfy "
-            "one-cycle timeline coverage."
-        )
-
-    return expanded
 
 def validate_stock_repetition(
     context: dict | None,
@@ -2543,9 +2244,6 @@ def main() -> None:
         ai_video_specs = []
 
     audio_duration = get_media_duration_seconds(audio_path)
-    target_timeline_duration = (
-        audio_duration + TIMELINE_TAIL_PADDING_SECONDS
-    )
     quality_gates = (
         context.get("quality_gates", {})
         if context
@@ -2561,49 +2259,70 @@ def main() -> None:
         )
     )
 
-    base_stock_specs = build_stock_segment_specs(
+    capacity_report = build_hybrid_capacity_report(
         stock_clips=stock_clips,
-        max_segments_per_clip=maximum_segments,
-        target_total_duration=None,
+        ai_image_specs=unique_ai_image_specs,
+        ai_video_specs=ai_video_specs,
+        audio_duration_seconds=audio_duration,
+        quality_gates=quality_gates,
+        fps=FPS,
     )
-    maximum_stock_duration = maximum_stock_spec_duration(
-        stock_clips=stock_clips,
-        stock_specs=base_stock_specs,
+    maximum_capacity_seconds = round(
+        capacity_report["stock"]["maximum_seconds"]
+        + capacity_report["ai_images"]["maximum_seconds"]
+        + capacity_report["ai_video"]["seconds"],
+        6,
     )
 
-    minimum_ai_timeline_duration = max(
-        sum(
-            float(item["duration_seconds"])
-            for item in unique_ai_image_specs
-        ),
-        target_timeline_duration - maximum_stock_duration,
+    print(
+        "HYBRID_CAPACITY_CONTRACT: "
+        f"{capacity_report['contract_version']}"
     )
-    ai_image_specs = expand_ai_image_specs_for_target(
-        ai_specs=unique_ai_image_specs,
-        target_total_duration=minimum_ai_timeline_duration,
-        maximum_uses_per_image=maximum_ai_image_uses,
-        maximum_segment_seconds=(
-            maximum_ai_image_segment_seconds
-        ),
-    ) if unique_ai_image_specs else []
+    print(
+        "HYBRID_CAPACITY_STATUS: "
+        f"{capacity_report['status']}"
+    )
+    print(
+        "HYBRID_CAPACITY_TARGET_SECONDS: "
+        f"{capacity_report['target']['seconds']}"
+    )
+    print(
+        "HYBRID_CAPACITY_MAXIMUM_SECONDS: "
+        f"{maximum_capacity_seconds}"
+    )
+
+    if not capacity_report["approved"]:
+        raise HybridCapacityError(
+            "Hybrid visual capacity is insufficient.",
+            capacity_report,
+        )
+
+    capacity_plan = materialize_hybrid_capacity_plan(
+        stock_clips=stock_clips,
+        ai_image_specs=unique_ai_image_specs,
+        capacity_report=capacity_report,
+        quality_gates=quality_gates,
+        fps=FPS,
+    )
+    base_stock_specs = capacity_plan["base_stock_specs"]
+    ai_image_specs = capacity_plan["ai_image_specs"]
+    stock_specs = capacity_plan["stock_specs"]
+
+    print(
+        "HYBRID_CAPACITY_ALLOCATION: exact_selected_frames"
+    )
+    print(
+        "HYBRID_CAPACITY_STOCK_SELECTED_FRAMES: "
+        f"{capacity_plan['allocation']['stock_frames']}"
+    )
+    print(
+        "HYBRID_CAPACITY_AI_SELECTED_FRAMES: "
+        f"{capacity_plan['allocation']['ai_image_frames']}"
+    )
 
     ai_specs = interleave_ai_specs(
         image_specs=ai_image_specs,
         video_specs=ai_video_specs
-    )
-
-    ai_total_duration = sum(
-        float(item["duration_seconds"])
-        for item in ai_specs
-    )
-    required_stock_duration = max(
-        0.0,
-        target_timeline_duration - ai_total_duration,
-    )
-    stock_specs = expand_stock_specs_for_target(
-        stock_clips=stock_clips,
-        stock_specs=base_stock_specs,
-        target_total_duration=required_stock_duration,
     )
 
     duration_gate = validate_production_duration(

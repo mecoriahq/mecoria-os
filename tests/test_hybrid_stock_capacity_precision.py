@@ -62,7 +62,7 @@ class HybridStockCapacityPrecisionTests(unittest.TestCase):
             for index in range(1, 5)
         ]
 
-    def test_stock_expansion_consumes_centisecond_capacity(self):
+    def test_stock_capacity_quantizes_to_renderable_frames(self):
         clips = self.build_stock_clips()
         specs = HYBRID.build_stock_segment_specs(
             stock_clips=clips,
@@ -73,7 +73,7 @@ class HybridStockCapacityPrecisionTests(unittest.TestCase):
             stock_specs=specs,
         )
 
-        self.assertEqual(maximum, 24.04)
+        self.assertEqual(maximum, 24.0)
 
         expanded = HYBRID.expand_stock_specs_for_target(
             stock_clips=clips,
@@ -82,24 +82,51 @@ class HybridStockCapacityPrecisionTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            round(
-                sum(
-                    float(item["duration_seconds"])
-                    for item in expanded
-                ),
-                2,
+            sum(
+                int(item["duration_frames"])
+                for item in expanded
             ),
-            maximum,
+            720,
         )
         self.assertEqual(
             {
                 float(item["duration_seconds"])
                 for item in expanded
             },
-            {6.01},
+            {6.0},
         )
 
-    def test_stock_expansion_still_blocks_true_overflow(self):
+    def test_exact_frame_target_does_not_requantize(self):
+        clips = [
+            {
+                "candidate_id": "VIDEO-C001",
+                "asset_id": "ASSET-001",
+                "role": "precision_test",
+                "path": PROJECT_ROOT / "tests" / "fixtures" / "stock.mp4",
+                "duration_seconds": 8.1,
+            }
+        ]
+        specs = HYBRID.build_stock_segment_specs(
+            stock_clips=clips,
+            max_segments_per_clip=1,
+        )
+
+        expanded = HYBRID.expand_stock_specs_for_target(
+            stock_clips=clips,
+            stock_specs=specs,
+            target_total_frames=241,
+            maximum_segment_seconds=8.1,
+        )
+
+        self.assertEqual(
+            sum(
+                int(item["duration_frames"])
+                for item in expanded
+            ),
+            241,
+        )
+
+    def test_subframe_stock_overflow_is_blocked(self):
         clips = self.build_stock_clips()
         specs = HYBRID.build_stock_segment_specs(
             stock_clips=clips,
@@ -113,10 +140,10 @@ class HybridStockCapacityPrecisionTests(unittest.TestCase):
             HYBRID.expand_stock_specs_for_target(
                 stock_clips=clips,
                 stock_specs=specs,
-                target_total_duration=24.05,
+                target_total_duration=24.01,
             )
 
-    def test_ai_expansion_consumes_centisecond_capacity(self):
+    def test_ai_capacity_quantizes_to_renderable_frames(self):
         specs = [
             {
                 "segment_id": f"AI-{index:03d}",
@@ -132,38 +159,50 @@ class HybridStockCapacityPrecisionTests(unittest.TestCase):
 
         expanded = HYBRID.expand_ai_image_specs_for_target(
             ai_specs=specs,
-            target_total_duration=10.02,
+            target_total_duration=10.0,
             maximum_uses_per_image=1,
             maximum_segment_seconds=5.01,
         )
 
         self.assertEqual(
-            round(
-                sum(
-                    float(item["duration_seconds"])
-                    for item in expanded
-                ),
-                2,
+            sum(
+                int(item["duration_frames"])
+                for item in expanded
             ),
-            10.02,
+            300,
         )
         self.assertEqual(
             {
                 float(item["duration_seconds"])
                 for item in expanded
             },
-            {5.01},
+            {5.0},
         )
 
-    def test_duration_epsilon_is_sub_centisecond(self):
-        self.assertLess(
-            HYBRID.DURATION_EPSILON_SECONDS,
-            0.01,
-        )
-        self.assertGreater(
-            HYBRID.DURATION_EPSILON_SECONDS,
-            0.0,
-        )
+    def test_subframe_ai_overflow_is_blocked(self):
+        specs = [
+            {
+                "segment_id": f"AI-{index:03d}",
+                "insert_id": f"AI-{index:03d}",
+                "source_path": f"image_{index:03d}.png",
+                "source_relative_path": (
+                    f"images/image_{index:03d}.png"
+                ),
+                "duration_seconds": 5.0,
+            }
+            for index in range(1, 3)
+        ]
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "cannot satisfy one-cycle timeline coverage",
+        ):
+            HYBRID.expand_ai_image_specs_for_target(
+                ai_specs=specs,
+                target_total_duration=10.01,
+                maximum_uses_per_image=1,
+                maximum_segment_seconds=5.01,
+            )
 
 
 if __name__ == "__main__":

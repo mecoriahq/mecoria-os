@@ -72,6 +72,9 @@ from core.ai_video_integration import (
     apply_visual_diversity_gates,
     load_ai_video_production_config,
 )
+from core.hybrid_capacity import (
+    build_capacity_report_from_records,
+)
 from core.video_run_context import (
     assert_topic_approved,
     load_context,
@@ -98,6 +101,7 @@ CONTROLLED_PAUSE_STATES = {
     CONTROLLED_MODEL_RETRY_STATUS,
     "founder_editorial_review_required",
     "founder_factual_review_required",
+    "visual_capacity_repair_required",
 }
 
 CONTENT_OUTPUTS = {
@@ -2982,6 +2986,93 @@ def run_stock_phase(
     )
 
 
+def load_json_record(path: Path) -> dict:
+    return json.loads(
+        path.read_text(encoding="utf-8-sig")
+    )
+
+
+def build_pre_render_capacity_report(
+    context: dict,
+) -> dict:
+    stock_manifest = load_json_record(
+        resolve_output(context, "stock_manifest")
+    )
+    audio_assembly = load_json_record(
+        resolve_output(context, "audio_assembly")
+    )
+    ai_visual_generation = load_json_record(
+        resolve_output(
+            context,
+            "ai_visual_generation",
+        )
+    )
+    ai_video_generation = None
+
+    if "ai_video_generation" in context.get(
+        "outputs",
+        {},
+    ):
+        ai_video_generation = load_json_record(
+            resolve_output(
+                context,
+                "ai_video_generation",
+            )
+        )
+
+    return build_capacity_report_from_records(
+        context=context,
+        stock_manifest=stock_manifest,
+        audio_assembly=audio_assembly,
+        ai_visual_generation=ai_visual_generation,
+        ai_video_generation=ai_video_generation,
+    )
+
+
+def set_visual_capacity_repair_required(
+    context: dict,
+    report: dict,
+) -> dict:
+    context = set_status(
+        context=context,
+        status="visual_capacity_repair_required",
+        next_agent="video_stock_pipeline",
+    )
+    context["capacity_repair"] = {
+        "contract_version": report[
+            "contract_version"
+        ],
+        "deficit_frames": report[
+            "deficit"
+        ]["frames"],
+        "deficit_seconds": report[
+            "deficit"
+        ]["seconds"],
+        "estimated_additional_stock_clips": report[
+            "deficit"
+        ]["estimated_additional_stock_clips"],
+        "target_seconds": report[
+            "target"
+        ]["seconds"],
+        "maximum_stock_seconds": report[
+            "stock"
+        ]["maximum_seconds"],
+        "maximum_ai_image_seconds": report[
+            "ai_images"
+        ]["maximum_seconds"],
+        "ai_video_seconds": report[
+            "ai_video"
+        ]["seconds"],
+    }
+    append_history(
+        context=context,
+        agent="hybrid_capacity_preflight",
+        status="visual_capacity_repair_required",
+    )
+    save_context(context)
+    return context
+
+
 def run_render_and_delivery_phase(
     context: dict
 ) -> dict:
@@ -2993,6 +3084,37 @@ def run_render_and_delivery_phase(
         "PRE_RENDER_VALIDATED_ASSETS: "
         f"{pre_render_result['validated_asset_count']}"
     )
+
+    capacity_report = build_pre_render_capacity_report(
+        context
+    )
+    print(
+        "HYBRID_CAPACITY_CONTRACT: "
+        f"{capacity_report['contract_version']}"
+    )
+    print(
+        "HYBRID_CAPACITY_STATUS: "
+        f"{capacity_report['status']}"
+    )
+    print(
+        "HYBRID_CAPACITY_DEFICIT_SECONDS: "
+        f"{capacity_report['deficit']['seconds']}"
+    )
+
+    if not capacity_report["approved"]:
+        context = set_visual_capacity_repair_required(
+            context=context,
+            report=capacity_report,
+        )
+        print_controlled_pause(context)
+        print(
+            "REQUIRED_ACTION: add_stock_capacity"
+        )
+        print(
+            "ESTIMATED_ADDITIONAL_STOCK_CLIPS: "
+            f"{capacity_report['deficit']['estimated_additional_stock_clips']}"
+        )
+        return context
 
     steps = [
         (

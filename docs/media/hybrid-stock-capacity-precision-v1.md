@@ -1,31 +1,30 @@
 # Hybrid Stock Capacity Precision v1
 
-## Problem
+## Status
 
-The hybrid assembler calculated a maximum non-overlapping stock capacity and
-then asked the stock expander to reach that exact value.
+Superseded by `hybrid_capacity_frames_v1`.
 
-Both calculations used the same source durations, but the expander treated
-exactly 0.01 seconds of remaining capacity as unusable. Across multiple
-segments, several valid 0.01-second capacities accumulated into a visible
-shortfall and caused a false one-cycle coverage failure.
+## Original Problem
 
-This was exposed by Hiddenova video_006 even though the approved stock package
-contained 26 unique clips and 463.85 seconds of source duration.
+The previous float-based assembler could lose valid residual duration because
+capacity checks and expansion used different decimal tolerances. Hiddenova
+video_006 exposed this as a false one-cycle coverage failure.
 
-## Change
+## Current Contract
 
-A shared sub-centisecond duration epsilon is used by both stock and AI image
-capacity expansion.
+Hybrid capacity is now calculated in integer frames at the configured timeline
+FPS. At 30 FPS, the smallest renderable duration is one frame, approximately
+0.033333 seconds. Sub-frame values such as 0.01 seconds are therefore
+quantized rather than treated as independently renderable capacity.
 
-Valid 0.01-second residual capacity is now consumed. Real capacity overflow
-continues to fail.
+The same frame-based calculation is consumed by Stock QA, orchestrator
+pre-render validation, and hybrid assembly.
 
 ## Safety Preserved
 
 - stock segments remain non-overlapping
 - source clips are not looped
 - cross-video asset reuse remains blocked
-- maximum segment durations remain unchanged
-- maximum timeline cycles remain unchanged
+- maximum segment durations remain enforced
+- true one-frame overflow continues to fail
 - no audio, image, stock, or video asset is regenerated
