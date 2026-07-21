@@ -75,6 +75,37 @@ class RiseDossierProductionHardeningContractTests(unittest.TestCase):
         self.assertIn("worse_candidate_rejected", self.orchestrator)
         self.assertIn("factually_equivalent_candidate", self.orchestrator)
 
+    def test_founder_manual_revision_is_repaired_before_fallback(self):
+        self.assertIn(
+            "recover_pending_founder_manual_revision_candidate",
+            self.orchestrator,
+        )
+        self.assertIn(
+            "FOUNDER_MANUAL_FACTUAL_CANDIDATE_PRESERVED",
+            self.orchestrator,
+        )
+        self.assertIn(
+            "founder_manual_candidate_repair_required",
+            self.orchestrator,
+        )
+        candidate_manager = (
+            self.root
+            / "core"
+            / "script_candidate_manager.py"
+        ).read_text(encoding="utf-8-sig")
+        self.assertIn(
+            "evaluate_founder_manual_candidate_policy",
+            candidate_manager,
+        )
+        self.assertIn(
+            "find_recoverable_founder_manual_candidate",
+            candidate_manager,
+        )
+        self.assertIn(
+            "manual_revision_has_high_risk_issue",
+            candidate_manager,
+        )
+
     def test_all_model_agents_retry_empty_responses(self):
         for source in (
             self.script,

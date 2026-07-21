@@ -36,7 +36,9 @@ from core.script_preflight import (
 from core.script_candidate_manager import (
     archive_fact_risk_candidate,
     candidates_are_factually_equivalent,
+    evaluate_founder_manual_candidate_policy,
     extract_repair_targets,
+    find_recoverable_founder_manual_candidate,
     load_candidate_json,
     restore_best_candidate_script,
     resolve_repair_targets_for_script,
@@ -1858,6 +1860,109 @@ def pause_for_founder_factual_review(
     return context
 
 
+
+def recover_pending_founder_manual_revision_candidate(
+    context: dict,
+) -> tuple[dict, dict | None]:
+    marker = context.get(
+        "quality_gates",
+        {},
+    ).get("founder_manual_editorial_revision")
+
+    if (
+        isinstance(marker, dict)
+        and marker.get("fact_risk_repair_chain_active")
+    ):
+        return context, None
+
+    recovery = find_recoverable_founder_manual_candidate(
+        project_root=PROJECT_ROOT,
+        context=context,
+    )
+
+    if recovery is None:
+        return context, None
+
+    record = recovery["record"]
+    script_data = recovery["script_data"]
+    qa_data = recovery["qa_data"]
+    policy = recovery["policy"]
+    canonical_path = canonical_script_path(context)
+    canonical_path.parent.mkdir(parents=True, exist_ok=True)
+    canonical_path.write_text(
+        json.dumps(
+            script_data,
+            indent=2,
+            ensure_ascii=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    context.setdefault("outputs", {})["script"] = (
+        relative_project_path(canonical_path)
+    )
+
+    gates = context.setdefault("quality_gates", {})
+    marker = gates["founder_manual_editorial_revision"]
+    marker.update({
+        "fact_risk_repair_chain_active": True,
+        "recovered_candidate_index": int(
+            record["candidate_index"]
+        ),
+        "recovered_candidate_script_reference": (
+            record["script_reference"]
+        ),
+        "recovered_candidate_qa_reference": (
+            record["qa_reference"]
+        ),
+        "recovery_reason": policy["reason"],
+        "recovered_at": utc_now(),
+    })
+    gates["fact_risk_section_repair_count"] = 0
+    gates["editorial_section_repair_count"] = 0
+    gates["editorial_candidate_count"] = 0
+    gates.pop("editorial_best_candidate", None)
+    gates.pop("editorial_founder_review_reason", None)
+    gates.pop("editorial_founder_review_score", None)
+
+    for key in (
+        "editorial_section_repair_brief",
+        "fact_risk_section_repair_brief",
+    ):
+        context.get("sources", {}).pop(key, None)
+
+    append_history(
+        context=context,
+        agent="founder_manual_revision_recovery",
+        status="candidate_restored_for_fact_repair",
+        reference=(
+            "candidate="
+            f"{record['candidate_index']};"
+            "targets="
+            f"{policy['repair_target_count']};"
+            "locations="
+            f"{','.join(policy['repair_locations'])}"
+        ),
+    )
+    save_context(context)
+
+    print(
+        "FOUNDER_MANUAL_CANDIDATE_RECOVERED: true",
+        flush=True,
+    )
+    print(
+        "FOUNDER_MANUAL_CANDIDATE_INDEX: "
+        f"{record['candidate_index']}",
+        flush=True,
+    )
+    print(
+        "FOUNDER_MANUAL_FACT_REPAIR_TARGET_COUNT: "
+        f"{policy['repair_target_count']}",
+        flush=True,
+    )
+    return context, qa_data
+
+
 def consider_fact_risk_candidate(
     context: dict,
     script_data: dict,
@@ -1878,8 +1983,87 @@ def consider_fact_risk_candidate(
     )
     selected_qa = fact_risk_data
     selection_status = "best_candidate_updated"
+    manual_policy = (
+        evaluate_founder_manual_candidate_policy(
+            project_root=PROJECT_ROOT,
+            context=context,
+            candidate_record=assessment["record"],
+            script_data=script_data,
+            qa_data=fact_risk_data,
+        )
+    )
+    gates = context.setdefault("quality_gates", {})
+    marker = gates.get(
+        "founder_manual_editorial_revision"
+    )
 
-    if not accepted_as_best:
+    if manual_policy["action"] == "preserve_for_section_repair":
+        selection_status = (
+            "founder_manual_candidate_repair_required"
+        )
+        selected_qa = fact_risk_data
+
+        if isinstance(marker, dict):
+            first_chain_step = not bool(
+                marker.get("fact_risk_repair_chain_active")
+            )
+            marker.update({
+                "fact_risk_repair_chain_active": True,
+                "active_candidate_index": int(
+                    assessment["record"]["candidate_index"]
+                ),
+                "active_candidate_script_reference": (
+                    assessment["record"]["script_reference"]
+                ),
+                "active_candidate_qa_reference": (
+                    assessment["record"]["qa_reference"]
+                ),
+                "last_fact_risk_policy": manual_policy["reason"],
+                "last_fact_risk_repair_target_count": (
+                    manual_policy["repair_target_count"]
+                ),
+                "last_fact_risk_repair_locations": (
+                    manual_policy["repair_locations"]
+                ),
+                "updated_at": utc_now(),
+            })
+
+            if first_chain_step:
+                gates["editorial_section_repair_count"] = 0
+                gates["editorial_candidate_count"] = 0
+                gates.pop("editorial_best_candidate", None)
+                gates.pop("editorial_founder_review_reason", None)
+                gates.pop("editorial_founder_review_score", None)
+
+        append_history(
+            context=context,
+            agent="fact_risk_candidate_selector",
+            status="founder_manual_candidate_preserved",
+            reference=(
+                "candidate="
+                f"{assessment['record']['candidate_index']};"
+                "repair_target_count="
+                f"{manual_policy['repair_target_count']};"
+                "locations="
+                f"{','.join(manual_policy['repair_locations'])}"
+            ),
+        )
+        print(
+            "FACT_RISK_CANDIDATE_RESULT: "
+            "founder_manual_candidate_repair_required",
+            flush=True,
+        )
+        print(
+            "FOUNDER_MANUAL_FACTUAL_CANDIDATE_PRESERVED: true",
+            flush=True,
+        )
+        print(
+            "FOUNDER_MANUAL_FACT_REPAIR_TARGET_COUNT: "
+            f"{manual_policy['repair_target_count']}",
+            flush=True,
+        )
+
+    elif not accepted_as_best:
         best = assessment["best_candidate"]
         equivalent = candidates_are_factually_equivalent(
             assessment["record"]["metrics"],
@@ -1889,6 +2073,26 @@ def consider_fact_risk_candidate(
         if equivalent:
             selection_status = "factually_equivalent_candidate"
             selected_qa = fact_risk_data
+
+            if (
+                manual_policy["action"]
+                == "allow_editorial_evaluation"
+                and isinstance(marker, dict)
+            ):
+                marker.update({
+                    "pending_fact_risk_qa": False,
+                    "fact_risk_repair_chain_active": False,
+                    "factual_validation_status": "approved",
+                    "factual_validation_candidate_index": int(
+                        assessment["record"]["candidate_index"]
+                    ),
+                    "factual_validation_completed_at": utc_now(),
+                })
+                print(
+                    "FOUNDER_MANUAL_FACTUAL_VALIDATION: approved",
+                    flush=True,
+                )
+
             append_history(
                 context=context,
                 agent="fact_risk_candidate_selector",
@@ -1912,6 +2116,19 @@ def consider_fact_risk_candidate(
             )
         else:
             selection_status = "worse_candidate_rejected"
+
+            if (
+                isinstance(marker, dict)
+                and manual_policy.get("matches_manual_revision")
+            ):
+                marker.update({
+                    "fact_risk_repair_chain_active": False,
+                    "pending_fact_risk_qa": False,
+                    "factual_validation_status": "fallback_to_best",
+                    "factual_fallback_reason": manual_policy["reason"],
+                    "factual_fallback_at": utc_now(),
+                })
+
             restore_best_candidate_script(
                 project_root=PROJECT_ROOT,
                 context=context,
@@ -1929,7 +2146,9 @@ def consider_fact_risk_candidate(
                     "candidate="
                     f"{assessment['record']['candidate_index']};"
                     "best="
-                    f"{best['candidate_index']}"
+                    f"{best['candidate_index']};"
+                    "manual_policy="
+                    f"{manual_policy['reason']}"
                 ),
             )
             print(
@@ -1943,6 +2162,24 @@ def consider_fact_risk_candidate(
                 flush=True,
             )
     else:
+        if (
+            manual_policy["action"] == "allow_editorial_evaluation"
+            and isinstance(marker, dict)
+        ):
+            marker.update({
+                "pending_fact_risk_qa": False,
+                "fact_risk_repair_chain_active": False,
+                "factual_validation_status": "approved",
+                "factual_validation_candidate_index": int(
+                    assessment["record"]["candidate_index"]
+                ),
+                "factual_validation_completed_at": utc_now(),
+            })
+            print(
+                "FOUNDER_MANUAL_FACTUAL_VALIDATION: approved",
+                flush=True,
+            )
+
         append_history(
             context=context,
             agent="fact_risk_candidate_selector",
@@ -1953,8 +2190,7 @@ def consider_fact_risk_candidate(
             ),
         )
         print(
-            "FACT_RISK_CANDIDATE_RESULT: "
-            "best_candidate_updated",
+            "FACT_RISK_CANDIDATE_RESULT: best_candidate_updated",
             flush=True,
         )
         print(
@@ -2236,6 +2472,29 @@ def run_content_phase(
         context=context,
         profile=profile,
     )
+    (
+        context,
+        recovered_manual_fact_risk,
+    ) = recover_pending_founder_manual_revision_candidate(
+        context
+    )
+
+    if recovered_manual_fact_risk is not None:
+        max_section_repairs = int(
+            profile.get(
+                "factuality",
+                {},
+            ).get(
+                "max_section_repair_attempts",
+                3,
+            )
+        )
+        context = write_fact_risk_section_repair_brief(
+            context=context,
+            fact_risk_data=recovered_manual_fact_risk,
+            max_attempts=max_section_repairs,
+        )
+
     save_context(context)
 
     if requires_factual:

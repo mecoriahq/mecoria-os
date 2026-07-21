@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -484,6 +485,248 @@ def candidates_are_factually_equivalent(
         and tuple(candidate_metrics.get("rank", []))
         == tuple(incumbent_metrics.get("rank", []))
     )
+
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+
+    with path.open("rb") as handle:
+        for chunk in iter(
+            lambda: handle.read(1024 * 1024),
+            b"",
+        ):
+            digest.update(chunk)
+
+    return digest.hexdigest()
+
+
+def load_founder_manual_revision_state(
+    *,
+    project_root: Path,
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
+    marker = context.get(
+        "quality_gates",
+        {},
+    ).get("founder_manual_editorial_revision")
+
+    if not isinstance(marker, dict):
+        return None
+
+    if not bool(marker.get("pending_fact_risk_qa")):
+        return None
+
+    reference = context.get(
+        "sources",
+        {},
+    ).get("founder_manual_editorial_revision")
+
+    if not reference:
+        return None
+
+    record_path = project_root / str(reference)
+
+    if not record_path.is_file():
+        return None
+
+    record = json.loads(
+        record_path.read_text(encoding="utf-8-sig")
+    )
+
+    for key in ("channel", "video_id", "run_id"):
+        if str(record.get(key)) != str(context.get(key)):
+            return None
+
+    revised_hash = str(
+        record.get("revised_script_sha256", "")
+    ).strip().lower()
+
+    if not re.fullmatch(r"[0-9a-f]{64}", revised_hash):
+        return None
+
+    return {
+        "marker": marker,
+        "record": record,
+        "reference": str(reference),
+        "revised_script_sha256": revised_hash,
+        "repair_chain_active": bool(
+            marker.get("fact_risk_repair_chain_active")
+        ),
+    }
+
+
+def evaluate_founder_manual_candidate_policy(
+    *,
+    project_root: Path,
+    context: dict[str, Any],
+    candidate_record: dict[str, Any],
+    script_data: dict[str, Any],
+    qa_data: dict[str, Any],
+) -> dict[str, Any]:
+    state = load_founder_manual_revision_state(
+        project_root=project_root,
+        context=context,
+    )
+
+    if state is None:
+        return {
+            "action": "standard_ranking",
+            "reason": "no_pending_founder_manual_revision",
+            "matches_manual_revision": False,
+        }
+
+    script_reference = str(
+        candidate_record.get("script_reference", "")
+    )
+    candidate_path = project_root / script_reference
+
+    if not candidate_path.is_file():
+        return {
+            "action": "standard_ranking",
+            "reason": "candidate_script_missing",
+            "matches_manual_revision": False,
+        }
+
+    candidate_hash = sha256_file(candidate_path)
+    exact_match = (
+        candidate_hash == state["revised_script_sha256"]
+    )
+    chain_match = bool(state["repair_chain_active"])
+    matches_manual = exact_match or chain_match
+
+    if not matches_manual:
+        return {
+            "action": "standard_ranking",
+            "reason": "candidate_not_in_manual_revision_chain",
+            "matches_manual_revision": False,
+            "candidate_script_sha256": candidate_hash,
+        }
+
+    metrics = qa_metrics(qa_data)
+
+    if metrics["approved"]:
+        return {
+            "action": "allow_editorial_evaluation",
+            "reason": "manual_revision_factually_approved",
+            "matches_manual_revision": True,
+            "metrics": metrics,
+            "repair_target_count": 0,
+            "candidate_script_sha256": candidate_hash,
+        }
+
+    if int(metrics["high_risk_issue_count"]) > 0:
+        return {
+            "action": "fallback_to_best",
+            "reason": "manual_revision_has_high_risk_issue",
+            "matches_manual_revision": True,
+            "metrics": metrics,
+            "repair_target_count": 0,
+            "candidate_script_sha256": candidate_hash,
+        }
+
+    resolved = resolve_repair_targets_for_script(
+        script_data=script_data,
+        repair_targets=extract_repair_targets(qa_data),
+    )
+    targets = resolved["targets"]
+
+    if not targets:
+        return {
+            "action": "fallback_to_best",
+            "reason": "manual_revision_has_no_actionable_targets",
+            "matches_manual_revision": True,
+            "metrics": metrics,
+            "repair_target_count": 0,
+            "candidate_script_sha256": candidate_hash,
+        }
+
+    return {
+        "action": "preserve_for_section_repair",
+        "reason": "repairable_founder_manual_revision",
+        "matches_manual_revision": True,
+        "metrics": metrics,
+        "repair_target_count": len(targets),
+        "repair_locations": [
+            item["location"]
+            for item in targets
+        ],
+        "candidate_script_sha256": candidate_hash,
+    }
+
+
+def find_recoverable_founder_manual_candidate(
+    *,
+    project_root: Path,
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
+    state = load_founder_manual_revision_state(
+        project_root=project_root,
+        context=context,
+    )
+
+    if state is None:
+        return None
+
+    candidate_root = (
+        project_root
+        / "records"
+        / "run_contexts"
+        / str(context["channel"])
+        / str(context["video_id"])
+        / "candidates"
+    )
+
+    if not candidate_root.is_dir():
+        return None
+
+    for metadata_path in sorted(
+        candidate_root.glob("candidate_*/metadata.json"),
+        reverse=True,
+    ):
+        record = json.loads(
+            metadata_path.read_text(encoding="utf-8-sig")
+        )
+        script_path = project_root / str(
+            record.get("script_reference", "")
+        )
+        qa_path = project_root / str(
+            record.get("qa_reference", "")
+        )
+
+        if not script_path.is_file() or not qa_path.is_file():
+            continue
+
+        if sha256_file(script_path) != state[
+            "revised_script_sha256"
+        ]:
+            continue
+
+        script_data = json.loads(
+            script_path.read_text(encoding="utf-8-sig")
+        )
+        qa_data = json.loads(
+            qa_path.read_text(encoding="utf-8-sig")
+        )
+        policy = evaluate_founder_manual_candidate_policy(
+            project_root=project_root,
+            context=context,
+            candidate_record=record,
+            script_data=script_data,
+            qa_data=qa_data,
+        )
+
+        if policy["action"] != "preserve_for_section_repair":
+            continue
+
+        return {
+            "record": record,
+            "script_data": script_data,
+            "qa_data": qa_data,
+            "policy": policy,
+        }
+
+    return None
 
 
 def archive_fact_risk_candidate(
