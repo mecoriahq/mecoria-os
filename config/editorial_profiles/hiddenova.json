@@ -79,5 +79,15 @@
     "standard_name": "hiddenova_cinematic_v3",
     "standard_path": "config/media/hiddenova_thumbnail_standard.json",
     "rules_path": "config/thumbnail_rules/hiddenova.json"
+  },
+  "reliability": {
+    "max_content_stabilization_steps": 10,
+    "max_same_signature_attempts": 2,
+    "max_safe_word_top_up": 20,
+    "safe_word_budget_sentences": [
+      "More hidden systems are coming from Hiddenova.",
+      "Subscribe for the next system behind everyday life.",
+      "Share the hidden process you want explained next."
+    ]
   }
 }

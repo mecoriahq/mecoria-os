@@ -144,5 +144,15 @@
     "openai_retry_attempts": 3,
     "transient_failure_status": "model_retry_required",
     "preserve_best_candidate_on_failure": true
+  },
+  "reliability": {
+    "max_content_stabilization_steps": 12,
+    "max_same_signature_attempts": 2,
+    "max_safe_word_top_up": 20,
+    "safe_word_budget_sentences": [
+      "More evidence-first investigations are coming from Rise Dossier.",
+      "Subscribe for the next documented case.",
+      "Share the question you want investigated next."
+    ]
   }
 }

@@ -11,6 +11,22 @@ from typing import Iterator
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.channel_content_policy import (
+    load_editorial_profile,
+)
+from core.content_stabilization import (
+    automatic_checkpoint_recovery_available,
+)
+from core.founder_actions import (
+    FounderActionError,
+    approve_editorial_context,
+    approve_video_context,
+)
+
 CONTEXT_ROOT = PROJECT_ROOT / "records" / "run_contexts"
 ORCHESTRATOR_PATH = (
     PROJECT_ROOT
@@ -24,7 +40,7 @@ STORYBLOCKS_BRIDGE_PATH = (
     / "storyblocks_bridge"
     / "run.py"
 )
-RUNNER_VERSION = "1.1"
+RUNNER_VERSION = "1.2"
 
 VIDEO_ID_PATTERN = re.compile(r"^video_(\d{3,})$")
 CHANNEL_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
@@ -37,6 +53,10 @@ COMPLETED_STATES = {
 FOUNDER_REVIEW_STATES = {
     "founder_review_required",
     "uploaded_for_founder_review",
+}
+
+VIDEO_APPROVED_STATES = {
+    "video_approved_for_upload",
 }
 
 EDITORIAL_REVIEW_STATES = {
@@ -158,6 +178,29 @@ def load_context_path(path: Path) -> dict:
 
     return data
 
+def save_context_path(
+    path: Path,
+    context: dict,
+) -> None:
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+    temporary = path.with_suffix(
+        path.suffix + ".tmp"
+    )
+    temporary.write_text(
+        json.dumps(
+            context,
+            indent=2,
+            ensure_ascii=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+
+
 
 def list_contexts(
     channel: str,
@@ -225,7 +268,32 @@ def classify_context(context: dict) -> str:
     if status in FOUNDER_REVIEW_STATES:
         return "wait_founder_video_review"
 
+    if status in VIDEO_APPROVED_STATES:
+        return "wait_youtube_upload"
+
     if status in EDITORIAL_REVIEW_STATES:
+        try:
+            profile = load_editorial_profile(
+                str(context.get("channel", ""))
+            )
+            recovery = (
+                automatic_checkpoint_recovery_available(
+                    project_root=PROJECT_ROOT,
+                    context=context,
+                    profile=profile,
+                )
+            )
+
+            if recovery.get("available") is True:
+                return "resume_existing"
+        except (
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+        ):
+            pass
+
         return "wait_founder_editorial_review"
 
     if status in FACTUAL_REVIEW_STATES:
@@ -244,6 +312,7 @@ def classify_context(context: dict) -> str:
         return "wait_stock_source"
 
     return "resume_existing"
+
 
 
 def resolve_run_target(
@@ -521,6 +590,11 @@ def next_command(
     if action == "wait_founder_factual_review":
         return "review_best_factual_candidate_and_sources"
 
+    if action == "wait_youtube_upload":
+        return (
+            "export_upload_package_and_upload_unlisted"
+        )
+
     if action == "retry_model":
         return (
             "python scripts\\mecoria_media.py "
@@ -554,6 +628,7 @@ def print_context_summary(context: dict) -> None:
         "wait_founder_video_review": "final_video_review",
         "wait_founder_editorial_review": "editorial_script_review",
         "wait_founder_factual_review": "factual_source_review",
+        "wait_youtube_upload": "none",
         "retry_model": "none_transient_retry_available",
         "wait_stock_source": "storyblocks_downloads_only",
         "resume_existing": "none",
@@ -847,6 +922,7 @@ def execute_run(args: argparse.Namespace) -> None:
         "wait_founder_video_review",
         "wait_founder_editorial_review",
         "wait_founder_factual_review",
+        "wait_youtube_upload",
         "complete",
     } and not args.stock_manifest:
         print("RUNNER_EXECUTION: no_action")
@@ -908,6 +984,122 @@ def execute_approve_topic(
     )
     print_context_summary(refreshed)
     print("RUNNER_STATUS: topic_approved_and_resumed")
+
+
+def execute_approve_editorial(
+    args: argparse.Namespace,
+) -> None:
+    channel = normalize_channel(args.channel)
+    context = resolve_existing_target(
+        channel=channel,
+        requested_video_id=args.video_id,
+    )
+    video_id = context["video_id"]
+
+    print_runner_header(
+        command_name="approve-editorial",
+        channel=channel,
+        video_id=video_id,
+    )
+    print_context_summary(context)
+
+    if classify_context(context) != "wait_founder_editorial_review":
+        raise RunnerError(
+            "This video is not waiting for founder editorial approval."
+        )
+
+    try:
+        result = approve_editorial_context(
+            project_root=PROJECT_ROOT,
+            context=context,
+            reason=args.reason,
+        )
+    except FounderActionError as exc:
+        raise RunnerError(str(exc)) from exc
+
+    updated = result["context"]
+    save_context_path(
+        get_context_path(channel, video_id),
+        updated,
+    )
+    print(
+        "FOUNDER_EDITORIAL_APPROVAL: "
+        + (
+            "already_recorded"
+            if result["already_approved"]
+            else "recorded"
+        )
+    )
+
+    if args.no_resume:
+        print_context_summary(updated)
+        print("RUNNER_STATUS: editorial_approved")
+        return
+
+    command = build_orchestrator_command(
+        channel=channel,
+        video_id=video_id,
+        action="resume_existing",
+    )
+
+    with runner_lock(channel):
+        run_orchestrator(command)
+
+    refreshed = load_context_path(
+        get_context_path(channel, video_id)
+    )
+    print_context_summary(refreshed)
+    print(
+        "RUNNER_STATUS: "
+        "editorial_approved_and_resumed"
+    )
+
+
+def execute_approve_video(
+    args: argparse.Namespace,
+) -> None:
+    channel = normalize_channel(args.channel)
+    context = resolve_existing_target(
+        channel=channel,
+        requested_video_id=args.video_id,
+    )
+    video_id = context["video_id"]
+
+    print_runner_header(
+        command_name="approve-video",
+        channel=channel,
+        video_id=video_id,
+    )
+    print_context_summary(context)
+
+    if classify_context(context) != "wait_founder_video_review":
+        raise RunnerError(
+            "This video is not waiting for final video approval."
+        )
+
+    try:
+        result = approve_video_context(
+            context=context,
+            reason=args.reason,
+        )
+    except FounderActionError as exc:
+        raise RunnerError(str(exc)) from exc
+
+    updated = result["context"]
+    save_context_path(
+        get_context_path(channel, video_id),
+        updated,
+    )
+    print(
+        "FOUNDER_VIDEO_APPROVAL: "
+        + (
+            "already_recorded"
+            if result["already_approved"]
+            else "recorded"
+        )
+    )
+    print_context_summary(updated)
+    print("RUNNER_STATUS: video_approved_for_upload")
 
 
 def execute_status(args: argparse.Namespace) -> None:
@@ -985,6 +1177,46 @@ def parse_args() -> argparse.Namespace:
     add_common_target_arguments(approval_parser)
     approval_parser.set_defaults(
         handler=execute_approve_topic
+    )
+
+    editorial_parser = subparsers.add_parser(
+        "approve-editorial",
+        help=(
+            "Approve the current factual-safe editorial candidate "
+            "and continue production."
+        ),
+    )
+    add_common_target_arguments(editorial_parser)
+    editorial_parser.add_argument(
+        "--reason",
+        default=(
+            "Founder approved the current factual-safe "
+            "editorial candidate for production."
+        ),
+    )
+    editorial_parser.add_argument(
+        "--no-resume",
+        action="store_true",
+    )
+    editorial_parser.set_defaults(
+        handler=execute_approve_editorial
+    )
+
+    video_parser = subparsers.add_parser(
+        "approve-video",
+        help=(
+            "Approve the final rendered video for manual upload."
+        ),
+    )
+    add_common_target_arguments(video_parser)
+    video_parser.add_argument(
+        "--reason",
+        default=(
+            "Founder approved the final rendered video."
+        ),
+    )
+    video_parser.set_defaults(
+        handler=execute_approve_video
     )
 
     status_parser = subparsers.add_parser(

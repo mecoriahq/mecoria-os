@@ -13,6 +13,15 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.content_stabilization import (
+    ContentStabilizationBudgetExceeded,
+    ContentStabilizationLoopDetected,
+    apply_safe_word_budget_recovery,
+    enter_stabilization_step,
+    mark_stabilization_complete,
+    record_stabilization_action,
+    reliability_config,
+)
 from core.content_quality import (
     DEFAULT_EDITORIAL_OVERALL_MIN,
     DEFAULT_HIDDENOVA_BRAND_INTRO_MIN,
@@ -2588,6 +2597,131 @@ def run_pending_fact_risk_section_repair(
     )
 
 
+def apply_automatic_word_budget_recovery(
+    *,
+    context: dict,
+    profile: dict,
+    script_data: dict,
+) -> tuple[dict, bool]:
+    revised, report = apply_safe_word_budget_recovery(
+        script_data=script_data,
+        profile=profile,
+    )
+
+    if not report.get("applied"):
+        return context, False
+
+    path = canonical_script_path(context)
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+    path.write_text(
+        json.dumps(
+            revised,
+            indent=2,
+            ensure_ascii=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    context.setdefault("outputs", {})["script"] = (
+        relative_project_path(path)
+    )
+
+    invalidated = []
+
+    for key in (
+        "seo",
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
+        "qa",
+        "script_section_repair",
+    ):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key, None)
+            invalidated.append(key)
+
+    remove_video_content_records(
+        channel=context["channel"],
+        video_id=context["video_id"],
+        record_types=["seo"],
+    )
+    marker = context.setdefault(
+        "quality_gates",
+        {},
+    ).get("founder_manual_editorial_revision")
+
+    if isinstance(marker, dict):
+        marker.update({
+            "manual_revision_lineage_active": True,
+            "manual_revision_lineage_status": (
+                "automatic_word_budget_recovery"
+            ),
+            "pending_fact_risk_qa": True,
+            "pending_editorial_qa": True,
+            "automatic_word_budget_recovery": report,
+        })
+
+    record_stabilization_action(
+        context=context,
+        profile=profile,
+        phase="word_budget",
+        action="safe_cta_top_up",
+        payload={
+            "previous_word_count": report.get(
+                "current_word_count"
+            ),
+            "revised_word_count": report.get(
+                "revised_word_count"
+            ),
+            "added_sentences": report.get(
+                "added_sentences",
+                [],
+            ),
+        },
+    )
+    append_history(
+        context=context,
+        agent="content_stabilization",
+        status="automatic_word_budget_recovery",
+        reference=(
+            "previous="
+            f"{report.get('current_word_count')};"
+            "revised="
+            f"{report.get('revised_word_count')};"
+            "invalidated="
+            f"{','.join(invalidated)}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="script_ready",
+        next_agent="seo",
+    )
+    save_context(context)
+    print(
+        "AUTOMATIC_WORD_BUDGET_RECOVERY: applied",
+        flush=True,
+    )
+    print(
+        "AUTOMATIC_WORD_BUDGET_PREVIOUS_COUNT: "
+        f"{report.get('current_word_count')}",
+        flush=True,
+    )
+    print(
+        "AUTOMATIC_WORD_BUDGET_REVISED_COUNT: "
+        f"{report.get('revised_word_count')}",
+        flush=True,
+    )
+    print(
+        "CONTENT_STABILIZATION_RESTART: seo",
+        flush=True,
+    )
+    return context, True
+
+
 def run_content_phase(
     context: dict
 ) -> dict:
@@ -2732,7 +2866,41 @@ def run_content_phase(
                 metrics={},
             )
 
-    while True:
+    stabilization_approved = False
+    last_qa_data: dict = {
+        "overall_score": None,
+    }
+    max_stabilization_steps = int(
+        reliability_config(profile)[
+            "max_content_stabilization_steps"
+        ]
+    )
+
+    for stabilization_iteration in range(
+        1,
+        max_stabilization_steps + 1,
+    ):
+        try:
+            enter_stabilization_step(
+                context=context,
+                profile=profile,
+                phase="content",
+            )
+        except ContentStabilizationBudgetExceeded:
+            return pause_for_founder_editorial_review(
+                context=context,
+                reason=(
+                    "content_stabilization_budget_exhausted"
+                ),
+                qa_data=last_qa_data,
+            )
+
+        print(
+            "CONTENT_STABILIZATION_STEP: "
+            f"{stabilization_iteration}/"
+            f"{max_stabilization_steps}",
+            flush=True,
+        )
         context = run_pending_fact_risk_section_repair(
             context
         )
@@ -2824,6 +2992,28 @@ def run_content_phase(
             flush=True,
         )
 
+        if script_preflight["status"] == "provisional":
+            try:
+                (
+                    context,
+                    recovered_word_budget,
+                ) = apply_automatic_word_budget_recovery(
+                    context=context,
+                    profile=profile,
+                    script_data=script_data,
+                )
+            except ContentStabilizationLoopDetected:
+                return pause_for_founder_editorial_review(
+                    context=context,
+                    reason=(
+                        "content_stabilization_loop_detected"
+                    ),
+                    qa_data=last_qa_data,
+                )
+
+            if recovered_word_budget:
+                continue
+
         if requires_factual:
             context = run_agent_if_missing(
                 context=context,
@@ -2875,6 +3065,34 @@ def run_content_phase(
                     "regenerate_seo_and_qa",
                     flush=True,
                 )
+                try:
+                    record_stabilization_action(
+                        context=context,
+                        profile=profile,
+                        phase="factual",
+                        action="restore_best_factual_candidate",
+                        payload={
+                            "script": script_data,
+                            "fact_candidate_status": (
+                                fact_candidate_status
+                            ),
+                        },
+                    )
+                except ContentStabilizationLoopDetected:
+                    return pause_for_founder_factual_review(
+                        context=context,
+                        reason=(
+                            "content_stabilization_loop_detected"
+                        ),
+                        metrics=(
+                            selected_fact_risk_data
+                            if isinstance(
+                                selected_fact_risk_data,
+                                dict,
+                            )
+                            else {}
+                        ),
+                    )
                 continue
 
             script_data = load_context_record(
@@ -2919,6 +3137,26 @@ def run_content_phase(
                         metrics=metrics,
                     )
 
+                try:
+                    record_stabilization_action(
+                        context=context,
+                        profile=profile,
+                        phase="factual",
+                        action="section_repair",
+                        payload={
+                            "fact_risk": selected_fact_risk_data,
+                            "repair_count": section_repair_count,
+                        },
+                    )
+                except ContentStabilizationLoopDetected:
+                    return pause_for_founder_factual_review(
+                        context=context,
+                        reason=(
+                            "content_stabilization_loop_detected"
+                        ),
+                        metrics=selected_fact_risk_data,
+                    )
+
                 context = write_fact_risk_section_repair_brief(
                     context=context,
                     fact_risk_data=selected_fact_risk_data,
@@ -2946,6 +3184,7 @@ def run_content_phase(
             context=context,
             key="qa"
         )
+        last_qa_data = qa_data
         gate_result = evaluate_qa_editorial_gate(
             qa_data=qa_data,
             minimum_overall=int(
@@ -3012,6 +3251,7 @@ def run_content_phase(
             gates = context.get("quality_gates", {})
 
         if gate_result["approved"]:
+            stabilization_approved = True
             break
 
         if requires_factual:
@@ -3060,6 +3300,27 @@ def run_content_phase(
                     qa_data=qa_data,
                 )
 
+            try:
+                record_stabilization_action(
+                    context=context,
+                    profile=profile,
+                    phase="editorial",
+                    action="section_repair",
+                    payload={
+                        "qa": qa_data,
+                        "gate": gate_result,
+                        "repair_count": revision_count,
+                    },
+                )
+            except ContentStabilizationLoopDetected:
+                return pause_for_founder_editorial_review(
+                    context=context,
+                    reason=(
+                        "content_stabilization_loop_detected"
+                    ),
+                    qa_data=qa_data,
+                )
+
             context = write_editorial_section_repair_brief(
                 context=context,
                 qa_data=qa_data,
@@ -3096,6 +3357,17 @@ def run_content_phase(
             gate_result=gate_result,
         )
 
+    if not stabilization_approved:
+        return pause_for_founder_editorial_review(
+            context=context,
+            reason="content_stabilization_budget_exhausted",
+            qa_data=last_qa_data,
+        )
+
+    mark_stabilization_complete(
+        context,
+        profile,
+    )
     content_result = register_context_content(context=context)
     context.setdefault("quality_gates", {}).update({
         "require_content_fingerprint": True,

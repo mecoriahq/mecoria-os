@@ -21,6 +21,10 @@ if str(PROJECT_ROOT) not in sys.path:
 from core.channel_content_policy import (
     load_editorial_profile,
 )
+from core.content_stabilization import (
+    apply_safe_word_budget_recovery,
+    word_budget_report,
+)
 from core.factuality import (
     validate_script_claim_references,
 )
@@ -139,6 +143,11 @@ def build_prompt(
             "issues": target["issues"],
         })
 
+    budget = word_budget_report(
+        script_data=script_data,
+        profile=profile,
+    )
+
     mode_rules = (
         """
 EDITORIAL REPAIR MODE:
@@ -212,6 +221,12 @@ STRICT REPAIR RULES:
   Keep each repaired block between 90 and 115 percent of its current
   word count unless removing unsupported language requires a smaller
   block.
+- The current full script has {budget["current_word_count"]} narration
+  words. The production target is {budget["minimum_word_count"]} to
+  {budget["maximum_word_count"]}. Do not shorten the repaired script
+  below the production minimum. If factual cleanup removes words,
+  preserve equivalent approved detail elsewhere inside the requested
+  blocks.
 - If the current block needs a claim that is approved but not currently
   attached, add that approved claim ID.
 - Do not use quarantined or blocked claims.
@@ -440,6 +455,13 @@ def main() -> None:
             repairs=raw["repairs"],
             required_locations=target_locations,
         )
+        (
+            repaired_script,
+            word_budget_recovery,
+        ) = apply_safe_word_budget_recovery(
+            script_data=repaired_script,
+            profile=profile,
+        )
         deterministic = (
             validate_script_claim_references(
                 script_data=repaired_script,
@@ -582,6 +604,9 @@ def main() -> None:
                 deterministic
             ),
             "pre_audio_gate": preflight,
+            "automatic_word_budget_recovery": (
+                word_budget_recovery
+            ),
         },
         "metadata": {
             "model": args.model,
@@ -654,6 +679,10 @@ def main() -> None:
     print(
         "SCRIPT_WORD_COUNT: "
         f"{preflight['word_count']}"
+    )
+    print(
+        "AUTOMATIC_WORD_BUDGET_RECOVERY: "
+        f"{str(word_budget_recovery.get('applied', False)).lower()}"
     )
     print(
         "OUTPUT_SAVED: "
