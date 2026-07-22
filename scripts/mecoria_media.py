@@ -297,6 +297,28 @@ def classify_context(context: dict) -> str:
         return "wait_founder_editorial_review"
 
     if status in FACTUAL_REVIEW_STATES:
+        try:
+            profile = load_editorial_profile(
+                str(context.get("channel", ""))
+            )
+            recovery = (
+                automatic_checkpoint_recovery_available(
+                    project_root=PROJECT_ROOT,
+                    context=context,
+                    profile=profile,
+                )
+            )
+
+            if recovery.get("available") is True:
+                return "resume_existing"
+        except (
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+        ):
+            pass
+
         return "wait_founder_factual_review"
 
     if status in MODEL_RETRY_STATES:
@@ -551,8 +573,7 @@ def print_runner_header(
     print(f"RUNNER_COMMAND: {command_name}")
     print(f"CHANNEL: {channel}")
 
-    if video_id:
-        print(f"VIDEO_CONTEXT_ID: {video_id}")
+    _ = video_id
 
 
 def next_command(
@@ -796,6 +817,8 @@ def execute_run(args: argparse.Namespace) -> None:
     )
 
     if context is None:
+        print(f"VIDEO_CONTEXT_ID: {video_id}")
+
         if args.stock_manifest:
             raise RunnerError(
                 "--stock-manifest requires an existing "

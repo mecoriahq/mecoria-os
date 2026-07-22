@@ -18,7 +18,97 @@ from core.content_stabilization import (
 )
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+def words(count: int, label: str) -> str:
+    return " ".join(
+        f"{label}{index}"
+        for index in range(count)
+    )
+
+
+def recoverable_script() -> dict:
+    return {
+        "script": {
+            "hook": {"narration": words(100, "hook")},
+            "introduction": {
+                "narration": words(100, "intro")
+            },
+            "main_sections": [{
+                "title": "Section",
+                "narration": words(1069, "main"),
+            }],
+            "conclusion": {
+                "narration": words(25, "conclusion")
+            },
+            "call_to_action": {
+                "narration": words(25, "cta")
+            },
+        },
+        "quality": {},
+    }
+
+
+def approved_fact() -> dict:
+    return {
+        "status": "approved",
+        "factual_grounding_score": 100,
+        "risk_compliance_score": 100,
+        "unsupported_statements": [],
+        "risk_issues": [],
+        "approved_claim_ids": [],
+    }
+
+
+def factual_repair_script() -> dict:
+    return {
+        "script": {
+            "hook": {
+                "narration": "An approved statement.",
+                "claim_ids": ["C01"],
+            },
+            "introduction": {
+                "narration": "Introduction.",
+                "claim_ids": [],
+            },
+            "main_sections": [{
+                "title": "Grounding",
+                "narration": (
+                    "Once the aircraft was grounded, the story "
+                    "changed."
+                ),
+                "claim_ids": ["C09"],
+            }],
+            "conclusion": {
+                "narration": "Conclusion.",
+                "claim_ids": [],
+            },
+            "call_to_action": {
+                "narration": "Comment, like, and subscribe.",
+                "claim_ids": [],
+            },
+        }
+    }
+
+
+def factual_repair_qa() -> dict:
+    return {
+        "status": "rejected",
+        "factual_grounding_score": 98,
+        "risk_compliance_score": 100,
+        "unsupported_statements": [{
+            "location": "main_sections[0].narration",
+            "statement": "Once the aircraft was grounded...",
+            "reason": "C11 is missing from this block.",
+            "suggested_action": "Attach C11 to this narration block.",
+        }],
+        "risk_issues": [{
+            "category": "other",
+            "severity": "low",
+            "location": "main_sections[0].narration",
+            "message": "Claim ID missing.",
+            "required_edit": "Add C11.",
+        }],
+        "approved_claim_ids": ["C01", "C09", "C11"],
+    }
 
 
 class ContentStabilizationTests(unittest.TestCase):
@@ -27,21 +117,7 @@ class ContentStabilizationTests(unittest.TestCase):
         cls.profile = load_editorial_profile(
             "rise_dossier"
         )
-        cls.context = json.loads(
-            (
-                PROJECT_ROOT
-                / "records"
-                / "run_contexts"
-                / "rise_dossier"
-                / "video_002.json"
-            ).read_text(encoding="utf-8-sig")
-        )
-        script_ref = cls.context["outputs"]["script"]
-        cls.script = json.loads(
-            (PROJECT_ROOT / script_ref).read_text(
-                encoding="utf-8-sig"
-            )
-        )
+        cls.script = recoverable_script()
 
     def test_current_boeing_word_gap_is_auto_recoverable(self):
         report = word_budget_report(
@@ -177,15 +253,67 @@ class ContentStabilizationTests(unittest.TestCase):
             )
 
     def test_current_checkpoint_can_resume_automatically(self):
-        result = automatic_checkpoint_recovery_available(
-            project_root=PROJECT_ROOT,
-            context=self.context,
-            profile=self.profile,
-        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "script.json").write_text(
+                json.dumps(self.script),
+                encoding="utf-8",
+            )
+            (root / "fact.json").write_text(
+                json.dumps(approved_fact()),
+                encoding="utf-8",
+            )
+            context = {
+                "status": "founder_editorial_review_required",
+                "outputs": {
+                    "script": "script.json",
+                    "fact_risk_qa": "fact.json",
+                },
+                "quality_gates": {},
+            }
+            result = automatic_checkpoint_recovery_available(
+                project_root=root,
+                context=context,
+                profile=self.profile,
+            )
         self.assertTrue(result["available"])
         self.assertEqual(
             result["reason"],
             "safe_word_budget_recovery",
+        )
+
+    def test_factual_checkpoint_can_resume_deterministically(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "script.json").write_text(
+                json.dumps(factual_repair_script()),
+                encoding="utf-8",
+            )
+            (root / "fact.json").write_text(
+                json.dumps(factual_repair_qa()),
+                encoding="utf-8",
+            )
+            context = {
+                "status": "founder_factual_review_required",
+                "outputs": {
+                    "script": "script.json",
+                    "fact_risk_qa": "fact.json",
+                },
+                "quality_gates": {},
+            }
+            result = automatic_checkpoint_recovery_available(
+                project_root=root,
+                context=context,
+                profile=self.profile,
+            )
+        self.assertTrue(result["available"])
+        self.assertEqual(
+            result["reason"],
+            "deterministic_factual_repair",
+        )
+        self.assertEqual(
+            result["factual_repair"]["action_count"],
+            1,
         )
 
 

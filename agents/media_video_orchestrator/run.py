@@ -17,10 +17,17 @@ from core.content_stabilization import (
     ContentStabilizationBudgetExceeded,
     ContentStabilizationLoopDetected,
     apply_safe_word_budget_recovery,
+    automatic_checkpoint_recovery_available,
     enter_stabilization_step,
     mark_stabilization_complete,
     record_stabilization_action,
     reliability_config,
+)
+from core.factual_repair import (
+    FactualRepairError,
+    apply_deterministic_factual_repair,
+    build_deterministic_factual_repair_plan,
+    evaluate_context_deterministic_factual_repair,
 )
 from core.content_quality import (
     DEFAULT_EDITORIAL_OVERALL_MIN,
@@ -65,6 +72,7 @@ from core.editorial_repair import (
 )
 from core.model_pause import (
     CONTROLLED_MODEL_RETRY_STATUS,
+    prepare_model_retry_resume,
 )
 from core.channel_content_policy import (
     apply_profile_quality_gates,
@@ -1301,6 +1309,244 @@ def relative_project_path(path: Path) -> str:
     return str(
         path.relative_to(PROJECT_ROOT)
     ).replace("\\", "/")
+
+
+def apply_deterministic_factual_repair_if_available(
+    *,
+    context: dict,
+    profile: dict,
+    fact_risk_data: dict | None = None,
+) -> tuple[dict, bool, dict]:
+    gates = context.setdefault("quality_gates", {})
+    reliability = reliability_config(profile)
+    max_attempts = int(
+        reliability.get(
+            "max_deterministic_factual_repair_attempts",
+            2,
+        )
+    )
+    repair_count = int(
+        gates.get("deterministic_factual_repair_count", 0)
+    )
+
+    if repair_count >= max_attempts:
+        return context, False, {
+            "status": "not_available",
+            "reason": "deterministic_factual_repair_limit_reached",
+        }
+
+    try:
+        if fact_risk_data is None:
+            evaluation = (
+                evaluate_context_deterministic_factual_repair(
+                    project_root=PROJECT_ROOT,
+                    context=context,
+                )
+            )
+        else:
+            script_data = load_context_record(
+                context=context,
+                key="script",
+            )
+            ledger_data = load_context_record(
+                context=context,
+                key="claims_ledger",
+            )
+            plan = build_deterministic_factual_repair_plan(
+                script_data=script_data,
+                qa_data=fact_risk_data,
+            )
+            evaluation = apply_deterministic_factual_repair(
+                script_data=script_data,
+                ledger_data=ledger_data,
+                qa_data=fact_risk_data,
+                plan=plan,
+            )
+            evaluation["available"] = (
+                evaluation.get("applied") is True
+            )
+    except (
+        FactualRepairError,
+        FileNotFoundError,
+        KeyError,
+        TypeError,
+        ValueError,
+    ) as error:
+        return context, False, {
+            "status": "not_available",
+            "reason": "deterministic_factual_repair_error",
+            "error": str(error),
+        }
+
+    if evaluation.get("available") is not True:
+        return context, False, evaluation
+
+    plan = evaluation["plan"]
+    signature = str(plan.get("signature") or "")
+
+    if signature and signature == gates.get(
+        "last_deterministic_factual_repair_signature"
+    ):
+        return context, False, {
+            **evaluation,
+            "available": False,
+            "reason": "deterministic_factual_repair_signature_repeated",
+        }
+
+    try:
+        repaired_script = evaluation["repaired_script"]
+        (
+            repaired_script,
+            word_budget_recovery,
+        ) = apply_safe_word_budget_recovery(
+            script_data=repaired_script,
+            profile=profile,
+        )
+        preflight = evaluate_context_script_preflight(
+            context=context,
+            script_data=repaired_script,
+            profile=profile,
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        return context, False, {
+            **evaluation,
+            "available": False,
+            "reason": "deterministic_repair_preflight_error",
+            "error": str(error),
+        }
+
+    if preflight.get("accepted") is not True:
+        return context, False, {
+            **evaluation,
+            "available": False,
+            "reason": "deterministic_repair_failed_script_preflight",
+            "preflight": preflight,
+        }
+
+    try:
+        record_stabilization_action(
+            context=context,
+            profile=profile,
+            phase="factual",
+            action="deterministic_factual_repair",
+            payload={
+                "signature": signature,
+                "actions": plan.get("actions", []),
+                "repair_count": repair_count,
+            },
+        )
+    except ContentStabilizationLoopDetected:
+        return context, False, {
+            **evaluation,
+            "available": False,
+            "reason": "content_stabilization_loop_detected",
+        }
+
+    script_path = canonical_script_path(context)
+    script_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+    script_path.write_text(
+        json.dumps(
+            repaired_script,
+            indent=2,
+            ensure_ascii=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    script_reference = relative_project_path(script_path)
+    context.setdefault("outputs", {})[
+        "script"
+    ] = script_reference
+
+    removed_outputs = []
+
+    for key in (
+        "seo",
+        "fact_qa",
+        "risk_review",
+        "fact_risk_qa",
+        "qa",
+        "script_section_repair",
+    ):
+        if key in context.get("outputs", {}):
+            context["outputs"].pop(key)
+            removed_outputs.append(key)
+
+    remove_video_content_records(
+        channel=context["channel"],
+        video_id=context["video_id"],
+        record_types=["seo"],
+    )
+    context.get("sources", {}).pop(
+        "fact_risk_section_repair_brief",
+        None,
+    )
+    context.get("sources", {}).pop(
+        "editorial_section_repair_brief",
+        None,
+    )
+    gates["deterministic_factual_repair_count"] = (
+        repair_count + 1
+    )
+    gates[
+        "last_deterministic_factual_repair_signature"
+    ] = signature
+    gates["last_deterministic_factual_repair_actions"] = (
+        plan.get("actions", [])
+    )
+    gates["last_deterministic_factual_repair_preflight"] = (
+        preflight
+    )
+    gates["last_deterministic_factual_word_recovery"] = (
+        word_budget_recovery
+    )
+    append_history(
+        context=context,
+        agent="deterministic_factual_repair",
+        status="applied",
+        reference=(
+            f"signature={signature};"
+            f"actions={plan.get('action_count', 0)};"
+            f"removed_outputs={','.join(removed_outputs)}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="script_ready",
+        next_agent="seo",
+    )
+    save_context(context)
+
+    print(
+        "DETERMINISTIC_FACTUAL_REPAIR: applied",
+        flush=True,
+    )
+    print(
+        "DETERMINISTIC_FACTUAL_REPAIR_ACTION_COUNT: "
+        f"{plan.get('action_count', 0)}",
+        flush=True,
+    )
+    print(
+        "DETERMINISTIC_FACTUAL_REPAIR_ACTION_TYPES: "
+        + ",".join(plan.get("action_types", [])),
+        flush=True,
+    )
+    print(
+        "DETERMINISTIC_FACTUAL_REPAIR_UNRESOLVED: 0",
+        flush=True,
+    )
+    print(
+        "CONTENT_STABILIZATION_RESTART: seo",
+        flush=True,
+    )
+    return context, True, {
+        **evaluation,
+        "preflight": preflight,
+        "word_budget_recovery": word_budget_recovery,
+    }
 
 
 def recover_locked_factual_candidate(
@@ -2722,6 +2968,67 @@ def apply_automatic_word_budget_recovery(
     return context, True
 
 
+def activate_automatic_editorial_checkpoint_recovery(
+    *,
+    context: dict,
+    profile: dict,
+) -> tuple[dict, dict]:
+    recovery = automatic_checkpoint_recovery_available(
+        project_root=PROJECT_ROOT,
+        context=context,
+        profile=profile,
+    )
+
+    if recovery.get("available") is not True:
+        return context, recovery
+
+    if recovery.get("reason") == "deterministic_factual_repair":
+        fact_risk_data = load_context_record(
+            context=context,
+            key="fact_risk_qa",
+        )
+        (
+            context,
+            repair_applied,
+            repair_result,
+        ) = apply_deterministic_factual_repair_if_available(
+            context=context,
+            profile=profile,
+            fact_risk_data=fact_risk_data,
+        )
+        recovery["repair"] = repair_result
+        recovery["available"] = repair_applied
+
+        if not repair_applied:
+            recovery["reason"] = repair_result.get(
+                "reason",
+                "manual_founder_review_required",
+            )
+
+        return context, recovery
+
+    word_budget = recovery.get("word_budget", {})
+    append_history(
+        context=context,
+        agent="content_stabilization",
+        status="checkpoint_recovery_started",
+        reference=(
+            "reason="
+            f"{recovery.get('reason')};"
+            "current_word_count="
+            f"{word_budget.get('current_word_count')};"
+            "missing_word_count="
+            f"{word_budget.get('missing_word_count')}"
+        ),
+    )
+    context = set_status(
+        context=context,
+        status="script_ready",
+        next_agent="seo",
+    )
+    return context, recovery
+
+
 def run_content_phase(
     context: dict
 ) -> dict:
@@ -2730,6 +3037,40 @@ def run_content_phase(
         str(context.get("channel") or "hiddenova")
     )
     requires_factual = factual_pipeline_required(profile)
+
+    (
+        context,
+        model_retry_resumed,
+    ) = prepare_model_retry_resume(context=context)
+
+    if model_retry_resumed:
+        print(
+            "MODEL_RETRY_CHECKPOINT_RECOVERY: started",
+            flush=True,
+        )
+
+    (
+        context,
+        checkpoint_recovery,
+    ) = activate_automatic_editorial_checkpoint_recovery(
+        context=context,
+        profile=profile,
+    )
+
+    if checkpoint_recovery.get("available") is True:
+        save_context(context)
+        print(
+            "AUTOMATIC_CHECKPOINT_RECOVERY: started",
+            flush=True,
+        )
+        print(
+            "AUTOMATIC_CHECKPOINT_RECOVERY_REASON: "
+            f"{checkpoint_recovery.get('reason')}",
+            flush=True,
+        )
+    elif is_controlled_pause(context):
+        print_controlled_pause(context)
+        return context
 
     context = invalidate_bad_content_outputs(context)
     context = apply_production_quality_standard(context)
@@ -3121,6 +3462,19 @@ def run_content_phase(
                     section_repair_count
                     >= max_section_repairs
                 ):
+                    (
+                        context,
+                        deterministic_repair_applied,
+                        deterministic_repair_result,
+                    ) = apply_deterministic_factual_repair_if_available(
+                        context=context,
+                        profile=profile,
+                        fact_risk_data=selected_fact_risk_data,
+                    )
+
+                    if deterministic_repair_applied:
+                        continue
+
                     best = gates.get(
                         "fact_risk_best_candidate",
                         {},
@@ -3129,6 +3483,19 @@ def run_content_phase(
                         "metrics",
                         {},
                     )
+                    metrics = {
+                        **metrics,
+                        "deterministic_repair_reason": (
+                            deterministic_repair_result.get(
+                                "reason"
+                            )
+                        ),
+                        "deterministic_repair_plan": (
+                            deterministic_repair_result.get(
+                                "plan"
+                            )
+                        ),
+                    }
                     return pause_for_founder_factual_review(
                         context=context,
                         reason=(
@@ -3149,12 +3516,32 @@ def run_content_phase(
                         },
                     )
                 except ContentStabilizationLoopDetected:
+                    (
+                        context,
+                        deterministic_repair_applied,
+                        deterministic_repair_result,
+                    ) = apply_deterministic_factual_repair_if_available(
+                        context=context,
+                        profile=profile,
+                        fact_risk_data=selected_fact_risk_data,
+                    )
+
+                    if deterministic_repair_applied:
+                        continue
+
                     return pause_for_founder_factual_review(
                         context=context,
                         reason=(
                             "content_stabilization_loop_detected"
                         ),
-                        metrics=selected_fact_risk_data,
+                        metrics={
+                            **selected_fact_risk_data,
+                            "deterministic_repair_reason": (
+                                deterministic_repair_result.get(
+                                    "reason"
+                                )
+                            ),
+                        },
                     )
 
                 context = write_fact_risk_section_repair_brief(

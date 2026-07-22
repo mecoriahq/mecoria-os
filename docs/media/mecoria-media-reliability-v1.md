@@ -74,3 +74,15 @@ The reliability tests include:
 
 Rise Dossier video_002 specifically verifies automatic recovery from the
 1319-word factual-safe checkpoint to the 1325-word production minimum.
+
+## Checkpoint Resume Contract
+
+A recoverable editorial checkpoint must not loop between the runner and
+orchestrator. When a fact-safe script is only below the word target by the
+configured safe top-up limit, the runner may classify the checkpoint as
+resumable. The orchestrator must then clear the controlled founder pause,
+record the checkpoint recovery, apply the bounded word-budget repair, rerun
+the invalidated content checks, and return either an approved downstream
+checkpoint or a real founder review gate.
+
+Existing-context runner output must print `VIDEO_CONTEXT_ID` exactly once.

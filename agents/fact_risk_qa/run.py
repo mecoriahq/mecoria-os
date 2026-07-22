@@ -70,6 +70,11 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+from core.fact_qa_anchoring import (
+    build_anchor_retry_prompt,
+    validate_fact_qa_anchors,
+)
+
 def build_prompt(
     context: dict[str, Any],
     profile: dict[str, Any],
@@ -115,6 +120,10 @@ STRICT RULES:
 - factual_grounding_score must be 100 for approval.
 - risk_compliance_score must be 100 for approval.
 - Any unsupported statement or high-severity risk issue requires rejection.
+- unsupported_statements[].statement must be copied verbatim from the current narration block.
+- unsupported_statements[].location must identify the exact current narration block.
+- Never paraphrase an unsupported statement, use ellipses, or report text from a prior draft.
+- If the current script no longer contains an issue, omit that issue.
 - Return JSON only.
 """.strip()
 
@@ -251,19 +260,64 @@ def main() -> None:
         if not os.getenv("OPENAI_API_KEY"):
             raise ValueError("OpenAI API Key not found.")
 
+        base_prompt = build_prompt(
+            context=context,
+            profile=profile,
+            script_data=script_data,
+            ledger_data=ledger_data,
+        )
+        fact_qa_schema = load_json(
+            BASE_DIR / "payload_schema.json"
+        )
+
         try:
             raw = call_model(
-                prompt=build_prompt(
-                    context=context,
-                    profile=profile,
-                    script_data=script_data,
-                    ledger_data=ledger_data,
-                ),
+                prompt=base_prompt,
                 model=args.model,
-                schema=load_json(
-                    BASE_DIR / "payload_schema.json"
-                ),
+                schema=fact_qa_schema,
             )
+            anchoring = validate_fact_qa_anchors(
+                script_data=script_data,
+                qa_data=raw,
+            )
+
+            if anchoring["approved"] is not True:
+                print(
+                    "FACT_QA_ANCHORING_RETRY: "
+                    f"error_count={anchoring['error_count']}"
+                )
+                raw = call_model(
+                    prompt=build_anchor_retry_prompt(
+                        base_prompt=base_prompt,
+                        validation=anchoring,
+                    ),
+                    model=args.model,
+                    schema=fact_qa_schema,
+                )
+                anchoring = validate_fact_qa_anchors(
+                    script_data=script_data,
+                    qa_data=raw,
+                )
+
+            if anchoring["approved"] is not True:
+                contract_error = ValueError(
+                    "Fact Risk QA output contract failed: "
+                    + json.dumps(
+                        anchoring,
+                        ensure_ascii=True,
+                    )
+                )
+                record_model_retry_pause(
+                    context=context,
+                    agent="fact_risk_qa",
+                    error=contract_error,
+                )
+                print(
+                    "FACT_QA_ANCHORING_GATE: contract_failed"
+                )
+                return
+
+            print("FACT_QA_ANCHORING_GATE: passed")
         except OpenAIRetryExhausted as error:
             record_model_retry_pause(
                 context=context,

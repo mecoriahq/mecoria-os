@@ -10,6 +10,10 @@ from typing import Any
 from core.content_quality import (
     count_script_narration_words,
 )
+from core.factual_repair import (
+    MAX_DETERMINISTIC_REPAIR_PASSES,
+    build_deterministic_factual_repair_plan,
+)
 
 
 STABILIZATION_VERSION = "content_stabilization_v1"
@@ -78,6 +82,12 @@ def reliability_config(
             raw.get(
                 "max_same_signature_attempts",
                 2,
+            )
+        ),
+        "max_deterministic_factual_repair_attempts": int(
+            raw.get(
+                "max_deterministic_factual_repair_attempts",
+                MAX_DETERMINISTIC_REPAIR_PASSES,
             )
         ),
         "max_safe_word_top_up": int(
@@ -457,13 +467,15 @@ def automatic_checkpoint_recovery_available(
     context: dict[str, Any],
     profile: dict[str, Any],
 ) -> dict[str, Any]:
-    if (
-        context.get("status")
-        != "founder_editorial_review_required"
-    ):
+    status = str(context.get("status") or "")
+
+    if status not in {
+        "founder_editorial_review_required",
+        "founder_factual_review_required",
+    }:
         return {
             "available": False,
-            "reason": "not_editorial_checkpoint",
+            "reason": "not_recoverable_checkpoint",
         }
 
     script_path = resolve_context_output(
@@ -485,12 +497,49 @@ def automatic_checkpoint_recovery_available(
 
     script_data = load_json(script_path)
     fact_data = load_json(fact_path)
+
+    if status == "founder_factual_review_required":
+        plan = build_deterministic_factual_repair_plan(
+            script_data=script_data,
+            qa_data=fact_data,
+        )
+        repair_count = int(
+            context.get("quality_gates", {}).get(
+                "deterministic_factual_repair_count",
+                0,
+            )
+        )
+        repair_limit = int(
+            reliability_config(profile)[
+                "max_deterministic_factual_repair_attempts"
+            ]
+        )
+        available = bool(
+            plan["available"]
+            and repair_count < repair_limit
+        )
+
+        return {
+            "available": available,
+            "reason": (
+                "deterministic_factual_repair"
+                if available
+                else (
+                    "deterministic_factual_repair_budget_exhausted"
+                    if plan["available"]
+                    else "manual_founder_review_required"
+                )
+            ),
+            "factual_repair": plan,
+            "deterministic_repair_count": repair_count,
+            "deterministic_repair_limit": repair_limit,
+        }
+
     factual = factual_snapshot(fact_data)
     word_report = word_budget_report(
         script_data=script_data,
         profile=profile,
     )
-
     available = bool(
         factual["approved"]
         and word_report["recoverable"]
