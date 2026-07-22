@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-07-18T14:56:54.512266+00:00",
+  "updated_at": "2026-07-20T21:31:22.704396+00:00",
   "assets": {
     "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db": {
       "sha256": "f464f84e92e480ec8f56f95e40400a155eb87a7e351c2b19cc151034e3d592db",
@@ -3023,6 +3023,1542 @@
           "run_id": "hiddenova_video_005_v1",
           "relative_path": "agents/hybrid_video_assembly/output/hiddenova/video_005/hiddenova_video_005_v1/render/hybrid_video_draft.mp4",
           "registered_at": "2026-07-18T14:56:54.512160+00:00"
+        }
+      ]
+    },
+    "f0cdab6b5767b88cfabbe2b0ed7cd79fa32f2dea7ae153e8f245b9145ab0c95b": {
+      "sha256": "f0cdab6b5767b88cfabbe2b0ed7cd79fa32f2dea7ae153e8f245b9145ab0c95b",
+      "size_bytes": 617088,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934090+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_01.mp3",
+          "registered_at": "2026-07-19T21:10:13.934103+00:00"
+        }
+      ]
+    },
+    "e2250035d58ef2aade0b5e7703fc8213b3dd4c695ff2c4fabfe059c25baf8ec5": {
+      "sha256": "e2250035d58ef2aade0b5e7703fc8213b3dd4c695ff2c4fabfe059c25baf8ec5",
+      "size_bytes": 776064,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934108+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_02.mp3",
+          "registered_at": "2026-07-19T21:10:13.934110+00:00"
+        }
+      ]
+    },
+    "d0676ca0b8cdb4da231969fd029e0fa7f518422237a01de9127f932be3ad3373": {
+      "sha256": "d0676ca0b8cdb4da231969fd029e0fa7f518422237a01de9127f932be3ad3373",
+      "size_bytes": 876288,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934112+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_03.mp3",
+          "registered_at": "2026-07-19T21:10:13.934113+00:00"
+        }
+      ]
+    },
+    "d5808b00d681b654b1ca3c20b150e2132f0081cae0a9106cf782443db79d41a3": {
+      "sha256": "d5808b00d681b654b1ca3c20b150e2132f0081cae0a9106cf782443db79d41a3",
+      "size_bytes": 760320,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934115+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_04.mp3",
+          "registered_at": "2026-07-19T21:10:13.934116+00:00"
+        }
+      ]
+    },
+    "52e56c1cd6870df3a0b68426f99c4cb9b6c4e11b7792b45cd460f752b5bdc827": {
+      "sha256": "52e56c1cd6870df3a0b68426f99c4cb9b6c4e11b7792b45cd460f752b5bdc827",
+      "size_bytes": 801792,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934117+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_05.mp3",
+          "registered_at": "2026-07-19T21:10:13.934119+00:00"
+        }
+      ]
+    },
+    "e766ffcfab802fc045bc94a2529ff9d69341e419a249249e3dafc42519a0375c": {
+      "sha256": "e766ffcfab802fc045bc94a2529ff9d69341e419a249249e3dafc42519a0375c",
+      "size_bytes": 896256,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934120+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_06.mp3",
+          "registered_at": "2026-07-19T21:10:13.934121+00:00"
+        }
+      ]
+    },
+    "dbda896229a786b92ce1b661d1b90159d3510cb778f36b2c4ddf4c1fa2eed81b": {
+      "sha256": "dbda896229a786b92ce1b661d1b90159d3510cb778f36b2c4ddf4c1fa2eed81b",
+      "size_bytes": 895488,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934122+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_07.mp3",
+          "registered_at": "2026-07-19T21:10:13.934123+00:00"
+        }
+      ]
+    },
+    "fb8b0592730ec3f1436001d7e217b308299c28e942d0631e5d3713bda418aadc": {
+      "sha256": "fb8b0592730ec3f1436001d7e217b308299c28e942d0631e5d3713bda418aadc",
+      "size_bytes": 979200,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934124+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_08.mp3",
+          "registered_at": "2026-07-19T21:10:13.934125+00:00"
+        }
+      ]
+    },
+    "a6a875b21412aa6382efe67da1554eafe7cdbf7810f69d97f931db4fde2f4626": {
+      "sha256": "a6a875b21412aa6382efe67da1554eafe7cdbf7810f69d97f931db4fde2f4626",
+      "size_bytes": 1023360,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934126+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_09.mp3",
+          "registered_at": "2026-07-19T21:10:13.934127+00:00"
+        }
+      ]
+    },
+    "447458d26055856fbdd857c904234e49d23a69dcba3e0454a4d6a8e14d84946a": {
+      "sha256": "447458d26055856fbdd857c904234e49d23a69dcba3e0454a4d6a8e14d84946a",
+      "size_bytes": 933888,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934129+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_10.mp3",
+          "registered_at": "2026-07-19T21:10:13.934130+00:00"
+        }
+      ]
+    },
+    "36c4783010e12bd4fc4379402ece0c183714af92d48f027f11aa1d1a2ab3b000": {
+      "sha256": "36c4783010e12bd4fc4379402ece0c183714af92d48f027f11aa1d1a2ab3b000",
+      "size_bytes": 204288,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934132+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/audio/section_11.mp3",
+          "registered_at": "2026-07-19T21:10:13.934133+00:00"
+        }
+      ]
+    },
+    "39ba844d3aab103417ce6622509ff983d740278ec6c466b4f74039dc6364772c": {
+      "sha256": "39ba844d3aab103417ce6622509ff983d740278ec6c466b4f74039dc6364772c",
+      "size_bytes": 8764460,
+      "asset_type": "narration_audio",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-19T21:10:13.934134+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_audio_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/assembled/narration_track.mp3",
+          "registered_at": "2026-07-19T21:10:13.934135+00:00"
+        }
+      ]
+    },
+    "ceb93c6932deae24e5bb8b6e6420d1290a4fcfc5630f24cedd8f0afff492c71e": {
+      "sha256": "ceb93c6932deae24e5bb8b6e6420d1290a4fcfc5630f24cedd8f0afff492c71e",
+      "size_bytes": 2229451,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731721+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-001.png",
+          "registered_at": "2026-07-20T17:28:19.731735+00:00"
+        }
+      ]
+    },
+    "69ddafd8b62b32b6dc0d35e611ece10258db07c7dc59c8cbafdb0d2ab8cd96ea": {
+      "sha256": "69ddafd8b62b32b6dc0d35e611ece10258db07c7dc59c8cbafdb0d2ab8cd96ea",
+      "size_bytes": 1905540,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731739+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-002.png",
+          "registered_at": "2026-07-20T17:28:19.731741+00:00"
+        }
+      ]
+    },
+    "815fa346d632f3f05fc546882a57f3b82ca3077ff7574fc7205a987ae96cbbd9": {
+      "sha256": "815fa346d632f3f05fc546882a57f3b82ca3077ff7574fc7205a987ae96cbbd9",
+      "size_bytes": 1951858,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731744+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-003.png",
+          "registered_at": "2026-07-20T17:28:19.731747+00:00"
+        }
+      ]
+    },
+    "da49e376f731400ddb72febebea47c83b1b955c674439af5f35e240eca8b88f5": {
+      "sha256": "da49e376f731400ddb72febebea47c83b1b955c674439af5f35e240eca8b88f5",
+      "size_bytes": 1967416,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731749+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-004.png",
+          "registered_at": "2026-07-20T17:28:19.731750+00:00"
+        }
+      ]
+    },
+    "60c403185c9bd8890a5fe85a80e855d3e95dbf1695706426e802f46bc767df0e": {
+      "sha256": "60c403185c9bd8890a5fe85a80e855d3e95dbf1695706426e802f46bc767df0e",
+      "size_bytes": 1894063,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731751+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-005.png",
+          "registered_at": "2026-07-20T17:28:19.731752+00:00"
+        }
+      ]
+    },
+    "13c3ba98b650d809d4a080de7a2239f814b30f0ee250588e0545af1a4b173be3": {
+      "sha256": "13c3ba98b650d809d4a080de7a2239f814b30f0ee250588e0545af1a4b173be3",
+      "size_bytes": 2160553,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731753+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-006.png",
+          "registered_at": "2026-07-20T17:28:19.731754+00:00"
+        }
+      ]
+    },
+    "cb15cb732c112b907ec1cbd1989722099f0fb277bbea83c7f1ddbd8c88133e91": {
+      "sha256": "cb15cb732c112b907ec1cbd1989722099f0fb277bbea83c7f1ddbd8c88133e91",
+      "size_bytes": 2000872,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731756+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-007.png",
+          "registered_at": "2026-07-20T17:28:19.731757+00:00"
+        }
+      ]
+    },
+    "e0d7f27cc9a12c5e3c3de013081fb7fa00bab7a9568d859c8b8833e973d25e36": {
+      "sha256": "e0d7f27cc9a12c5e3c3de013081fb7fa00bab7a9568d859c8b8833e973d25e36",
+      "size_bytes": 2088372,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731758+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-008.png",
+          "registered_at": "2026-07-20T17:28:19.731759+00:00"
+        }
+      ]
+    },
+    "e5b8be74b52160384b138119bf2301b78c2df5cb0051fe906adcb97e0179ae6d": {
+      "sha256": "e5b8be74b52160384b138119bf2301b78c2df5cb0051fe906adcb97e0179ae6d",
+      "size_bytes": 1839483,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731761+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-009.png",
+          "registered_at": "2026-07-20T17:28:19.731762+00:00"
+        }
+      ]
+    },
+    "a0631cec1c9bcb31fc245b2b4fc962f5c03ebc3317716fc300c9cc833cbe7075": {
+      "sha256": "a0631cec1c9bcb31fc245b2b4fc962f5c03ebc3317716fc300c9cc833cbe7075",
+      "size_bytes": 1879456,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731764+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-010.png",
+          "registered_at": "2026-07-20T17:28:19.731765+00:00"
+        }
+      ]
+    },
+    "78932fe1fffe2ce28fbe0a96fa8ef1e9b6a126acfe4dbdbcb4359ae834cd0eeb": {
+      "sha256": "78932fe1fffe2ce28fbe0a96fa8ef1e9b6a126acfe4dbdbcb4359ae834cd0eeb",
+      "size_bytes": 2062669,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731766+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-011.png",
+          "registered_at": "2026-07-20T17:28:19.731767+00:00"
+        }
+      ]
+    },
+    "ead5a401f284373af390ab4977be2dcb0d2a28fef4fcd89d2e73ccd50ad69a38": {
+      "sha256": "ead5a401f284373af390ab4977be2dcb0d2a28fef4fcd89d2e73ccd50ad69a38",
+      "size_bytes": 2025635,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731768+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/images/ai-012.png",
+          "registered_at": "2026-07-20T17:28:19.731769+00:00"
+        }
+      ]
+    },
+    "661efc7f2b4061be8069ebbe4423287158558c3fbd3d34c9b7c73afd7e40414f": {
+      "sha256": "661efc7f2b4061be8069ebbe4423287158558c3fbd3d34c9b7c73afd7e40414f",
+      "size_bytes": 129405,
+      "asset_type": "thumbnail",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T17:28:19.731770+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/video_visual_pipeline/output/rise_dossier/video_001/rise_dossier_video_001_v1/thumbnail.jpg",
+          "registered_at": "2026-07-20T17:28:19.731771+00:00"
+        }
+      ]
+    },
+    "19343fc556f8e5a91e564091070f4932f250b43a40c10fa8eca0ef50dbaf2f38": {
+      "sha256": "19343fc556f8e5a91e564091070f4932f250b43a40c10fa8eca0ef50dbaf2f38",
+      "size_bytes": 12328373,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923232+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/02_sb_02_a_founder_story_becomes/mecoria-role-a_founder_story_becomes_a_credibility_machine__001__meeting-collaboration-and-glass-with-a-business-team-in-the-boardroom-to.mp4",
+          "registered_at": "2026-07-20T18:27:37.923242+00:00"
+        }
+      ]
+    },
+    "26e0388c8d7a78356421dafe893e833a82650ef73616501e499114a1159249da": {
+      "sha256": "26e0388c8d7a78356421dafe893e833a82650ef73616501e499114a1159249da",
+      "size_bytes": 30898716,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923246+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/02_sb_02_a_founder_story_becomes/mecoria-role-a_founder_story_becomes_a_credibility_machine__003__business-people-boardroom-and-team-preparation-for-meeting-conference-or.mp4",
+          "registered_at": "2026-07-20T18:27:37.923248+00:00"
+        }
+      ]
+    },
+    "029faceb2d94bbc23e57a3721a0decf889603b08b79bcfae40e2da3a44764125": {
+      "sha256": "029faceb2d94bbc23e57a3721a0decf889603b08b79bcfae40e2da3a44764125",
+      "size_bytes": 2501011,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923250+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/02_sb_02_a_founder_story_becomes/mecoria-role-a_founder_story_becomes_a_credibility_machine__004__aerial-view-footage-from-outside-into-office-building-with-businessman-u.mp4",
+          "registered_at": "2026-07-20T18:27:37.923251+00:00"
+        }
+      ]
+    },
+    "3c63b6ac0140cd998694ec4c9ac226cfd7cfe174003d2525dae96e08f0352b26": {
+      "sha256": "3c63b6ac0140cd998694ec4c9ac226cfd7cfe174003d2525dae96e08f0352b26",
+      "size_bytes": 9339945,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923253+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/02_sb_02_a_founder_story_becomes/mecoria-role-a_founder_story_becomes_a_credibility_machine__005__business-multi-ethnic-modern-office-boardroom-work-on-a-new-project-SBV-.mp4",
+          "registered_at": "2026-07-20T18:27:37.923254+00:00"
+        }
+      ]
+    },
+    "d6d8f94f0fde12b2a34f44bfc3f6b2493cfcec53567de7174903d6758a213ef5": {
+      "sha256": "d6d8f94f0fde12b2a34f44bfc3f6b2493cfcec53567de7174903d6758a213ef5",
+      "size_bytes": 36956214,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923255+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/02_sb_02_a_founder_story_becomes/mecoria-role-a_founder_story_becomes_a_credibility_machine__005__business-silhouettes-meeting-shaking-hands-at-office-panorama-window-vie.mp4",
+          "registered_at": "2026-07-20T18:27:37.923256+00:00"
+        }
+      ]
+    },
+    "be448b5477cba31ab54971aa8c666e3a33fa78dcb69a9b671897bfdf7f84d2bb": {
+      "sha256": "be448b5477cba31ab54971aa8c666e3a33fa78dcb69a9b671897bfdf7f84d2bb",
+      "size_bytes": 18261939,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923257+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/04_sb_04_a_narrow_clearance_a_wid/mecoria-role-a_narrow_clearance_a_wider_impression__001__a-person-writes-down-notes-in-a-spiral-notebook-using-a-pen-while-sittin.mp4",
+          "registered_at": "2026-07-20T18:27:37.923259+00:00"
+        }
+      ]
+    },
+    "87dd2f0f70018b693b7f2a332f2b1dce638fdc077ca45f48236cf9a0fbc77d02": {
+      "sha256": "87dd2f0f70018b693b7f2a332f2b1dce638fdc077ca45f48236cf9a0fbc77d02",
+      "size_bytes": 75402955,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923260+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/04_sb_04_a_narrow_clearance_a_wid/mecoria-role-a_narrow_clearance_a_wider_impression__002__old-handwritten-historical-documents-in-united-states-archive-SBV-347553.mp4",
+          "registered_at": "2026-07-20T18:27:37.923261+00:00"
+        }
+      ]
+    },
+    "72ae40a43f83dea2f2afa0cdc56d22abd501aa375c4c1e7353332340d855230d": {
+      "sha256": "72ae40a43f83dea2f2afa0cdc56d22abd501aa375c4c1e7353332340d855230d",
+      "size_bytes": 91704390,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923262+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/04_sb_04_a_narrow_clearance_a_wid/mecoria-role-a_narrow_clearance_a_wider_impression__003__document-review-checklist-animation-with-magnifying-glass-and-glasses-lo.mov",
+          "registered_at": "2026-07-20T18:27:37.923263+00:00"
+        }
+      ]
+    },
+    "95a8c1c90b5e6e5c28a5bf10deeead159c68d1aed4240ffea49b375f3d54b13a": {
+      "sha256": "95a8c1c90b5e6e5c28a5bf10deeead159c68d1aed4240ffea49b375f3d54b13a",
+      "size_bytes": 38809337,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923264+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/04_sb_04_a_narrow_clearance_a_wid/mecoria-role-a_narrow_clearance_a_wider_impression__004__coronavirus-fear-people-with-face-mask-standing-in-line-outside-of-a-wal.mp4",
+          "registered_at": "2026-07-20T18:27:37.923265+00:00"
+        }
+      ]
+    },
+    "0cfe2f1584dba4980515b5b9258e10919972d3c626871924be22a0f884c45b8d": {
+      "sha256": "0cfe2f1584dba4980515b5b9258e10919972d3c626871924be22a0f884c45b8d",
+      "size_bytes": 3757888,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923266+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/03_sb_03_the_evidence_problem/mecoria-role-the_evidence_problem__001__close-up-of-page-hands-of-young-girl-touching-sheet-information-educatio.mp4",
+          "registered_at": "2026-07-20T18:27:37.923267+00:00"
+        }
+      ]
+    },
+    "7fe4a30733f8da75c47dd9c1c6781e03dbb8bad9b822c8afabaf05b99ab2821d": {
+      "sha256": "7fe4a30733f8da75c47dd9c1c6781e03dbb8bad9b822c8afabaf05b99ab2821d",
+      "size_bytes": 6774278,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923268+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/03_sb_03_the_evidence_problem/mecoria-role-the_evidence_problem__003__scrolling-a-list-of-titles-of-articles-with-information-about-financial-.mp4",
+          "registered_at": "2026-07-20T18:27:37.923269+00:00"
+        }
+      ]
+    },
+    "7e35ab2d0499301566395d48ed54541a97d7c640a7d57c43dcc2a425874d4447": {
+      "sha256": "7e35ab2d0499301566395d48ed54541a97d7c640a7d57c43dcc2a425874d4447",
+      "size_bytes": 3167035,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923270+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/05_sb_05_the_machine_behind_the_m/mecoria-role-the_machine_behind_the_message__001__abstract-out-of-focus-footage-of-many-open-books-on-top-of-each-other-cl.mp4",
+          "registered_at": "2026-07-20T18:27:37.923271+00:00"
+        }
+      ]
+    },
+    "5272d2580b317ecf4b725c45769196aacb81a31313207aa7caad82ff54a613d4": {
+      "sha256": "5272d2580b317ecf4b725c45769196aacb81a31313207aa7caad82ff54a613d4",
+      "size_bytes": 12918508,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923272+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/05_sb_05_the_machine_behind_the_m/mecoria-role-the_machine_behind_the_message__002__macro-view-open-book-with-white-sheets-against-black-background-closeup-.mp4",
+          "registered_at": "2026-07-20T18:27:37.923273+00:00"
+        }
+      ]
+    },
+    "da3335a7c8e4e2fcbc034706556fba8e8fca00df07e5d9ae20117b58ee08d63c": {
+      "sha256": "da3335a7c8e4e2fcbc034706556fba8e8fca00df07e5d9ae20117b58ee08d63c",
+      "size_bytes": 3544417,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923274+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/05_sb_05_the_machine_behind_the_m/mecoria-role-the_machine_behind_the_message__003__business-people-and-shadow-with-shaking-hands-communication-and-planning.mp4",
+          "registered_at": "2026-07-20T18:27:37.923275+00:00"
+        }
+      ]
+    },
+    "17d356a0f59174164676b119cd4f86b59c6c3f703023af22abca6c7d29cd780a": {
+      "sha256": "17d356a0f59174164676b119cd4f86b59c6c3f703023af22abca6c7d29cd780a",
+      "size_bytes": 4325365,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923276+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/06_sb_06_the_partnership_ends_the/mecoria-role-the_partnership_ends_the_case_expands__002__pharmacy-doctor-hands-and-writing-in-documents-referral-letter-and-medic.mp4",
+          "registered_at": "2026-07-20T18:27:37.923277+00:00"
+        }
+      ]
+    },
+    "3366d2edcfbfd07b5b5391e0b2eb970b37197f68c0afa0be295c739a4e109b26": {
+      "sha256": "3366d2edcfbfd07b5b5391e0b2eb970b37197f68c0afa0be295c739a4e109b26",
+      "size_bytes": 107834386,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923278+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/06_sb_06_the_partnership_ends_the/mecoria-role-the_partnership_ends_the_case_expands__003__cvs-pharmacy-store-exterior-with-a-bold-red-logo-large-red-awning-and-pa.mp4",
+          "registered_at": "2026-07-20T18:27:37.923279+00:00"
+        }
+      ]
+    },
+    "86baa2c13d95d2fb7ad0f5ded8b0268bbfc5f48552ba6f8a39ab8a4471445253": {
+      "sha256": "86baa2c13d95d2fb7ad0f5ded8b0268bbfc5f48552ba6f8a39ab8a4471445253",
+      "size_bytes": 10783523,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923281+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/01_sb_01_the_retail_door_opens/mecoria-role-the_retail_door_opens__005__a-building-with-a-neon-sign-on-the-front-of-it-SBV-348897441-4K.mp4",
+          "registered_at": "2026-07-20T18:27:37.923281+00:00"
+        }
+      ]
+    },
+    "25113e911e873dd502fe86c3cf2a5af3e51bfe2cd3bfb66381a2dcdd067d4dc0": {
+      "sha256": "25113e911e873dd502fe86c3cf2a5af3e51bfe2cd3bfb66381a2dcdd067d4dc0",
+      "size_bytes": 18838605,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:27:37.923283+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "assets/stock/rise_dossier/video_001/storyblocks/01_sb_01_the_retail_door_opens/mecoria-role-the_retail_door_opens__007__slow-motion-woman-pharmacist-serving-old-man-customer-in-a-drugstore-con.mp4",
+          "registered_at": "2026-07-20T18:27:37.923284+00:00"
+        }
+      ]
+    },
+    "520fc41c854b0a8d7a97ed921a27beae285c7c427fc155aa8c5698fe0b7df373": {
+      "sha256": "520fc41c854b0a8d7a97ed921a27beae285c7c427fc155aa8c5698fe0b7df373",
+      "size_bytes": 68763342,
+      "asset_type": "final_video",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T18:49:36.161212+00:00",
+      "usages": [
+        {
+          "channel": "rise_dossier",
+          "video_id": "video_001",
+          "run_id": "rise_dossier_video_001_v1",
+          "relative_path": "agents/hybrid_video_assembly/output/rise_dossier/video_001/rise_dossier_video_001_v1/render/hybrid_video_draft.mp4",
+          "registered_at": "2026-07-20T18:49:36.161225+00:00"
+        }
+      ]
+    },
+    "ad1bfc4c5a510009302f6dbbab54e71baee4936be45ae1d76752258ed76c0ce4": {
+      "sha256": "ad1bfc4c5a510009302f6dbbab54e71baee4936be45ae1d76752258ed76c0ce4",
+      "size_bytes": 525696,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931667+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_01.mp3",
+          "registered_at": "2026-07-20T20:41:47.931677+00:00"
+        }
+      ]
+    },
+    "ce173e7e5d12b2e9c031586d06d3243d61f494d642cfcfc9256728d41dc24c09": {
+      "sha256": "ce173e7e5d12b2e9c031586d06d3243d61f494d642cfcfc9256728d41dc24c09",
+      "size_bytes": 713088,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931681+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_02.mp3",
+          "registered_at": "2026-07-20T20:41:47.931683+00:00"
+        }
+      ]
+    },
+    "0cd3bc12e77025b11e60fe90eeea8526bf980d101ede70c28652665f009db1d2": {
+      "sha256": "0cd3bc12e77025b11e60fe90eeea8526bf980d101ede70c28652665f009db1d2",
+      "size_bytes": 1082496,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931685+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_03.mp3",
+          "registered_at": "2026-07-20T20:41:47.931687+00:00"
+        }
+      ]
+    },
+    "37ce4967ffb5f556695b8e6022662904d82973aaf81a4bfa56301954af3eeff2": {
+      "sha256": "37ce4967ffb5f556695b8e6022662904d82973aaf81a4bfa56301954af3eeff2",
+      "size_bytes": 1081728,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931688+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_04.mp3",
+          "registered_at": "2026-07-20T20:41:47.931689+00:00"
+        }
+      ]
+    },
+    "1d95ea417772257682a056b1440ab683c9ebe062bbc11cb6d2905f819f631260": {
+      "sha256": "1d95ea417772257682a056b1440ab683c9ebe062bbc11cb6d2905f819f631260",
+      "size_bytes": 1038720,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931691+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_05.mp3",
+          "registered_at": "2026-07-20T20:41:47.931692+00:00"
+        }
+      ]
+    },
+    "dfb86bcc20dc96339d4583260d38e6febf97ec5b034642935a8a76419956905b": {
+      "sha256": "dfb86bcc20dc96339d4583260d38e6febf97ec5b034642935a8a76419956905b",
+      "size_bytes": 1118592,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931693+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_06.mp3",
+          "registered_at": "2026-07-20T20:41:47.931694+00:00"
+        }
+      ]
+    },
+    "d4886720637843628bd9fdfd11756f148dda664b42134e141a7bfd8c80287d64": {
+      "sha256": "d4886720637843628bd9fdfd11756f148dda664b42134e141a7bfd8c80287d64",
+      "size_bytes": 1141632,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931695+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_07.mp3",
+          "registered_at": "2026-07-20T20:41:47.931696+00:00"
+        }
+      ]
+    },
+    "e78eeaf853efec3e3617f37569f1a55c4589c885435ec1f0e5fc83708b66b308": {
+      "sha256": "e78eeaf853efec3e3617f37569f1a55c4589c885435ec1f0e5fc83708b66b308",
+      "size_bytes": 1155456,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931697+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_08.mp3",
+          "registered_at": "2026-07-20T20:41:47.931698+00:00"
+        }
+      ]
+    },
+    "cffebd9c81462cc5a2749acebb143ba426894f80538bdf9017690dfa57963cfe": {
+      "sha256": "cffebd9c81462cc5a2749acebb143ba426894f80538bdf9017690dfa57963cfe",
+      "size_bytes": 1084032,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931699+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_09.mp3",
+          "registered_at": "2026-07-20T20:41:47.931700+00:00"
+        }
+      ]
+    },
+    "e294529613c99bca4b3f96cb2ac63496e410a5cf379542424d229994e95800dd": {
+      "sha256": "e294529613c99bca4b3f96cb2ac63496e410a5cf379542424d229994e95800dd",
+      "size_bytes": 695424,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931702+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_10.mp3",
+          "registered_at": "2026-07-20T20:41:47.931703+00:00"
+        }
+      ]
+    },
+    "8f3c22cee92a1fcb13dbd8fcfd6894d447ddd0957349c2656a6ee0de5e475e51": {
+      "sha256": "8f3c22cee92a1fcb13dbd8fcfd6894d447ddd0957349c2656a6ee0de5e475e51",
+      "size_bytes": 192768,
+      "asset_type": "narration_section",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931704+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/audio/section_11.mp3",
+          "registered_at": "2026-07-20T20:41:47.931705+00:00"
+        }
+      ]
+    },
+    "e88565d6109688b25749777a3bb7648d99d4446ea4818831e4f1c7b2aada7965": {
+      "sha256": "e88565d6109688b25749777a3bb7648d99d4446ea4818831e4f1c7b2aada7965",
+      "size_bytes": 9830060,
+      "asset_type": "narration_audio",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:41:47.931706+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_audio_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/assembled/narration_track.mp3",
+          "registered_at": "2026-07-20T20:41:47.931707+00:00"
+        }
+      ]
+    },
+    "87c2280ae0c077526c25fdf64e955ab3c2f03ffd45d22a86acd783e7ad5f00fa": {
+      "sha256": "87c2280ae0c077526c25fdf64e955ab3c2f03ffd45d22a86acd783e7ad5f00fa",
+      "size_bytes": 2048403,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348518+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-001.png",
+          "registered_at": "2026-07-20T20:50:08.348530+00:00"
+        }
+      ]
+    },
+    "3e4bd0d4df888397a9412e13de73ac4606d472a65e9b464a56da4d0d20bcb2b9": {
+      "sha256": "3e4bd0d4df888397a9412e13de73ac4606d472a65e9b464a56da4d0d20bcb2b9",
+      "size_bytes": 2754179,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348534+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-002.png",
+          "registered_at": "2026-07-20T20:50:08.348536+00:00"
+        }
+      ]
+    },
+    "7987d5f8bbb1ca2d141838079563c03b309a951e30342532022e12d65d8d3ede": {
+      "sha256": "7987d5f8bbb1ca2d141838079563c03b309a951e30342532022e12d65d8d3ede",
+      "size_bytes": 2282349,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348538+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-003.png",
+          "registered_at": "2026-07-20T20:50:08.348539+00:00"
+        }
+      ]
+    },
+    "f90e509710b873cb1d2ae28a915b50844fb26eae69b40c3edbd6cf3334679dff": {
+      "sha256": "f90e509710b873cb1d2ae28a915b50844fb26eae69b40c3edbd6cf3334679dff",
+      "size_bytes": 2065331,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348541+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-004.png",
+          "registered_at": "2026-07-20T20:50:08.348542+00:00"
+        }
+      ]
+    },
+    "dc497f4e801511c0b9be2dcdf716d6d7a46ecd6f04139e4a692efb8abea14acf": {
+      "sha256": "dc497f4e801511c0b9be2dcdf716d6d7a46ecd6f04139e4a692efb8abea14acf",
+      "size_bytes": 2361803,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348543+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-005.png",
+          "registered_at": "2026-07-20T20:50:08.348544+00:00"
+        }
+      ]
+    },
+    "cde657c2dbd6ab8a2f15e272b81d956731260c421f253bc54e3ff382614072f2": {
+      "sha256": "cde657c2dbd6ab8a2f15e272b81d956731260c421f253bc54e3ff382614072f2",
+      "size_bytes": 2544064,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348546+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-006.png",
+          "registered_at": "2026-07-20T20:50:08.348547+00:00"
+        }
+      ]
+    },
+    "8bfe0d4bd2609d72dc626fc46347ea51fe92c08884eccb1c2db966b6d19388d6": {
+      "sha256": "8bfe0d4bd2609d72dc626fc46347ea51fe92c08884eccb1c2db966b6d19388d6",
+      "size_bytes": 2262211,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348548+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-007.png",
+          "registered_at": "2026-07-20T20:50:08.348549+00:00"
+        }
+      ]
+    },
+    "09cff52a1c6991337ace86417fd33bec74945120e59576a31b7cae4635528763": {
+      "sha256": "09cff52a1c6991337ace86417fd33bec74945120e59576a31b7cae4635528763",
+      "size_bytes": 2008668,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348550+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-008.png",
+          "registered_at": "2026-07-20T20:50:08.348551+00:00"
+        }
+      ]
+    },
+    "f674b96404026830fdb59def685afd542e5851aaf62fde05627a09c46f6a5269": {
+      "sha256": "f674b96404026830fdb59def685afd542e5851aaf62fde05627a09c46f6a5269",
+      "size_bytes": 2445527,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348552+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-009.png",
+          "registered_at": "2026-07-20T20:50:08.348553+00:00"
+        }
+      ]
+    },
+    "aa189ce082f9cb5d09a305af5e33567bdbfe239bfc2ff4d3676e4aaacd0d6eb7": {
+      "sha256": "aa189ce082f9cb5d09a305af5e33567bdbfe239bfc2ff4d3676e4aaacd0d6eb7",
+      "size_bytes": 2247322,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348554+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-010.png",
+          "registered_at": "2026-07-20T20:50:08.348555+00:00"
+        }
+      ]
+    },
+    "7b3d45ed2f878f481bcc05e66a67e293c396a4e0ef93591ec58a91ff5d4f1772": {
+      "sha256": "7b3d45ed2f878f481bcc05e66a67e293c396a4e0ef93591ec58a91ff5d4f1772",
+      "size_bytes": 2291301,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348556+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-011.png",
+          "registered_at": "2026-07-20T20:50:08.348558+00:00"
+        }
+      ]
+    },
+    "9ddb7dcffd0ce561ecaa6b2582c0eaccaadad26d12ee5ef983c4eb4de55e9097": {
+      "sha256": "9ddb7dcffd0ce561ecaa6b2582c0eaccaadad26d12ee5ef983c4eb4de55e9097",
+      "size_bytes": 1909920,
+      "asset_type": "ai_visual",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348559+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/images/ai-012.png",
+          "registered_at": "2026-07-20T20:50:08.348560+00:00"
+        }
+      ]
+    },
+    "07351437f62669d6ad77f9a791dd3c07fffea447c9daf38ff7e579a6fe8c4211": {
+      "sha256": "07351437f62669d6ad77f9a791dd3c07fffea447c9daf38ff7e579a6fe8c4211",
+      "size_bytes": 218050,
+      "asset_type": "thumbnail",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T20:50:08.348561+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/video_visual_pipeline/output/hiddenova/video_006/hiddenova_video_006_v1/thumbnail.jpg",
+          "registered_at": "2026-07-20T20:50:08.348562+00:00"
+        }
+      ]
+    },
+    "62b0eb2b2a644442fec050321b66c60ba813ecd61d53905e82ea869edd59eb72": {
+      "sha256": "62b0eb2b2a644442fec050321b66c60ba813ecd61d53905e82ea869edd59eb72",
+      "size_bytes": 3625094,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979903+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/01_sb_01_1_the_first_decision_let/mecoria-role-1_the_first_decision_let_gravity_do_the_work__001__water-flows-into-the-toilet-bowl-water-stream-flows-into-the-toilet-toil.mp4",
+          "registered_at": "2026-07-20T21:02:20.979915+00:00"
+        }
+      ]
+    },
+    "49ef3c5b77a650e330272525ac1dad0c49d24f0bb06bac1cbf546e6103aeb2e5": {
+      "sha256": "49ef3c5b77a650e330272525ac1dad0c49d24f0bb06bac1cbf546e6103aeb2e5",
+      "size_bytes": 24231484,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979919+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/01_sb_01_1_the_first_decision_let/mecoria-role-1_the_first_decision_let_gravity_do_the_work__002__water-flushes-the-toilet-SBV-338169579-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979921+00:00"
+        }
+      ]
+    },
+    "7d9b48426b38ae6cae772c0550c3ad1f671cf0ca1075e7ff0ba9e62aa79fc95b": {
+      "sha256": "7d9b48426b38ae6cae772c0550c3ad1f671cf0ca1075e7ff0ba9e62aa79fc95b",
+      "size_bytes": 2204005,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979923+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/01_sb_01_1_the_first_decision_let/mecoria-role-1_the_first_decision_let_gravity_do_the_work__004__chrome-bathroom-fitting-with-roll-of-white-absorbent-toilet-paper-mounte.mp4",
+          "registered_at": "2026-07-20T21:02:20.979924+00:00"
+        }
+      ]
+    },
+    "3be990566280dc1b5af3f6f8cd344f8954112997ac98c4c9b3e414ccaef3c3cd": {
+      "sha256": "3be990566280dc1b5af3f6f8cd344f8954112997ac98c4c9b3e414ccaef3c3cd",
+      "size_bytes": 2611634,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979925+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/01_sb_01_1_the_first_decision_let/mecoria-role-1_the_first_decision_let_gravity_do_the_work__004__flushing-the-toilet-SBV-301034270-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979927+00:00"
+        }
+      ]
+    },
+    "ef5b729b3ae40e83e2f826f6953a9d63c8b340316c691991853b2af670c97c27": {
+      "sha256": "ef5b729b3ae40e83e2f826f6953a9d63c8b340316c691991853b2af670c97c27",
+      "size_bytes": 25320285,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979928+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/01_sb_01_1_the_first_decision_let/mecoria-role-1_the_first_decision_let_gravity_do_the_work__005__close-up-of-water-running-into-black-bucket-filled-to-brim-liquid-bubbli.mp4",
+          "registered_at": "2026-07-20T21:02:20.979929+00:00"
+        }
+      ]
+    },
+    "38abba5917ec403b11672050d23048507696634444f06d03542c17f324b7ab09": {
+      "sha256": "38abba5917ec403b11672050d23048507696634444f06d03542c17f324b7ab09",
+      "size_bytes": 13955922,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979930+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/02_sb_02_2_when_the_underground_r/mecoria-role-2_when_the_underground_river_must_be_lifted__001__the-monitoring-control-panel-is-crucial-for-safety-and-performance-in-in.mp4",
+          "registered_at": "2026-07-20T21:02:20.979931+00:00"
+        }
+      ]
+    },
+    "31744201ee7a2e10fb2417fcf338aab186dbf219a022aac87cdcdd4b12048a8a": {
+      "sha256": "31744201ee7a2e10fb2417fcf338aab186dbf219a022aac87cdcdd4b12048a8a",
+      "size_bytes": 4491924,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979932+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/02_sb_02_2_when_the_underground_r/mecoria-role-2_when_the_underground_river_must_be_lifted__003__industrial-electrical-control-panels-in-technical-control-room-SBV-35468.mp4",
+          "registered_at": "2026-07-20T21:02:20.979933+00:00"
+        }
+      ]
+    },
+    "ddfa0e3924a1619399019aee893271b840a8edfd38835e27c1f2e80ffafb154c": {
+      "sha256": "ddfa0e3924a1619399019aee893271b840a8edfd38835e27c1f2e80ffafb154c",
+      "size_bytes": 279553234,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979935+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/02_sb_02_2_when_the_underground_r/mecoria-role-2_when_the_underground_river_must_be_lifted__005__aerial-view-of-minsk-tpp-5-near-minsk-belarus-showing-a-spray-pond-paved.mp4",
+          "registered_at": "2026-07-20T21:02:20.979935+00:00"
+        }
+      ]
+    },
+    "7f7bf4c5287df76e749d447a86aa4a14698e8f6daab7c62e24f339cda1ef2e22": {
+      "sha256": "7f7bf4c5287df76e749d447a86aa4a14698e8f6daab7c62e24f339cda1ef2e22",
+      "size_bytes": 20862609,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979937+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/02_sb_02_2_when_the_underground_r/mecoria-role-2_when_the_underground_river_must_be_lifted__005__nuclear-missile-launch-control-center-cold-war-era-SBV-352153057-4K.mp4",
+          "registered_at": "2026-07-20T21:02:20.979938+00:00"
+        }
+      ]
+    },
+    "3a659065835b3d176fd29a7cd42396dd6477d1b6d7894bd970e4e86b1b31247f": {
+      "sha256": "3a659065835b3d176fd29a7cd42396dd6477d1b6d7894bd970e4e86b1b31247f",
+      "size_bytes": 167380829,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979939+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/02_sb_02_2_when_the_underground_r/mecoria-role-2_when_the_underground_river_must_be_lifted__007__control-panels-in-electrical-station-SBV-351930251-4K.mp4",
+          "registered_at": "2026-07-20T21:02:20.979940+00:00"
+        }
+      ]
+    },
+    "868b1989d74515b2c595f4c812749db3e7cc55358d2475b743ab6a61b1468346": {
+      "sha256": "868b1989d74515b2c595f4c812749db3e7cc55358d2475b743ab6a61b1468346",
+      "size_bytes": 12078274,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979941+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/03_sb_03_3_the_plant_does_not_sta/mecoria-role-3_the_plant_does_not_start_by_cleaning_water__001__water-treatment-03-SBV-300919021-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979942+00:00"
+        }
+      ]
+    },
+    "7c4cb8136858f9bd8263d0d7818717734e9fbcd93ff5c3641718599c358b21b8": {
+      "sha256": "7c4cb8136858f9bd8263d0d7818717734e9fbcd93ff5c3641718599c358b21b8",
+      "size_bytes": 87749810,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979943+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/03_sb_03_3_the_plant_does_not_sta/mecoria-role-3_the_plant_does_not_start_by_cleaning_water__003__aerial-flyover-shot-of-an-industrial-waste-water-plant-in-brooklyn-SBV-3.mp4",
+          "registered_at": "2026-07-20T21:02:20.979944+00:00"
+        }
+      ]
+    },
+    "ce23be0bf9da420a695fbca63e819ee8c9eae45648e35d4881eb3ff693cf154e": {
+      "sha256": "ce23be0bf9da420a695fbca63e819ee8c9eae45648e35d4881eb3ff693cf154e",
+      "size_bytes": 668583387,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979945+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/03_sb_03_3_the_plant_does_not_sta/mecoria-role-3_the_plant_does_not_start_by_cleaning_water__005__wastewater-sewage-treatment-plant-SBV-349196487-4K.mp4",
+          "registered_at": "2026-07-20T21:02:20.979946+00:00"
+        }
+      ]
+    },
+    "3a65f2828dfcd24c98c7ee37e0939baf9e29307eebbed45dc056aab09a80b0ab": {
+      "sha256": "3a65f2828dfcd24c98c7ee37e0939baf9e29307eebbed45dc056aab09a80b0ab",
+      "size_bytes": 3461330,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979948+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/03_sb_03_3_the_plant_does_not_sta/mecoria-role-3_the_plant_does_not_start_by_cleaning_water__005__water-suppression-system-at-work-SBV-300104568-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979949+00:00"
+        }
+      ]
+    },
+    "656d8cd6a5bc8242f9ebd19ba21c2398d7176dbe9f4eff3fc918f8520b505880": {
+      "sha256": "656d8cd6a5bc8242f9ebd19ba21c2398d7176dbe9f4eff3fc918f8520b505880",
+      "size_bytes": 85405282,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979950+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/03_sb_03_3_the_plant_does_not_sta/mecoria-role-3_the_plant_does_not_start_by_cleaning_water__006__man-made-concrete-canal-transporting-a-powerful-stream-of-water-engineer.mp4",
+          "registered_at": "2026-07-20T21:02:20.979951+00:00"
+        }
+      ]
+    },
+    "0bf99f67ab0da4e88bb233f4e1d2e9b35248a650a2a9d82f791761848600b9a9": {
+      "sha256": "0bf99f67ab0da4e88bb233f4e1d2e9b35248a650a2a9d82f791761848600b9a9",
+      "size_bytes": 695150595,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979952+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/03_sb_03_3_the_plant_does_not_sta/mecoria-role-3_the_plant_does_not_start_by_cleaning_water__007__wastewater-sewage-treatment-plant-SBV-349196472-4K.mp4",
+          "registered_at": "2026-07-20T21:02:20.979953+00:00"
+        }
+      ]
+    },
+    "3f4e9007b2907cfb5fe515668b8de186c29705bb22ca2a8cb2df305227be6926": {
+      "sha256": "3f4e9007b2907cfb5fe515668b8de186c29705bb22ca2a8cb2df305227be6926",
+      "size_bytes": 300557258,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979954+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/04_sb_04_4_the_slow_tanks_where_w/mecoria-role-4_the_slow_tanks_where_waste_begins_to_separate__001__aerial-view-of-round-dark-water-treatment-plants-with-swirling-patterns-.mp4",
+          "registered_at": "2026-07-20T21:02:20.979955+00:00"
+        }
+      ]
+    },
+    "3f853bda7063d528d3742d3632d031c6307aa2e40abf662ed9246ed08a204074": {
+      "sha256": "3f853bda7063d528d3742d3632d031c6307aa2e40abf662ed9246ed08a204074",
+      "size_bytes": 18095706,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979956+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/04_sb_04_4_the_slow_tanks_where_w/mecoria-role-4_the_slow_tanks_where_waste_begins_to_separate__003__aerial-view-of-industrial-oil-terminal-with-fuel-storage-tanks-near-rive.mp4",
+          "registered_at": "2026-07-20T21:02:20.979957+00:00"
+        }
+      ]
+    },
+    "394b7c00c3498885c13158034cdc34c6e43cc47034330e0550cec642eb03c4d5": {
+      "sha256": "394b7c00c3498885c13158034cdc34c6e43cc47034330e0550cec642eb03c4d5",
+      "size_bytes": 110672989,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979958+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/04_sb_04_4_the_slow_tanks_where_w/mecoria-role-4_the_slow_tanks_where_waste_begins_to_separate__004__circular-sedimentation-tanks-at-water-plant-SBV-353177651-4K.mp4",
+          "registered_at": "2026-07-20T21:02:20.979959+00:00"
+        }
+      ]
+    },
+    "cd42c0adcd28142c1df67597a959a5d3eae61a2c1ae776e437ba64d3eb086206": {
+      "sha256": "cd42c0adcd28142c1df67597a959a5d3eae61a2c1ae776e437ba64d3eb086206",
+      "size_bytes": 55819104,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979960+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/04_sb_04_4_the_slow_tanks_where_w/mecoria-role-4_the_slow_tanks_where_waste_begins_to_separate__005__flying-over-pivot-agriculture-irrigation-shot-with-aerial-drone-water-sy.mp4",
+          "registered_at": "2026-07-20T21:02:20.979961+00:00"
+        }
+      ]
+    },
+    "ea46c38a90c3c2bcf2299f3759538ea1c04b97ae09749d557a40cccbed62a649": {
+      "sha256": "ea46c38a90c3c2bcf2299f3759538ea1c04b97ae09749d557a40cccbed62a649",
+      "size_bytes": 176167954,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979962+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/04_sb_04_4_the_slow_tanks_where_w/mecoria-role-4_the_slow_tanks_where_waste_begins_to_separate__005__waste-water-toaerial-view-of-clarifiers-at-a-wastewater-treatment-facili.mp4",
+          "registered_at": "2026-07-20T21:02:20.979963+00:00"
+        }
+      ]
+    },
+    "58088280faae81ab25749dcca82f1edb5361a05e73e0175d4b94b4e306f0365e": {
+      "sha256": "58088280faae81ab25749dcca82f1edb5361a05e73e0175d4b94b4e306f0365e",
+      "size_bytes": 220197923,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979964+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/04_sb_04_4_the_slow_tanks_where_w/mecoria-role-4_the_slow_tanks_where_waste_begins_to_separate__006__aerial-of-water-purification-circle-clean-drinking-water-ecosystem-of-fi.mp4",
+          "registered_at": "2026-07-20T21:02:20.979965+00:00"
+        }
+      ]
+    },
+    "7a3f4e765db92f266d66049da1874f8bf3bb3eda64abca72299320d6dc4755f7": {
+      "sha256": "7a3f4e765db92f266d66049da1874f8bf3bb3eda64abca72299320d6dc4755f7",
+      "size_bytes": 170744446,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979966+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/05_sb_05_5_the_invisible_workforc/mecoria-role-5_the_invisible_workforce_in_the_aeration_basin__001__crystal-clear-waters-rock-solid-erosion-control-SBV-352873898-4K.mp4",
+          "registered_at": "2026-07-20T21:02:20.979967+00:00"
+        }
+      ]
+    },
+    "94c980f00f153037b57efc592fdf415a49dd6a2f47043d86a134707a10dc723e": {
+      "sha256": "94c980f00f153037b57efc592fdf415a49dd6a2f47043d86a134707a10dc723e",
+      "size_bytes": 17846927,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979969+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/05_sb_05_5_the_invisible_workforc/mecoria-role-5_the_invisible_workforce_in_the_aeration_basin__003__water-flows-into-the-drain-hole-outdoors-SBV-312436805-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979969+00:00"
+        }
+      ]
+    },
+    "ff1db7beb7d72977c54e38db4d9748b7e1cce7e36e8e7f612242cc0c60c35fc0": {
+      "sha256": "ff1db7beb7d72977c54e38db4d9748b7e1cce7e36e8e7f612242cc0c60c35fc0",
+      "size_bytes": 13033598,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979971+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/06_sb_06_6_the_final_separation_a/mecoria-role-6_the_final_separation_and_the_return__001__exhaust-of-water-from-heat-chamber-water-pump-SBV-304825447-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979972+00:00"
+        }
+      ]
+    },
+    "e7242b7c6f239576790b795915f7f2699455cf44670944240fc8f676767c4fb5": {
+      "sha256": "e7242b7c6f239576790b795915f7f2699455cf44670944240fc8f676767c4fb5",
+      "size_bytes": 19938730,
+      "asset_type": "stock",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:02:20.979973+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "assets/stock/hiddenova/video_006/storyblocks/06_sb_06_6_the_final_separation_a/mecoria-role-6_the_final_separation_and_the_return__003__exhaust-of-water-from-heat-chamber-water-pump-SBV-304825448-HD.mp4",
+          "registered_at": "2026-07-20T21:02:20.979978+00:00"
+        }
+      ]
+    },
+    "fdce6c8de5c128e5ab107875d3d3c08e71bf9d106b03b6ac27cda453f88b9cc0": {
+      "sha256": "fdce6c8de5c128e5ab107875d3d3c08e71bf9d106b03b6ac27cda453f88b9cc0",
+      "size_bytes": 347651282,
+      "asset_type": "final_video",
+      "shared_brand_asset": false,
+      "first_registered_at": "2026-07-20T21:31:22.704280+00:00",
+      "usages": [
+        {
+          "channel": "hiddenova",
+          "video_id": "video_006",
+          "run_id": "hiddenova_video_006_v1",
+          "relative_path": "agents/hybrid_video_assembly/output/hiddenova/video_006/hiddenova_video_006_v1/render/hybrid_video_draft.mp4",
+          "registered_at": "2026-07-20T21:31:22.704292+00:00"
         }
       ]
     }
